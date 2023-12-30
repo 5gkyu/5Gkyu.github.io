@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<style>
+    .imput{
+        background-color: #dcdcdc;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="mastery.css">
+    <title>マスタリー計算</title>
+</head>
+
+<body>
+    <div id="awan">
+        <span class="bi">
+       現在のマスタリーポイントをいれてください</span> <br>
+        <a href="https://twitter.com/5Gkyu?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @5Gkyu</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+        <!-- <p><b>使い方</b></p>
+        <p>下にある入力メニューに情報を入力してください。<br>
+        入力内容から各ランクまでの試合数、所要時間を自動で計算し、出力メニューに表示します。<br>
+
+        ①<span style="color: red;">現在のマスタリーポイント数</span>を入力してください。<br>
+        ②ランク上げを行うトロフィー帯を選択してください。<br>
+        ③想定で残りの項目を選択してください。<br>
+        ④マスタリーウィーク期間の場合、マスタリーウィークを有効化にチェックをいれてください。
+        </p>
+        <hr>
+        <p><b>注意</b></p>
+        <p>推定試合数は負け試合も含めた数です。 <br>後何勝でそのランクに到達するかを知りたい場合、想定勝率を100%にしてください。
+            <br>
+            推定時間は試合時間、マッチング時間をすべて合わせたものです。 -->        
+    <table>
+        <tr>
+            <td>
+            <table border="1" class="t">
+            <tr>
+                <td bgcolor="#98fb98" class="h">    <label for="masp">マスタリーポイント</label><br>
+                </td>
+                <td>    <input type="number" id="masp" oninput="calculate()" class="imput"><br>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#98fb98" class="h"><label for="tro">トロフィー帯</label></td>
+                <td> 
+                    <select id="tro" onchange="calculate()" class="imput">
+                    <option value="35">500~549</option>
+                    <option value="40">550~599</option>
+                    <option value="45">600~649</option>
+                    <option value="50">650~699</option>
+                    <option value="55">700~749</option>
+                    <option value="60" selected>750~799</option>
+                    <option value="65">800~849</option>
+                    <option value="70">850~899</option>
+                    <option value="75">900~949</option>
+                    <option value="80">950~999</option>
+                    <option value="85">1000~1049</option>
+                    <option value="90">1050~1099</option>
+                    <option value="95">1100~1149</option>
+                    <option value="100">1150~</option>
+                </select></td>
+            </tr>
+            <tr><td bgcolor="#98fb98" class="h"> <label for="win">想定勝率</label></td>
+                <td>
+                    <select id="win" onchange="calculate()" class="imput">
+                    <option value="10">10%</option>
+                    <option value="5">20%</option>
+                    <option value="3.33">30%</option>
+                    <option value="2.5">40%</option>
+                    <option value="2">50%</option>
+                    <option value="1.67">60%</option>
+                    <option value="1.43">70%</option>
+                    <option value="1.25">80%</option>
+                    <option value="1.11">90%</option>
+                    <option value="1" selected>100%</option>
+                    </select>
+               </td>
+            </tr>
+            <tr>
+                <td bgcolor="#98fb98" class="h"><label for="mvp">想定MVP率</label></td>
+                <td><select id="mvp" onchange="calculate()" class="imput">
+                    <option value="0">0%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.3">30%</option>
+                    <option value="0.4">40%</option>
+                    <option value="0.5">50%</option>
+                    <option value="0.6">60%</option>
+                    <option value="0.7">70%</option>
+                    <option value="0.8" selected>80%</option>
+                    <option value="0.9">90%</option>
+                    <option value="1.0">100%</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td bgcolor="#98fb98" class="h"> <label for="time">想定試合時間</label></td>
+                <td><select id="time" onchange="calculate()" class="imput">
+                     <option value="30">30秒</option>
+                     <option value="45">45秒</option>
+                     <option value="60">1分0秒</option>
+                     <option value="75">1分15秒</option>
+                     <option value="90" selected>1分30秒</option>
+                     <option value="105">1分45秒</option>
+                     <option value="120">2分0秒</option>
+                     <option value="135">2分15秒</option>
+                     <option value="150">2分30秒</option>
+                     <option value="165">2分45秒</option>
+                     <option value="180">3分0秒</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td bgcolor="#98fb98" class="h"><label>想定マッチング時間</label></td>
+                <td><select id="mtime" onchange="calculate()" class="imput">
+                <option value="0">0秒</option>
+                <option value="5" selected>5秒</option>
+                <option value="10">10秒</option>
+                <option value="15">15秒</option>
+                <option value="20">20秒</option>
+                <option value="25">25秒</option>
+                <option value="30">30秒</option>
+                <option value="35">35秒</option>
+                <option value="40">40秒</option>
+                <option value="45">45秒</option>
+                <option value="50">50秒</option>
+                <option value="55">55秒</option>
+                <option value="60">1分0秒</option>
+                 </select>
+                </td>
+            </tr>
+        </table>
+            </td>
+        </td>
+        </tr>
+    </table>
+        
+    </table>
+    <label for="doubleTro">マスタリーウィークを有効化 </label><input type="checkbox" id="doubleTro" onchange="calculate()" class="imput">
+    <table border="5" class="t">
+        <tr bgcolor="#98fb98" class="h">
+            <td>目標ランク</td>
+            <td>推定試合数</td>
+            <td>推定時間</td>
+        </tr>
+        <div style="background-color:#59331e">
+        <tr >
+            <td class="b">ブロンズ１まで</td>
+            <td id="b1win"  class="w"></td>
+            <td id="btime1"  class="w"></td>
+        </tr>
+        <tr >
+            <td class="b">ブロンズ２まで</td>
+            <td id="b2win"  class="w"></td>
+            <td id="btime2"  class="w"></td>
+        </tr>
+        <tr>
+            <td class="b">ブロンズ３まで</td>
+            <td id="b3win" class="w"></td>
+            <td id="btime3"  class="w"></td>
+        </tr>
+        </div>
+        <tr>
+            <td class="s">シルバー１まで</td>
+            <td id="s1win" class="w"></td>
+            <td id="stime1" class="w"></td>
+        </tr>
+        <tr>
+            <td class="s">シルバー２まで</td>
+            <td id="s2win" class="w"></td>
+            <td id="stime2" class="w"></td>
+        </tr>
+        <tr >
+            <td class="s">シルバー３まで</td>
+            <td id="s3win" class="w"></td>
+            <td id="stime3" class="w"></td>
+        </tr>
+        <tr >
+            <td class="g">ゴールド１まで</td>
+            <td id="g1win" class="w"></td>
+            <td id="gtime1" class="w"></td>
+        </tr>
+        <tr >
+            <td class="g">ゴールド２まで</td>
+            <td id="g2win" class="w"></td>
+            <td id="gtime2" class="w"></td>
+        </tr>
+        <tr >
+            <td class="g">ゴールド３まで</td>
+            <td id="g3win" class="w"></td>
+            <td id="gtime3" class="w"></td>
+        </tr>
+    
+
+    </table>
+    
+    </div>   
+    <script src="mastery.js"></script>
+</body>
+</html>

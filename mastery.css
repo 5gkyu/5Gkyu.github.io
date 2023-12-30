@@ -1,0 +1,48 @@
+.b{
+    background-color: #ba6e40;
+}
+.s{
+    background-color: #c9caca;
+}
+.g{
+    background-color: #e3ab00;
+}
+.t{
+    background-color: skyblue;
+}
+.w{
+    background-color: #ffffff;
+}
+.bl{
+  color: #ffffff;
+}
+
+* { background:#C0DEED}
+#awan {
+position:fixed;
+top:0px;left:0px;
+width:100%;
+height:100%;
+text-align:center;
+table{
+    margin: 3px auto;
+}
+.b{
+    background-color: #ba6e40;
+}
+.s{
+    background-color: #c9caca;
+}
+.g{
+    background-color: #e3ab00;
+}
+margin:0px;
+padding:0px;
+background-color:#C0DEED;
+background-image: url(bii.png);
+background-size: contain;
+padding-top:100px;
+padding-bottom:59.6%;
+  width: 100%;
+  height: 100%;
+}
