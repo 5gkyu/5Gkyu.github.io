@@ -14,7 +14,7 @@ function calculate(){
    
        var tro=tro1+(tro1/5*mvp);
        var check=document.getElementById("doubleTro").checked;
-       if(check){tro*=2}
+       if(check){tro*=1.5}
        ///////////////////
        var b1win=((300-mas)/tro*win).toFixed(0); 
        var b2win=((800-mas)/tro*win).toFixed(0);
