@@ -1,5 +1,5 @@
 function calculate(){
-    
+
        var tro1=parseFloat(document.getElementById("tro").value);
        var mas=parseFloat(document.getElementById("masp").value);
        var win=parseFloat(document.getElementById("win").value);
@@ -11,10 +11,10 @@ function calculate(){
        var fm=parseFloat(document.getElementById("fm").value);
        var fd=parseFloat(document.getElementById("fd").value);
 
-   
+       var mvptro=(tro1+(tro1/5)).toFixed(0);
        var tro=tro1+(tro1/5*mvp);
        var check=document.getElementById("doubleTro").checked;
-       if(check){tro*=1.5}
+       if(check){tro=tro*1.5}
        ///////////////////
        var b1win=((300-mas)/tro*win).toFixed(0); 
        var b2win=((800-mas)/tro*win).toFixed(0);
@@ -119,6 +119,14 @@ function calculate(){
 
        var dm=Math.floor(dt%3600/60);
        /////////////////出力
+
+       document.getElementById("winp").innerText = tro1;
+       document.getElementById("mvpwinp").innerText = mvptro;
+       document.getElementById("mvpp").innerText = (tro1/5);
+       document.getElementById("wwinp").innerText = tro1*1.5;
+       document.getElementById("wmvpwinp").innerText = mvptro*1.5;
+       document.getElementById("wmvpp").innerText = (tro1/5)*1.5;
+
        document.getElementById("b1win").innerText = "約"+ b1win+"戦";
        document.getElementById("b2win").innerText = "約"+ b2win+"戦";        
        document.getElementById("b3win").innerText = "約"+ b3win+"戦";
