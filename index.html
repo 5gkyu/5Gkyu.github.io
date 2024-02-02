@@ -139,12 +139,40 @@
     <table border="1" class="t">
         <tr>
             <td bgcolor="#98fb98" class="h">
-    <label for="doubleTro">マスタリーウィークを有効化</label></td>
+    <label for="doubleTro">マスタリーウィークを有効化(β) </label></td>
     <td><input type="checkbox" id="doubleTro" onchange="calculate()" class="imput"></td>
         </tr>
     </table>
     <hr>
     <h2>メイン計算機</h2>
+    <h3>選択したトロフィー帯でもらえるポイント量</h3>
+    <table border="5" class="t">
+        <tr>
+            <td bgcolor="#98fb98">通常時</td>
+            <td bgcolor="#7ba4dc">勝利</td>
+            <td bgcolor="#7ba4dc">勝利(MVP)</td>
+            <td bgcolor="#dc7b7b">非勝利(MVP)</td>
+        </tr>
+        <tr>
+            <td bgcolor="#98fb98">ポイント</td>
+            <td id="winp" class="w"></td>
+            <td id="mvpwinp" class="w"></td>
+            <td id="mvpp" class="w"></td>
+        </tr>
+        <tr>
+            <td bgcolor="#98fb98">Mウィーク時</td>
+            <td bgcolor="#7ba4dc">勝利</td>
+            <td bgcolor="#7ba4dc">勝利(MVP)</td>
+            <td bgcolor="#dc7b7b">非勝利(MVP)</td>
+        </tr>
+        <tr>
+            <td bgcolor="#98fb98">ポイント</td>
+            <td id="wwinp" class="w"></td>
+            <td id="wmvpwinp" class="w"></td>
+            <td id="wmvpp" class="w"></td>
+        </tr>
+    </table>
+    <h3>目標ランクまでのポイント量、試合時間、所要時間</h3>
     <table border="5" class="t">
         <tr bgcolor="#98fb98" class="h">
             <td>目標ランク</td>
@@ -236,7 +264,7 @@
     <td bgcolor="#98fb98">目標月</td>
     <td><select id="fm" onchange="calculate()">
         <option value="1">1月</option>
-        <option value="2">2月</option>
+        <option value="2" selected>2月</option>
         <option value="3">3月</option>
         <option value="4">4月</option>
         <option value="5">5月</option>
