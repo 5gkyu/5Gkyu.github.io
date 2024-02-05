@@ -125,7 +125,7 @@ function calculate(){
        document.getElementById("mvpp").innerText = Math.round(tro1/5);
        document.getElementById("wwinp").innerText = Math.round(tro1*1.5);
        document.getElementById("wmvpwinp").innerText = Math.round(mvptro*1.5);
-       document.getElementById("wmvpp").innerText = Math.rpund((tro1/5)*1.5);
+       document.getElementById("wmvpp").innerText = Math.round((tro1/5)*1.5);
 
        document.getElementById("b1win").innerText = "約"+ b1win+"戦";
        document.getElementById("b2win").innerText = "約"+ b2win+"戦";        
