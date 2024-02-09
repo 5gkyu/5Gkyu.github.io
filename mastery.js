@@ -14,7 +14,7 @@ function calculate(){
        var mvptro=(tro1+(tro1/5)).toFixed(0);
        var tro=tro1+(tro1/5*mvp);
        var check=document.getElementById("doubleTro").checked;
-       if(check){tro=tro*1.5}
+       if(check){tro=tro*2.0}
        ///////////////////
        var b1win=((300-mas)/tro*win).toFixed(0); 
        var b2win=((800-mas)/tro*win).toFixed(0);
@@ -123,9 +123,9 @@ function calculate(){
        document.getElementById("winp").innerText = tro1;
        document.getElementById("mvpwinp").innerText = mvptro;
        document.getElementById("mvpp").innerText = Math.round(tro1/5);
-       document.getElementById("wwinp").innerText = Math.round(tro1*1.5);
-       document.getElementById("wmvpwinp").innerText = Math.round(mvptro*1.5);
-       document.getElementById("wmvpp").innerText = Math.round((tro1/5)*1.5);
+       document.getElementById("wwinp").innerText = Math.round(tro1*2.0);
+       // document.getElementById("wmvpwinp").innerText = Math.round(mvptro*1.5);
+       // document.getElementById("wmvpp").innerText = Math.round((tro1/5)*1.5);
 
        document.getElementById("b1win").innerText = "約"+ b1win+"戦";
        document.getElementById("b2win").innerText = "約"+ b2win+"戦";        
