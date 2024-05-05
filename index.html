@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>QueenKyu Web Site</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ぶたごりLOVE">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+
+<h1 id="logo"><img src="queenkyu.png" alt="Artist Web Site"><span>くいーんきゅーウェブサイト</span></h1>
+
+<!--開閉ブロック-->
+<div id="menubar">
+<nav>
+<ul>
+<li><a href="#">top</a></li>
+<li><a href="#section2">マスタリーポイント計算</a></li>
+<li><a href="#section3">キャラ強化コスト計算</a></li>
+<li><a href="#section4">空きコンテンツ</a></li>
+<li><a href="#section5">KABI GAMING</a></li>
+</ul>
+</nav>
+
+<ul class="icons">
+<li><a href="https://twitter.com/5gkyu"><i class="fa-brands fa-x-twitter"></i></a></li>
+<li><a href="https://www.youtube.com/@5Gkyu"><i class="fab fa-youtube"></i></a></li>
+</ul>
+
+</div>
+<!--/#menubar-->
+
+</header>
+
+<main>
+
+
+
+<!-- ここからsection1 -->
+<section id="section1" class="section">
+    <p>HTML、JS、CSSで遊びながら作ったものを載せていきます。</p>
+    <p>いいアイデアがあったら教えてください。</p>
+</section>
+
+
+
+<!-- ここからsection2 -->
+<section id="section2" class="section">
+
+<h2>マスタリーポイント計算</h2>
+<p>マスタリーランク上げのサポートです。</p>
+<h3>使い方</h3>
+<p>①マスタリーポイントに現在のマスタリーポイントを入力。</p>
+<p>②トロフィー帯からマスタリーランク上げを行うトロフィー帯を選択。</p>
+<p>③勝率、MVP率、試合時間、マッチング時間を推定して選択。</p>
+<p>目標ランクまでのポイント量、勝率を考慮した想定試合数、勝率と試合時間とマッチング時間を考慮した推定時間が計算されます。</p>
+<hr>
+<h2>入力メニュー</h2>
+<table>
+    <tr>
+        <td>
+        <table border="1" class="t">
+        <tr>
+            <td class="back" >    <label for="masp">マスタリーポイント</label><br>
+            </td>
+            <td>    <input type="number" id="masp" oninput="calculate()" class="imput"><br>
+            </td>
+        </tr>
+        <tr>
+            <td class="back" ><label for="tro">トロフィー帯</label></td>
+            <td> 
+                <select id="tro" onchange="calculate()" class="imput">
+                <option value="35">500~549</option>
+                <option value="40">550~599</option>
+                <option value="45">600~649</option>
+                <option value="50">650~699</option>
+                <option value="55">700~749</option>
+                <option value="60" selected>750~799</option>
+                <option value="65">800~849</option>
+                <option value="70">850~899</option>
+                <option value="75">900~949</option>
+                <option value="80">950~999</option>
+                <option value="85">1000~1049</option>
+                <option value="90">1050~1099</option>
+                <option value="95">1100~1149</option>
+                <option value="100">1150~</option>
+            </select></td>
+        </tr>
+        <tr><td class="back" > <label for="win">想定勝率</label></td>
+            <td>
+                <select id="win" onchange="calculate()" class="imput">
+                <option value="10">10%</option>
+                <option value="5">20%</option>
+                <option value="3.33">30%</option>
+                <option value="2.5">40%</option>
+                <option value="2">50%</option>
+                <option value="1.67">60%</option>
+                <option value="1.43">70%</option>
+                <option value="1.25">80%</option>
+                <option value="1.11">90%</option>
+                <option value="1" selected>100%</option>
+                </select>
+           </td>
+        </tr>
+        <tr>
+            <td class="back" ><label for="mvp">想定MVP率</label></td>
+            <td><select id="mvp" onchange="calculate()" class="imput">
+                <option value="0">0%</option>
+                <option value="0.1">10%</option>
+                <option value="0.2">20%</option>
+                <option value="0.3">30%</option>
+                <option value="0.4">40%</option>
+                <option value="0.5">50%</option>
+                <option value="0.6">60%</option>
+                <option value="0.7">70%</option>
+                <option value="0.8" selected>80%</option>
+                <option value="0.9">90%</option>
+                <option value="1.0">100%</option>
+            </select></td>
+        </tr>
+        <tr>
+            <td class="back" > <label for="time">想定試合時間</label></td>
+            <td><select id="time" onchange="calculate()" class="imput">
+                 <option value="30">30秒</option>
+                 <option value="45">45秒</option>
+                 <option value="60">1分0秒</option>
+                 <option value="75">1分15秒</option>
+                 <option value="90">1分30秒</option>
+                 <option value="105" selected>1分45秒</option>
+                 <option value="120">2分0秒</option>
+                 <option value="135">2分15秒</option>
+                 <option value="150">2分30秒</option>
+                 <option value="165">2分45秒</option>
+                 <option value="180">3分0秒</option>
+            </select></td>
+        </tr>
+        <tr>
+            <td class="back" ><label>想定マッチング時間</label></td>
+            <td><select id="mtime" onchange="calculate()" class="imput">
+            <option value="0">0秒</option>
+            <option value="5" selected>5秒</option>
+            <option value="10">10秒</option>
+            <option value="15">15秒</option>
+            <option value="20">20秒</option>
+            <option value="25">25秒</option>
+            <option value="30">30秒</option>
+            <option value="35">35秒</option>
+            <option value="40">40秒</option>
+            <option value="45">45秒</option>
+            <option value="50">50秒</option>
+            <option value="55">55秒</option>
+            <option value="60">1分0秒</option>
+             </select>
+            </td>
+        </tr>
+    </table>
+        </td>
+    </td>
+    </tr>
+</table>
+    
+</table>
+<table border="1" class="t">
+    <tr>
+        <td class="back" >
+<label for="doubleTro">マスタリーウィークを有効化(β) </label></td>
+<td><input type="checkbox" id="doubleTro" onchange="calculate()" class="imput"></td>
+    </tr>
+</table>
+<hr>
+<h2>出力メニュー</h2>
+<h3>選択したトロフィー帯でもらえるポイント量</h3>
+<table border="5" class="t">
+    <tr>
+        <td class="back">通常時</td>
+        <td class="win">勝利</td>
+        <td class="win">勝利(MVP)</td>
+        <td class="lose">非勝利(MVP)</td>
+    </tr>
+    <tr>
+        <td class="back">ポイント</td>
+        <td id="winp" class="center"></td>
+        <td id="mvpwinp" class="center"></td>
+        <td id="mvpp" class="center"></td>
+    </tr>
+    <tr>
+        <td class="back">Mウィーク時</td>
+        <td class="win">勝利</td>
+        <td class="win">勝利(MVP)</td>
+        <td class="lose">非勝利(MVP)</td>
+    </tr>
+    <tr>
+        <td class="back">ポイント</td>
+        <td id="wwinp" class="center"></td>
+        <td id="wmvpwinp" class="center">なぞ</td>
+        <td id="wmvpp" class="center">なぞ</td>
+    </tr>
+</table>
+<h3>目標ランクまでのポイント量、試合数と時間の推定</h3>
+<table border="5" class="t">
+    <tr class="back">
+        <td>目標ランク</td>
+        <td>残りポイント</td>
+        <td>推定試合数</td>
+        <td>推定時間</td>
+    </tr>
+    
+    <tr >
+        <td class="b">ブロンズ１</td>
+        <td id="b1p" class="center"></td>
+        <td id="b1win"  class="w"></td>
+        <td id="btime1"  class="w"></td>
+    </tr>
+    <tr >
+        <td class="b">ブロンズ２</td>
+        <td id="b2p" class="center"></td>
+        <td id="b2win"  class="w"></td>
+        <td id="btime2"  class="w"></td>
+    </tr>
+    <tr>
+        <td class="b">ブロンズ３</td>
+        <td id="b3p" class="center"></td>
+        <td id="b3win" class="w"></td>
+        <td id="btime3"  class="w"></td>
+    </tr>
+    </div>
+    <tr>
+        <td class="s">シルバー１</td>
+        <td id="s1p" class="center"></td>
+        <td id="s1win" class="w"></td>
+        <td id="stime1" class="w"></td>
+    </tr>
+    <tr>
+        <td class="s">シルバー２</td>
+        <td id="s2p" class="center"></td>
+        <td id="s2win" class="w"></td>
+        <td id="stime2" class="w"></td>
+    </tr>
+    <tr >
+        <td class="s">シルバー３</td>
+        <td id="s3p" class="center"></td>
+        <td id="s3win" class="w"></td>
+        <td id="stime3" class="w"></td>
+    </tr>
+    <tr >
+        <td class="g">ゴールド１</td>
+        <td id="g1p" class="center"></td>
+        <td id="g1win" class="w"></td>
+        <td id="gtime1" class="w"></td>
+    </tr>
+    <tr >
+        <td class="g">ゴールド２</td>
+        <td id="g2p" class="center"></td>
+        <td id="g2win" class="w"></td>
+        <td id="gtime2" class="w"></td>
+    </tr>
+    <tr >
+        <td class="g">ゴールド３</td>
+        <td id="g3p" class="center"></td>
+        <td id="g3win" class="w"></td>
+        <td id="gtime3" class="w"></td>
+    </tr>
+</table>
+</section>
+
+
+
+<!-- ここからsection3 -->
+<section id="section3" class="section">
+
+<h2>キャラ強化コスト計算</h2>
+<p>キャラ強化に必要なパワーポイントとコインの総数を計算。</p>
+<!-- 
+<dl class="new"> -->
+<h3>〇使い方</h3>
+<p>①現在のパワーレベルを選択</p>
+<p>②スタパ、ガジェ、ギア、ハイチャのメニューを選択</p>
+<p>目標レベルまでの強化に必要なパワーポイントとコインの数を下表の2列目と3列目に表示される。</p>
+<p>強化必要コインとスタパ等合計コインの累計が下表4列目に表示される。(1500コインや2000コインのギアもありますが、一律1000コインとしています。)</p>
+<hr>
+<h2>入力メニュー</h2>
+<table border="1" class="center"></p>
+    <tr>
+        <td class="back">現在のパワーレベル</td>
+    </tr>
+    <tr>
+        <td>
+            <select id="powerlevel" onchange="calculate()">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </td>
+    </tr>
+</table>
+<table border="1" class="center">
+    <tr>
+        <td class="back"><img src="starpower.png" alt="" width="50" height="50"></td>
+        <td class="back"><img src="gadget.png" alt=""  width="50" height="50"></td>
+        <td class="back"><img src="speed.png" alt=""  width="50" height="50"></td>
+        <td class="back"><img src="hyper.png" alt=""  width="50" height="50"></td>
+    </tr>
+    <tr> <td>
+        <select id="star" onchange="calculate()">
+            <option value="0">買わない</option>
+            <option value="2000">1個買う</option>
+            <option value="4000">2個買う</option>
+    </td>
+    <td>
+        <select id="gad" onchange="calculate()">
+            <option value="0">買わない</option>
+            <option value="1000">1個買う</option>
+            <option value="2000">2個買う</option>
+    </td>
+    <td>
+        <select id="gea" onchange="calculate()">
+            <option value="0">買わない</option>
+            <option value="1000">1個買う</option>
+            <option value="2000">2個買う</option>
+            <option value="6000">6個買う</option>
+    </td>
+    <td>
+        <select id="hyper" onchange="calculate()">
+            <option value="0">買わない</option>
+            <option value="5000">買う</option>
+    </td>
+
+</table>
+<table>
+    <tr>
+        <td class="back"><img src="starpower.png" alt="" width="50" height="50"></td>
+        <td>+</td>
+        <td class="back"><img src="gadget.png" alt=""  width="50" height="50"></td>
+        <td>+</td>
+        <td class="back"><img src="speed.png" alt=""  width="50" height="50"></td>
+        <td>+</td>
+        <td class="back"><img src="hyper.png" alt=""  width="50" height="50"></td>
+        <td>=</td>
+        <td id="all"></td></tr>
+    </tr>
+</table>
+<hr>
+<h2>出力メニュー</h2>
+<table border="1" class="t">
+    <tr>
+        <td class="back">目標レベル</td>
+        <td class="back"><img src="power.png" alt=""  width="50" height="50"></td>
+        <td class="back"><img src="coin.png" alt="" width="50" height="50"></td>
+        <td class="back">強化コイン＋4種コイン</td>
+    </tr>
+    <tr>
+        <td class="center">2</td>
+        <td id="2p" class="purple"></td>
+        <td id="2c" class="yellow"></td>
+        <td id="2cc" class="yellow"></td>
+    </tr>
+    <tr>
+        <td class="center">3</td>
+        <td id="3p" class="purple"></td>
+        <td id="3c" class="yellow"></td>
+        <td id="3cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">4</td>
+        <td id="4p" class="purple"></td>
+        <td id="4c" class="yellow"></td>
+        <td id="4cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">5</td>
+        <td id="5p" class="purple"></td>
+        <td id="5c" class="yellow"></td>
+        <td id="5cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">6</td>
+        <td id="6p" class="purple"></td>
+        <td id="6c" class="yellow"></td>
+        <td id="6cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">7</td>
+        <td id="7p" class="purple"></td>
+        <td id="7c" class="yellow"></td>
+        <td id="7cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">8</td>
+        <td id="8p" class="purple"></td>
+        <td id="8c" class="yellow"></td>
+        <td id="8cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">9</td>
+        <td id="9p" class="purple"></td>
+        <td id="9c" class="yellow"></td>
+        <td id="9cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">10</td>
+        <td id="10p" class="purple"></td>
+        <td id="10c" class="yellow"></td>
+        <td id="10cc" class="yellow"></td>
+    </tr><tr>
+        <td class="center">11</td>
+        <td id="11p" class="purple"></td>
+        <td id="11c" class="yellow"></td>
+        <td id="11cc" class="yellow"></td>
+    </tr>
+</table>
+
+<hr>
+<h3>おまけ</h3>
+<p>〇レベル別要求コスト</p>
+<table border="1">
+    <tr class="back">
+        <td>目標レベル</td>
+        <td><img src="power.png" alt="" width="50" height="50"></td>
+        <td><img src="coin.png" alt="" width="50" height="50"></td>
+    </tr>
+    <tr>
+        <td class="center">2</td>
+        <td class="purple">20</td>
+        <td class="yellow">20</td>
+    </tr>
+    <tr>
+        <td class="center">3</td>
+        <td class="purple">30</td>
+        <td class="yellow">35</td>
+    </tr><tr>
+        <td class="center">4</td>
+        <td class="purple">50</td>
+        <td class="yellow">75</td>
+    </tr><tr>
+        <td class="center">5</td>
+        <td class="purple">80</td>
+        <td class="yellow">140</td>
+    </tr><tr>
+        <td class="center">6</td>
+        <td class="purple">130</td>
+        <td class="yellow">290</td>
+    </tr><tr>
+        <td class="center">7</td>
+        <td class="purple">210</td>
+        <td class="yellow">480</td>
+    </tr><tr>
+        <td class="center">8</td>
+        <td class="purple">340</td>
+        <td class="yellow">800</td>
+    </tr><tr>
+        <td class="center">9</td>
+        <td class="purple">550</td>
+        <td class="yellow">1250</td>
+    </tr><tr>
+        <td class="center">10</td>
+        <td class="purple">890</td>
+        <td class="yellow">1875</td>
+    </tr><tr>
+        <td class="center">11</td>
+        <td class="purple">1440</td>
+        <td class="yellow">2800</td>
+    </tr>
+</table>
+<p>〇一個あたりの要求コイン量</p>
+<table border="1" class="center">
+    <tr>
+        <td class="back"><img src="starpower.png" alt="" width="50" height="50"></td>
+        <td class="back"><img src="gadget.png" alt=""  width="50" height="50"></td>
+        <td class="back"><img src="hyper.png" alt=""  width="50" height="50"></td>
+    </tr>
+    <tr>
+        <td>2000</td>
+        <td>1000</td>
+        <td>5000</td>
+    </tr>
+    <tr class="back">
+        <td><img src="speed.png" alt="" width="50" height="50"></td>
+        <td><img src="uruto.png" alt="" width="50" height="50"></td>
+        <td><img src="aka.png" alt="" width="50" height="50"></td>
+    </tr>
+    <tr>
+        <td>1000</td>
+        <td>1500</td>
+        <td>2000</td>
+    </tr>
+</table>
+<p>古参プレイヤーも全員コイン不足なので、本当に必要なものだけを買うようにしましょう。</p>
+<p>キャラごとのおすすめスタパ&ガジェット&ギアは、<b>Discordサーバー>カテゴリ:"キャラクター">チャンネル:"おすすめスタパ&全キャラ評価"</b>にあるので良かったら参考にしてください。もしくは私にDMしてもらえれば答えます。</p>
+</section>
+
+
+
+
+<!-- ここからsection4 -->
+<section id="section4" class="section">
+
+<h2>こんにちは</h2>
+<p>空きコンテンツ</p>
+<!-- <div class="list-grid-trimming">
+
+    <div class="list">
+    <a href="images/section1.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section1.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section2.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section2.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section3.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section3.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section1.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section1.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section2.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section2.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section3.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section3.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section1.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section1.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section2.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section2.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section3.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section3.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section1.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section1.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section2.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section2.jpg" alt="">
+    </a>
+    </div>
+    
+    <div class="list">
+    <a href="images/section3.jpg" data-lightbox="group1" data-title="タイトルをここに入れます">
+    <img src="images/section3.jpg" alt="">
+    </a>
+    </div>
+    
+    </div> -->
+
+</section>
+
+<!-- ここからsection5 -->
+<section id="section5" class="section">
+    <h1>KABI GAMING</h1>
+    <p class="kabigaming">
+        「KABI GAMING」は、競技性の高い<u>「Brawl Stars」</u>の世界で輝く新興のゲーミングチームです。我々は、個々のプレイヤーの技量や戦略の高さだけでなく、チームワークと協力にも最大の価値を置いています。<br><br>
+        "かびｃ" "QueenKyu" そして"ぶたごりら"の3名は、その名声を高めるために日々努力を重ねています。彼らは、それぞれの独自のプレースタイルや得意なキャラクターを持ちながらも、チーム全体の勝利のために緊密に連携し、戦略を練ります。
+        <br><br>「KABI GAMING」は、常に新たな挑戦を求め、変化し続ける競技シーンに適応する準備が整っています。我々の目標は、常にチームとして成長し、世界の頂点に立つことです。</p>
+        <hr>
+        <h2>NEWS</h2>
+    <dl class="new">
+
+        <dt>2024/05/05<span>お知らせ</span></dt>
+        <dd>Web Siteをリニューアルしました。</dd>
+        
+        <dt>2024/01/29<span>お知らせ</span></dt>
+        <dd>PUBG MOBILE部門に<b>ぶたこりら</b>が加入しました。</dd>
+        
+        <dt>2023/12/25<span style="background-color: green;">イベント</span></dt>
+        <dd>クリスマスイベントを開催しました。</dd>
+        
+        <dt>2023/05/05<span>お知らせ</span></dt>
+        <dd>BRAWL STARS部門に<b>✿↬ぶたごりら↫✿</b>が加入しました。</dd>
+        
+    </dl>
+    <hr>
+    <h2>MEMBER</h2>
+    <h3 class="midasi">OWNER</h3>
+    <div class="list-grid-trimming">
+        <div class="list">
+        <a href="kyu.png" data-lightbox="group1" data-title="QueenKyu">
+        <img src="kyu.png" alt="QueenKyu">
+        </a>
+    </div>
+    </div>   
+    <table class="namae">
+        <tr>
+            <td>᠉QueenKyu</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://twitter.com/5gkyu"><i class="fa-brands fa-x-twitter"></i></a><a href="https://www.youtube.com/@5Gkyu"><i class="fab fa-youtube"></i></a>
+            </td>
+        </tr>
+    </table> 
+    <br>
+    <h3 class="midasi">BRAWL STARS</h3>
+    <div class="list-grid-trimming">
+        <div class="list">
+        <a href="kabi.png" data-lightbox="group1" data-title="かびｃ">
+        <img src="kabi.png" alt="かびｃ">
+        </a>
+    </div>
+    <div class="list">
+        <a href="kyu.png" data-lightbox="group1" data-title="QueenKyu">
+        <img src="kyu.png" alt="QueenKyu">
+        </a>
+    </div>
+    <div class="list">
+        <a href="buta.png" data-lightbox="group1" data-title="ぶたごりら">
+        <img src="buta.png" alt="ぶたごりら">
+        </a>
+    </div>
+    </div>   
+    <table class="namae">
+        <tr>
+            <td>かびc</td>
+            <td>᠉QueenKyu</td>
+            <td>✿↬ぶたごりら↫✿</td>
+        </tr>
+        <tr>
+            <td><a href="https://twitter.com/jkprincekyu"><i class="fa-brands fa-x-twitter"></i></a></td>
+            <td><a href="https://twitter.com/5gkyu"><i class="fa-brands fa-x-twitter"></i></a><a href="https://www.youtube.com/@5Gkyu"><i class="fab fa-youtube"></i></a></td>
+            <td><a href="https://twitter.com/buuuuchan_sub"><i class="fa-brands fa-x-twitter"></i></a></td>
+        </tr>
+    </table> 
+    <br>
+    <h3 class="midasi">PUBG MOBAIL</h3>
+    <div class="list-grid-trimming">
+        <div class="list">
+        <a href="butago.png" data-lightbox="group1" data-title="ぶたこりら">
+        <img src="butago.png" alt="ぶたこりら">
+        </a>
+    </div>
+    </div>   
+    <table class="namae">
+        <tr>
+            <td>ぶたこりら</td>
+        </tr>
+        <tr>
+            <td><a href="https://twitter.com/korikori_pubg"><i class="fa-brands fa-x-twitter"></i></a></td>
+        </tr>
+    </table> 
+</section>
+</main>
+<hr>
+<footer>
+<small>Copyright&copy; <a href="index.html">QueenKyu</a> All Rights Reserved.</small>
+<br>
+<span class="pr"><a href="https://template-party.com/" target="_blank">《Web Design:Template-Party》</a></span>
+</footer>
+
+<!--ページの上部へ戻るボタン-->
+<div class="pagetop"><a href="#"><i class="fas fa-angle-double-up"></i></a></div>
+
+<!--開閉ボタン（ハンバーガーアイコン）-->
+<div id="menubar_hdr">
+<span></span><span></span><span></span>
+</div>
+
+<!--jQueryの読み込み-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!--このテンプレート専用のスクリプト-->
+<script src="js/main.js"></script>
+
+</body>
+<!--lightbox用jsファイルの読み込み-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.10.0/js/lightbox-plus-jquery.min.js"></script>
+</html>
