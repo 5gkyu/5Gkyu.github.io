@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ティア表メーカー</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-left: 320px;
+      background: #121212;
+      color: #e0e0e0;
+    }
+    h1, h2 { text-align: center; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+    button {
+      cursor: pointer;
+    }
+    /* 左側メニュー */
+    #menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100vh;
+      overflow-y: auto;
+      background-color: #1e1e1e;
+      border-right: 1px solid #333;
+      padding: 10px;
+      color: #e0e0e0;
+      z-index: 1000;
+    }
+    #menu h3 { margin-top: 10px; margin-bottom: 5px; }
+    #menu input[type="text"],
+    #menu input[type="color"],
+    #menu select {
+      width: 100%;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+      background-color: #2e2e2e;
+      color: #e0e0e0;
+      border: 1px solid #333;
+    }
+    .menu-controls, .menu-search { margin-bottom: 10px; text-align: center; }
+    .menu-controls button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* ティア表 */
+    #tierListHeader {
+      text-align: center;
+      padding: 10px;
+      border-bottom: 5px solid #333;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+    #tierListTitle { font-weight: bold; font-size: 2em; }
+    #tierListContainer {
+      margin-top: 0px;
+      border: 1px solid #333;
+      background-color: #1e1e1e;
+    }
+    .tier-row { display: grid; grid-template-columns: 100px auto; border-bottom: 1px solid #333; }
+    .tier-header {
+      padding: 5px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e1d1d;
+    }
+    .tier-dropzone {
+      flex-grow: 1;
+      min-height: 70px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      position: relative;
+    }
+    .character.placeholder { opacity: 0.5; pointer-events: none; }
+    /* キャラクター一覧 */
+    #characterContainer {
+      border: 1px solid #333;
+      background-color: #1e1e1e;
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 70px);
+      grid-auto-rows: 70px;
+      height: 400px;
+      overflow-y: auto;
+      gap: 0;
+      justify-content: start;
+    }
+    .character {
+      width: 70px;
+      height: 70px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: 0;
+    }
+    #topControls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    #topControls button {
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .menu-item { display: flex; align-items: center; padding: 5px; border: 1px solid #333; margin-bottom: 5px; background-color: #1e1e1e; cursor: move; }
+    .drag-handle { font-size: 1.2em; color: #aaa; cursor: grab; margin-right: 8px; }
+    #topControls { text-align: center; margin-bottom: 20px; }
+    #jsonFileInput { display: none; }
+    @media (max-width: 768px) {
+      body { padding-left: 0; }
+      .container { padding: 10px; }
+      #characterContainer { grid-template-columns: repeat(auto-fill, 60px); grid-auto-rows: 60px; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #characterContainer { grid-template-columns: repeat(auto-fill, 65px); grid-auto-rows: 65px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <div><h3>タイトル</h3><input type="text" id="tierTitleInput" value="untitled"></div>
+    <div>作成日: <span id="creationDateLabel"></span></div>
+    <div id="topControls">
+      <button id="saveJSONBtn">セーブ</button>
+      <button id="loadJSONBtn">ロード</button>
+      <input type="file" id="jsonFileInput" accept=".json">
+      <button id="saveImageBtn">画像として保存</button>
+      <button id="resetBtn">リセット</button>
+    </div>
+    <h3>キャラサーチ</h3>
+    <div class="menu-search">
+      <input type="text" id="searchBox" placeholder="キャラ名を入力">
+      <select id="filterSelect">
+        <option value="all">すべて表示</option>
+        <option value="tank">タンク</option>
+        <option value="tankm">タンクメタ</option>
+        <option value="long">射程</option>
+        <option value="nage">投げ</option>
+        <option value="nagem">投げ</option>
+        <option value="kaihuku">回復</option>
+        <option value="godatu">強奪</option>
+        <option value="kabe">壁破壊</option>
+        <option value="sakuteki">索敵</option>
+      </select>
+    </div>
+    <h3>レアリティで絞り込み</h3>
+    <div id="rarityButtons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;"></div>
+    <h3>ティア行編集</h3>
+    <div class="menu-controls">
+      <button id="addRowBtn">最下部に行を追加</button>
+      <button id="removeRowBtn">最下部の行を削除</button>
+    </div>
+    <div id="menu-tier-rows"></div>
+  </div>
+  <div class="container">
+    <div id="tierListContainer">
+      <div id="tierListHeader">
+        <span id="tierListTitle">untitled</span><br>
+        作成日：<span id="tierListDate"></span>
+      </div>
+    </div>
+    <div id="characterContainer"></div>
+  </div>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="char.js"></script>
+  <script>
+    let draggedElement = null;
+    let tierCount = 0;
+    let currentRarityFilter = null;
+
+    const tierListContainer = document.getElementById("tierListContainer");
+    const characterContainer = document.getElementById("characterContainer");
+    const today = new Date().toLocaleDateString("ja-JP");
+    document.getElementById("tierListDate").textContent = today;
+    document.getElementById("creationDateLabel").textContent = today;
+    document.getElementById("tierTitleInput").addEventListener("input", e => {
+      document.getElementById("tierListTitle").textContent = e.target.value;
+    });
+
+    // レアリティフィルタボタン生成
+    function createRarityButtons() {
+      const container = document.getElementById("rarityButtons");
+      container.innerHTML = "";
+      const allBtn = document.createElement("button");
+      allBtn.textContent = "すべて表示";
+      allBtn.style.backgroundColor = "#ffffff";
+      allBtn.style.color = "#000000";
+      allBtn.addEventListener("click", () => { currentRarityFilter = null; filterCharacters(); });
+      container.appendChild(allBtn);
+      Object.keys(rarityColors).forEach(r => {
+        const btn = document.createElement("button");
+        btn.textContent = r;
+        btn.style.backgroundColor = rarityColors[r];
+        btn.style.color = "#000000";
+        btn.addEventListener("click", () => { currentRarityFilter = r; filterCharacters(); });
+        container.appendChild(btn);
+      });
+    }
+
+    // ティア行作成
+    function createTierRow(labelText = "新規", color = "#FFFFFF") {
+      tierCount++;
+      const tierRow = document.createElement("div");
+      tierRow.classList.add("tier-row");
+      tierRow.id = "tierRow" + tierCount;
+      const header = document.createElement("div");
+      header.classList.add("tier-header");
+      header.style.backgroundColor = color;
+      const headerSpan = document.createElement("span");
+      headerSpan.textContent = labelText;
+      header.appendChild(headerSpan);
+      const dropzone = document.createElement("div");
+      dropzone.classList.add("tier-dropzone");
+      dropzone.addEventListener("dragover", onDragOverTier);
+      dropzone.addEventListener("dragleave", onDragLeaveTier);
+      dropzone.addEventListener("drop", onDropTier);
+      tierRow.appendChild(header);
+      tierRow.appendChild(dropzone);
+      tierListContainer.appendChild(tierRow);
+      updateMenu();
+      return tierRow;
+    }
+
+    // 改良版 onDragOverTier
+    function onDragOverTier(e) {
+      e.preventDefault();
+      const dropzone = e.currentTarget;
+      // 一時的にプレースホルダを隠す
+      let placeholder = dropzone.querySelector('.placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+      // ポイント下の要素取得
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      let insertionElement = null;
+      if (el) {
+        const targetChar = el.closest('.character:not(.placeholder)');
+        if (targetChar && dropzone.contains(targetChar)) {
+          insertionElement = targetChar;
+        }
+      }
+      // プレースホルダを再表示
+      if (placeholder) placeholder.style.display = '';
+      // プレースホルダがなければ作成
+      if (!placeholder && draggedElement) {
+        placeholder = draggedElement.cloneNode(true);
+        placeholder.classList.add('placeholder');
+        placeholder.style.display = '';
+      }
+      if (placeholder) {
+        if (insertionElement) dropzone.insertBefore(placeholder, insertionElement);
+        else dropzone.appendChild(placeholder);
+      }
+    }
+
+    function onDragLeaveTier(e) {
+      const dropzone = e.currentTarget;
+      if (!dropzone.contains(e.relatedTarget)) {
+        const placeholder = dropzone.querySelector('.placeholder');
+        if (placeholder) placeholder.remove();
+      }
+    }
+
+    function onDropTier(e) {
+      e.preventDefault();
+      const dropzone = e.currentTarget;
+      const placeholder = dropzone.querySelector('.placeholder');
+      if (placeholder) {
+        dropzone.insertBefore(draggedElement, placeholder);
+        placeholder.remove();
+      } else {
+        dropzone.appendChild(draggedElement);
+      }
+      draggedElement.style.display = "";
+      draggedElement = null;
+      filterCharacters();
+    }
+
+    function updateMenu() {
+      const container = document.getElementById("menu-tier-rows");
+      container.innerHTML = "";
+      document.querySelectorAll(".tier-row").forEach(row => {
+        const headerText = row.querySelector(".tier-header span").textContent;
+        const color = rgbToHex(row.querySelector(".tier-header").style.backgroundColor);
+        const menuItem = document.createElement("div");
+        menuItem.classList.add("menu-item");
+        menuItem.setAttribute("draggable", true);
+        menuItem.dataset.rowId = row.id;
+        const dragHandle = document.createElement("span"); dragHandle.classList.add("drag-handle"); dragHandle.textContent = "≡";
+        const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = headerText;
+        nameInput.addEventListener("input", () => row.querySelector(".tier-header span").textContent = nameInput.value);
+        const colorInput = document.createElement("input"); colorInput.type = "color"; colorInput.value = color;
+        colorInput.addEventListener("input", () => row.querySelector(".tier-header").style.backgroundColor = colorInput.value);
+        menuItem.append(dragHandle, nameInput, colorInput);
+        menuItem.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", row.id));
+        menuItem.addEventListener("dragover", e => e.preventDefault());
+        menuItem.addEventListener("drop", onDropMenuItem);
+        container.appendChild(menuItem);
+      });
+    }
+
+    function onDropMenuItem(e) {
+      e.preventDefault();
+      const container = document.getElementById("menu-tier-rows");
+      const draggedId = e.dataTransfer.getData("text/plain");
+      const draggedItem = document.querySelector(`.menu-item[data-row-id='${draggedId}']`);
+      const target = e.currentTarget;
+      const items = Array.from(container.children);
+      const dragIndex = items.indexOf(draggedItem);
+      const targetIndex = items.indexOf(target);
+      if (dragIndex < targetIndex) container.insertBefore(draggedItem, target.nextSibling);
+      else container.insertBefore(draggedItem, target);
+      reorderTierRowsFromMenu();
+    }
+
+    function reorderTierRowsFromMenu() {
+      const container = document.getElementById("menu-tier-rows");
+      const rowsMap = {};
+      document.querySelectorAll(".tier-row").forEach(r => rowsMap[r.id] = r);
+      Array.from(container.children).forEach(item => {
+        const row = rowsMap[item.dataset.rowId];
+        tierListContainer.appendChild(row);
+      });
+    }
+
+    function rgbToHex(rgb) {
+      const m = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(rgb);
+      if (!m) return "#ffffff";
+      return "#" + [1,2,3].map(i => ("0"+parseInt(m[i]).toString(16)).slice(-2)).join("");
+    }
+
+    function hiraganaToKatakana(s) {
+      return s.normalize("NFKC").replace(/[ぁ-ゖ]/g, c => String.fromCharCode(c.charCodeAt(0)+0x60));
+    }
+
+    function filterCharacters() {
+      const query = hiraganaToKatakana(document.getElementById("searchBox").value.trim());
+      const filter = document.getElementById("filterSelect").value;
+      document.querySelectorAll(".character").forEach(div => {
+        const name = div.getAttribute("aria-label") || "";
+        const abilities = div.dataset.abilities || "";
+        const rarity = div.dataset.rarity;
+        const matchesSearch = (!query || name.includes(query));
+        const matchesAbility = (filter === "all" || abilities.includes(filter));
+        const matchesRarity = (!currentRarityFilter || rarity === currentRarityFilter);
+        div.style.display = (matchesSearch && matchesAbility && matchesRarity) ? "" : "none";
+      });
+    }
+
+    function setupTouchDrag(el) {
+      let ox, oy;
+      el.addEventListener("touchstart", e => {
+        const t = e.touches[0], r = el.getBoundingClientRect(); ox = t.clientX - r.left; oy = t.clientY - r.top;
+        draggedElement = el;
+        Object.assign(el.style, {position:"absolute",zIndex:10000,pointerEvents:"none"});
+      });
+      el.addEventListener("touchmove", e => { e.preventDefault(); const t = e.touches[0]; el.style.left = (t.clientX-ox)+"px"; el.style.top = (t.clientY-oy)+"px"; });
+      el.addEventListener("touchend", e => {
+        const t = e.changedTouches[0]; let tgt = document.elementFromPoint(t.clientX, t.clientY);
+        while(tgt && !tgt.classList.contains("tier-dropzone") && tgt !== characterContainer) tgt = tgt.parentElement;
+        if (tgt) tgt.appendChild(el); else characterContainer.appendChild(el);
+        Object.assign(el.style, {position:"",left:"",top:"",zIndex:"",pointerEvents:""}); draggedElement = null;
+        filterCharacters();
+      });
+    }
+
+    function displayCharacters() {
+      document.getElementById("characterContainer").innerHTML = "";
+      const query = document.getElementById("searchBox").value.trim();
+      const q = hiraganaToKatakana(query);
+      const filter = document.getElementById("filterSelect").value;
+      characters.forEach(c => {
+        if ((q && !c.name.includes(q)) || (filter !== "all" && !c.abilities.includes(filter))) return;
+        const placed = Array.from(document.querySelectorAll(".tier-dropzone .character"));
+        if (placed.some(d => d.style.backgroundImage.includes(c.image))) return;
+        const div = document.createElement("div");
+        div.className = "character";
+        div.style.backgroundImage = `url(${c.image})`;
+        div.setAttribute("aria-label", c.name);
+        div.dataset.abilities = c.abilities.join(",");
+        div.dataset.rarity = c.rarity;
+        div.draggable = true;
+        div.addEventListener("dragstart", e => { draggedElement = e.target; e.dataTransfer.setDragImage(e.target, e.target.offsetWidth/2, e.target.offsetHeight/2); setTimeout(() => e.target.style.display = "none", 0); });
+        div.addEventListener("dragend", e => e.target.style.display = "");
+        if ("ontouchstart" in window) setupTouchDrag(div);
+        characterContainer.appendChild(div);
+      });
+      filterCharacters();
+    }
+
+    characterContainer.addEventListener("dragover", e => e.preventDefault());
+    characterContainer.addEventListener("drop", e => { e.preventDefault(); if (draggedElement) { characterContainer.appendChild(draggedElement); draggedElement.style.display = ""; draggedElement = null; filterCharacters(); } });
+
+    function saveToJSON() {
+      const state = { title: document.getElementById("tierTitleInput").value, creationDate: document.getElementById("creationDateLabel").textContent, tiers: [] };
+      document.querySelectorAll(".tier-row").forEach(row => {
+        const hdr = row.querySelector(".tier-header span").textContent;
+        const clr = rgbToHex(row.querySelector(".tier-header").style.backgroundColor);
+        const chars = Array.from(row.querySelectorAll(".character")).map(d => ({ image: d.style.backgroundImage.replace(/^url\("?(.+?)"?\)$/, '$1'), name: d.getAttribute("aria-label"), abilities: d.dataset.abilities.split(","), rarity: d.dataset.rarity }));
+        state.tiers.push({ name: hdr, color: clr, characters: chars });
+      });
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "tierlist.json"; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadFromJSON(txt) {
+      try {
+        const state = JSON.parse(txt);
+        const header = document.getElementById("tierListHeader");
+        tierListContainer.innerHTML = "";
+        tierListContainer.appendChild(header);
+        document.getElementById("menu-tier-rows").innerHTML = "";
+        tierCount = 0;
+        state.tiers.forEach(t => {
+          const row = createTierRow(t.name, t.color);
+          const dz = row.querySelector(".tier-dropzone");
+          dz.innerHTML = "";
+          t.characters.forEach(c => {
+            const d = document.createElement("div");
+            d.className = "character"; d.style.backgroundImage = `url(${c.image})`;
+            d.setAttribute("aria-label", c.name);
+            d.dataset.abilities = c.abilities.join(",");
+            d.dataset.rarity = c.rarity;
+            d.draggable = true;
+            d.addEventListener("dragstart", e => draggedElement = e.target);
+            dz.appendChild(d);
+          });
+        });
+        document.getElementById("tierTitleInput").value = state.title;
+        document.getElementById("tierListTitle").textContent = state.title;
+        document.getElementById("creationDateLabel").textContent = state.creationationDate;
+        document.getElementById("tierListDate").textContent = state.creationDate;
+        updateMenu();
+        createRarityButtons();
+        displayCharacters();
+      } catch(e) { alert("JSONの読み込みに失敗しました。"); }
+    }
+
+    document.getElementById("saveJSONBtn").addEventListener("click", saveToJSON);
+    document.getElementById("loadJSONBtn").addEventListener("click", () => document.getElementById("jsonFileInput").click());
+    document.getElementById("jsonFileInput").addEventListener("change", e => {
+      const f = e.target.files[0];
+      if (f) {
+        const r = new FileReader();
+        r.onload = ev => { loadFromJSON(ev.target.result); e.target.value = ""; };
+        r.readAsText(f);
+      }
+    });
+    document.getElementById("addRowBtn").addEventListener("click", () => createTierRow());
+    document.getElementById("removeRowBtn").addEventListener("click", () => {
+      const rows = document.querySelectorAll(".tier-row");
+      if (rows.length) {
+        const last = rows[rows.length-1];
+        Array.from(last.querySelectorAll(".character")).forEach(c => characterContainer.appendChild(c));
+        last.remove(); updateMenu(); filterCharacters();
+      }
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (!confirm("リセットしますか？")) return;
+      Array.from(document.querySelectorAll(".tier-dropzone .character")).forEach(c => characterContainer.appendChild(c));
+      const header = document.getElementById("tierListHeader");
+      tierListContainer.innerHTML = ""; tierListContainer.appendChild(header);
+      document.getElementById("menu-tier-rows").innerHTML = ""; tierCount = 0;
+      createTierRow("S+", "#f43545"); createTierRow("S", "#ff8901"); createTierRow("A", "#fad717"); createTierRow("B", "#00ba71"); createTierRow("C", "#00c2de");
+      document.getElementById("searchBox").value = ""; document.getElementById("filterSelect").value = "all";
+      const nd = new Date().toLocaleDateString("ja-JP");
+      document.getElementById("tierListDate").textContent = nd;
+      document.getElementById("creationDateLabel").textContent = nd;
+      updateMenu(); createRarityButtons(); filterCharacters();
+    });
+    document.getElementById("saveImageBtn").addEventListener("click", () => {
+      html2canvas(tierListContainer).then(canvas => {
+        const img = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = img;
+        const t = document.getElementById("tierListTitle").textContent.trim().replace(/\s+/g, "_") || "tierlist";
+        a.download = t + ".png";
+        a.click();
+      });
+    });
+    // 初期行生成
+    createTierRow("S+", "#f43545"); createTierRow("S", "#ff8901"); createTierRow("A", "#fad717"); createTierRow("B", "#00ba71"); createTierRow("C", "#00c2de");
+    createRarityButtons();
+    displayCharacters(); filterCharacters();
+    document.getElementById("searchBox").addEventListener("input", () => { displayCharacters(); filterCharacters(); });
+    document.getElementById("filterSelect").addEventListener("change", () => { displayCharacters(); filterCharacters(); });
+  </script>
+</body>
+</html>
