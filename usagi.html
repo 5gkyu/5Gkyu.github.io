@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- ビューポート設定 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>赤ちゃんうさぎサーチツール</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 18px;
+      margin: 20px;
+    }
+    button {
+      font-family: inherit;
+      font-size: 18px;
+      background-color: #444;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 10px 15px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:hover {
+      background-color: #666;
+    }
+    #result {
+      margin-top: 20px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    /* 上に戻るボタン：常に右下に固定 */
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #444;
+      color: #fff;
+      border: 2px solid #fff;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    #backToTop:hover {
+      background-color: #666;
+    }
+    /* 接頭辞ごとの色 */
+    .prefix-W { color: #D77793; }
+    .prefix-N { color: #5591BF; }
+    .prefix-C { color: #AF613D; }
+    .prefix-S { color: #3D918F; }
+    .prefix-E { color: #54557C; }
+    /* 灰色 */
+    .gray-part { color: #E3DBDB; }
+    /* 赤 */
+    .num-part { color: #910D0C; }
+    /* "x"は白 */
+    .char-x { color: #F7EDEB; }
+    /* カスタム色：C-27-1 の "27-1" 部分 */
+    .custom-c-27-1 { color: #E1B358; }
+    /* 点滅対象：font-sizeは親要素のサイズを継承 */
+    .blinking, .blinking-delayed {
+      display: inline;
+      font-size: inherit !important;
+      transition: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>赤ちゃんうさぎサーチ ver.1.09版</h1>
+  <p>"パクレットのウサちゃん捕獲ゲーム"の赤ちゃんうさぎサーチツールです。</p>
+  <details><summary>ネタバレ注意</summary>
+  <p>下の画像の場所まで到達していない方はブラウザバック推奨です。</p>
+  <img src="https://pbs.twimg.com/media/GpEYRXDbYAALVGY?format=png&name=900x900" alt="">
+  <p>ゲーム内から捕まえたペア一覧をクリップボードにコピーし、下の”サーチする”ボタンを押してください。まだ見つけていない赤ちゃんうさぎがすべて表示されます。</p>
+  <p>質問等はTwitter＠5GKyuのDMにお願いします。</p>
+  <button onclick="combinedAction()">サーチする</button>
+  <div id="result"></div>
+  </details>
+  <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">上に戻る</button>
+  <script>
+    const colors = ['#D77793', '#5591BF', '#AF613D', '#3D918F', '#54557C', '#E3DBDB', '#910D0C'];
+    const prefixClass = { 'W': 'prefix-W', 'N': 'prefix-N', 'C': 'prefix-C', 'S': 'prefix-S', 'E': 'prefix-E' };
+    const completeDataLines = `
+W-3-1 x W-4-1
+W-3-1 x N-3-1
+W-3-1 x N-4-1
+W-3-1 x C-3-1
+W-3-1 x S-3-1
+W-3-1 x E-3-1
+W-3-1 x E-3-3
+W-4-1 x N-3-1
+W-4-1 x N-4-1
+W-4-1 x C-3-1
+W-4-1 x C-4-1
+W-4-1 x S-3-1
+W-4-1 x E-3-1
+W-4-1 x E-3-3
+W-6-1 x W-6-2
+W-6-1 x N-4-1
+W-6-1 x N-5-1
+W-6-1 x C-4-1
+W-6-1 x C-5-1
+W-6-1 x S-4-1
+W-6-2 x N-4-1
+W-6-2 x N-5-1
+W-6-2 x C-4-1
+W-6-2 x C-5-1
+W-6-2 x S-4-1
+W-7-1 x C-7-1
+W-8-1 x N-8-1
+W-8-1 x N-10-1
+W-8-1 x N-11-1
+W-8-1 x C-8-1
+W-8-1 x C-9-1
+W-8-1 x C-10-1
+W-8-1 x S-10-1
+W-8-1 x E-10-1
+W-8-1 x E-12-1
+W-8-1 x E-12-2
+W-10-1 x N-10-1
+W-10-1 x C-10-1
+W-10-1 x S-10-1
+W-11-1 x W-12-1
+W-11-1 x C-11-1
+W-12-1 x C-11-1
+W-13-1 x C-13-1
+W-15-1 x W-16-1
+W-15-1 x W-17-1
+W-15-1 x W-18-1
+W-16-1 x W-17-1
+W-16-1 x W-18-1
+W-17-1 x W-18-1
+W-20-1 x W-21-1
+W-20-1 x W-23-1
+W-20-1 x W-24-1
+W-20-1 x W-25-1
+W-20-1 x W-26-1
+W-20-1 x W-26-2
+W-20-1 x N-19-1
+W-20-1 x N-19-2
+W-20-1 x N-20-1
+W-20-1 x N-20-2
+W-20-1 x N-20-3
+W-20-1 x N-20-4
+W-20-1 x N-21-1
+W-20-1 x N-22-1
+W-20-1 x N-22-2
+W-20-1 x C-20-1
+W-20-1 x C-21-1
+W-20-1 x C-26-1
+W-20-1 x C-27-1
+W-20-1 x S-20-1
+W-20-1 x S-21-1
+W-20-1 x S-21-2
+W-20-1 x S-22-1
+W-20-1 x E-20-1
+W-20-1 x E-21-1
+W-20-1 x E-22-1
+W-20-1 x NW?-20-1
+W-20-1 x NW?-21-1
+W-20-1 x NW?-26-1
+W-20-1 x NE?-20-1
+W-20-1 x SW?-22-1
+W-20-1 x SW?-26-1
+W-21-1 x W-23-1
+W-21-1 x W-24-1
+W-21-1 x W-25-1
+W-21-1 x W-26-1
+W-21-1 x W-26-2
+W-21-1 x N-19-1
+W-21-1 x N-19-2
+W-21-1 x N-20-1
+W-21-1 x N-20-2
+W-21-1 x N-20-3
+W-21-1 x N-20-4
+W-21-1 x N-21-1
+W-21-1 x N-22-1
+W-21-1 x N-22-2
+W-21-1 x C-20-1
+W-21-1 x C-21-1
+W-21-1 x C-26-1
+W-21-1 x C-27-1
+W-21-1 x S-20-1
+W-21-1 x S-21-1
+W-21-1 x S-21-2
+W-21-1 x S-22-1
+W-21-1 x E-20-1
+W-21-1 x NW?-21-1
+W-21-1 x NW?-26-1
+W-21-1 x SW?-22-1
+W-21-1 x SW?-26-1
+W-23-1 x W-24-1
+W-23-1 x W-25-1
+W-23-1 x W-26-1
+W-23-1 x W-26-2
+W-23-1 x N-20-1
+W-23-1 x N-20-2
+W-23-1 x N-20-3
+W-23-1 x N-20-4
+W-23-1 x N-21-1
+W-23-1 x C-20-1
+W-23-1 x C-21-1
+W-23-1 x C-26-1
+W-23-1 x C-27-1
+W-23-1 x S-20-1
+W-23-1 x S-21-1
+W-23-1 x S-21-2
+W-23-1 x E-20-1
+W-23-1 x NW?-26-1
+W-23-1 x SW?-26-1
+W-24-1 x W-25-1
+W-24-1 x W-26-1
+W-24-1 x W-26-2
+W-24-1 x N-20-1
+W-24-1 x N-20-2
+W-24-1 x N-20-3
+W-24-1 x N-20-4
+W-24-1 x N-21-1
+W-24-1 x C-20-1
+W-24-1 x C-21-1
+W-24-1 x C-26-1
+W-24-1 x C-27-1
+W-24-1 x S-20-1
+W-24-1 x S-21-1
+W-24-1 x S-21-2
+W-24-1 x E-20-1
+W-24-1 x NW?-26-1
+W-24-1 x SW?-26-1
+W-25-1 x W-26-1
+W-25-1 x W-26-2
+W-25-1 x N-20-1
+W-25-1 x N-20-2
+W-25-1 x N-20-3
+W-25-1 x N-20-4
+W-25-1 x N-21-1
+W-25-1 x C-20-1
+W-25-1 x C-21-1
+W-25-1 x C-26-1
+W-25-1 x C-27-1
+W-25-1 x S-20-1
+W-25-1 x S-21-1
+W-25-1 x S-21-2
+W-25-1 x E-20-1
+W-25-1 x NW?-26-1
+W-25-1 x SW?-26-1
+W-26-1 x W-26-2
+W-26-1 x N-20-1
+W-26-1 x N-20-2
+W-26-1 x N-20-3
+W-26-1 x N-20-4
+W-26-1 x N-21-1
+W-26-1 x C-20-1
+W-26-1 x C-21-1
+W-26-1 x C-26-1
+W-26-1 x C-27-1
+W-26-1 x S-20-1
+W-26-1 x S-21-1
+W-26-1 x S-21-2
+W-26-1 x E-20-1
+W-26-1 x NW?-26-1
+W-26-1 x SW?-26-1
+W-26-2 x N-20-1
+W-26-2 x N-20-2
+W-26-2 x N-20-3
+W-26-2 x N-20-4
+W-26-2 x N-21-1
+W-26-2 x C-20-1
+W-26-2 x C-21-1
+W-26-2 x C-26-1
+W-26-2 x C-27-1
+W-26-2 x S-20-1
+W-26-2 x S-21-1
+W-26-2 x S-21-2
+W-26-2 x E-20-1
+W-26-2 x NW?-26-1
+W-26-2 x SW?-26-1
+N-2-1 x C-1-1
+N-2-1 x C-2-1
+N-2-1 x C-3-1
+N-2-1 x E-2-1
+N-3-1 x N-4-1
+N-3-1 x C-3-1
+N-3-1 x S-3-1
+N-3-1 x E-3-1
+N-3-1 x E-3-3
+N-4-1 x N-5-1
+N-4-1 x N-6-1
+N-4-1 x C-3-1
+N-4-1 x C-4-1
+N-4-1 x C-5-1
+N-4-1 x S-3-1
+N-4-1 x E-3-1
+N-4-1 x E-3-3
+N-5-1 x N-6-1
+N-5-1 x C-4-1
+N-5-1 x C-5-1
+N-5-1 x S-4-1
+N-6-1 x C-4-1
+N-6-1 x C-5-1
+N-6-1 x S-4-1
+N-7-1 x C-7-1
+N-8-1 x N-10-1
+N-8-1 x N-11-1
+N-8-1 x C-8-1
+N-8-1 x C-9-1
+N-8-1 x C-10-1
+N-8-1 x S-10-1
+N-8-1 x E-10-1
+N-8-1 x E-12-1
+N-8-1 x E-12-2
+N-10-1 x N-11-1
+N-10-1 x C-8-1
+N-10-1 x C-9-1
+N-10-1 x C-10-1
+N-10-1 x S-9-1
+N-10-1 x S-10-1
+N-10-1 x E-9-2
+N-10-1 x E-10-1
+N-10-1 x E-12-1
+N-10-1 x E-12-2
+N-11-1 x C-8-1
+N-11-1 x C-9-1
+N-11-1 x C-10-1
+N-11-1 x S-9-1
+N-11-1 x S-10-1
+N-11-1 x E-9-2
+N-12-1 x N-13-1
+N-12-1 x N-13-3
+N-12-1 x N-14-1
+N-12-1 x N-15-1
+N-12-1 x N-16-1
+N-12-1 x N-17-1
+N-12-1 x N-18-1
+N-12-1 x C-13-1
+N-13-1 x N-13-2
+N-13-1 x N-13-3
+N-13-1 x N-14-1
+N-13-1 x N-15-1
+N-13-1 x N-16-1
+N-13-1 x N-17-1
+N-13-1 x N-18-1
+N-13-1 x C-13-1
+N-13-2 x N-13-3
+N-13-2 x N-14-1
+N-13-2 x N-15-1
+N-13-2 x N-16-1
+N-13-2 x N-17-1
+N-13-2 x N-18-1
+N-13-2 x C-13-1
+N-13-3 x N-14-1
+N-13-3 x N-15-1
+N-13-3 x N-16-1
+N-13-3 x N-17-1
+N-13-3 x N-18-1
+N-13-3 x C-13-1
+N-14-1 x N-15-1
+N-14-1 x N-16-1
+N-14-1 x N-17-1
+N-14-1 x N-18-1
+N-14-1 x C-13-1
+N-15-1 x N-16-1
+N-15-1 x N-17-1
+N-15-1 x N-18-1
+N-15-1 x C-13-1
+N-16-1 x N-17-1
+N-16-1 x N-18-1
+N-16-1 x C-13-1
+N-17-1 x N-18-1
+N-17-1 x C-13-1
+N-17-1 x C-17-1
+N-18-1 x C-13-1
+N-18-1 x C-17-1
+N-19-1 x N-19-2
+N-19-1 x N-20-1
+N-19-1 x N-20-2
+N-19-1 x N-20-3
+N-19-1 x N-20-4
+N-19-1 x N-21-1
+N-19-1 x C-20-1
+N-19-1 x C-21-1
+N-19-1 x S-20-1
+N-19-1 x S-21-1
+N-19-1 x S-21-2
+N-19-1 x S-22-1
+N-19-1 x E-20-1
+N-19-1 x E-21-1
+N-19-1 x E-22-1
+N-19-1 x NW?-20-1
+N-19-1 x NE?-20-1
+N-19-1 x SW?-22-1
+N-19-2 x N-20-1
+N-19-2 x N-20-2
+N-19-2 x N-20-3
+N-19-2 x N-20-4
+N-19-2 x N-21-1
+N-19-2 x C-20-1
+N-19-2 x C-21-1
+N-19-2 x S-20-1
+N-19-2 x S-21-1
+N-19-2 x S-21-2
+N-19-2 x S-22-1
+N-19-2 x E-20-1
+N-19-2 x E-21-1
+N-19-2 x E-22-1
+N-19-2 x NW?-20-1
+N-19-2 x NE?-20-1
+N-19-2 x SW?-22-1
+N-20-1 x N-20-2
+N-20-1 x N-20-3
+N-20-1 x N-20-4
+N-20-1 x N-21-1
+N-20-1 x N-22-1
+N-20-1 x N-22-2
+N-20-1 x C-20-1
+N-20-1 x C-21-1
+N-20-1 x C-26-1
+N-20-1 x C-27-1
+N-20-1 x S-20-1
+N-20-1 x S-21-1
+N-20-1 x S-21-2
+N-20-1 x S-22-1
+N-20-1 x E-20-1
+N-20-1 x E-21-1
+N-20-1 x E-22-1
+N-20-1 x NW?-20-1
+N-20-1 x NW?-21-1
+N-20-1 x NW?-26-1
+N-20-1 x NE?-20-1
+N-20-1 x SW?-22-1
+N-20-1 x SW?-26-1
+N-20-2 x N-20-3
+N-20-2 x N-20-4
+N-20-2 x N-21-1
+N-20-2 x N-22-1
+N-20-2 x N-22-2
+N-20-2 x C-20-1
+N-20-2 x C-21-1
+N-20-2 x C-26-1
+N-20-2 x C-27-1
+N-20-2 x S-20-1
+N-20-2 x S-21-1
+N-20-2 x S-21-2
+N-20-2 x S-22-1
+N-20-2 x E-20-1
+N-20-2 x E-21-1
+N-20-2 x E-22-1
+N-20-2 x NW?-20-1
+N-20-2 x NW?-21-1
+N-20-2 x NW?-26-1
+N-20-2 x NE?-20-1
+N-20-2 x SW?-22-1
+N-20-2 x SW?-26-1
+N-20-3 x N-20-4
+N-20-3 x N-21-1
+N-20-3 x N-22-1
+N-20-3 x N-22-2
+N-20-3 x C-20-1
+N-20-3 x C-21-1
+N-20-3 x C-26-1
+N-20-3 x C-27-1
+N-20-3 x S-20-1
+N-20-3 x S-21-1
+N-20-3 x S-21-2
+N-20-3 x S-22-1
+N-20-3 x E-20-1
+N-20-3 x E-21-1
+N-20-3 x E-22-1
+N-20-3 x NW?-20-1
+N-20-3 x NW?-21-1
+N-20-3 x NW?-26-1
+N-20-3 x NE?-20-1
+N-20-3 x SW?-22-1
+N-20-3 x SW?-26-1
+N-20-4 x N-21-1
+N-20-4 x N-22-1
+N-20-4 x N-22-2
+N-20-4 x C-20-1
+N-20-4 x C-21-1
+N-20-4 x C-26-1
+N-20-4 x C-27-1
+N-20-4 x S-20-1
+N-20-4 x S-21-1
+N-20-4 x S-21-2
+N-20-4 x S-22-1
+N-20-4 x E-20-1
+N-20-4 x E-21-1
+N-20-4 x E-22-1
+N-20-4 x NW?-20-1
+N-20-4 x NW?-21-1
+N-20-4 x NW?-26-1
+N-20-4 x NE?-20-1
+N-20-4 x SW?-22-1
+N-20-4 x SW?-26-1
+N-21-1 x N-22-1
+N-21-1 x N-22-2
+N-21-1 x C-20-1
+N-21-1 x C-21-1
+N-21-1 x C-26-1
+N-21-1 x C-27-1
+N-21-1 x S-20-1
+N-21-1 x S-21-1
+N-21-1 x S-21-2
+N-21-1 x S-22-1
+N-21-1 x E-20-1
+N-21-1 x NW?-21-1
+N-21-1 x NW?-26-1
+N-21-1 x SW?-22-1
+N-21-1 x SW?-26-1
+N-22-1 x N-22-2
+N-22-1 x N-23-1
+N-22-1 x C-20-1
+N-22-1 x C-21-1
+N-22-1 x C-22-1
+N-22-1 x C-23-1
+N-22-1 x C-24-1
+N-22-1 x S-20-1
+N-22-1 x S-21-1
+N-22-1 x S-21-2
+N-22-1 x S-22-1
+N-22-1 x S-23-1
+N-22-1 x S-24-1
+N-22-1 x S-24-2
+N-22-1 x E-20-1
+N-22-1 x E-22-1
+N-22-1 x SW?-24-1
+N-22-2 x N-23-1
+N-22-2 x C-20-1
+N-22-2 x C-21-1
+N-22-2 x C-22-1
+N-22-2 x C-23-1
+N-22-2 x C-24-1
+N-22-2 x S-20-1
+N-22-2 x S-21-1
+N-22-2 x S-21-2
+N-22-2 x S-22-1
+N-22-2 x S-23-1
+N-22-2 x S-24-1
+N-22-2 x S-24-2
+N-22-2 x E-20-1
+N-22-2 x E-22-1
+N-22-2 x SW?-24-1
+N-23-1 x C-22-1
+N-23-1 x S-22-1
+N-23-1 x E-22-1
+C-1-1 x C-2-1
+C-1-1 x C-3-1
+C-2-1 x C-3-1
+C-2-1 x E-2-1
+C-3-1 x C-4-1
+C-3-1 x S-3-1
+C-3-1 x S-4-1
+C-3-1 x S-5-1
+C-3-1 x S-6-1
+C-3-1 x E-2-1
+C-3-1 x E-3-1
+C-3-1 x E-3-3
+C-4-1 x C-5-1
+C-4-1 x S-3-1
+C-4-1 x E-3-1
+C-4-1 x E-3-3
+C-4-1 x E-4-1
+C-5-1 x S-4-1
+C-5-1 x S-5-1
+C-5-1 x E-6-1
+C-5-1 x E-7-1
+C-5-1 x E-8-1
+C-5-1 x SE?-6-1
+C-6-1 x C-7-1
+C-6-1 x E-6-1
+C-6-1 x E-8-1
+C-7-1 x S-7-1
+C-7-1 x S-8-1
+C-8-1 x C-9-1
+C-8-1 x C-10-1
+C-8-1 x S-10-1
+C-8-1 x E-8-1
+C-8-1 x E-10-1
+C-8-1 x E-12-1
+C-8-1 x E-12-2
+C-9-1 x C-10-1
+C-9-1 x S-9-1
+C-9-1 x S-10-1
+C-9-1 x E-9-2
+C-9-1 x E-10-1
+C-9-1 x E-12-1
+C-9-1 x E-12-2
+C-10-1 x S-9-1
+C-10-1 x S-10-1
+C-10-1 x E-9-2
+C-10-1 x E-10-1
+C-10-1 x E-12-1
+C-10-1 x E-12-2
+C-11-1 x C-12-1
+C-11-1 x S-10-1
+C-11-1 x E-12-1
+C-11-1 x E-12-2
+C-12-1 x S-10-1
+C-12-1 x E-12-1
+C-13-1 x S-13-1
+C-15-1 x C-16-1
+C-18-1 x C-19-1
+C-20-1 x C-21-1
+C-20-1 x C-26-1
+C-20-1 x C-27-1
+C-20-1 x S-20-1
+C-20-1 x S-21-1
+C-20-1 x S-21-2
+C-20-1 x S-22-1
+C-20-1 x E-20-1
+C-20-1 x E-21-1
+C-20-1 x E-22-1
+C-20-1 x NW?-20-1
+C-20-1 x NW?-21-1
+C-20-1 x NW?-26-1
+C-20-1 x NE?-20-1
+C-20-1 x SW?-22-1
+C-20-1 x SW?-26-1
+C-21-1 x C-26-1
+C-21-1 x C-27-1
+C-21-1 x S-20-1
+C-21-1 x S-21-1
+C-21-1 x S-21-2
+C-21-1 x E-20-1
+C-21-1 x NW?-26-1
+C-21-1 x SW?-26-1
+C-22-1 x C-23-1
+C-22-1 x C-24-1
+C-22-1 x S-22-1
+C-22-1 x S-23-1
+C-22-1 x S-24-1
+C-22-1 x S-24-2
+C-22-1 x E-22-1
+C-22-1 x SW?-24-1
+C-23-1 x C-24-1
+C-23-1 x S-22-1
+C-23-1 x S-23-1
+C-23-1 x S-24-1
+C-23-1 x S-24-2
+C-23-1 x E-22-1
+C-23-1 x SW?-24-1
+C-24-1 x S-22-1
+C-24-1 x S-23-1
+C-24-1 x S-24-1
+C-24-1 x S-24-2
+C-24-1 x E-22-1
+C-24-1 x SE?-24-1
+C-26-1 x C-27-1
+C-26-1 x S-20-1
+C-26-1 x S-21-1
+C-26-1 x S-21-2
+C-26-1 x E-20-1
+C-26-1 x NW?-26-1
+C-26-1 x SW?-26-1
+C-27-1 x S-20-1
+C-27-1 x S-21-1
+C-27-1 x S-21-2
+C-27-1 x E-20-1
+C-27-1 x NW?-26-1
+S-3-1 x S-4-1
+S-3-1 x S-5-1
+S-3-1 x S-6-1
+S-3-1 x E-3-1
+S-3-1 x E-3-3
+S-4-1 x S-5-1
+S-4-1 x S-6-1
+S-4-1 x E-3-1
+S-4-1 x E-3-3
+S-4-1 x E-4-1
+S-5-1 x S-6-1
+S-5-1 x E-3-1
+S-5-1 x E-3-3
+S-5-1 x E-4-1
+S-6-1 x E-3-1
+S-6-1 x E-3-3
+S-6-1 x E-4-1
+S-7-1 x S-8-1
+S-9-1 x S-10-1
+S-9-1 x E-10-1
+S-9-1 x E-12-1
+S-9-1 x E-12-2
+S-10-1 x E-9-2
+S-10-1 x E-10-1
+S-10-1 x E-12-1
+S-10-1 x E-12-2
+S-14-1 x S-15-1
+S-14-1 x S-16-1
+S-14-1 x S-17-1
+S-14-1 x S-18-1
+S-14-1 x S-19-1
+S-15-1 x S-16-1
+S-15-1 x S-17-1
+S-15-1 x S-18-1
+S-15-1 x S-19-1
+S-16-1 x S-17-1
+S-16-1 x S-18-1
+S-16-1 x S-19-1
+S-17-1 x S-18-1
+S-17-1 x S-19-1
+S-18-1 x S-19-1
+S-20-1 x S-21-1
+S-20-1 x S-21-2
+S-20-1 x S-22-1
+S-20-1 x E-20-1
+S-20-1 x E-21-1
+S-20-1 x E-22-1
+S-20-1 x NW?-20-1
+S-20-1 x NW?-21-1
+S-20-1 x NW?-26-1
+S-20-1 x NE?-20-1
+S-20-1 x SW?-22-1
+S-20-1 x SW?-26-1
+S-21-1 x S-21-2
+S-21-1 x S-22-1
+S-21-1 x E-20-1
+S-21-1 x NW?-21-1
+S-21-1 x NW?-26-1
+S-21-1 x SW?-22-1
+S-21-1 x SW?-26-1
+S-21-2 x S-22-1
+S-21-2 x E-20-1
+S-21-2 x NW?-21-1
+S-21-2 x NW?-26-1
+S-21-2 x SW?-22-1
+S-21-2 x SW?-26-1
+S-22-1 x S-23-1
+S-22-1 x S-24-1
+S-22-1 x S-24-2
+S-22-1 x E-20-1
+S-22-1 x E-22-1
+S-22-1 x SW?-22-1
+S-22-1 x SW?-24-1
+S-23-1 x S-24-1
+S-23-1 x S-24-2
+S-23-1 x E-22-1
+S-23-1 x SW?-24-1
+S-24-1 x S-24-2
+S-24-1 x E-22-1
+S-24-1 x SW?-24-1
+S-24-1 x SE?-24-1
+S-24-2 x E-22-1
+S-24-2 x SW?-24-1
+S-24-2 x SE?-24-1
+E-1-1 x E-2-1
+E-1-1 x E-3-1
+E-1-1 x E-3-3
+E-1-1 x E-3-4
+E-1-1 x E-4-1
+E-2-1 x E-3-1
+E-2-1 x E-3-3
+E-2-1 x E-3-4
+E-2-1 x E-4-1
+E-2-1 x NE?-2-1
+E-3-1 x E-3-3
+E-3-1 x E-4-1
+E-3-1 x NE?-4-1
+E-3-2 x E-3-4
+E-3-2 x E-4-1
+E-3-3 x E-4-1
+E-3-4 x E-4-1
+E-4-1 x NE?-4-1
+E-6-1 x E-7-1
+E-6-1 x E-8-1
+E-6-1 x SE?-6-1
+E-8-1 x SE?-6-1
+E-9-2 x E-10-1
+E-9-2 x E-12-1
+E-9-2 x E-12-2
+E-10-1 x E-10-2
+E-10-1 x E-12-1
+E-10-1 x E-12-2
+E-10-2 x E-12-1
+E-10-2 x E-12-2
+E-12-1 x E-12-2
+E-12-1 x SE?-12-1
+E-16-1 x E-17-1
+E-16-1 x E-18-1
+E-16-1 x E-19-1
+E-16-1 x E-20-1
+E-16-1 x E-21-1
+E-16-1 x E-22-1
+E-17-1 x E-18-1
+E-17-1 x E-19-1
+E-17-1 x E-20-1
+E-17-1 x E-21-1
+E-17-1 x E-22-1
+E-18-1 x E-19-1
+E-18-1 x E-20-1
+E-18-1 x E-21-1
+E-18-1 x E-22-1
+E-19-1 x E-20-1
+E-19-1 x E-21-1
+E-19-1 x E-22-1
+E-20-1 x E-21-1
+E-20-1 x E-22-1
+E-20-1 x NW?-20-1
+E-20-1 x NW?-21-1
+E-20-1 x NW?-26-1
+E-20-1 x NE?-20-1
+E-20-1 x SW?-22-1
+E-20-1 x SW?-26-1
+E-21-1 x NE?-20-1
+E-22-1 x NE?-20-1
+E-22-1 x SW?-24-1
+NW?-20-1 x NE?-20-1
+NW?-26-1 x SW?-26-1
+SW?-24-1 x SE?-24-1
+SW?-24-1 x SE?-24-1
+`.trim().split('\n');
+    
+let partialData = "";
+    function getThreshold(prefix) { switch(prefix) { case 'W': return 13; case 'N': return 12; case 'C': return 13; case 'S': return 13; case 'E': return 13; default: return Infinity; } }
+    function getGrayRange(prefix) { switch(prefix) { case 'W': return { min: 13, max: 18 }; case 'N': return { min: 12, max: 18 }; case 'C': return { min: 13, max: 13 }; case 'S': return { min: 13, max: 20 }; case 'E': return { min: 13, max: 13 }; default: return { min: Infinity, max: -Infinity }; } }
+    function formatSegment(segment) {
+      segment = segment.trim();
+      if (segment === "C-27-1") {
+        return `<span class="prefix-C">C-</span><span class="custom-c-27-1">27-1</span>`;
+      }
+      if (/^[A-Za-z]{2}/.test(segment)) {
+        const idx = segment.indexOf('-');
+        if (idx !== -1) {
+          const firstPart = segment.substring(0, idx + 1);
+          const secondPart = segment.substring(idx + 1);
+          return `<span class="blinking">${firstPart}</span><span class="blinking-delayed">${secondPart}</span>`;
+        }
+      }
+      const parts = segment.split('-'); if (parts.length < 2) return segment;
+      let prefix = parts[0]; let prefixColorClass = prefixClass[prefix] || '';
+      let html = `<span class="${prefixColorClass}">${prefix}-</span>`; let lastColorClass = prefixColorClass;
+      for (let i = 1; i < parts.length; i++) {
+        let num = parseInt(parts[i], 10);
+        let colorClass = num < getThreshold(prefix)
+          ? prefixColorClass
+          : (num >= getGrayRange(prefix).min && num <= getGrayRange(prefix).max)
+            ? 'gray-part'
+            : 'num-part';
+        if (i > 1) colorClass = lastColorClass;
+        html += `<span class="${colorClass}">${parts[i]}</span>`;
+        if (i < parts.length - 1) html += `<span class="${colorClass}">-</span>`;
+        lastColorClass = colorClass;
+      }
+      return html;
+    }
+    function formatDataString(item) {
+      return item.split(/(x|×)/).map(seg => seg === 'x' || seg === '×' ? `<span class="char-x">${seg}</span>` : formatSegment(seg)).join(' ');
+    }
+    function compareData() {
+      const lines = partialData.trim().split('\n').filter(Boolean);
+      const missing = completeDataLines.filter(item => !lines.includes(item));
+      document.getElementById('result').innerHTML = lines.length === 0 ? '' : missing.length === 0 ? 'おめでとう' : missing.map(formatDataString).join('<br>');
+    }
+    async function pasteData() {
+      try { partialData = await navigator.clipboard.readText(); compareData(); }
+      catch(err) { alert('ペーストに失敗しました: ' + err); }
+    }
+    function resetData() { partialData = ""; compareData(); }
+    async function combinedAction() { resetData(); await pasteData(); }
+    function updateBlinking() { document.querySelectorAll('.blinking').forEach(el => el.style.color = colors[Math.floor(Math.random()*colors.length)]); setTimeout(updateBlinking, 300 + Math.random()*200); }
+    function updateBlinkingDelayed() { document.querySelectorAll('.blinking-delayed').forEach(el => el.style.color = colors[Math.floor(Math.random()*colors.length)]); setTimeout(updateBlinkingDelayed, 400 + Math.random()*200); }
+    document.addEventListener('DOMContentLoaded', () => { updateBlinking(); setTimeout(updateBlinkingDelayed, 100); });
+  </script>
+</body>
+</html>
