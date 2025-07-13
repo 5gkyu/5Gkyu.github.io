@@ -6,6 +6,11 @@
   <title>デイリータスク</title>
   <style>
     body { font-family: sans-serif; margin:20px; background:#f5f5f5; }
+    #info { text-align:center; margin-bottom:20px; }
+    #info .now, #info .last { display:block; font-size:16px; }
+    #info .weekday-sat { color: blue; }
+    #info .weekday-sun { color: red; }
+
     h3 { text-align:center; margin-bottom:20px; }
     .tabs { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
     .tab-button { padding:0; border:none; background:transparent; cursor:pointer; border-radius:4px; overflow:hidden; }
@@ -38,7 +43,7 @@
       text-align:center;
       border: 2px solid transparent;
       transition: border 0.3s, background 0.3s;
-  grid-column: 1 / 5;  /* グリッド1列目の左端から5列目の左端（＝4列分の幅）まで */
+      grid-column: 1 / 5;
     }
     .bottom-task.checked { background: #e0ffe0; border-color: #4caf50; }
     .bottom-task.unchecked { background: #ffecec; border-color: #f44336; }
@@ -51,7 +56,13 @@
 </head>
 <body>
 
+  <!-- 日時表示エリア -->
+  <div id="info">
+    <span class="now">現在の日時: --/--(--)</span>
+    <span class="last">最終更新時刻: --/--(--)</span>
+  </div>
 
+  <!-- タブボタン -->
   <div class="tabs">
     <button class="tab-button" data-pattern="1"><img src="image/ln.png" alt="レオニ"></button>
     <button class="tab-button" data-pattern="2"><img src="image/mj.png" alt="モアジャン"></button>
@@ -60,9 +71,11 @@
     <button class="tab-button" data-pattern="5"><img src="image/25.png" alt="25"></button>
   </div>
 
+  <!-- タスクグリッド -->
   <div class="task-grid" id="task-grid"></div>
   <hr>
-  <!-- ボトムに横長チェックボタン -->
+
+  <!-- ボトムタスク -->
   <div id="bottom-section">
     <div class="bottom-task unchecked" id="bottom-task">
       <label>
@@ -74,7 +87,8 @@
   </div>
 
   <script>
-     const tasksData = {
+    // --- 定義 ---
+    const tasksData = {
       1: [
         {id: '1-1', img:'image/icon_unite01_5_miku.png'},
         {id: '1-2', img:'image/icon_unite01_6_luka.png'},
@@ -123,27 +137,79 @@
       4: [[1,1],[2,1],[1,2],[2,2],[3,2],[4,2]],
       5: [[1,1],[1,2],[2,2],[3,2],[4,2]]
     };
-
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
     const grid = document.getElementById("task-grid");
     let currentPattern = "3";
 
-    function resetIfNewDay() {
-      const now = new Date(), jst = new Date(now.getTime() + 9*60*60*1000);
-      const today = jst.toISOString().split('T')[0], last = localStorage.getItem('lastCheckedDate');
-      if ((!last || last !== today) && jst.getHours() >=5) {
-        Object.keys(localStorage).forEach(k=>{ if (/^(?:[1-5]-|bottom-)/.test(k)) localStorage.removeItem(k); });
-        localStorage.setItem('lastCheckedDate', today);
+    // --- JST変換ヘルパー ---
+    function toJST(date) {
+      return new Date(date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
+    }
+    function formatDateTimeJST(date) {
+      const j = toJST(date);
+      const M = j.getMonth() + 1;
+      const D = j.getDate();
+      const w = weekdays[j.getDay()];
+      const hh = String(j.getHours()).padStart(2,'0');
+      const mm = String(j.getMinutes()).padStart(2,'0');
+      const ss = String(j.getSeconds()).padStart(2,'0');
+      return { text: `${M}/${D}(${w}) ${hh}:${mm}:${ss}`, weekday: j.getDay() };
+    }
+
+    // --- ヘッダー更新 ---
+    function updateHeader() {
+      // 現在の日時
+      const nowInfo = formatDateTimeJST(new Date());
+      const nowEl = document.querySelector('#info .now');
+      nowEl.textContent = `現在の日時: ${nowInfo.text}`;
+      nowEl.classList.toggle('weekday-sat', nowInfo.weekday === 6);
+      nowEl.classList.toggle('weekday-sun', nowInfo.weekday === 0);
+
+      // 最終更新時刻
+      const lastRaw = localStorage.getItem('lastUpdateTime');
+      const lastEl = document.querySelector('#info .last');
+      if (lastRaw) {
+        const lastInfo = formatDateTimeJST(new Date(lastRaw));
+        lastEl.textContent = `最終更新時刻: ${lastInfo.text}`;
+        lastEl.classList.toggle('weekday-sat', lastInfo.weekday === 6);
+        lastEl.classList.toggle('weekday-sun', lastInfo.weekday === 0);
+      } else {
+        lastEl.textContent = '最終更新時刻: --/--(--)';
       }
     }
 
+    // --- 更新記録 ---
+    function recordUpdate() {
+      localStorage.setItem('lastUpdateTime', new Date().toISOString());
+      updateHeader();
+    }
+
+    // --- 日次リセット（JST 5時以降） ---
+    function resetIfNewDay() {
+      const today = toJST(new Date()).toISOString().split('T')[0];
+      const lastDate = localStorage.getItem('lastCheckedDate');
+      const hour = toJST(new Date()).getHours();
+      if (lastDate !== today && hour >= 5) {
+        Object.keys(localStorage).forEach(k => {
+          if (/^(?:[1-5]-|bottom-)/.test(k)) localStorage.removeItem(k);
+        });
+        localStorage.setItem('lastCheckedDate', today);
+        recordUpdate();
+      }
+    }
+
+    // --- タスク描画 ---
     function renderTasks(patternId) {
       grid.innerHTML = '';
-      (patterns[patternId]||[]).forEach((pos,i)=>{
-        const t = tasksData[patternId][i]; if (!t) return;
-        const key = `${patternId}-${t.id}`, checked = localStorage.getItem(key)==='true';
+      (patterns[patternId] || []).forEach((pos, i) => {
+        const t = tasksData[patternId][i];
+        if (!t) return;
+        const key = `${patternId}-${t.id}`;
+        const checked = localStorage.getItem(key) === 'true';
         const d = document.createElement('div');
         d.className = 'task ' + (checked ? 'checked' : 'unchecked');
-        d.style.gridColumn = pos[0]; d.style.gridRow = pos[1];
+        d.style.gridColumn = pos[0];
+        d.style.gridRow = pos[1];
         d.innerHTML = `
           <label>
             <img src="${t.img}" alt="">
@@ -152,8 +218,8 @@
           </label>`;
         grid.appendChild(d);
       });
-      grid.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-        cb.onchange = ()=>{
+      grid.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.onchange = () => {
           const v = cb.checked, k = cb.dataset.key;
           localStorage.setItem(k, v);
           const lbl = cb.nextElementSibling;
@@ -161,34 +227,47 @@
           const p = cb.closest('.task');
           p.classList.toggle('checked', v);
           p.classList.toggle('unchecked', !v);
+          recordUpdate();
         };
       });
     }
 
+    // --- ボトムタスク描画 ---
     function renderBottomTask() {
-      const bt = document.getElementById('bottom-task'), cb = bt.querySelector('input'), span = bt.querySelector('.task-label');
-      const checked = localStorage.getItem(cb.dataset.key)==='true';
+      const bt = document.getElementById('bottom-task');
+      const cb = bt.querySelector('input');
+      const span = bt.querySelector('.task-label');
+      const checked = localStorage.getItem(cb.dataset.key) === 'true';
       cb.checked = checked;
       span.textContent = checked? 'プレイ済み':'未プレイ';
       bt.classList.toggle('checked', checked);
       bt.classList.toggle('unchecked', !checked);
-      cb.onchange = ()=>{
+      cb.onchange = () => {
         const v = cb.checked;
         localStorage.setItem(cb.dataset.key, v);
         span.textContent = v? 'プレイ済み':'未プレイ';
         bt.classList.toggle('checked', v);
         bt.classList.toggle('unchecked', !v);
+        recordUpdate();
       };
     }
 
-    document.querySelectorAll('.tab-button').forEach(b=>b.onclick=()=>{
-      document.querySelectorAll('.tab-button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active'); renderTasks(b.dataset.pattern);
+    // --- タブ切替 ---
+    document.querySelectorAll('.tab-button').forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll('.tab-button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        currentPattern = b.dataset.pattern;
+        renderTasks(currentPattern);
+      };
     });
 
+    // --- 初期化 ---
     resetIfNewDay();
+    updateHeader();
     renderTasks(currentPattern);
     renderBottomTask();
+    setInterval(updateHeader, 1000);
   </script>
 </body>
 </html>
