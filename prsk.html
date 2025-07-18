@@ -6,14 +6,23 @@
   <title>デイリータスク</title>
   <style>
     body { font-family: sans-serif; margin:20px; background:#f5f5f5; }
+    /* 日時表示エリアをテーブルに */
     #info { text-align:center; margin-bottom:20px; }
-    #info .now, #info .last { display:block; font-size:16px; }
+    #info table { margin: 0 auto; border-collapse: collapse; }
+    #info th, #info td {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    #info th { background: #f0f0f0; text-align: center; }
+    #info .now, #info .last, #info .reset { display: table-cell; }
     #info .weekday-sat { color: blue; }
     #info .weekday-sun { color: red; }
 
     h3 { text-align:center; margin-bottom:20px; }
-    .tabs { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
-    .tab-button { padding:0; border:none; background:transparent; cursor:pointer; border-radius:4px; overflow:hidden; }
+    .tabs { display:flex; justify-content:center; gap:10px; margin-bottom:10px; align-items:center; }
+    .tab-button, #clear-all { padding:0; border:none; background:transparent; cursor:pointer; border-radius:4px; overflow:hidden; }
+    #clear-all { font-size:14px; color:#f44336; }
     .tab-button img { display:block; width:60px; height:auto; object-fit:contain; }
     .tab-button.active img { border:2px solid #333; }
 
@@ -58,11 +67,24 @@
 
   <!-- 日時表示エリア -->
   <div id="info">
-    <span class="now">現在の日時: --/--(--)</span>
-    <span class="last">最終更新時刻: --/--(--)</span>
+    <table>
+      <tr>
+        <th>現在時刻</th>
+        <td class="now">--/--(--)</td>
+      </tr>
+      <tr>
+        <th>最終更新</th>
+        <td class="last">--/--(--)</td>
+      </tr>
+      <tr>
+        <th>デイリーリセット</th>
+        <td class="reset">--/--(--)</td>
+      </tr>
+    </table>
+
   </div>
 
-  <!-- タブボタン -->
+  <!-- タブボタンと全解除 -->
   <div class="tabs">
     <button class="tab-button" data-pattern="1"><img src="image/ln.png" alt="レオニ"></button>
     <button class="tab-button" data-pattern="2"><img src="image/mj.png" alt="モアジャン"></button>
@@ -88,6 +110,7 @@
 
   <script>
     // --- 定義 ---
+    const KEY_PREFIX = 'pjskDaily:';
     const tasksData = {
       1: [
         {id: '1-1', img:'image/icon_unite01_5_miku.png'},
@@ -137,137 +160,109 @@
       4: [[1,1],[2,1],[1,2],[2,2],[3,2],[4,2]],
       5: [[1,1],[1,2],[2,2],[3,2],[4,2]]
     };
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    const grid = document.getElementById("task-grid");
-    let currentPattern = "3";
+    const weekdays = ['日','月','火','水','木','金','土'];
+    const grid = document.getElementById('task-grid');
+    let currentPattern = '3';
 
-    // --- JST変換ヘルパー ---
-    function toJST(date) {
-      return new Date(date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
-    }
-    function formatDateTimeJST(date) {
+    // --- JST変換 ---
+    function toJST(date){ return new Date(date.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})); }
+    function formatDateTimeJST(date){
       const j = toJST(date);
-      const M = j.getMonth() + 1;
-      const D = j.getDate();
-      const w = weekdays[j.getDay()];
-      const hh = String(j.getHours()).padStart(2,'0');
-      const mm = String(j.getMinutes()).padStart(2,'0');
-      const ss = String(j.getSeconds()).padStart(2,'0');
-      return { text: `${M}/${D}(${w}) ${hh}:${mm}:${ss}`, weekday: j.getDay() };
+      const M = j.getMonth()+1, D = j.getDate(), w = weekdays[j.getDay()];
+      const hh = String(j.getHours()).padStart(2,'0'), mm = String(j.getMinutes()).padStart(2,'0'), ss = String(j.getSeconds()).padStart(2,'0');
+      return { text:`${M}/${D}(${w}) ${hh}:${mm}:${ss}`, time:j.toISOString(), dateKey:`${j.getFullYear()}-${M}-${D}` };
     }
 
     // --- ヘッダー更新 ---
-    function updateHeader() {
-      // 現在の日時
+    function updateHeader(){
       const nowInfo = formatDateTimeJST(new Date());
       const nowEl = document.querySelector('#info .now');
-      nowEl.textContent = `現在の日時: ${nowInfo.text}`;
-      nowEl.classList.toggle('weekday-sat', nowInfo.weekday === 6);
-      nowEl.classList.toggle('weekday-sun', nowInfo.weekday === 0);
+      nowEl.textContent = nowInfo.text;
+      nowEl.classList.toggle('weekday-sat', nowInfo.text.includes('(土)'));
+      nowEl.classList.toggle('weekday-sun', nowInfo.text.includes('(日)'));
 
-      // 最終更新時刻
-      const lastRaw = localStorage.getItem('lastUpdateTime');
+      const lastRaw = localStorage.getItem(KEY_PREFIX+'lastUpdate');
       const lastEl = document.querySelector('#info .last');
-      if (lastRaw) {
-        const lastInfo = formatDateTimeJST(new Date(lastRaw));
-        lastEl.textContent = `最終更新時刻: ${lastInfo.text}`;
-        lastEl.classList.toggle('weekday-sat', lastInfo.weekday === 6);
-        lastEl.classList.toggle('weekday-sun', lastInfo.weekday === 0);
-      } else {
-        lastEl.textContent = '最終更新時刻: --/--(--)';
-      }
+      if(lastRaw){ const li=formatDateTimeJST(new Date(lastRaw)); lastEl.textContent = li.text; }
+      
+      const rRaw = localStorage.getItem(KEY_PREFIX+'lastResetAt');
+      const rEl = document.querySelector('#info .reset');
+      if(rRaw){ const ri=formatDateTimeJST(new Date(rRaw)); rEl.textContent = ri.text; }
+    }
+    function recordUpdate(){ localStorage.setItem(KEY_PREFIX+'lastUpdate', new Date().toISOString()); updateHeader(); }
+
+    // --- リセット境界取得 ---
+    function getResetBoundary(now){
+      const j = toJST(now);
+      const boundary = new Date(j);
+      boundary.setHours(5,0,0,0);
+      if(j < boundary){ boundary.setDate(boundary.getDate()-1); }
+      return boundary;
     }
 
-    // --- 更新記録 ---
-    function recordUpdate() {
-      localStorage.setItem('lastUpdateTime', new Date().toISOString());
-      updateHeader();
-    }
-
-    // --- 日次リセット（JST 5時以降） ---
-    function resetIfNewDay() {
-      const today = toJST(new Date()).toISOString().split('T')[0];
-      const lastDate = localStorage.getItem('lastCheckedDate');
-      const hour = toJST(new Date()).getHours();
-      if (lastDate !== today && hour >= 5) {
-        Object.keys(localStorage).forEach(k => {
-          if (/^(?:[1-5]-|bottom-)/.test(k)) localStorage.removeItem(k);
+    function resetIfNeeded(){
+      const now = new Date();
+      const boundary = getResetBoundary(now);
+      const lastReset = localStorage.getItem(KEY_PREFIX+'lastResetAt');
+      if(!lastReset || new Date(lastReset) < boundary){
+        Object.keys(localStorage).forEach(k=>{
+          if(k.startsWith(KEY_PREFIX) && ![KEY_PREFIX+'lastUpdate',KEY_PREFIX+'lastResetAt'].includes(k)){
+            localStorage.removeItem(k);
+          }
         });
-        localStorage.setItem('lastCheckedDate', today);
+        localStorage.setItem(KEY_PREFIX+'lastResetAt', new Date().toISOString());
         recordUpdate();
       }
     }
 
     // --- タスク描画 ---
-    function renderTasks(patternId) {
+    function renderTasks(pid){
       grid.innerHTML = '';
-      (patterns[patternId] || []).forEach((pos, i) => {
-        const t = tasksData[patternId][i];
-        if (!t) return;
-        const key = `${patternId}-${t.id}`;
-        const checked = localStorage.getItem(key) === 'true';
+      (patterns[pid]||[]).forEach((pos,i)=>{
+        const t = tasksData[pid][i]; if(!t) return;
+        const key = KEY_PREFIX + t.id;
+        const checked = localStorage.getItem(key)==='true';
         const d = document.createElement('div');
-        d.className = 'task ' + (checked ? 'checked' : 'unchecked');
-        d.style.gridColumn = pos[0];
-        d.style.gridRow = pos[1];
-        d.innerHTML = `
-          <label>
-            <img src="${t.img}" alt="">
-            <input type="checkbox" data-key="${key}" ${checked? 'checked':''}>
-            <span class="task-label">${checked? '入手済み':'未入手'}</span>
-          </label>`;
+        d.className = 'task ' + (checked? 'checked':'unchecked');
+        d.style.gridColumn = pos[0]; d.style.gridRow = pos[1];
+        d.innerHTML = `<label><img src="${t.img}" alt="${t.id}"><input type="checkbox" data-key="${key}" ${checked? 'checked':''}><span class="task-label">${checked? '入手済み':'未入手'}</span></label>`;
         grid.appendChild(d);
       });
-      grid.querySelectorAll('input[type=checkbox]').forEach(cb => {
-        cb.onchange = () => {
-          const v = cb.checked, k = cb.dataset.key;
-          localStorage.setItem(k, v);
-          const lbl = cb.nextElementSibling;
-          lbl.textContent = v? '入手済み':'未入手';
+      grid.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+        cb.onchange = ()=>{
+          const v=cb.checked, k=cb.dataset.key;
+          localStorage.setItem(k,v);
+          cb.nextElementSibling.textContent = v? '入手済み':'未入手';
           const p = cb.closest('.task');
-          p.classList.toggle('checked', v);
-          p.classList.toggle('unchecked', !v);
+          p.classList.toggle('checked',v); p.classList.toggle('unchecked',!v);
           recordUpdate();
         };
       });
     }
 
-    // --- ボトムタスク描画 ---
-    function renderBottomTask() {
-      const bt = document.getElementById('bottom-task');
-      const cb = bt.querySelector('input');
-      const span = bt.querySelector('.task-label');
-      const checked = localStorage.getItem(cb.dataset.key) === 'true';
-      cb.checked = checked;
-      span.textContent = checked? 'プレイ済み':'未プレイ';
-      bt.classList.toggle('checked', checked);
-      bt.classList.toggle('unchecked', !checked);
-      cb.onchange = () => {
-        const v = cb.checked;
-        localStorage.setItem(cb.dataset.key, v);
-        span.textContent = v? 'プレイ済み':'未プレイ';
-        bt.classList.toggle('checked', v);
-        bt.classList.toggle('unchecked', !v);
-        recordUpdate();
-      };
+    // --- ボトムタスク ---
+    function renderBottom(){
+      const bt=document.getElementById('bottom-task');
+      const cb=bt.querySelector('input'), span=bt.querySelector('.task-label');
+      const key = cb.dataset.key;
+      const checked = localStorage.getItem(key)==='true';
+      cb.checked=checked; span.textContent=checked? 'プレイ済み':'未プレイ';
+      bt.classList.toggle('checked',checked); bt.classList.toggle('unchecked',!checked);
+      cb.onchange = ()=>{ const v=cb.checked; localStorage.setItem(key,v); span.textContent=v? 'プレイ済み':'未プレイ'; bt.classList.toggle('checked',v); bt.classList.toggle('unchecked',!v); recordUpdate(); };
     }
 
     // --- タブ切替 ---
-    document.querySelectorAll('.tab-button').forEach(b => {
-      b.onclick = () => {
-        document.querySelectorAll('.tab-button').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        currentPattern = b.dataset.pattern;
+    document.querySelectorAll('.tab-button').forEach(b=>{
+      b.onclick = ()=>{
+        document.querySelectorAll('.tab-button').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active'); currentPattern = b.dataset.pattern;
         renderTasks(currentPattern);
       };
     });
 
     // --- 初期化 ---
-    resetIfNewDay();
-    updateHeader();
-    renderTasks(currentPattern);
-    renderBottomTask();
-    setInterval(updateHeader, 1000);
+    resetIfNeeded(); updateHeader(); renderTasks(currentPattern); renderBottom();
+    setInterval(updateHeader,1000);
   </script>
 </body>
 </html>
