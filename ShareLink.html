@@ -1,29 +1,40 @@
+<!-- redirect.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirecting...</title>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get("to");
+<meta charset="UTF-8">
+<title>Twitter Redirect</title>
+<script>
+  // ツイート本文
+  const text = `@xx
+ベテラン 🦐🦐周回 ＠ 4
 
-    // リンク集（必要な数だけ追加可能）
-    const links = {
-      ebi: "https://twitter.com/intent/tweet?text=%40xx%0A%E3%83%99%E3%83%86%E3%83%A9%E3%83%B3%20%F0%9F%A6%90%F0%9F%A6%90%E5%91%A8%E5%9B%9E%20%EF%BC%A0%204%0A%0A%F0%9F%97%9D%2062930%0A%0A%E4%B8%BB%EF%BC%9A%E5%AE%9F%E5%8A%B9230%25%0A%E5%8B%9F%EF%BC%9A%E5%AE%9F%E5%8A%B9200%25%E2%86%91%0A%0A%E3%83%BBSF%E9%81%A9%E5%BD%93%E3%80%81%E3%82%A2%E3%83%B3%E3%82%B3%E9%81%A9%E5%BD%93%E3%80%81%E9%9B%A3%E6%98%93%E5%BA%A6%E8%87%AA%E7%94%B1%0A%E3%83%BB%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%97%E4%BB%96%E9%83%A8%E5%B1%8B%E3%81%A8%E5%90%8C%E3%81%98%0A%0A&hashtags=%E3%83%97%E3%83%AD%E3%82%BB%E3%82%AB%E5%8B%9F%E9%9B%86,%E3%83%97%E3%83%AD%E3%82%BB%E3%82%AB%E5%8D%94%E5%8A%9B,",
-      room2: "https://twitter.com/intent/tweet?text=%40xx%0A部屋2の内容...&hashtags=プロセカ協力",
-      room3: "https://twitter.com/intent/tweet?text=%40xx%0A部屋3の内容...&hashtags=プロセカ周回"
-    };
+🗝 62930
 
-    if (links[key]) {
-      // 該当するリンクがあればリダイレクト
-      window.location.href = links[key];
-    } else {
-      // 無効なキーならエラー表示
-      document.body.innerHTML = "<p>指定されたリンクは存在しません。</p>";
-    }
-  </script>
+主：実効230%
+募：実効200%↑
+
+・SF適当、アンコ適当、難易度自由
+・スタンプ他部屋と同じ
+
+#プロセカ募集 #プロセカ協力`;
+
+  // xアプリ用スキーム
+  const appLink = "twitter://post?message=" + encodeURIComponent(text);
+
+  // アプリがない場合はブラウザ版にフォールバック
+  const webLink = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+
+  // まずアプリにリダイレクト
+  window.location.href = appLink;
+
+  // 万一アプリがなければ 1秒後にブラウザ版へ
+  setTimeout(() => {
+    window.location.href = webLink;
+  }, 1000);
+</script>
 </head>
 <body>
-  <p>Redirecting...</p>
+<p>Redirecting to x app...</p>
 </body>
 </html>
