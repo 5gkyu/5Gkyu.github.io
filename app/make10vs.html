@@ -1347,6 +1347,15 @@
         </div>
     </div>
 
+        <!-- 準備完了オーバーレイ -->
+        <div class="result-overlay hidden" id="ready-overlay" style="text-align:center;">
+            <div class="result-title">🔔 次ラウンドの準備</div>
+            <div style="margin:12px 0;" id="ready-round-number">第2問の準備</div>
+            <div style="margin:8px 0;" id="my-ready-status">あなた: 未準備</div>
+            <div style="margin:8px 0;" id="opp-ready-status">相手: 未準備</div>
+            <button class="btn btn-primary" id="ready-btn">準備完了</button>
+        </div>
+
     <!-- ルーム作成モーダル -->
     <div class="modal-overlay" id="create-room-modal">
         <div class="modal">
@@ -2132,6 +2141,7 @@
             stopMetaListener();
             stopOpponentExpressionListener();
             stopRoundResultListener();
+            stopReadyListener();
             if (gameState.timerInterval) {
                 clearInterval(gameState.timerInterval);
                 gameState.timerInterval = null;
@@ -3122,21 +3132,33 @@
                     // ホストが勝った
                     stopMetaListener();
                     showMatchResult(gameState.isHost ? 'win' : 'lose');
+                    return;
                 } else if (gameState.guestScore >= winTarget) {
                     // ゲストが勝った
                     stopMetaListener();
                     showMatchResult(gameState.isHost ? 'lose' : 'win');
+                    return;
+                }
+
+                // 次のラウンドへ向けた同期（2問目以降は両者準備完了が必要）
+                const nextRound = gameState.round + 1;
+                console.log('[GAME] Preparing for next round ' + nextRound);
+
+                // 2問目以降は両者の Ready を待つ（ホストは既に次ラウンドを書き込んでいることが多い）
+                if (nextRound >= 2 && !gameState.isTestMode && currentRoomId) {
+                    showReadyOverlay(nextRound);
+                    startReadyListener(nextRound, async () => {
+                        hideReadyOverlay();
+                        gameState.round = nextRound;
+                        await startRound();
+                    });
                 } else {
-                    // 次のラウンドへ
-                    console.log(`[GAME] Advancing to round ${gameState.round + 1}`);
-                    gameState.round++;
-                    
+                    // 1問目やテストモードは通常通り開始
+                    gameState.round = nextRound;
                     if (gameState.isTestMode || !currentRoomId) {
-                        // テストモード：直接開始
                         await loadRoundDataAndStart();
                     } else if (gameState.isHost) {
-                        // ホスト：phase=startedに更新して開始
-                        console.log(`[HOST] Setting phase=started for round ${gameState.round}`);
+                        console.log('[HOST] Setting phase=started for round ' + gameState.round);
                         await database.ref(`rooms/${currentRoomId}/game/meta`).set({
                             phase: 'started',
                             roundNumber: gameState.round,
@@ -3144,11 +3166,87 @@
                         });
                         await loadRoundDataAndStart();
                     } else {
-                        // ゲスト：meta監視を開始してphase=startedを待つ
                         startMetaListener();
                     }
                 }
             }, 3000);
+        }
+
+        // ================================
+        // Ready（準備完了）UI とリスナー
+        // ================================
+        function showReadyOverlay(round) {
+            const overlay = document.getElementById('ready-overlay');
+            if (!overlay) return;
+            const roundEl = document.getElementById('ready-round-number');
+            if (roundEl) roundEl.textContent = `第${round}問の準備`;
+            gameState.pendingRound = round;
+            gameState.ready = false;
+            gameState.opponentReady = false;
+            updateReadyStatusUI(false, false);
+            overlay.classList.remove('hidden');
+            const readyBtn = document.getElementById('ready-btn');
+            if (readyBtn) { readyBtn.disabled = false; readyBtn.textContent = '準備完了'; }
+        }
+
+        function hideReadyOverlay() {
+            const overlay = document.getElementById('ready-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            const readyBtn = document.getElementById('ready-btn');
+            if (readyBtn) { readyBtn.disabled = false; readyBtn.textContent = '準備完了'; }
+            stopReadyListener();
+            gameState.pendingRound = null;
+        }
+
+        function updateReadyStatusUI(myReady, oppReady) {
+            const myEl = document.getElementById('my-ready-status');
+            const oppEl = document.getElementById('opp-ready-status');
+            if (myEl) myEl.textContent = myReady ? 'あなた: 準備完了' : 'あなた: 未準備';
+            if (oppEl) oppEl.textContent = oppReady ? '相手: 準備完了' : '相手: 未準備';
+        }
+
+        async function sendReady(round) {
+            if (!currentRoomId) return;
+            const playerKey = gameState.isHost ? 'host' : 'guest';
+            try {
+                await database.ref(`rooms/${currentRoomId}/game/round${round}/${playerKey}`).update({ ready: true });
+                gameState.ready = true;
+                updateReadyStatusUI(true, gameState.opponentReady);
+            } catch (err) {
+                console.warn('sendReady error', err);
+            }
+        }
+
+        let readyListenerRef = null;
+        function startReadyListener(round, onBothReady) {
+            if (!currentRoomId) return;
+            stopReadyListener();
+            const roundRef = database.ref(`rooms/${currentRoomId}/game/round${round}`);
+            readyListenerRef = roundRef.on('value', (snap) => {
+                const data = snap.val() || {};
+                const hostReady = data.host && data.host.ready;
+                const guestReady = data.guest && data.guest.ready;
+                const myReady = gameState.isHost ? !!hostReady : !!guestReady;
+                const oppReady = gameState.isHost ? !!guestReady : !!hostReady;
+                gameState.opponentReady = oppReady;
+                updateReadyStatusUI(myReady, oppReady);
+                if (myReady && oppReady) {
+                    roundRef.off('value', readyListenerRef);
+                    readyListenerRef = null;
+                    if (typeof onBothReady === 'function') onBothReady();
+                }
+            });
+        }
+
+        function stopReadyListener() {
+            if (!readyListenerRef || !currentRoomId) return;
+            try {
+                const baseRef = database.ref(`rooms/${currentRoomId}/game`);
+                baseRef.off();
+            } catch (e) {
+                // ignore
+            }
+            readyListenerRef = null;
         }
 
         function updateScoreDisplay() {
@@ -3235,6 +3333,19 @@
                 attemptAuthAndSubscribe();
             }
         });
+
+        // 準備完了ボタン
+        const readyBtnEl = document.getElementById('ready-btn');
+        if (readyBtnEl) {
+            readyBtnEl.addEventListener('click', () => {
+                if (gameState.pendingRound) {
+                    sendReady(gameState.pendingRound);
+                    // ボタンを無効化して二重送信防止
+                    readyBtnEl.disabled = true;
+                    readyBtnEl.textContent = '準備中...';
+                }
+            });
+        }
 
         // キーボード入力対応
         document.addEventListener('keydown', (e) => {
