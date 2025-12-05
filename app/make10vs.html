@@ -3091,47 +3091,84 @@
                     solveTime: solveTime
                 };
 
-                console.log(`[SUBMIT] Starting transaction for round ${gameState.round}, player=${playerKey}`);
+                console.log(`[SUBMIT] Writing my result for round ${gameState.round}, player=${playerKey}`);
 
-                roundRef.transaction((current) => {
-                    if (current === null) {
-                        // データがない（通常ここには来ない：ホストが digits を書き込んでいるはず）
-                        const node = { winner: currentUserId };
-                        node[playerKey] = payload;
-                        return node;
-                    }
-                    if (!current.winner) {
-                        // まだ winner がいない → 自分が winner
-                        current.winner = currentUserId;
-                        current[playerKey] = payload;
-                        return current;
-                    }
-                    // 既に winner がいる → abort（undefined を返す）
-                    return undefined;
-                }, (error, committed, snapshot) => {
-                    if (error) {
-                        console.error('[SUBMIT] Transaction error:', error);
-                        // フォールバック: 通常書き込みして勝ち表示（エラー時の救済）
-                        showRoundResult('win', displayExpr + ' = 10', solveTime);
-                        return;
-                    }
+                // 先に自分の結果データだけを書き込む（相手側が式や時間を見られるようにする）
+                roundRef.child(playerKey).update(payload).then(() => {
+                    console.log('[SUBMIT] My result written, now attempting winner transaction');
 
-                    if (committed) {
-                        // 自分が winner を獲得した（勝ち）
-                        console.log(`[SUBMIT] Transaction committed - I won round ${gameState.round}`);
-                        showRoundResult('win', displayExpr + ' = 10', solveTime);
-                    } else {
-                        // 他プレイヤーが先に winner を設定した（負け）
-                        console.log(`[SUBMIT] Transaction aborted - opponent won round ${gameState.round}`);
-                        const data = snapshot.val() || {};
-                        const opponentKey = gameState.isHost ? 'guest' : 'host';
-                        const oppData = data[opponentKey] || {};
-                        const oppExpr = (oppData.expression || '???')
-                            .replace(/\*/g, '×')
-                            .replace(/\//g, '÷');
-                        showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
-                    }
-                }, false); // applyLocally = false
+                    // winner はラウンドノードの child として単独で transaction を行う
+                    const winnerRef = roundRef.child('winner');
+                    winnerRef.transaction((current) => {
+                        if (current) return; // 既に winner がいる -> abort
+                        return currentUserId; // winner に自分の uid を書き込む
+                    }, (error, committed, snap) => {
+                        if (error) {
+                            console.error('[SUBMIT] Winner transaction error:', error);
+                            // winner の確定に失敗したが自分の結果は書き込まれている
+                            // ここでは安全策として相手の状態を読み、勝敗を判定する
+                            roundRef.once('value').then(s => {
+                                const data = s.val() || {};
+                                if (data.winner && data.winner !== currentUserId) {
+                                    // 相手が winner
+                                    const opponentKey = gameState.isHost ? 'guest' : 'host';
+                                    const oppData = data[opponentKey] || {};
+                                    const oppExpr = (oppData.expression || '???').replace(/\*/g, '×').replace(/\//g, '÷');
+                                    showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
+                                } else {
+                                    // 曖昧な場合は自分の勝ちとして表示（ログ記録）
+                                    console.warn('[SUBMIT] Ambiguous winner state after error, treating as win');
+                                    showRoundResult('win', displayExpr + ' = 10', solveTime);
+                                }
+                            }).catch(e => {
+                                console.error('[SUBMIT] Failed to read round after winner error:', e);
+                                showRoundResult('win', displayExpr + ' = 10', solveTime);
+                            });
+                            return;
+                        }
+
+                        // committed が true の場合、winner を書き込めた
+                        const roundData = snap ? snap.val() : null;
+                        if (committed && roundData === currentUserId) {
+                            console.log(`[SUBMIT] I became winner for round ${gameState.round}`);
+                            showRoundResult('win', displayExpr + ' = 10', solveTime);
+                        } else if (roundData && roundData !== currentUserId) {
+                            console.log(`[SUBMIT] Opponent already winner (${roundData}) for round ${gameState.round}`);
+                            // 相手が winner の場合は相手データを表示
+                            roundRef.once('value').then(s => {
+                                const data = s.val() || {};
+                                const opponentKey = gameState.isHost ? 'guest' : 'host';
+                                const oppData = data[opponentKey] || {};
+                                const oppExpr = (oppData.expression || '???').replace(/\*/g, '×').replace(/\//g, '÷');
+                                showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
+                            }).catch(e => {
+                                console.error('[SUBMIT] Failed to read round after opponent winner:', e);
+                                showRoundResult('lose', '相手が先に正解', null);
+                            });
+                        } else {
+                            // committed=false かつ winner も無い不整合な状態
+                            console.warn('[SUBMIT] Transaction not committed and no winner found; treating as lose');
+                            roundRef.once('value').then(s => {
+                                const data = s.val() || {};
+                                if (data.winner && data.winner !== currentUserId) {
+                                    const opponentKey = gameState.isHost ? 'guest' : 'host';
+                                    const oppData = data[opponentKey] || {};
+                                    const oppExpr = (oppData.expression || '???').replace(/\*/g, '×').replace(/\//g, '÷');
+                                    showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
+                                } else {
+                                    showRoundResult('win', displayExpr + ' = 10', solveTime);
+                                }
+                            }).catch(e => {
+                                console.error('[SUBMIT] Failed to read round after ambiguous state:', e);
+                                showRoundResult('win', displayExpr + ' = 10', solveTime);
+                            });
+                        }
+                    }, false);
+                }).catch(err => {
+                    console.error('[SUBMIT] Failed to write my result before winner transaction:', err);
+                    // 書き込みに失敗した場合は従来のフォールバック表示
+                    showRoundResult('win', displayExpr + ' = 10', solveTime);
+                });
             }
         }
 
