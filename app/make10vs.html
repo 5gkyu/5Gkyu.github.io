@@ -1350,14 +1350,7 @@
                     <label>パスワード（任意）</label>
                     <input type="password" id="room-password-input" placeholder="なしの場合は空欄">
                 </div>
-                <div class="form-group">
-                    <label>対戦本数</label>
-                    <select id="room-bo-input">
-                        <option value="3">BO3（2本先取）</option>
-                        <option value="5" selected>BO5（3本先取）</option>
-                        <option value="7">BO7（4本先取）</option>
-                    </select>
-                </div>
+                <!-- 対戦本数は BO1 固定のため入力を廃止 -->
                 <div class="form-group">
                     <label>出題難易度</label>
                     <select id="room-difficulty-input">
@@ -1772,7 +1765,8 @@
             const roomName = document.getElementById('room-name-input').value.trim() || 'ルーム1';
             const hostName = document.getElementById('host-name-input').value.trim() || 'ホスト';
             const password = document.getElementById('room-password-input').value;
-            const bo = parseInt(document.getElementById('room-bo-input').value);
+            // BO1 固定
+            const bo = 1;
             const difficulty = document.getElementById('room-difficulty-input').value;
             const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
             const timeLimit = parseInt(document.getElementById('room-timelimit-input').value) || 30;
@@ -1909,9 +1903,9 @@
                     console.warn('clearRoomExpiry error (guest join):', err);
                 }
 
-                // ゲストが切断したら guest 情報をクリアする
+                // ゲストが切断したら guest 情報と準備フラグをクリアする
                 try {
-                    await roomRef.child('meta').onDisconnect().update({ guestId: null, guestName: null, state: 'open' });
+                    await roomRef.child('meta').onDisconnect().update({ guestId: null, guestName: null, state: 'open', guestReadyForStart: null });
                 } catch (err) {
                     console.warn('ゲスト onDisconnect 設定失敗:', err);
                 }
@@ -2000,7 +1994,7 @@
                 }
 
                 // ゲストが参加した
-                if (meta.guestId && meta.guestName) {
+                    if (meta.guestId && meta.guestName) {
                     document.getElementById('guest-name').textContent = meta.guestName;
                     document.getElementById('guest-avatar').classList.remove('empty');
                     // ゲストのプロフィールをDBから取得し、アバターがあれば表示
@@ -2021,11 +2015,25 @@
                     // クリア: ゲストが揃ったので自動削除タイマーを解除
                     try { if (isHost) clearRoomExpiry(roomId); } catch(e){console.warn('clear expiry on guest join failed',e)}
 
+                    // ホスト側は、ゲストが待機画面に到達したことを示すフラグを確認してから開始する
                     if (isHost && meta.state === 'open') {
-                        console.log('Host: starting match countdown');
-                        startMatchCountdown(roomId);
+                        if (meta.guestReadyForStart) {
+                            console.log('Host: guestReadyForStart detected, starting match countdown');
+                            startMatchCountdown(roomId);
+                        } else {
+                            console.log('Host: guest present but not yet ready; waiting for guestReadyForStart');
+                        }
                     }
                 }
+
+            // ゲスト側は待機画面に入ったら "guestReadyForStart" をセットしてホストへ通知する
+            if (!isHost) {
+                try {
+                    database.ref(`rooms/${roomId}/meta`).update({ guestReadyForStart: true }).catch(e => console.warn('set guestReadyForStart failed', e));
+                } catch (e) {
+                    console.warn('guest set ready flag failed', e);
+                }
+            }
 
                 // 試合開始状態になった
                 if (meta.state === 'playing') {
@@ -2408,7 +2416,7 @@
         document.getElementById('test-room-btn').addEventListener('click', () => {
             gameState.isTestMode = true;
             gameState.isHost = true;
-            gameState.bo = 5;
+            gameState.bo = 1;
             gameState.round = 1;
             gameState.hostScore = 0;
             gameState.guestScore = 0;
@@ -2881,6 +2889,11 @@
                 database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).off('value', opponentExpressionListener);
                 opponentExpressionListener = null;
             }
+        }
+
+        // Ready 機構は BO1 のため廃止。呼び出しが残っている箇所向けの noop を提供。
+        function stopReadyListener() {
+            // noop
         }
 
         // 数字カードのタップイベント（問題の数字をタップして入力）
