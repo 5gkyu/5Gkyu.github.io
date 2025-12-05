@@ -2484,6 +2484,10 @@
                 gameState.timerInterval = null;
             }
             
+            // リスナーを停止
+            stopOpponentExpressionListener();
+            stopRoundResultListener();
+            
             gameState.usedDigits = [];
             gameState.expression = '';
             gameState.submitted = false;
@@ -2500,85 +2504,37 @@
 
                     await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).set({
                         digits: problem.digits,
-                        hostReady: true,
-                        guestReady: false,
-                        startTime: null
+                        roundNumber: gameState.round
                     });
-                    
-                    // ゲストの準備完了を待つ
+                } else {
+                    // ゲストはDBから問題を読み取る
                     const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    
+                    // 問題データを取得（最大10秒待機）
+                    let gotData = false;
                     await new Promise((resolve) => {
                         const listener = roundRef.on('value', (snapshot) => {
                             const data = snapshot.val();
-                            if (data && data.guestReady) {
+                            if (data && data.digits && data.roundNumber === gameState.round) {
+                                gameState.digits = data.digits;
+                                gameState.solutions = findSolutions(data.digits);
+                                gotData = true;
                                 roundRef.off('value', listener);
                                 resolve();
                             }
                         });
-                        // 10秒でタイムアウト（ゲストが来ない場合）
                         setTimeout(() => {
                             roundRef.off('value', listener);
                             resolve();
                         }, 10000);
                     });
                     
-                    // 開始時刻を記録
-                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
-                        startTime: firebase.database.ServerValue.TIMESTAMP
-                    });
-                } else {
-                    // ゲストはDBから問題を読み取る（ホストが書き込むまで待機）
-                    const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
-                    
-                    // ホストが新しいラウンドデータを書き込むまで待機
-                    // hostReady: true になるまで待つことで、前のラウンドのデータと区別
-                    await new Promise((resolve) => {
-                        const listener = roundRef.on('value', (snapshot) => {
-                            const data = snapshot.val();
-                            // hostReadyがtrueで、まだguestReadyがfalseなら新しいラウンド
-                            if (data && data.digits && data.hostReady && !data.guestReady) {
-                                gameState.digits = data.digits;
-                                gameState.solutions = findSolutions(data.digits);
-                                roundRef.off('value', listener);
-                                resolve();
-                            }
-                        });
-                        // 15秒でタイムアウト
-                        setTimeout(() => {
-                            roundRef.off('value', listener);
-                            // タイムアウトでも現在のデータを使用
-                            roundRef.once('value').then(snap => {
-                                const data = snap.val();
-                                if (data && data.digits) {
-                                    gameState.digits = data.digits;
-                                    gameState.solutions = findSolutions(data.digits);
-                                }
-                            });
-                            resolve();
-                        }, 15000);
-                    });
-                    
-                    // ゲストの準備完了を通知
-                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
-                        guestReady: true
-                    });
-                    
-                    // ホストが開始時刻を書き込むのを待つ
-                    const startRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
-                    await new Promise((resolve) => {
-                        const listener = startRef.on('value', (snapshot) => {
-                            const data = snapshot.val();
-                            if (data && data.startTime) {
-                                startRef.off('value', listener);
-                                resolve();
-                            }
-                        });
-                        // 5秒でタイムアウト
-                        setTimeout(() => {
-                            startRef.off('value', listener);
-                            resolve();
-                        }, 5000);
-                    });
+                    // データが取得できなかった場合、ローカルで生成
+                    if (!gotData) {
+                        const problem = generateProblem();
+                        gameState.digits = problem.digits;
+                        gameState.solutions = problem.solutions;
+                    }
                 }
             } else {
                 // テストモードまたはローカル: 問題を生成
@@ -2595,17 +2551,18 @@
             document.getElementById('opponent-status').textContent = '相手: 入力中...';
             document.getElementById('opponent-status').className = 'opponent-status';
 
-            // 相手の式を監視（オンライン対戦時）
-            if (!gameState.isTestMode && currentRoomId) {
-                startOpponentExpressionListener();
-                startRoundResultListener();
-            }
-
             // カウントダウン表示
             showCountdown(gameState.round, () => {
                 // 問題表示
                 renderProblem(difficulty);
                 gameState.roundStartTime = Date.now();
+                
+                // 相手の回答を監視（オンライン対戦時）- カウントダウン後に開始
+                if (!gameState.isTestMode && currentRoomId) {
+                    startOpponentExpressionListener();
+                    startRoundResultListener();
+                }
+                
                 startTimer();
             });
         }
@@ -3053,7 +3010,7 @@
             // 勝敗チェック
             const winTarget = Math.ceil(gameState.bo / 2);
 
-            setTimeout(async () => {
+            setTimeout(() => {
                 overlay.classList.add('hidden');
 
                 if (gameState.hostScore >= winTarget) {
@@ -3063,41 +3020,8 @@
                     // ゲストが勝った
                     showMatchResult(gameState.isHost ? 'lose' : 'win');
                 } else {
-                    // 次のラウンドへ
-                    const nextRound = gameState.round + 1;
-                    
-                    // オンライン対戦時は次ラウンドの準備ができるまで待つ
-                    if (!gameState.isTestMode && currentRoomId) {
-                        // ゲストは次ラウンドのデータが書き込まれるまで待機
-                        if (!gameState.isHost) {
-                            const nextRoundRef = database.ref(`rooms/${currentRoomId}/game/round${nextRound}`);
-                            await new Promise((resolve) => {
-                                const checkData = async () => {
-                                    const snap = await nextRoundRef.once('value');
-                                    if (snap.val() && snap.val().digits) {
-                                        resolve();
-                                    } else {
-                                        // リスナーで待機
-                                        const listener = nextRoundRef.on('value', (snapshot) => {
-                                            const data = snapshot.val();
-                                            if (data && data.digits) {
-                                                nextRoundRef.off('value', listener);
-                                                resolve();
-                                            }
-                                        });
-                                        // 10秒でタイムアウト
-                                        setTimeout(() => {
-                                            nextRoundRef.off('value', listener);
-                                            resolve();
-                                        }, 10000);
-                                    }
-                                };
-                                checkData();
-                            });
-                        }
-                    }
-                    
-                    gameState.round = nextRound;
+                    // 次のラウンドへ（シンプルに進む）
+                    gameState.round++;
                     startRound();
                 }
             }, 3000);
