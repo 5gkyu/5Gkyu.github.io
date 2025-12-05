@@ -58,6 +58,32 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .user-info:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .user-info .status-dot {
@@ -206,6 +232,33 @@
 
         .room-info {
             flex: 1;
+        }
+
+        /* ルーム一覧用アバター */
+        .room-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .room-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ルームカード内でアバターと情報を横並びにする調整 */
+        .room-card .room-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .room-name {
@@ -392,12 +445,23 @@
         .waiting-players {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 2rem;
             margin: 2rem 0;
         }
 
         .waiting-player {
             text-align: center;
+        }
+
+        .waiting-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #555;
+            min-width: 60px;
         }
 
         .player-avatar {
@@ -567,11 +631,25 @@
             font-size: 2rem;
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .digit-card:hover:not(.used) {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        .digit-card:active:not(.used) {
+            transform: scale(0.95);
         }
 
         .digit-card.used {
-            opacity: 0.4;
-            transform: scale(0.9);
+            opacity: 0.3;
+            transform: scale(0.85);
+            cursor: not-allowed;
+            background: #444;
         }
 
         /* タイマー */
@@ -639,79 +717,151 @@
             color: var(--secondary-color);
         }
 
-        /* 入力パッド */
-        .input-pad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        /* 演算子・括弧ボタン行 */
+        .operator-row {
+            display: flex;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.5rem 0;
+            margin: 0.75rem 0;
         }
 
-        .input-btn {
-            padding: 0.75rem;
-            font-size: 1.3rem;
+        .op-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
             font-weight: bold;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.15s ease;
-            background: #333;
-            color: var(--text-color);
-        }
-
-        .input-btn:hover {
-            background: #444;
-            transform: scale(1.05);
-        }
-
-        .input-btn:active {
-            transform: scale(0.95);
-        }
-
-        .input-btn.digit {
-            background: var(--primary-color);
-        }
-
-        .input-btn.digit:hover {
-            background: var(--primary-dark);
-        }
-
-        .input-btn.digit.disabled {
-            background: #333;
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .input-btn.operator {
             background: var(--warning-color);
             color: #000;
         }
 
-        .input-btn.operator:hover {
+        .op-btn:hover {
+            transform: scale(1.1);
             background: #e67e22;
         }
 
-        .input-btn.action {
+        .op-btn:active {
+            transform: scale(0.95);
+        }
+
+        .op-btn.bracket {
+            background: #9b59b6;
+            color: #fff;
+        }
+
+        .op-btn.bracket:hover {
+            background: #8e44ad;
+        }
+
+        /* アクションボタン行 */
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0.5rem 0;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn.backspace {
             background: #555;
+            color: #fff;
         }
 
-        .input-btn.submit {
-            background: var(--secondary-color);
-            grid-column: span 2;
+        .action-btn.reset {
+            background: var(--danger-color);
+            color: #fff;
         }
 
-        .input-btn.submit:hover {
-            background: #27ae60;
+        .action-btn.hint {
+            background: var(--info-color, #3498db);
+            color: #fff;
         }
 
-        .input-btn.submit:disabled {
-            background: #333;
+        .action-btn.hint:disabled {
+            background: #444;
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .input-btn.clear {
-            background: var(--danger-color);
+        /* Mobile adjustments: make game screen fit a single smartphone viewport */
+        @media (max-width: 420px) {
+            .game-screen {
+                padding: 0.5rem;
+            }
+
+            .game-header, .game-main {
+                padding: 0.25rem 0.5rem;
+            }
+
+            .digit-card {
+                width: 48px;
+                height: 56px;
+                font-size: 1.6rem;
+                margin: 0 0.25rem;
+            }
+
+            .problem-digits {
+                display: flex;
+                gap: 0.4rem;
+                justify-content: center;
+                flex-wrap: nowrap;
+            }
+
+            .operator-row {
+                gap: 0.4rem;
+                padding: 0.25rem 0;
+            }
+
+            .op-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+                border-radius: 10px;
+            }
+
+            .action-row { gap: 0.5rem; }
+
+            .action-btn { padding: 0.45rem 0.8rem; font-size: 0. ninerem; }
+
+            .expression-display {
+                min-height: 44px;
+                font-size: 1.1rem;
+                padding: 0.5rem;
+            }
+
+            .expression-result { font-size: 0. ninerem; }
+
+            .timer-text { font-size: 1.1rem; }
+
+            .round-info { gap: 0.4rem; }
+            .round-number { font-size: 1rem; }
+            .difficulty { font-size: 0.85rem; }
+
+            .problem-display { margin-bottom: 0.4rem; }
+
+            .user-avatar-large { width: 56px; height: 56px; font-size: 1.6rem; }
+
+            .opponent-status { font-size: 0. eightrem; padding: 0.4rem; }
         }
 
         /* 相手の状態表示 */
@@ -866,6 +1016,26 @@
             margin-left: 0.5rem;
         }
 
+        /* ユーザー設定モーダル */
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         /* レスポンシブ */
         @media (max-width: 600px) {
             header {
@@ -914,7 +1084,8 @@
     <!-- ヘッダー -->
     <header>
         <h1>make<span>10</span> vs</h1>
-        <div class="user-info">
+        <div class="user-info" id="user-info-btn">
+            <div class="user-avatar" id="user-avatar">👤</div>
             <span class="status-dot"></span>
             <span id="current-user-name">ゲスト</span>
         </div>
@@ -965,7 +1136,9 @@
                         <div class="player-name" id="host-name">ホスト</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">ホスト</div>
                     </div>
-                    <div style="display: flex; align-items: center; font-size: 2rem; color: #555;">VS</div>
+                    <div class="waiting-vs">
+                        <span>VS</span>
+                    </div>
                     <div class="waiting-player">
                         <div class="player-avatar empty" id="guest-avatar">?</div>
                         <div class="player-name" id="guest-name">待機中...</div>
@@ -1009,6 +1182,23 @@
                         <div class="digit-card">7</div>
                         <div class="digit-card">9</div>
                     </div>
+
+                    <!-- 演算子・括弧ボタン（数字の下） -->
+                    <div class="operator-row" id="operator-row">
+                        <button class="op-btn bracket" data-op="(">(</button>
+                        <button class="op-btn" data-op="/">÷</button>
+                        <button class="op-btn" data-op="*">×</button>
+                        <button class="op-btn" data-op="-">−</button>
+                        <button class="op-btn" data-op="+">+</button>
+                        <button class="op-btn bracket" data-op=")">)</button>
+                    </div>
+
+                    <!-- アクションボタン（数字の下） -->
+                    <div class="action-row" id="action-row">
+                        <button class="action-btn backspace" data-action="backspace">⌫ 戻す</button>
+                        <button class="action-btn reset" data-action="reset">AC リセット</button>
+                        <button class="action-btn hint" data-action="hint" id="hint-btn" style="display: none;">💡 ヒント</button>
+                    </div>
                 </div>
 
                 <div class="timer-container">
@@ -1023,30 +1213,6 @@
 
                 <div class="opponent-status" id="opponent-status">相手: 入力中...</div>
             </div>
-
-            <!-- 入力パッド -->
-            <div class="input-pad" id="input-pad">
-                <button class="input-btn digit" data-digit="1">1</button>
-                <button class="input-btn digit" data-digit="2">2</button>
-                <button class="input-btn digit" data-digit="3">3</button>
-                <button class="input-btn operator" data-op="+">+</button>
-
-                <button class="input-btn digit" data-digit="4">4</button>
-                <button class="input-btn digit" data-digit="5">5</button>
-                <button class="input-btn digit" data-digit="6">6</button>
-                <button class="input-btn operator" data-op="-">−</button>
-
-                <button class="input-btn digit" data-digit="7">7</button>
-                <button class="input-btn digit" data-digit="8">8</button>
-                <button class="input-btn digit" data-digit="9">9</button>
-                <button class="input-btn operator" data-op="*">×</button>
-
-                <button class="input-btn clear" data-action="clear">C</button>
-                <button class="input-btn action backspace" data-action="backspace">⌫</button>
-                <button class="input-btn operator" data-op="/">÷</button>
-                <button class="input-btn submit" id="submit-btn" disabled>送信</button>
-            </div>
-        </div>
 
         <!-- カウントダウンオーバーレイ -->
         <div class="countdown-overlay hidden" id="countdown-overlay">
@@ -1099,6 +1265,29 @@
                         <option value="7">BO7（4本先取）</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>出題難易度</label>
+                    <select id="room-difficulty-input">
+                        <option value="all" selected>すべて（ランダム）</option>
+                        <option value="easy">簡単（解が多い問題）</option>
+                        <option value="normal">普通</option>
+                        <option value="hard">難しい（解が少ない問題）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>括弧を使う問題</label>
+                    <select id="room-brackets-input">
+                        <option value="no">出題しない</option>
+                        <option value="yes" selected>出題する</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ヒントボタン</label>
+                    <select id="room-hint-input">
+                        <option value="no" selected>なし</option>
+                        <option value="yes">あり（各ラウンド1回）</option>
+                    </select>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancel-create-room">キャンセル</button>
                     <button type="submit" class="btn btn-primary">作成する</button>
@@ -1133,6 +1322,45 @@
                     <button type="submit" class="btn btn-success">参加する</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- ユーザー設定モーダル -->
+    <div class="modal-overlay" id="user-settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>👤 ユーザー設定</h3>
+                <button class="modal-close" id="close-user-settings">&times;</button>
+            </div>
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div class="user-avatar-large" id="user-avatar-large">👤</div>
+                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                <button class="btn btn-secondary" id="upload-avatar-btn" style="margin-top: 1rem;">
+                    📷 アイコンを変更
+                </button>
+            </div>
+            <div class="form-group">
+                <label>表示名</label>
+                <input type="text" id="display-name-input" placeholder="名前を入力" maxlength="10">
+            </div>
+            <div id="login-section">
+                <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
+                    Googleでログインすると、名前とアイコンが保存されます
+                </p>
+                <button class="btn btn-primary" id="google-login-btn" style="width: 100%;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px;">
+                    Googleでログイン
+                </button>
+            </div>
+            <div id="logout-section" style="display: none;">
+                <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;" id="logged-in-email"></p>
+                <button class="btn btn-danger" id="logout-btn" style="width: 100%;">
+                    ログアウト
+                </button>
+            </div>
+            <div class="form-actions" style="margin-top: 1.5rem;">
+                <button class="btn btn-success" id="save-user-settings" style="width: 100%;">保存</button>
+            </div>
         </div>
     </div>
 
@@ -1260,13 +1488,16 @@
                 card.className = 'room-card';
                 card.innerHTML = `
                     <div class="room-info">
-                        <div class="room-name">
-                            ${hasPassword ? '<span class="lock-icon">🔒</span>' : ''}
-                            ${escapeHtml(meta.roomName)}
-                        </div>
-                        <div class="room-meta">
-                            <span>👤 ${escapeHtml(meta.hostName || 'ホスト')}</span>
-                            <span>🎯 BO${meta.bo}</span>
+                        <div class="room-avatar" data-host-id="${meta.hostId || ''}">👑</div>
+                        <div>
+                            <div class="room-name">
+                                ${hasPassword ? '<span class="lock-icon">🔒</span>' : ''}
+                                ${escapeHtml(meta.roomName)}
+                            </div>
+                            <div class="room-meta">
+                                <span class="host-name">👤 ${escapeHtml(meta.hostName || 'ホスト')}</span>
+                                <span>🎯 BO${meta.bo}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="room-players">
@@ -1283,6 +1514,21 @@
                 }
 
                 roomList.insertBefore(card, emptyState);
+
+                // ホストのアバターを取得して差し替え（非同期）
+                if (meta.hostId) {
+                    database.ref(`users/${meta.hostId}`).once('value').then((ps) => {
+                        const p = ps.val();
+                        const avatarEl = card.querySelector('.room-avatar');
+                        if (p && p.avatar) {
+                            avatarEl.innerHTML = `<img src="${p.avatar}" alt="host">`;
+                        } else {
+                            avatarEl.textContent = '👑';
+                        }
+                    }).catch((err) => {
+                        console.warn('ルーム一覧アバター取得失敗:', err);
+                    });
+                }
             });
         }
 
@@ -1314,6 +1560,9 @@
             const hostName = document.getElementById('host-name-input').value.trim() || 'ホスト';
             const password = document.getElementById('room-password-input').value;
             const bo = parseInt(document.getElementById('room-bo-input').value);
+            const difficulty = document.getElementById('room-difficulty-input').value;
+            const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
+            const allowHint = document.getElementById('room-hint-input').value === 'yes';
 
             if (!roomName) {
                 alert('ルーム名を入力してください');
@@ -1333,6 +1582,9 @@
                         guestName: null,
                         passwordHash: hashPassword(password),
                         bo: bo,
+                        difficulty: difficulty,
+                        allowBrackets: allowBrackets,
+                        allowHint: allowHint,
                         state: 'open',
                         createdAt: firebase.database.ServerValue.TIMESTAMP
                     }
@@ -1454,6 +1706,30 @@
 
             // ルームの変更を監視
             currentRoomRef = database.ref(`rooms/${roomId}/meta`);
+            // 初回取得でホスト/ゲストのアバターがあれば表示
+            database.ref(`rooms/${roomId}/meta`).once('value').then((snap) => {
+                const initialMeta = snap.val();
+                if (initialMeta && initialMeta.hostId) {
+                    database.ref(`users/${initialMeta.hostId}`).once('value').then((ps) => {
+                        const p = ps.val();
+                        if (p && p.avatar) {
+                            const el = document.getElementById('host-avatar');
+                            el.innerHTML = `<img src="${p.avatar}" alt="host">`;
+                        }
+                    }).catch((err) => console.warn('ホストプロフィール取得失敗:', err));
+                }
+                if (initialMeta && initialMeta.guestId) {
+                    database.ref(`users/${initialMeta.guestId}`).once('value').then((ps) => {
+                        const p = ps.val();
+                        if (p && p.avatar) {
+                            const el = document.getElementById('guest-avatar');
+                            el.innerHTML = `<img src="${p.avatar}" alt="guest">`;
+                            el.classList.remove('empty');
+                        }
+                    }).catch((err) => console.warn('ゲストプロフィール取得失敗:', err));
+                }
+            }).catch((err) => console.warn('初回ルームメタ取得失敗:', err));
+
             currentRoomRef.on('value', (snapshot) => {
                 const meta = snapshot.val();
                 console.log('rooms/' + roomId + '/meta changed:', meta);
@@ -1467,8 +1743,19 @@
                 // ゲストが参加した
                 if (meta.guestId && meta.guestName) {
                     document.getElementById('guest-name').textContent = meta.guestName;
-                    document.getElementById('guest-avatar').textContent = '🎮';
                     document.getElementById('guest-avatar').classList.remove('empty');
+                    // ゲストのプロフィールをDBから取得し、アバターがあれば表示
+                    database.ref(`users/${meta.guestId}`).once('value').then((ps) => {
+                        const p = ps.val();
+                        if (p && p.avatar) {
+                            document.getElementById('guest-avatar').innerHTML = `<img src="${p.avatar}" alt="guest">`;
+                        } else {
+                            document.getElementById('guest-avatar').textContent = '🎮';
+                        }
+                    }).catch((err) => {
+                        console.warn('ゲストプロフィール取得失敗:', err);
+                        document.getElementById('guest-avatar').textContent = '🎮';
+                    });
                     document.getElementById('waiting-message').textContent = '対戦準備完了！まもなく開始します...';
 
                     // 2人揃ったら試合開始（ホスト側で開始処理）
@@ -1494,10 +1781,18 @@
 
                     currentRoomId = roomId;
                     gameState.isTestMode = false;
+                    gameState.isHost = isHost;
                     gameState.bo = meta.bo || gameState.bo;
                     gameState.round = 1;
+                    gameState.hostScore = 0;
+                    gameState.guestScore = 0;
                     gameState.hostName = meta.hostName || 'ホスト';
                     gameState.guestName = meta.guestName || 'ゲスト';
+                    
+                    // ルーム設定を反映
+                    gameState.difficulty = meta.difficulty || 'all';
+                    gameState.allowBrackets = meta.allowBrackets !== false;
+                    gameState.allowHint = meta.allowHint === true;
 
                     // UI反映してゲーム開始（既にゲーム画面なら重複呼び出ししない）
                     currentUserNameEl.textContent = currentUserName;
@@ -1588,6 +1883,7 @@
         // ========================================
         let gameState = {
             isTestMode: false,
+            isHost: false,
             bo: 5,
             round: 1,
             hostScore: 0,
@@ -1600,7 +1896,13 @@
             timeLeft: 25,
             timerInterval: null,
             submitted: false,
-            solutions: []
+            solutions: [],
+            roundStartTime: null,
+            // ルーム設定
+            difficulty: 'all',
+            allowBrackets: true,
+            allowHint: false,
+            hintUsed: false
         };
 
         // 10を作れる組み合わせを事前計算するための関数
@@ -1622,8 +1924,8 @@
             return validProblems;
         }
 
-        // 4つの数字から10を作る全ての式を探す（括弧なしのみ）
-        function findSolutions(digits) {
+        // 4つの数字から10を作る全ての式を探す（括弧あり・なし両方対応）
+        function findSolutions(digits, includeBrackets = true) {
             const solutions = [];
             const ops = ['+', '-', '*', '/'];
             const perms = permutations(digits);
@@ -1633,21 +1935,92 @@
                 for (const op1 of ops) {
                     for (const op2 of ops) {
                         for (const op3 of ops) {
-                            // 括弧なし: a op1 b op2 c op3 d（左から順に計算、演算子の優先順位に従う）
+                            // 括弧なし: a op1 b op2 c op3 d
                             const expr = `${a}${op1}${b}${op2}${c}${op3}${d}`;
                             if (safeEval(expr) === 10) {
-                                solutions.push(formatExpr(a, op1, b, op2, c, op3, d));
+                                solutions.push({ expr: formatExpr(a, op1, b, op2, c, op3, d), hasBrackets: false });
+                            }
+
+                            if (includeBrackets) {
+                                // 括弧パターン1: (a op1 b) op2 c op3 d
+                                const expr1 = `(${a}${op1}${b})${op2}${c}${op3}${d}`;
+                                if (safeEval(expr1) === 10) {
+                                    solutions.push({ expr: `(${a}${formatOp(op1)}${b})${formatOp(op2)}${c}${formatOp(op3)}${d}`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン2: a op1 (b op2 c) op3 d
+                                const expr2 = `${a}${op1}(${b}${op2}${c})${op3}${d}`;
+                                if (safeEval(expr2) === 10) {
+                                    solutions.push({ expr: `${a}${formatOp(op1)}(${b}${formatOp(op2)}${c})${formatOp(op3)}${d}`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン3: a op1 b op2 (c op3 d)
+                                const expr3 = `${a}${op1}${b}${op2}(${c}${op3}${d})`;
+                                if (safeEval(expr3) === 10) {
+                                    solutions.push({ expr: `${a}${formatOp(op1)}${b}${formatOp(op2)}(${c}${formatOp(op3)}${d})`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン4: (a op1 b op2 c) op3 d
+                                const expr4 = `(${a}${op1}${b}${op2}${c})${op3}${d}`;
+                                if (safeEval(expr4) === 10) {
+                                    solutions.push({ expr: `(${a}${formatOp(op1)}${b}${formatOp(op2)}${c})${formatOp(op3)}${d}`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン5: a op1 (b op2 c op3 d)
+                                const expr5 = `${a}${op1}(${b}${op2}${c}${op3}${d})`;
+                                if (safeEval(expr5) === 10) {
+                                    solutions.push({ expr: `${a}${formatOp(op1)}(${b}${formatOp(op2)}${c}${formatOp(op3)}${d})`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン6: (a op1 b) op2 (c op3 d)
+                                const expr6 = `(${a}${op1}${b})${op2}(${c}${op3}${d})`;
+                                if (safeEval(expr6) === 10) {
+                                    solutions.push({ expr: `(${a}${formatOp(op1)}${b})${formatOp(op2)}(${c}${formatOp(op3)}${d})`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン7: ((a op1 b) op2 c) op3 d
+                                const expr7 = `((${a}${op1}${b})${op2}${c})${op3}${d}`;
+                                if (safeEval(expr7) === 10) {
+                                    solutions.push({ expr: `((${a}${formatOp(op1)}${b})${formatOp(op2)}${c})${formatOp(op3)}${d}`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン8: (a op1 (b op2 c)) op3 d
+                                const expr8 = `(${a}${op1}(${b}${op2}${c}))${op3}${d}`;
+                                if (safeEval(expr8) === 10) {
+                                    solutions.push({ expr: `(${a}${formatOp(op1)}(${b}${formatOp(op2)}${c}))${formatOp(op3)}${d}`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン9: a op1 ((b op2 c) op3 d)
+                                const expr9 = `${a}${op1}((${b}${op2}${c})${op3}${d})`;
+                                if (safeEval(expr9) === 10) {
+                                    solutions.push({ expr: `${a}${formatOp(op1)}((${b}${formatOp(op2)}${c})${formatOp(op3)}${d})`, hasBrackets: true });
+                                }
+
+                                // 括弧パターン10: a op1 (b op2 (c op3 d))
+                                const expr10 = `${a}${op1}(${b}${op2}(${c}${op3}${d}))`;
+                                if (safeEval(expr10) === 10) {
+                                    solutions.push({ expr: `${a}${formatOp(op1)}(${b}${formatOp(op2)}(${c}${formatOp(op3)}${d}))`, hasBrackets: true });
+                                }
                             }
                         }
                     }
                 }
             }
-            return [...new Set(solutions)];
+            // 重複を除去
+            const uniqueExprs = [...new Set(solutions.map(s => s.expr))];
+            return uniqueExprs.map(expr => {
+                const hasBrackets = expr.includes('(');
+                return { expr, hasBrackets };
+            });
+        }
+
+        function formatOp(op) {
+            const opMap = {'+': ' + ', '-': ' - ', '*': ' × ', '/': ' ÷ '};
+            return opMap[op] || op;
         }
 
         function formatExpr(a, op1, b, op2, c, op3, d) {
-            const opMap = {'+': ' + ', '-': ' - ', '*': ' × ', '/': ' ÷ '};
-            return `${a}${opMap[op1]}${b}${opMap[op2]}${c}${opMap[op3]}${d}`;
+            return `${a}${formatOp(op1)}${b}${formatOp(op2)}${c}${formatOp(op3)}${d}`;
         }
 
         function permutations(arr) {
@@ -1676,13 +2049,15 @@
         // 難易度2: 解がそこそこ（5-9個）
         // 難易度3: 解が少なめ（2-4個）
         // 難易度4: 解が1つだけ
-        // 難易度5: 除算を含み解が1つだけ
+        // 難易度5: 除算を含み解が1つだけ、または括弧必須
         function calculateDifficulty(solutions) {
             if (solutions.length === 0) return 5;
             
-            const hasDivide = solutions.some(s => s.includes('÷'));
-            const hasMultiply = solutions.some(s => s.includes('×'));
+            const exprs = solutions.map(s => typeof s === 'string' ? s : s.expr);
+            const hasDivide = exprs.some(s => s.includes('÷'));
+            const onlyBrackets = solutions.every(s => typeof s === 'object' && s.hasBrackets);
             
+            if (onlyBrackets) return 5; // 括弧必須は最高難易度
             if (solutions.length >= 10) return 1;
             if (solutions.length >= 5) return 2;
             if (solutions.length >= 2) return 3;
@@ -1691,21 +2066,64 @@
             return 4;
         }
 
-        // 問題を生成
+        // 問題を生成（設定に応じて難易度・括弧を制御）
         function generateProblem() {
-            // ランダムな4桁を生成し、解が存在するまで繰り返す
-            let digits, solutions;
+            const includeBrackets = gameState.allowBrackets;
+            const targetDifficulty = gameState.difficulty;
+            
+            let digits, solutions, difficulty;
+            let attempts = 0;
+            const maxAttempts = 500;
+            
             do {
                 digits = [
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1
+                    Math.floor(Math.random() * 10),
+                    Math.floor(Math.random() * 10),
+                    Math.floor(Math.random() * 10),
+                    Math.floor(Math.random() * 10)
                 ];
-                solutions = findSolutions(digits);
-            } while (solutions.length === 0);
+                solutions = findSolutions(digits, includeBrackets);
+                difficulty = calculateDifficulty(solutions);
+                attempts++;
+                
+                // 難易度フィルタリング
+                if (solutions.length > 0 && targetDifficulty !== 'all') {
+                    if (targetDifficulty === 'easy' && difficulty > 2) continue;
+                    if (targetDifficulty === 'normal' && (difficulty < 2 || difficulty > 4)) continue;
+                    if (targetDifficulty === 'hard' && difficulty < 4) continue;
+                }
+                
+            } while (solutions.length === 0 || (targetDifficulty !== 'all' && attempts < maxAttempts && !matchesDifficulty(difficulty, targetDifficulty)));
 
-            return { digits, solutions };
+            // 解の表示形式を文字列に統一
+            const solutionExprs = solutions.map(s => typeof s === 'string' ? s : s.expr);
+            return { digits, solutions: solutionExprs };
+        }
+        
+        function matchesDifficulty(difficulty, target) {
+            if (target === 'all') return true;
+            if (target === 'easy') return difficulty <= 2;
+            if (target === 'normal') return difficulty >= 2 && difficulty <= 4;
+            if (target === 'hard') return difficulty >= 4;
+            return true;
+        }
+
+        // ヒント機能
+        function showHint() {
+            if (gameState.hintUsed || !gameState.allowHint) return;
+            
+            gameState.hintUsed = true;
+            document.getElementById('hint-btn').disabled = true;
+            
+            // 解の1つから最初の数字と演算子をヒントとして表示
+            if (gameState.solutions && gameState.solutions.length > 0) {
+                const solution = gameState.solutions[0];
+                // 最初の3文字程度をヒントとして表示（例: "3 + "）
+                const hint = solution.substring(0, 4).trim();
+                alert(`💡 ヒント: 「${hint}...」から始めてみよう！`);
+            } else {
+                alert('💡 ヒントはありません');
+            }
         }
 
         // テストモード開始
@@ -1717,6 +2135,9 @@
             gameState.guestScore = 0;
             gameState.hostName = 'あなた';
             gameState.guestName = 'CPU';
+            gameState.difficulty = 'all';
+            gameState.allowBrackets = true;
+            gameState.allowHint = true; // テストモードではヒントあり
             currentUserName = 'あなた';
             currentUserNameEl.textContent = 'あなた (テスト)';
 
@@ -1736,32 +2157,86 @@
                 document.getElementById('game-guest-name').innerHTML = gameState.guestName + ' <span class="test-mode-badge">TEST</span>';
             }
 
+            // ヒントボタンの表示/非表示
+            const hintBtn = document.getElementById('hint-btn');
+            if (gameState.allowHint) {
+                hintBtn.style.display = 'inline-block';
+            } else {
+                hintBtn.style.display = 'none';
+            }
+
+            // 括弧ボタンの表示/非表示
+            const bracketBtns = document.querySelectorAll('.op-btn.bracket');
+            bracketBtns.forEach(btn => {
+                btn.style.display = gameState.allowBrackets ? 'inline-block' : 'none';
+            });
+
             startRound();
         }
 
-        function startRound() {
-            // 問題生成
-            const problem = generateProblem();
-            gameState.digits = problem.digits;
-            gameState.solutions = problem.solutions;
+        async function startRound() {
             gameState.usedDigits = [];
             gameState.expression = '';
             gameState.submitted = false;
             gameState.timeLeft = 25;
+            gameState.hintUsed = false;
+            
+            // ヒントボタンをリセット
+            const hintBtn = document.getElementById('hint-btn');
+            if (hintBtn) hintBtn.disabled = false;
+
+            // オンライン対戦の場合、問題をFirebase経由で共有
+            if (!gameState.isTestMode && currentRoomId) {
+                if (gameState.isHost) {
+                    // ホストが問題を生成してDBに書き込む
+                    const problem = generateProblem();
+                    gameState.digits = problem.digits;
+                    gameState.solutions = problem.solutions;
+
+                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).set({
+                        digits: problem.digits,
+                        startTime: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } else {
+                    // ゲストはDBから問題を読み取る（ホストが書き込むまで待機）
+                    const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    await new Promise((resolve) => {
+                        const listener = roundRef.on('value', (snapshot) => {
+                            const data = snapshot.val();
+                            if (data && data.digits) {
+                                gameState.digits = data.digits;
+                                gameState.solutions = findSolutions(data.digits);
+                                roundRef.off('value', listener);
+                                resolve();
+                            }
+                        });
+                    });
+                }
+            } else {
+                // テストモードまたはローカル: 問題を生成
+                const problem = generateProblem();
+                gameState.digits = problem.digits;
+                gameState.solutions = problem.solutions;
+            }
 
             const difficulty = calculateDifficulty(gameState.solutions);
 
             // UI更新
             updateDigitButtons();
             updateExpressionDisplay();
-            document.getElementById('submit-btn').disabled = true;
             document.getElementById('opponent-status').textContent = '相手: 入力中...';
             document.getElementById('opponent-status').className = 'opponent-status';
+
+            // 相手の式を監視（オンライン対戦時）
+            if (!gameState.isTestMode && currentRoomId) {
+                startOpponentExpressionListener();
+            }
 
             // カウントダウン表示
             showCountdown(gameState.round, () => {
                 // 問題表示
                 renderProblem(difficulty);
+                gameState.roundStartTime = Date.now();
                 startTimer();
             });
         }
@@ -1827,92 +2302,180 @@
 
         function handleTimeout() {
             if (!gameState.submitted) {
-                showRoundResult('draw', gameState.solutions[0] || '解なし');
+                showRoundResult('draw', gameState.solutions[0] || '解なし', null);
             }
         }
 
-        // 入力パッドのイベント
-        document.getElementById('input-pad').addEventListener('click', (e) => {
+        // 相手の式をFirebaseに同期
+        let opponentExpressionListener = null;
+
+        function syncExpressionToFirebase() {
+            if (gameState.isTestMode || !currentRoomId) return;
+            
+            const playerKey = gameState.isHost ? 'host' : 'guest';
+            const displayExpr = gameState.expression
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷');
+            
+            database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                expression: displayExpr,
+                usedCount: gameState.usedDigits.length
+            }).catch(err => console.warn('式の同期失敗:', err));
+        }
+
+        function startOpponentExpressionListener() {
+            if (opponentExpressionListener) {
+                opponentExpressionListener.off();
+            }
+            
+            const opponentKey = gameState.isHost ? 'guest' : 'host';
+            const opponentRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`);
+            
+            opponentExpressionListener = opponentRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                const statusEl = document.getElementById('opponent-status');
+                
+                if (data && data.expression !== undefined) {
+                    // 相手の式を表示（数字部分は●で隠す）
+                    const maskedExpr = data.expression.replace(/[0-9]/g, '●');
+                    statusEl.textContent = `相手: ${maskedExpr || '入力中...'}`;
+                    
+                    if (data.usedCount === 4) {
+                        statusEl.textContent = `相手: ${maskedExpr} (計算中...)`;
+                        statusEl.className = 'opponent-status submitted';
+                    } else {
+                        statusEl.className = 'opponent-status';
+                    }
+                } else {
+                    statusEl.textContent = '相手: 入力中...';
+                    statusEl.className = 'opponent-status';
+                }
+            });
+        }
+
+        function stopOpponentExpressionListener() {
+            if (opponentExpressionListener) {
+                const opponentKey = gameState.isHost ? 'guest' : 'host';
+                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).off('value', opponentExpressionListener);
+                opponentExpressionListener = null;
+            }
+        }
+
+        // 数字カードのタップイベント（問題の数字をタップして入力）
+        document.getElementById('problem-digits').addEventListener('click', (e) => {
             if (gameState.submitted) return;
 
-            const btn = e.target.closest('.input-btn');
+            const card = e.target.closest('.digit-card');
+            if (!card || card.classList.contains('used')) return;
+
+            const cardIndex = parseInt(card.dataset.index);
+            const digitNum = gameState.digits[cardIndex];
+
+            // 数字の直後に数字は入力不可（演算子か括弧が必要）
+            const lastChar = gameState.expression.slice(-1);
+            if (/[0-9]/.test(lastChar)) return;
+            // 閉じ括弧の直後に数字は入力不可
+            if (lastChar === ')') return;
+
+            gameState.expression += digitNum;
+            gameState.usedDigits.push(cardIndex); // インデックスで管理
+            updateDigitCards();
+            updateExpressionDisplay();
+            syncExpressionToFirebase();
+        });
+
+        // 演算子ボタンのイベント
+        document.getElementById('operator-row').addEventListener('click', (e) => {
+            if (gameState.submitted) return;
+
+            const btn = e.target.closest('.op-btn');
             if (!btn) return;
 
-            const digit = btn.dataset.digit;
             const op = btn.dataset.op;
+            const lastChar = gameState.expression.slice(-1);
+
+            if (op === '(') {
+                // 開き括弧: 式の先頭、演算子の後、開き括弧の後に入力可能
+                if (gameState.expression.length === 0 || 
+                    ['+', '-', '*', '/', '('].includes(lastChar)) {
+                    gameState.expression += op;
+                    updateExpressionDisplay();
+                    syncExpressionToFirebase();
+                }
+            } else if (op === ')') {
+                // 閉じ括弧: 数字か閉じ括弧の後にのみ入力可能、開き括弧の数をチェック
+                if (/[0-9)]/.test(lastChar)) {
+                    const openCount = (gameState.expression.match(/\(/g) || []).length;
+                    const closeCount = (gameState.expression.match(/\)/g) || []).length;
+                    if (openCount > closeCount) {
+                        gameState.expression += op;
+                        updateExpressionDisplay();
+                        syncExpressionToFirebase();
+                    }
+                }
+            } else {
+                // 通常の演算子: 数字か閉じ括弧の後にのみ入力可能
+                if (/[0-9)]/.test(lastChar)) {
+                    gameState.expression += op;
+                    updateExpressionDisplay();
+                    syncExpressionToFirebase();
+                }
+            }
+        });
+
+        // アクションボタンのイベント
+        document.getElementById('action-row').addEventListener('click', (e) => {
+            if (gameState.submitted) return;
+
+            const btn = e.target.closest('.action-btn');
+            if (!btn) return;
+
             const action = btn.dataset.action;
 
-            if (digit) {
-                // 数字ボタン - 使用可能かチェック
-                const digitNum = parseInt(digit);
-                const availableDigits = [...gameState.digits];
-                gameState.usedDigits.forEach(d => {
-                    const idx = availableDigits.indexOf(d);
-                    if (idx !== -1) availableDigits.splice(idx, 1);
-                });
-
-                if (availableDigits.includes(digitNum)) {
-                    gameState.expression += digit;
-                    gameState.usedDigits.push(digitNum);
-                    updateDigitButtons();
-                    updateExpressionDisplay();
-                }
-            } else if (op) {
-                gameState.expression += op;
-                updateExpressionDisplay();
-            } else if (action === 'backspace') {
+            if (action === 'backspace') {
                 if (gameState.expression.length > 0) {
                     const lastChar = gameState.expression.slice(-1);
                     gameState.expression = gameState.expression.slice(0, -1);
                     
                     // 数字を削除した場合、usedDigitsからも削除
-                    if (/[1-9]/.test(lastChar)) {
-                        const idx = gameState.usedDigits.lastIndexOf(parseInt(lastChar));
-                        if (idx !== -1) gameState.usedDigits.splice(idx, 1);
+                    if (/[0-9]/.test(lastChar)) {
+                        // 最後に使った該当数字のインデックスを探す
+                        for (let i = gameState.usedDigits.length - 1; i >= 0; i--) {
+                            if (gameState.digits[gameState.usedDigits[i]] === parseInt(lastChar)) {
+                                gameState.usedDigits.splice(i, 1);
+                                break;
+                            }
+                        }
                     }
-                    updateDigitButtons();
+                    updateDigitCards();
                     updateExpressionDisplay();
+                    syncExpressionToFirebase();
                 }
-            } else if (action === 'clear') {
+            } else if (action === 'reset') {
+                // 全リセット
                 gameState.expression = '';
                 gameState.usedDigits = [];
-                updateDigitButtons();
+                updateDigitCards();
                 updateExpressionDisplay();
+                syncExpressionToFirebase();
+            } else if (action === 'hint') {
+                showHint();
             }
         });
 
-        function updateDigitButtons() {
-            const availableDigits = [...gameState.digits];
-            gameState.usedDigits.forEach(d => {
-                const idx = availableDigits.indexOf(d);
-                if (idx !== -1) availableDigits.splice(idx, 1);
-            });
-
-            document.querySelectorAll('.input-btn.digit').forEach(btn => {
-                const digit = parseInt(btn.dataset.digit);
-                if (availableDigits.includes(digit)) {
-                    btn.classList.remove('disabled');
-                } else {
-                    btn.classList.add('disabled');
-                }
-            });
-
-            // 問題の数字カードの見た目も更新
+        function updateDigitCards() {
             document.querySelectorAll('.digit-card').forEach((card, i) => {
-                const usedCount = gameState.usedDigits.filter(d => d === gameState.digits[i]).length;
-                const originalCount = gameState.digits.filter(d => d === gameState.digits[i]).length;
-                // この位置の数字が使用済みかどうか
-                let usedSoFar = 0;
-                for (let j = 0; j <= i; j++) {
-                    if (gameState.digits[j] === gameState.digits[i]) usedSoFar++;
-                }
-                const thisUsedCount = gameState.usedDigits.filter(d => d === gameState.digits[i]).length;
-                if (usedSoFar <= thisUsedCount) {
+                if (gameState.usedDigits.includes(i)) {
                     card.classList.add('used');
                 } else {
                     card.classList.remove('used');
                 }
             });
+        }
+
+        // 旧updateDigitButtons関数（互換性のため残す）
+        function updateDigitButtons() {
+            updateDigitCards();
         }
 
         function updateExpressionDisplay() {
@@ -1936,20 +2499,20 @@
                         if (result === 10) {
                             resultEl.classList.add('valid');
                             display.classList.add('correct');
-                            submitBtn.disabled = false;
+                            // 自動送信（=10になった瞬間）
+                            if (!gameState.submitted) {
+                                submitAnswer();
+                            }
                         } else {
                             resultEl.classList.remove('valid');
-                            submitBtn.disabled = true;
                         }
                     } else {
                         resultEl.textContent = '式が不正です';
                         resultEl.classList.remove('valid');
-                        submitBtn.disabled = true;
                     }
                 } catch {
                     resultEl.textContent = '式が不正です';
                     resultEl.classList.remove('valid');
-                    submitBtn.disabled = true;
                 }
             } else if (gameState.expression) {
                 // 途中の式を評価
@@ -1964,44 +2527,46 @@
                     resultEl.textContent = '数字をすべて使用してください';
                 }
                 resultEl.classList.remove('valid');
-                submitBtn.disabled = true;
             } else {
                 resultEl.textContent = '式を入力してください';
                 resultEl.classList.remove('valid');
-                submitBtn.disabled = true;
             }
         }
-
-        // 送信ボタン
-        document.getElementById('submit-btn').addEventListener('click', () => {
-            if (gameState.submitted) return;
-            submitAnswer();
-        });
 
         function submitAnswer() {
             gameState.submitted = true;
             clearInterval(gameState.timerInterval);
+            stopOpponentExpressionListener();
 
             const displayExpr = gameState.expression
                 .replace(/\*/g, '×')
                 .replace(/\//g, '÷');
 
+            // 解答時間を計算
+            const solveTime = ((Date.now() - gameState.roundStartTime) / 1000).toFixed(2);
+
             if (gameState.isTestMode) {
                 // テストモードでは常に自分の勝ち
-                showRoundResult('win', displayExpr + ' = 10');
+                showRoundResult('win', displayExpr + ' = 10', solveTime);
             } else {
                 // オンライン対戦の場合はFirebaseに送信（後で実装）
-                showRoundResult('win', displayExpr + ' = 10');
+                showRoundResult('win', displayExpr + ' = 10', solveTime);
             }
         }
 
-        function showRoundResult(result, answer) {
+        function showRoundResult(result, answer, solveTime) {
             const overlay = document.getElementById('result-overlay');
             const titleEl = document.getElementById('result-title');
             const answerEl = document.getElementById('result-answer');
 
             overlay.classList.remove('hidden');
-            answerEl.textContent = answer;
+            
+            // 時間表示を含める
+            if (solveTime && result === 'win') {
+                answerEl.textContent = answer + ` (${solveTime}秒)`;
+            } else {
+                answerEl.textContent = answer;
+            }
 
             if (result === 'win') {
                 titleEl.textContent = '🎉 正解！';
@@ -2122,11 +2687,6 @@
                     updateDigitButtons();
                     updateExpressionDisplay();
                 }
-            } else if (key === 'Enter') {
-                const submitBtn = document.getElementById('submit-btn');
-                if (!submitBtn.disabled) {
-                    submitAnswer();
-                }
             } else if (key === 'Escape' || key === 'c' || key === 'C') {
                 gameState.expression = '';
                 gameState.usedDigits = [];
@@ -2136,22 +2696,252 @@
         });
 
         // ========================================
+        // ユーザー設定・Googleログイン
+        // ========================================
+            const GOOGLE_ICON_URL = 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg';
+        const userSettingsModal = document.getElementById('user-settings-modal');
+        const userAvatarEl = document.getElementById('user-avatar');
+        const userAvatarLargeEl = document.getElementById('user-avatar-large');
+        let userAvatarUrl = null;
+
+        document.getElementById('user-info-btn').addEventListener('click', () => {
+            // 現在の設定を反映
+            document.getElementById('display-name-input').value = currentUserName;
+            updateLoginSection();
+            showModal(userSettingsModal);
+        });
+
+        document.getElementById('close-user-settings').addEventListener('click', () => {
+            hideModal(userSettingsModal);
+        });
+
+        userSettingsModal.addEventListener('click', (e) => {
+            if (e.target === userSettingsModal) hideModal(userSettingsModal);
+        });
+
+        // アバターアップロード
+        document.getElementById('upload-avatar-btn').addEventListener('click', () => {
+            document.getElementById('avatar-upload').click();
+        });
+
+        document.getElementById('avatar-upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    userAvatarUrl = event.target.result;
+                    userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                    userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                    // LocalStorageに保存
+                    localStorage.setItem('userAvatar', userAvatarUrl);
+                    // Firebase Realtime Database にも保存（Storageは使わないため、base64データをDBに置く）
+                    if (currentUserId) {
+                        try {
+                            database.ref(`users/${currentUserId}`).update({
+                                avatar: userAvatarUrl,
+                                displayName: currentUserName || null
+                            });
+                        } catch (err) {
+                            console.warn('DBへアバター保存失敗:', err);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Googleログイン
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        document.getElementById('google-login-btn').addEventListener('click', async () => {
+            try {
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                currentUserId = user.uid;
+                currentUserName = user.displayName || 'ユーザー';
+                currentUserNameEl.textContent = currentUserName;
+                document.getElementById('display-name-input').value = currentUserName;
+
+                // Googleのプロフィール画像があれば使い、無ければGoogleアイコンを表示
+                if (user.photoURL) {
+                    userAvatarUrl = user.photoURL;
+                } else {
+                    userAvatarUrl = GOOGLE_ICON_URL;
+                }
+                userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+
+                // DBにも保存（他クライアントが取得できるように）
+                try {
+                    database.ref(`users/${currentUserId}`).update({
+                        displayName: currentUserName,
+                        avatar: userAvatarUrl
+                    });
+                } catch (err) {
+                    console.warn('プロフィールDB保存エラー:', err);
+                }
+
+                updateLoginSection();
+                console.log('Googleログイン成功:', user.email);
+            } catch (error) {
+                console.error('Googleログインエラー:', error);
+                if (error.code === 'auth/popup-blocked') {
+                    alert('ポップアップがブロックされました。ポップアップを許可してください。');
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    alert('このドメインは認証に使用できません。Firebase ConsoleでAuthorized domainsに追加してください。');
+                } else {
+                    alert('ログインに失敗しました: ' + error.message);
+                }
+            }
+        });
+
+        // ログアウト
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                // 匿名で再ログイン
+                const userCredential = await auth.signInAnonymously();
+                currentUserId = userCredential.user.uid;
+                currentUserName = 'ゲスト';
+                currentUserNameEl.textContent = currentUserName;
+                userAvatarUrl = null;
+                userAvatarEl.innerHTML = '👤';
+                userAvatarLargeEl.innerHTML = '👤';
+                localStorage.removeItem('userAvatar');
+                updateLoginSection();
+                console.log('ログアウト完了');
+            } catch (error) {
+                console.error('ログアウトエラー:', error);
+            }
+        });
+
+        function updateLoginSection() {
+            const user = auth.currentUser;
+            const loginSection = document.getElementById('login-section');
+            const logoutSection = document.getElementById('logout-section');
+            
+            if (user && !user.isAnonymous) {
+                loginSection.style.display = 'none';
+                logoutSection.style.display = 'block';
+                document.getElementById('logged-in-email').textContent = `ログイン中: ${user.email}`;
+            } else {
+                loginSection.style.display = 'block';
+                logoutSection.style.display = 'none';
+            }
+        }
+
+        // 設定保存
+        document.getElementById('save-user-settings').addEventListener('click', () => {
+            const newName = document.getElementById('display-name-input').value.trim();
+            if (newName) {
+                currentUserName = newName;
+                currentUserNameEl.textContent = newName;
+                localStorage.setItem('userName', newName);
+                // DBに保存（匿名含む）
+                if (currentUserId) {
+                    try {
+                        database.ref(`users/${currentUserId}`).update({
+                            displayName: newName,
+                            avatar: userAvatarUrl || null
+                        });
+                    } catch (err) {
+                        console.warn('DBへユーザー名保存失敗:', err);
+                    }
+                }
+            }
+            hideModal(userSettingsModal);
+        });
+
+        // LocalStorageから復元
+        function restoreUserSettings() {
+            const savedName = localStorage.getItem('userName');
+            const savedAvatar = localStorage.getItem('userAvatar');
+            
+            if (savedName) {
+                currentUserName = savedName;
+                currentUserNameEl.textContent = savedName;
+            }
+            
+            if (savedAvatar) {
+                userAvatarUrl = savedAvatar;
+                userAvatarEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
+                userAvatarLargeEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
+            }
+        }
+
+        // ========================================
         // 初期化
         // ========================================
-        // 匿名サインインしてから初期化
-        auth.signInAnonymously()
-            .then((userCredential) => {
-                currentUserId = userCredential.user.uid;
-                console.log('匿名サインイン成功');
-                console.log('User ID:', currentUserId);
-                currentUserNameEl.textContent = currentUserName;
+        // 認証状態の監視
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log('認証状態変更 - User ID:', currentUserId);
+                
+                if (!user.isAnonymous && user.displayName) {
+                    currentUserName = user.displayName;
+                    currentUserNameEl.textContent = currentUserName;
+                }
+                
+                if (!user.isAnonymous && user.photoURL) {
+                    userAvatarUrl = user.photoURL;
+                    userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                }
+                else if (user.providerData && user.providerData.some(p => p.providerId === 'google.com')) {
+                    // GoogleでログインしているがphotoURLを持たない場合はGoogleアイコンを使う
+                    userAvatarUrl = GOOGLE_ICON_URL;
+                    userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                }
+                // DBに保存されているプロフィールがあるかチェック（優先）
+                try {
+                    database.ref(`users/${currentUserId}`).once('value').then((snap) => {
+                        const profile = snap.val();
+                        if (profile) {
+                            if (profile.displayName) {
+                                currentUserName = profile.displayName;
+                                currentUserNameEl.textContent = currentUserName;
+                                localStorage.setItem('userName', currentUserName);
+                            }
+                            if (profile.avatar) {
+                                userAvatarUrl = profile.avatar;
+                                userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                                userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                                localStorage.setItem('userAvatar', userAvatarUrl);
+                            } else {
+                                // 無ければ既存のlocalStorageを復元
+                                restoreUserSettings();
+                            }
+                        } else {
+                            restoreUserSettings();
+                        }
+                    }).catch((err) => {
+                        console.warn('プロフィール取得エラー:', err);
+                        restoreUserSettings();
+                    });
+                } catch (err) {
+                    console.warn('プロフィールDBチェック失敗:', err);
+                    restoreUserSettings();
+                }
+
                 subscribeToRooms();
                 console.log('make10 vs - 初期化完了');
-            })
-            .catch((error) => {
-                console.error('匿名サインイン失敗:', error);
-                alert('サーバーへの接続に失敗しました。ページを再読み込みしてください。');
-            });
+            } else {
+                // ユーザーがいない場合は匿名サインイン
+                auth.signInAnonymously()
+                    .then((userCredential) => {
+                        currentUserId = userCredential.user.uid;
+                        console.log('匿名サインイン成功');
+                        console.log('User ID:', currentUserId);
+                        restoreUserSettings();
+                        subscribeToRooms();
+                        console.log('make10 vs - 初期化完了');
+                    })
+                    .catch((error) => {
+                        console.error('匿名サインイン失敗:', error);
+                        alert('サーバーへの接続に失敗しました。ページを再読み込みしてください。');
+                    });
+            }
+        });
     </script>
 </body>
 </html>
