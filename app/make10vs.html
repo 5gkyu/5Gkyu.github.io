@@ -1333,8 +1333,8 @@
                 <div class="form-group">
                     <label>出題難易度</label>
                     <select id="room-difficulty-input">
-                        <option value="all" selected>すべて（ランダム）</option>
-                        <option value="easy">簡単（解が多い問題）</option>
+                        <option value="all">すべて（ランダム）</option>
+                        <option value="easy" selected>簡単（解が多い問題）</option>
                         <option value="normal">普通</option>
                         <option value="hard">難しい（解が少ない問題）</option>
                     </select>
@@ -1342,15 +1342,25 @@
                 <div class="form-group">
                     <label>括弧を使う問題</label>
                     <select id="room-brackets-input">
-                        <option value="no">出題しない</option>
-                        <option value="yes" selected>出題する</option>
+                        <option value="no" selected>出題しない</option>
+                        <option value="yes">出題する</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>ヒントボタン</label>
                     <select id="room-hint-input">
-                        <option value="no" selected>なし</option>
-                        <option value="yes">あり（各ラウンド1回）</option>
+                        <option value="no">なし</option>
+                        <option value="yes" selected>あり（各ラウンド1回）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>制限時間</label>
+                    <select id="room-timelimit-input">
+                        <option value="10">10秒</option>
+                        <option value="20">20秒</option>
+                        <option value="30" selected>30秒</option>
+                        <option value="45">45秒</option>
+                        <option value="60">60秒</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -1732,6 +1742,7 @@
             const difficulty = document.getElementById('room-difficulty-input').value;
             const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
             const allowHint = document.getElementById('room-hint-input').value === 'yes';
+            const timeLimit = parseInt(document.getElementById('room-timelimit-input').value) || 30;
 
             try {
                 const newRoomRef = database.ref('rooms').push();
@@ -1749,6 +1760,7 @@
                         difficulty: difficulty,
                         allowBrackets: allowBrackets,
                         allowHint: allowHint,
+                        timeLimit: timeLimit,
                         state: 'open',
                         createdAt: firebase.database.ServerValue.TIMESTAMP
                     }
@@ -2009,9 +2021,10 @@
                     gameState.guestAvatar = null;
                     
                     // ルーム設定を反映
-                    gameState.difficulty = meta.difficulty || 'all';
-                    gameState.allowBrackets = meta.allowBrackets !== false;
-                    gameState.allowHint = meta.allowHint === true;
+                    gameState.difficulty = meta.difficulty || 'easy';
+                    gameState.allowBrackets = meta.allowBrackets === true;
+                    gameState.allowHint = meta.allowHint !== false;
+                    gameState.timeLimit = meta.timeLimit || 30;
 
                     // ホスト・ゲストのアバターをDBから取得
                     const fetchAvatars = async () => {
@@ -2143,10 +2156,11 @@
             solutions: [],
             roundStartTime: null,
             // ルーム設定
-            difficulty: 'all',
-            allowBrackets: true,
-            allowHint: false,
-            hintUsed: false
+            difficulty: 'easy',
+            allowBrackets: false,
+            allowHint: true,
+            hintUsed: false,
+            timeLimit: 30
         };
 
         // 10を作れる組み合わせを事前計算するための関数
@@ -2370,15 +2384,17 @@
         // テストモード開始
         document.getElementById('test-room-btn').addEventListener('click', () => {
             gameState.isTestMode = true;
+            gameState.isHost = true;
             gameState.bo = 5;
             gameState.round = 1;
             gameState.hostScore = 0;
             gameState.guestScore = 0;
             gameState.hostName = 'あなた';
             gameState.guestName = 'CPU';
-            gameState.difficulty = 'all';
-            gameState.allowBrackets = true;
+            gameState.difficulty = 'easy';
+            gameState.allowBrackets = false;
             gameState.allowHint = true; // テストモードではヒントあり
+            gameState.timeLimit = 30;
             currentUserName = 'あなた';
             currentUserNameEl.textContent = 'あなた (テスト)';
 
@@ -2436,7 +2452,7 @@
             gameState.usedDigits = [];
             gameState.expression = '';
             gameState.submitted = false;
-            gameState.timeLeft = 25;
+            gameState.timeLeft = gameState.timeLimit || 30;
             gameState.hintUsed = false;
             
             // ヒントボタンをリセット
@@ -2538,10 +2554,11 @@
         function startTimer() {
             const timerFill = document.getElementById('timer-fill');
             const timerText = document.getElementById('timer-text');
+            const maxTime = gameState.timeLimit || 30;
 
             gameState.timerInterval = setInterval(() => {
                 gameState.timeLeft -= 0.1;
-                const percent = (gameState.timeLeft / 25) * 100;
+                const percent = (gameState.timeLeft / maxTime) * 100;
                 timerFill.style.width = `${percent}%`;
                 timerText.textContent = Math.ceil(gameState.timeLeft);
 
