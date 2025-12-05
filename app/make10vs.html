@@ -2915,10 +2915,24 @@
 
         document.getElementById('google-login-btn').addEventListener('click', async () => {
             try {
-                const result = await auth.signInWithPopup(googleProvider);
+                let result;
+                const current = auth.currentUser;
+                // 既に匿名ユーザーならリンクして同じUIDにGoogleを紐付ける
+                if (current && current.isAnonymous) {
+                    try {
+                        result = await current.linkWithPopup(googleProvider);
+                    } catch (linkErr) {
+                        // リンクが失敗したら通常のサインインにフォールバック
+                        console.warn('linkWithPopup失敗、signInWithPopupにフォールバック:', linkErr);
+                        result = await auth.signInWithPopup(googleProvider);
+                    }
+                } else {
+                    result = await auth.signInWithPopup(googleProvider);
+                }
+
                 const user = result.user;
                 currentUserId = user.uid;
-                currentUserName = user.displayName || 'ユーザー';
+                currentUserName = user.displayName || currentUserName || 'ユーザー';
                 currentUserNameEl.textContent = currentUserName;
                 document.getElementById('display-name-input').value = currentUserName;
 
@@ -2933,7 +2947,7 @@
 
                 // DBにも保存（他クライアントが取得できるように）
                 try {
-                    database.ref(`users/${currentUserId}`).update({
+                    await database.ref(`users/${currentUserId}`).update({
                         displayName: currentUserName,
                         avatar: userAvatarUrl
                     });
@@ -2942,15 +2956,15 @@
                 }
 
                 updateLoginSection();
-                console.log('Googleログイン成功:', user.email);
+                console.log('Googleログイン成功:', user.email || user.uid);
             } catch (error) {
                 console.error('Googleログインエラー:', error);
-                if (error.code === 'auth/popup-blocked') {
+                if (error && error.code === 'auth/popup-blocked') {
                     alert('ポップアップがブロックされました。ポップアップを許可してください。');
-                } else if (error.code === 'auth/unauthorized-domain') {
+                } else if (error && error.code === 'auth/unauthorized-domain') {
                     alert('このドメインは認証に使用できません。Firebase ConsoleでAuthorized domainsに追加してください。');
                 } else {
-                    alert('ログインに失敗しました: ' + error.message);
+                    alert('ログインに失敗しました: ' + (error && error.message ? error.message : error));
                 }
             }
         });
