@@ -1456,6 +1456,7 @@
             currentRoomRef = database.ref(`rooms/${roomId}/meta`);
             currentRoomRef.on('value', (snapshot) => {
                 const meta = snapshot.val();
+                console.log('rooms/' + roomId + '/meta changed:', meta);
                 if (!meta) {
                     // ルームが削除された
                     alert('ルームが削除されました');
@@ -1472,12 +1473,14 @@
 
                     // 2人揃ったら試合開始（ホスト側で開始処理）
                     if (isHost && meta.state === 'open') {
+                        console.log('Host: starting match countdown');
                         startMatchCountdown(roomId);
                     }
                 }
 
                 // 試合開始状態になった
                 if (meta.state === 'playing') {
+                    console.log('Detected meta.state=playing for room', roomId);
                     // ゲーム画面へ遷移
                     document.getElementById('waiting-message').textContent = '試合開始！';
                     document.getElementById('waiting-spinner').style.display = 'none';
@@ -1496,9 +1499,14 @@
                     gameState.hostName = meta.hostName || 'ホスト';
                     gameState.guestName = meta.guestName || 'ゲスト';
 
-                    // UI反映してゲーム開始
+                    // UI反映してゲーム開始（既にゲーム画面なら重複呼び出ししない）
                     currentUserNameEl.textContent = currentUserName;
-                    startGame();
+                    if (!document.getElementById('game-screen').classList.contains('active')) {
+                        console.log('Starting game UI for guest/host');
+                        startGame();
+                    } else {
+                        console.log('Game already active, skipping startGame()');
+                    }
                 }
             });
         }
