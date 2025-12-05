@@ -619,7 +619,7 @@ border-color: var(--danger-color);
 font-size: 1.2rem;
 font-weight: bold;
 color: #555;
-padding: 0 1rem;
+padding: 0 0.25rem;
 }
 
 /* 問題エリア */
@@ -1326,13 +1326,13 @@ font-size: 1.2rem;
 
 <!-- 演算子・括弧ボタン（数字の下） -->
 <div class="operator-row" id="operator-row">
-<button class="op-btn bracket" data-op="(">(</button>
-<button class="op-btn" data-op="/">÷</button>
-<button class="op-btn" data-op="*">×</button>
-<button class="op-btn" data-op="-">−</button>
-<button class="op-btn" data-op="+">+</button>
-<button class="op-btn bracket" data-op=")">)</button>
-</div>
+<button class="op-btn bracket" data-op="(">(<\/button>
+<button class="op-btn" data-op="+">+<\/button>
+<button class="op-btn" data-op="-">−<\/button>
+<button class="op-btn" data-op="*">×<\/button>
+<button class="op-btn" data-op="/">÷<\/button>
+<button class="op-btn bracket" data-op=")">)<\/button>
+<\/div>
 
 <!-- アクションボタン（数字の下） -->
 <div class="action-row" id="action-row">
@@ -2645,8 +2645,13 @@ function startTimer() {
 const timerFill = document.getElementById('timer-fill');
 const timerText = document.getElementById('timer-text');
 const maxTime = gameState.timeLimit || 30;
+    // 既にタイマーが走っている場合はクリアしてから新しく作る（複数回 start されると加速する問題対策）
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
 
-gameState.timerInterval = setInterval(() => {
+    gameState.timerInterval = setInterval(() => {
 gameState.timeLeft -= 0.1;
 const percent = (gameState.timeLeft / maxTime) * 100;
 timerFill.style.width = `${percent}%`;
@@ -2658,10 +2663,13 @@ timerFill.classList.add('danger');
 timerFill.classList.remove('danger');
 }
 
-if (gameState.timeLeft <= 0) {
-clearInterval(gameState.timerInterval);
-handleTimeout();
-}
+                if (gameState.timeLeft <= 0) {
+                    if (gameState.timerInterval) {
+                        clearInterval(gameState.timerInterval);
+                        gameState.timerInterval = null;
+                    }
+                    handleTimeout();
+                }
 }, 100);
 }
 
@@ -2732,7 +2740,10 @@ statusEl.className = 'opponent-status';
                 if (data && data.finished && data.correct && !gameState.submitted) {
                     // 相手が先に正解した
                     gameState.submitted = true;
-                    clearInterval(gameState.timerInterval);
+                    if (gameState.timerInterval) {
+                        clearInterval(gameState.timerInterval);
+                        gameState.timerInterval = null;
+                    }
                     stopOpponentExpressionListener();
                     stopRoundResultListener();
                     const opponentExpr = data.expression || '???';
@@ -2755,7 +2766,10 @@ statusEl.className = 'opponent-status';
                 if (data && data.finished && data.correct && !gameState.submitted) {
                     // 相手が先に正解
                     gameState.submitted = true;
-                    clearInterval(gameState.timerInterval);
+                    if (gameState.timerInterval) {
+                        clearInterval(gameState.timerInterval);
+                        gameState.timerInterval = null;
+                    }
                     stopOpponentExpressionListener();
                     stopRoundResultListener();
                     const opponentExpr = data.expression || '???';
@@ -2955,9 +2969,12 @@ resultEl.classList.remove('valid');
 function submitAnswer() {
             if (gameState.submitted) return; // 二重送信防止
             
-gameState.submitted = true;
-clearInterval(gameState.timerInterval);
-stopOpponentExpressionListener();
+            gameState.submitted = true;
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            stopOpponentExpressionListener();
             stopRoundResultListener();
 
 const displayExpr = gameState.expression
