@@ -2494,46 +2494,78 @@
             gameState.resultShown = false;
             gameState.timeLeft = gameState.timeLimit || 30;
 
+            console.log(`startRound called: round=${gameState.round}, isHost=${gameState.isHost}`);
+
             // オンライン対戦の場合、問題をFirebase経由で共有
             if (!gameState.isTestMode && currentRoomId) {
+                const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                
                 if (gameState.isHost) {
-                    // ホストが問題を生成してDBに書き込む
-                    const problem = generateProblem();
-                    gameState.digits = problem.digits;
-                    gameState.solutions = problem.solutions;
-
-                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).set({
-                        digits: problem.digits,
-                        roundNumber: gameState.round
-                    });
-                } else {
-                    // ゲストはDBから問題を読み取る
-                    const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    // ホスト: まず既存データをチェック（事前書き込みがあるか）
+                    const existingSnap = await roundRef.once('value');
+                    const existingData = existingSnap.val();
                     
-                    // 問題データを取得（最大10秒待機）
-                    let gotData = false;
-                    await new Promise((resolve) => {
-                        const listener = roundRef.on('value', (snapshot) => {
-                            const data = snapshot.val();
-                            if (data && data.digits && data.roundNumber === gameState.round) {
-                                gameState.digits = data.digits;
-                                gameState.solutions = findSolutions(data.digits);
-                                gotData = true;
-                                roundRef.off('value', listener);
-                                resolve();
-                            }
-                        });
-                        setTimeout(() => {
-                            roundRef.off('value', listener);
-                            resolve();
-                        }, 10000);
-                    });
-                    
-                    // データが取得できなかった場合、ローカルで生成
-                    if (!gotData) {
+                    if (existingData && existingData.digits && existingData.roundNumber === gameState.round) {
+                        // 事前に書き込んだデータがある（showRoundResultで書き込み済み）
+                        console.log(`Host using pre-written round ${gameState.round} data:`, existingData.digits);
+                        gameState.digits = existingData.digits;
+                        gameState.solutions = findSolutions(existingData.digits);
+                    } else {
+                        // 初回（round 1）またはデータがない場合は新規生成
                         const problem = generateProblem();
                         gameState.digits = problem.digits;
                         gameState.solutions = problem.solutions;
+
+                        console.log(`Host writing round ${gameState.round} data:`, problem.digits);
+                        await roundRef.set({
+                            digits: problem.digits,
+                            roundNumber: gameState.round,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                } else {
+                    // ゲストはDBから問題を読み取る（ホストが書き込むまで待機）
+                    console.log(`Guest waiting for round ${gameState.round} data...`);
+                    const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    
+                    // まず既存データをチェック
+                    const existingSnap = await roundRef.once('value');
+                    const existingData = existingSnap.val();
+                    
+                    if (existingData && existingData.digits && existingData.roundNumber === gameState.round) {
+                        // 既にデータがある
+                        console.log(`Guest found existing data for round ${gameState.round}:`, existingData.digits);
+                        gameState.digits = existingData.digits;
+                        gameState.solutions = findSolutions(existingData.digits);
+                    } else {
+                        // データがない場合はリスナーで待機
+                        console.log(`Guest waiting for host to write round ${gameState.round} data...`);
+                        await new Promise((resolve) => {
+                            const listener = roundRef.on('value', (snapshot) => {
+                                const data = snapshot.val();
+                                if (data && data.digits && data.roundNumber === gameState.round) {
+                                    console.log(`Guest received round ${gameState.round} data:`, data.digits);
+                                    gameState.digits = data.digits;
+                                    gameState.solutions = findSolutions(data.digits);
+                                    roundRef.off('value', listener);
+                                    resolve();
+                                }
+                            });
+                            // 15秒でタイムアウト
+                            setTimeout(() => {
+                                console.log(`Guest timeout waiting for round ${gameState.round}`);
+                                roundRef.off('value', listener);
+                                resolve();
+                            }, 15000);
+                        });
+                        
+                        // タイムアウト後もデータがなければローカル生成（フォールバック）
+                        if (!gameState.digits || gameState.digits.length === 0) {
+                            console.log(`Guest fallback: generating local problem`);
+                            const problem = generateProblem();
+                            gameState.digits = problem.digits;
+                            gameState.solutions = problem.solutions;
+                        }
                     }
                 }
             } else {
@@ -3010,6 +3042,20 @@
             // 勝敗チェック
             const winTarget = Math.ceil(gameState.bo / 2);
 
+            // ホストは次のラウンドの問題を先に書き込んでおく（勝敗が決まってない場合）
+            if (gameState.hostScore < winTarget && gameState.guestScore < winTarget) {
+                if (gameState.isHost && !gameState.isTestMode && currentRoomId) {
+                    const nextRound = gameState.round + 1;
+                    const problem = generateProblem();
+                    console.log(`Host pre-writing round ${nextRound} data:`, problem.digits);
+                    database.ref(`rooms/${currentRoomId}/game/round${nextRound}`).set({
+                        digits: problem.digits,
+                        roundNumber: nextRound,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).catch(err => console.error('Failed to pre-write next round:', err));
+                }
+            }
+
             setTimeout(() => {
                 overlay.classList.add('hidden');
 
@@ -3020,7 +3066,8 @@
                     // ゲストが勝った
                     showMatchResult(gameState.isHost ? 'lose' : 'win');
                 } else {
-                    // 次のラウンドへ（シンプルに進む）
+                    // 次のラウンドへ
+                    console.log(`Advancing to round ${gameState.round + 1}`);
                     gameState.round++;
                     startRound();
                 }
