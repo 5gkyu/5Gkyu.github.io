@@ -903,25 +903,6 @@
 
             .user-avatar-large { width: 56px; height: 56px; font-size: 1.6rem; }
 
-            .opponent-status { font-size: 0. eightrem; padding: 0.4rem; }
-        }
-
-        /* 相手の状態表示 */
-        .opponent-status {
-            text-align: center;
-            padding: 0.5rem;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .opponent-status.submitted {
-            color: var(--warning-color);
-        }
-
-        .opponent-status.correct {
-            color: var(--secondary-color);
         }
 
         /* カウントダウンオーバーレイ */
@@ -1310,7 +1291,7 @@
                 <div class="expression-result" id="expression-result">式を入力してください</div>
                 <div class="expression-display" id="expression-display"></div>
 
-                <div class="opponent-status" id="opponent-status">相手: 入力中...</div>
+                <!-- opponent status removed -->
                 <button class="btn btn-danger quit-game-btn" id="quit-game-btn" style="display: none; margin-top: 1rem;">🚪 途中でやめる</button>
             </div>
 
@@ -2598,8 +2579,7 @@
             // UI更新
             updateDigitButtons();
             updateExpressionDisplay();
-            document.getElementById('opponent-status').textContent = '相手: 入力中...';
-            document.getElementById('opponent-status').className = 'opponent-status';
+            // opponent status element removed; no-op
 
             // カウントダウン表示
             showCountdown(gameState.round, () => {
@@ -2786,22 +2766,12 @@
             
             opponentExpressionListener = opponentRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                const statusEl = document.getElementById('opponent-status');
-                
+                // opponent status UI removed — keep minimal logging for debugging
                 if (data && data.expression !== undefined) {
-                    // 相手の式を表示（数字部分は●で隠す）
                     const maskedExpr = data.expression.replace(/[0-9]/g, '●');
-                    statusEl.textContent = `相手: ${maskedExpr || '入力中...'}`;
-                    
-                    if (data.usedCount === 4) {
-                        statusEl.textContent = `相手: ${maskedExpr} (計算中...)`;
-                        statusEl.className = 'opponent-status submitted';
-                    } else {
-                        statusEl.className = 'opponent-status';
-                    }
+                    console.log('[OPP] expression:', maskedExpr);
                 } else {
-                    statusEl.textContent = '相手: 入力中...';
-                    statusEl.className = 'opponent-status';
+                    // no expression yet
                 }
 
                 // 相手が正解したかチェック（自分がまだ結果表示していない場合）
