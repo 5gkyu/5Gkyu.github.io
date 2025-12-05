@@ -2629,6 +2629,7 @@
             // 相手の式を監視（オンライン対戦時）
             if (!gameState.isTestMode && currentRoomId) {
                 startOpponentExpressionListener();
+                startRoundResultListener();
             }
 
             // カウントダウン表示
@@ -2988,6 +2989,7 @@
             gameState.submitted = true;
             clearInterval(gameState.timerInterval);
             stopOpponentExpressionListener();
+            stopRoundResultListener();
 
             const displayExpr = gameState.expression
                 .replace(/\*/g, '×')
@@ -3000,8 +3002,19 @@
                 // テストモードでは常に自分の勝ち
                 showRoundResult('win', displayExpr + ' = 10', solveTime);
             } else {
-                // オンライン対戦の場合はFirebaseに送信（後で実装）
-                showRoundResult('win', displayExpr + ' = 10', solveTime);
+                // オンライン対戦の場合はFirebaseに結果を書き込む
+                const playerKey = gameState.isHost ? 'host' : 'guest';
+                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                    finished: true,
+                    correct: true,
+                    expression: gameState.expression,
+                    solveTime: parseFloat(solveTime)
+                }).then(() => {
+                    showRoundResult('win', displayExpr + ' = 10', solveTime);
+                }).catch(err => {
+                    console.error('回答送信エラー:', err);
+                    showRoundResult('win', displayExpr + ' = 10', solveTime);
+                });
             }
         }
 
@@ -3051,9 +3064,11 @@
                 overlay.classList.add('hidden');
 
                 if (gameState.hostScore >= winTarget) {
-                    showMatchResult('win');
+                    // ホストが勝った
+                    showMatchResult(gameState.isHost ? 'win' : 'lose');
                 } else if (gameState.guestScore >= winTarget) {
-                    showMatchResult('lose');
+                    // ゲストが勝った
+                    showMatchResult(gameState.isHost ? 'lose' : 'win');
                 } else {
                     gameState.round++;
                     startRound();
