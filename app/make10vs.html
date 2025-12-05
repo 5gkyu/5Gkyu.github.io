@@ -2506,7 +2506,6 @@
             // 相手の式を監視（オンライン対戦時）
             if (!gameState.isTestMode && currentRoomId) {
                 startOpponentExpressionListener();
-                startRoundResultListener();
             }
 
             // カウントダウン表示
@@ -2579,18 +2578,25 @@
         }
 
         function handleTimeout() {
-            if (!gameState.submitted) {
-                // オンライン対戦時はタイムアウトをDBに記録
-                if (!gameState.isTestMode && currentRoomId) {
-                    const playerKey = gameState.isHost ? 'host' : 'guest';
-                    database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
-                        finished: true,
-                        correct: false,
-                        solveTime: null
-                    }).catch(err => console.warn('タイムアウト記録失敗:', err));
-                }
-                showRoundResult('draw', gameState.solutions[0] || '解なし', null);
+            if (gameState.submitted) return; // 既に処理済みなら何もしない
+            
+            // タイムアウト処理
+            gameState.submitted = true;
+            clearInterval(gameState.timerInterval);
+            stopOpponentExpressionListener();
+            stopRoundResultListener();
+            
+            // オンライン対戦時はタイムアウトをDBに記録
+            if (!gameState.isTestMode && currentRoomId) {
+                const playerKey = gameState.isHost ? 'host' : 'guest';
+                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                    finished: true,
+                    correct: false,
+                    solveTime: null
+                }).catch(err => console.warn('タイムアウト記録失敗:', err));
             }
+            
+            showRoundResult('draw', gameState.solutions[0] || '解なし', null);
         }
 
         // 相手の式をFirebaseに同期
@@ -2864,12 +2870,9 @@
         }
 
         function submitAnswer() {
-            if (gameState.submitted) return; // 二重送信防止
-            
             gameState.submitted = true;
             clearInterval(gameState.timerInterval);
             stopOpponentExpressionListener();
-            stopRoundResultListener();
 
             const displayExpr = gameState.expression
                 .replace(/\*/g, '×')
@@ -2882,17 +2885,7 @@
                 // テストモードでは常に自分の勝ち
                 showRoundResult('win', displayExpr + ' = 10', solveTime);
             } else {
-                // オンライン対戦の場合はFirebaseに正解を記録
-                const playerKey = gameState.isHost ? 'host' : 'guest';
-                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
-                    expression: displayExpr,
-                    finished: true,
-                    correct: true,
-                    solveTime: parseFloat(solveTime)
-                }).then(() => {
-                    console.log('正解を記録しました');
-                }).catch(err => console.warn('正解記録失敗:', err));
-                
+                // オンライン対戦の場合はFirebaseに送信（後で実装）
                 showRoundResult('win', displayExpr + ' = 10', solveTime);
             }
         }
