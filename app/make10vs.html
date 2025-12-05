@@ -86,7 +86,7 @@ height: 100%;
 object-fit: cover;
 }
 
-        
+
 
 .user-info .status-dot {
 width: 10px;
@@ -352,6 +352,8 @@ background: var(--card-bg);
 border-radius: var(--border-radius);
 width: 100%;
 max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
 padding: 1.5rem;
 animation: modalSlideIn 0.3s ease;
 }
@@ -1333,8 +1335,8 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>出題難易度</label>
 <select id="room-difficulty-input">
-<option value="all" selected>すべて（ランダム）</option>
-<option value="easy">簡単（解が多い問題）</option>
+<option value="all">すべて（ランダム）</option>
+<option value="easy" selected>簡単（解が多い問題）</option>
 <option value="normal">普通</option>
 <option value="hard">難しい（解が少ない問題）</option>
 </select>
@@ -1342,15 +1344,25 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>括弧を使う問題</label>
 <select id="room-brackets-input">
-<option value="no">出題しない</option>
-<option value="yes" selected>出題する</option>
+<option value="no" selected>出題しない</option>
+<option value="yes">出題する</option>
 </select>
 </div>
 <div class="form-group">
 <label>ヒントボタン</label>
 <select id="room-hint-input">
-<option value="no" selected>なし</option>
-<option value="yes">あり（各ラウンド1回）</option>
+<option value="no">なし</option>
+<option value="yes" selected>あり（各ラウンド1回）</option>
+</select>
+</div>
+<div class="form-group">
+<label>制限時間</label>
+<select id="room-timelimit-input">
+<option value="10">10秒</option>
+<option value="20">20秒</option>
+<option value="30" selected>30秒</option>
+<option value="45">45秒</option>
+<option value="60">60秒</option>
 </select>
 </div>
 <div class="form-actions">
@@ -1702,15 +1714,15 @@ return div.innerHTML;
 // ルーム作成
 // ========================================
 document.getElementById('create-room-btn').addEventListener('click', () => {
-            // ルーム作成モーダルを開く前に、ユーザーの表示名があればホスト名入力にセットする
-            try {
-                const hostInput = document.getElementById('host-name-input');
-                if (hostInput) {
-                    hostInput.value = currentUserName && currentUserName !== 'ゲスト' ? currentUserName : '';
-                }
-            } catch (e) {
-                console.warn('host name prefill failed', e);
-            }
+// ルーム作成モーダルを開く前に、ユーザーの表示名があればホスト名入力にセットする
+try {
+const hostInput = document.getElementById('host-name-input');
+if (hostInput) {
+hostInput.value = currentUserName && currentUserName !== 'ゲスト' ? currentUserName : '';
+}
+} catch (e) {
+console.warn('host name prefill failed', e);
+}
 showModal(createRoomModal);
 });
 
@@ -1732,6 +1744,7 @@ const bo = parseInt(document.getElementById('room-bo-input').value);
 const difficulty = document.getElementById('room-difficulty-input').value;
 const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
 const allowHint = document.getElementById('room-hint-input').value === 'yes';
+const timeLimit = parseInt(document.getElementById('room-timelimit-input').value) || 30;
 
 try {
 const newRoomRef = database.ref('rooms').push();
@@ -1749,6 +1762,7 @@ bo: bo,
 difficulty: difficulty,
 allowBrackets: allowBrackets,
 allowHint: allowHint,
+timeLimit: timeLimit,
 state: 'open',
 createdAt: firebase.database.ServerValue.TIMESTAMP
 }
@@ -2009,9 +2023,10 @@ gameState.hostAvatar = null;
 gameState.guestAvatar = null;
 
 // ルーム設定を反映
-gameState.difficulty = meta.difficulty || 'all';
-gameState.allowBrackets = meta.allowBrackets !== false;
-gameState.allowHint = meta.allowHint === true;
+gameState.difficulty = meta.difficulty || 'easy';
+gameState.allowBrackets = meta.allowBrackets === true;
+gameState.allowHint = meta.allowHint !== false;
+gameState.timeLimit = meta.timeLimit || 30;
 
 // ホスト・ゲストのアバターをDBから取得
 const fetchAvatars = async () => {
@@ -2143,10 +2158,11 @@ submitted: false,
 solutions: [],
 roundStartTime: null,
 // ルーム設定
-difficulty: 'all',
-allowBrackets: true,
-allowHint: false,
-hintUsed: false
+difficulty: 'easy',
+allowBrackets: false,
+allowHint: true,
+hintUsed: false,
+timeLimit: 30
 };
 
 // 10を作れる組み合わせを事前計算するための関数
@@ -2250,14 +2266,9 @@ solutions.push({ expr: `${a}${formatOp(op1)}(${b}${formatOp(op2)}(${c}${formatOp
 }
 }
 }
-            // 重複を除去
-            // 重複を除去して文字列配列を返す
+// 重複を除去して文字列配列を返す
 const uniqueExprs = [...new Set(solutions.map(s => s.expr))];
-            return uniqueExprs.map(expr => {
-                const hasBrackets = expr.includes('(');
-                return { expr, hasBrackets };
-            });
-            return uniqueExprs;
+return uniqueExprs;
 }
 
 function formatOp(op) {
@@ -2375,15 +2386,17 @@ alert('💡 ヒントはありません');
 // テストモード開始
 document.getElementById('test-room-btn').addEventListener('click', () => {
 gameState.isTestMode = true;
+gameState.isHost = true;
 gameState.bo = 5;
 gameState.round = 1;
 gameState.hostScore = 0;
 gameState.guestScore = 0;
 gameState.hostName = 'あなた';
 gameState.guestName = 'CPU';
-gameState.difficulty = 'all';
-gameState.allowBrackets = true;
+gameState.difficulty = 'easy';
+gameState.allowBrackets = false;
 gameState.allowHint = true; // テストモードではヒントあり
+gameState.timeLimit = 30;
 currentUserName = 'あなた';
 currentUserNameEl.textContent = 'あなた (テスト)';
 
@@ -2441,7 +2454,7 @@ async function startRound() {
 gameState.usedDigits = [];
 gameState.expression = '';
 gameState.submitted = false;
-gameState.timeLeft = 25;
+gameState.timeLeft = gameState.timeLimit || 30;
 gameState.hintUsed = false;
 
 // ヒントボタンをリセット
@@ -2493,6 +2506,7 @@ document.getElementById('opponent-status').className = 'opponent-status';
 // 相手の式を監視（オンライン対戦時）
 if (!gameState.isTestMode && currentRoomId) {
 startOpponentExpressionListener();
+                startRoundResultListener();
 }
 
 // カウントダウン表示
@@ -2543,10 +2557,11 @@ digitsContainer.innerHTML = gameState.digits.map((d, i) =>
 function startTimer() {
 const timerFill = document.getElementById('timer-fill');
 const timerText = document.getElementById('timer-text');
+const maxTime = gameState.timeLimit || 30;
 
 gameState.timerInterval = setInterval(() => {
 gameState.timeLeft -= 0.1;
-const percent = (gameState.timeLeft / 25) * 100;
+const percent = (gameState.timeLeft / maxTime) * 100;
 timerFill.style.width = `${percent}%`;
 timerText.textContent = Math.ceil(gameState.timeLeft);
 
@@ -2565,12 +2580,22 @@ handleTimeout();
 
 function handleTimeout() {
 if (!gameState.submitted) {
+                // オンライン対戦時はタイムアウトをDBに記録
+                if (!gameState.isTestMode && currentRoomId) {
+                    const playerKey = gameState.isHost ? 'host' : 'guest';
+                    database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                        finished: true,
+                        correct: false,
+                        solveTime: null
+                    }).catch(err => console.warn('タイムアウト記録失敗:', err));
+                }
 showRoundResult('draw', gameState.solutions[0] || '解なし', null);
 }
 }
 
 // 相手の式をFirebaseに同期
 let opponentExpressionListener = null;
+        let roundResultListener = null;
 
 function syncExpressionToFirebase() {
 if (gameState.isTestMode || !currentRoomId) return;
@@ -2613,8 +2638,50 @@ statusEl.className = 'opponent-status';
 statusEl.textContent = '相手: 入力中...';
 statusEl.className = 'opponent-status';
 }
+
+                // 相手が正解したかチェック（自分がまだ結果表示していない場合）
+                if (data && data.finished && data.correct && !gameState.submitted) {
+                    // 相手が先に正解した
+                    gameState.submitted = true;
+                    clearInterval(gameState.timerInterval);
+                    stopOpponentExpressionListener();
+                    stopRoundResultListener();
+                    const opponentExpr = data.expression || '???';
+                    showRoundResult('lose', opponentExpr + ' = 10', data.solveTime);
+                }
+            });
+        }
+
+        // ラウンド結果のリスナー（相手の正解を検知）
+        function startRoundResultListener() {
+            if (roundResultListener) {
+                stopRoundResultListener();
+            }
+            
+            const opponentKey = gameState.isHost ? 'guest' : 'host';
+            const resultRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`);
+            
+            roundResultListener = resultRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.finished && data.correct && !gameState.submitted) {
+                    // 相手が先に正解
+                    gameState.submitted = true;
+                    clearInterval(gameState.timerInterval);
+                    stopOpponentExpressionListener();
+                    stopRoundResultListener();
+                    const opponentExpr = data.expression || '???';
+                    showRoundResult('lose', opponentExpr + ' = 10', data.solveTime);
+                }
 });
 }
+
+        function stopRoundResultListener() {
+            if (roundResultListener) {
+                const opponentKey = gameState.isHost ? 'guest' : 'host';
+                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).off('value', roundResultListener);
+                roundResultListener = null;
+            }
+        }
 
 function stopOpponentExpressionListener() {
 if (opponentExpressionListener) {
@@ -2797,9 +2864,12 @@ resultEl.classList.remove('valid');
 }
 
 function submitAnswer() {
+            if (gameState.submitted) return; // 二重送信防止
+            
 gameState.submitted = true;
 clearInterval(gameState.timerInterval);
 stopOpponentExpressionListener();
+            stopRoundResultListener();
 
 const displayExpr = gameState.expression
 .replace(/\*/g, '×')
@@ -2812,7 +2882,18 @@ if (gameState.isTestMode) {
 // テストモードでは常に自分の勝ち
 showRoundResult('win', displayExpr + ' = 10', solveTime);
 } else {
-// オンライン対戦の場合はFirebaseに送信（後で実装）
+                // オンライン対戦の場合はFirebaseに送信（後で実装）
+                // オンライン対戦の場合はFirebaseに正解を記録
+                const playerKey = gameState.isHost ? 'host' : 'guest';
+                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                    expression: displayExpr,
+                    finished: true,
+                    correct: true,
+                    solveTime: parseFloat(solveTime)
+                }).then(() => {
+                    console.log('正解を記録しました');
+                }).catch(err => console.warn('正解記録失敗:', err));
+                
 showRoundResult('win', displayExpr + ' = 10', solveTime);
 }
 }
@@ -2834,23 +2915,21 @@ answerEl.textContent = answer;
 if (result === 'win') {
 titleEl.textContent = '🎉 正解！';
 titleEl.className = 'result-title win';
-                gameState.hostScore++;
-                // 'win' means the current player won
-                if (gameState.isHost) {
-                    gameState.hostScore++;
-                } else {
-                    gameState.guestScore++;
-                }
+// 'win' means the current player won
+if (gameState.isHost) {
+gameState.hostScore++;
+} else {
+gameState.guestScore++;
+}
 } else if (result === 'lose') {
 titleEl.textContent = '😢 相手が先に正解';
 titleEl.className = 'result-title lose';
-                gameState.guestScore++;
-                // 'lose' means opponent won
-                if (gameState.isHost) {
-                    gameState.guestScore++;
-                } else {
-                    gameState.hostScore++;
-                }
+// 'lose' means opponent won
+if (gameState.isHost) {
+gameState.guestScore++;
+} else {
+gameState.hostScore++;
+}
 } else {
 titleEl.textContent = '⏱️ タイムアップ';
 titleEl.className = 'result-title draw';
