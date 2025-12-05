@@ -1058,6 +1058,55 @@ font-weight: bold;
 margin-bottom: 2rem;
 }
 
+.match-result-players {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 2rem;
+margin-bottom: 2rem;
+}
+
+.match-result-player {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0.5rem;
+}
+
+.match-result-avatar {
+width: 80px;
+height: 80px;
+border-radius: 50%;
+background: var(--card-bg);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.5rem;
+overflow: hidden;
+border: 3px solid var(--text-muted);
+}
+
+.match-result-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.match-result-name {
+font-size: 1rem;
+color: var(--text-color);
+max-width: 100px;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.match-result-vs {
+font-size: 1.5rem;
+font-weight: bold;
+color: var(--text-muted);
+}
+
 /* テストモード表示 */
 .test-mode-badge {
 background: var(--warning-color);
@@ -1187,7 +1236,6 @@ font-size: 1.2rem;
 <div class="waiting-room-info">
 <div class="waiting-room-name" id="waiting-room-name">ルーム名</div>
 <div class="waiting-status">
-<span id="waiting-bo">BO5</span> • 
 <span id="waiting-room-id">Room ID: ---</span>
 </div>
 
@@ -1299,6 +1347,17 @@ font-size: 1.2rem;
 <!-- マッチ結果オーバーレイ -->
 <div class="match-result-overlay hidden" id="match-result-overlay">
 <div class="match-result-title" id="match-result-title">🎉 勝利！</div>
+<div class="match-result-players">
+<div class="match-result-player">
+<div class="match-result-avatar" id="result-host-avatar">👑</div>
+<div class="match-result-name" id="result-host-name">ホスト</div>
+</div>
+<div class="match-result-vs">VS</div>
+<div class="match-result-player">
+<div class="match-result-avatar" id="result-guest-avatar">🎮</div>
+<div class="match-result-name" id="result-guest-name">ゲスト</div>
+</div>
+</div>
 <div class="match-result-score" id="match-result-score">3 - 1</div>
 <button class="btn btn-primary" id="back-to-lobby-btn">ロビーに戻る</button>
 </div>
@@ -1323,14 +1382,6 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>パスワード（任意）</label>
 <input type="password" id="room-password-input" placeholder="なしの場合は空欄">
-</div>
-<div class="form-group">
-<label>対戦本数</label>
-<select id="room-bo-input">
-<option value="3">BO3（2本先取）</option>
-<option value="5" selected>BO5（3本先取）</option>
-<option value="7">BO7（4本先取）</option>
-</select>
 </div>
 <div class="form-group">
 <label>出題難易度</label>
@@ -1740,7 +1791,7 @@ e.preventDefault();
 const roomName = document.getElementById('room-name-input').value.trim() || 'ルーム1';
 const hostName = document.getElementById('host-name-input').value.trim() || 'ホスト';
 const password = document.getElementById('room-password-input').value;
-const bo = parseInt(document.getElementById('room-bo-input').value);
+const bo = 1; // BO1固定
 const difficulty = document.getElementById('room-difficulty-input').value;
 const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
 const allowHint = document.getElementById('room-hint-input').value === 'yes';
@@ -1814,6 +1865,14 @@ alert('ルームの作成に失敗しました');
 function openJoinModal(roomId, meta) {
 document.getElementById('join-room-name').value = meta.roomName;
 document.getElementById('join-room-id').value = roomId;
+
+// 現在のユーザー名を自動入力
+const guestNameInput = document.getElementById('guest-name-input');
+if (currentUserName && currentUserName !== 'ゲスト') {
+guestNameInput.value = currentUserName;
+} else {
+guestNameInput.value = '';
+}
 
 const passwordGroup = document.getElementById('join-password-group');
 if (meta.passwordHash) {
@@ -1918,7 +1977,6 @@ function enterWaitingRoom(roomId, roomName, hostName, guestName, bo, isHost) {
 showScreen('waiting-screen');
 
 document.getElementById('waiting-room-name').textContent = roomName;
-document.getElementById('waiting-bo').textContent = `BO${bo}`;
 document.getElementById('waiting-room-id').textContent = `Room ID: ${roomId.slice(-6)}`;
 document.getElementById('host-name').textContent = hostName;
 
@@ -2013,7 +2071,7 @@ console.warn('unsubscribe error', e);
 currentRoomId = roomId;
 gameState.isTestMode = false;
 gameState.isHost = isHost;
-gameState.bo = meta.bo || gameState.bo;
+gameState.bo = 1; // BO1固定
 gameState.round = 1;
 gameState.hostScore = 0;
 gameState.guestScore = 0;
@@ -2387,7 +2445,7 @@ alert('💡 ヒントはありません');
 document.getElementById('test-room-btn').addEventListener('click', () => {
 gameState.isTestMode = true;
 gameState.isHost = true;
-gameState.bo = 5;
+gameState.bo = 1; // BO1固定
 gameState.round = 1;
 gameState.hostScore = 0;
 gameState.guestScore = 0;
@@ -2977,6 +3035,28 @@ function showMatchResult(result) {
 const overlay = document.getElementById('match-result-overlay');
 const titleEl = document.getElementById('match-result-title');
 const scoreEl = document.getElementById('match-result-score');
+
+// プレイヤー情報を表示
+const resultHostAvatar = document.getElementById('result-host-avatar');
+const resultHostName = document.getElementById('result-host-name');
+const resultGuestAvatar = document.getElementById('result-guest-avatar');
+const resultGuestName = document.getElementById('result-guest-name');
+
+// ホストのアイコンと名前
+if (gameState.hostAvatar) {
+resultHostAvatar.innerHTML = `<img src="${gameState.hostAvatar}" alt="host">`;
+} else {
+resultHostAvatar.textContent = '👑';
+}
+resultHostName.textContent = gameState.hostName || 'ホスト';
+
+// ゲストのアイコンと名前
+if (gameState.guestAvatar) {
+resultGuestAvatar.innerHTML = `<img src="${gameState.guestAvatar}" alt="guest">`;
+} else {
+resultGuestAvatar.textContent = '🎮';
+}
+resultGuestName.textContent = gameState.guestName || 'ゲスト';
 
 overlay.classList.remove('hidden');
 
