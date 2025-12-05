@@ -2568,23 +2568,26 @@
                     gameState.solutions = problem.solutions;
                 }
 
-                // --- 追加: 開始時点で相手が既に正解していないかチェック ---
+                // --- 追加: 開始時点で既に winner が決まっていないかチェック ---
                 try {
-                    const opponentKey = gameState.isHost ? 'guest' : 'host';
-                    const oppSnap = await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).once('value');
-                    const oppData = oppSnap.val();
-                    if (oppData && oppData.finished && oppData.correct && !gameState.submitted && !gameState.resultShown) {
-                        console.log(`[ROUND] Opponent already finished for round ${gameState.round}:`, oppData);
+                    const roundSnap = await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).once('value');
+                    const roundData = roundSnap.val();
+                    if (roundData && roundData.winner && roundData.winner !== currentUserId && !gameState.submitted && !gameState.resultShown) {
+                        console.log(`[ROUND] Opponent already won round ${gameState.round}:`, roundData.winner);
                         gameState.submitted = true;
                         if (gameState.timerInterval) { clearInterval(gameState.timerInterval); gameState.timerInterval = null; }
                         stopOpponentExpressionListener();
                         stopRoundResultListener();
-                        const opponentExpr = oppData.expression || '???';
+                        const opponentKey = gameState.isHost ? 'guest' : 'host';
+                        const oppData = roundData[opponentKey] || {};
+                        const opponentExpr = (oppData.expression || '???')
+                            .replace(/\*/g, '×')
+                            .replace(/\//g, '÷');
                         showRoundResult('lose', opponentExpr + ' = 10', oppData.solveTime);
                         return;
                     }
                 } catch (e) {
-                    console.warn('[ROUND] Error checking opponent pre-finish:', e);
+                    console.warn('[ROUND] Error checking winner pre-finish:', e);
                 }
             } else {
                 // テストモードまたはローカル: 問題を生成
@@ -2744,17 +2747,51 @@
             stopOpponentExpressionListener();
             stopRoundResultListener();
             
-            // オンライン対戦時はタイムアウトをDBに記録
+            // オンライン対戦時はタイムアウトをDBに記録（transactionで勝敗判定）
             if (!gameState.isTestMode && currentRoomId) {
                 const playerKey = gameState.isHost ? 'host' : 'guest';
-                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                const roundPath = `rooms/${currentRoomId}/game/round${gameState.round}`;
+                const roundRef = database.ref(roundPath);
+
+                const payload = {
                     finished: true,
                     correct: false,
                     solveTime: null
-                }).catch(err => console.warn('タイムアウト記録失敗:', err));
+                };
+
+                roundRef.transaction((current) => {
+                    if (current === null) {
+                        // 通常ここには来ない
+                        const node = {};
+                        node[playerKey] = payload;
+                        return node;
+                    }
+                    // タイムアウトした側は winner を取らない（相手が先に正解していれば winner は既存）
+                    // ただし自分のデータは書き込む
+                    current[playerKey] = payload;
+                    return current;
+                }, (error, committed, snapshot) => {
+                    if (error) {
+                        console.warn('タイムアウト記録失敗:', error);
+                    }
+                    // 相手が勝者かどうかをチェック
+                    const data = snapshot ? snapshot.val() : null;
+                    if (data && data.winner && data.winner !== currentUserId) {
+                        // 相手が勝者
+                        const opponentKey = gameState.isHost ? 'guest' : 'host';
+                        const oppData = data[opponentKey] || {};
+                        const oppExpr = (oppData.expression || '???')
+                            .replace(/\*/g, '×')
+                            .replace(/\//g, '÷');
+                        showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
+                    } else {
+                        // 両者タイムアウトまたは相手もまだ
+                        showRoundResult('draw', gameState.solutions[0] || '解なし', null);
+                    }
+                }, false);
+            } else {
+                showRoundResult('draw', gameState.solutions[0] || '解なし', null);
             }
-            
-            showRoundResult('draw', gameState.solutions[0] || '解なし', null);
         }
 
         // 相手の式をFirebaseに同期
@@ -2799,29 +2836,33 @@
             });
         }
 
-        // ラウンド結果のリスナー（相手の正解を検知）
+        // ラウンド結果のリスナー（winnerフィールドで相手の勝利を検知）
         function startRoundResultListener() {
             if (roundResultListener) {
                 stopRoundResultListener();
             }
 
             if (!currentRoomId) return;
-            const opponentKey = gameState.isHost ? 'guest' : 'host';
-            const path = `rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`;
+            // ラウンドノード全体を監視（winner フィールドを検知するため）
+            const path = `rooms/${currentRoomId}/game/round${gameState.round}`;
             roundResultRef = database.ref(path);
 
             roundResultListener = (snapshot) => {
                 const data = snapshot.val();
-                // 相手が正解し、まだ自分が回答・結果表示していない場合
-                if (data && data.finished && data.correct && !gameState.submitted && !gameState.resultShown) {
-                    // 相手が先に正解
+                // winner が存在し、自分でない場合 = 相手が勝者
+                if (data && data.winner && data.winner !== currentUserId && !gameState.submitted && !gameState.resultShown) {
+                    console.log('[RoundResult] Opponent won this round. winner=' + data.winner);
                     gameState.submitted = true;
                     clearInterval(gameState.timerInterval);
                     gameState.timerInterval = null;
                     stopOpponentExpressionListener();
                     stopRoundResultListener();
-                    const opponentExpr = data.expression || '???';
-                    showRoundResult('lose', opponentExpr + ' = 10', data.solveTime);
+                    const opponentKey = gameState.isHost ? 'guest' : 'host';
+                    const oppData = data[opponentKey] || {};
+                    const opponentExpr = (oppData.expression || '???')
+                        .replace(/\*/g, '×')
+                        .replace(/\//g, '÷');
+                    showRoundResult('lose', opponentExpr + ' = 10', oppData.solveTime);
                 }
             };
 
@@ -3023,6 +3064,7 @@
         function submitAnswer() {
             gameState.submitted = true;
             clearInterval(gameState.timerInterval);
+            gameState.timerInterval = null;
             stopOpponentExpressionListener();
             stopRoundResultListener();
 
@@ -3031,25 +3073,65 @@
                 .replace(/\//g, '÷');
 
             // 解答時間を計算
-            const solveTime = ((Date.now() - gameState.roundStartTime) / 1000).toFixed(2);
+            const solveTime = parseFloat(((Date.now() - gameState.roundStartTime) / 1000).toFixed(2));
 
             if (gameState.isTestMode) {
                 // テストモードでは常に自分の勝ち
                 showRoundResult('win', displayExpr + ' = 10', solveTime);
             } else {
-                // オンライン対戦の場合はFirebaseに結果を書き込む
+                // オンライン対戦の場合は transaction で「先に書いた方が勝ち」を実現
                 const playerKey = gameState.isHost ? 'host' : 'guest';
-                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${playerKey}`).update({
+                const roundPath = `rooms/${currentRoomId}/game/round${gameState.round}`;
+                const roundRef = database.ref(roundPath);
+
+                const payload = {
                     finished: true,
                     correct: true,
                     expression: gameState.expression,
-                    solveTime: parseFloat(solveTime)
-                }).then(() => {
-                    showRoundResult('win', displayExpr + ' = 10', solveTime);
-                }).catch(err => {
-                    console.error('回答送信エラー:', err);
-                    showRoundResult('win', displayExpr + ' = 10', solveTime);
-                });
+                    solveTime: solveTime
+                };
+
+                console.log(`[SUBMIT] Starting transaction for round ${gameState.round}, player=${playerKey}`);
+
+                roundRef.transaction((current) => {
+                    if (current === null) {
+                        // データがない（通常ここには来ない：ホストが digits を書き込んでいるはず）
+                        const node = { winner: currentUserId };
+                        node[playerKey] = payload;
+                        return node;
+                    }
+                    if (!current.winner) {
+                        // まだ winner がいない → 自分が winner
+                        current.winner = currentUserId;
+                        current[playerKey] = payload;
+                        return current;
+                    }
+                    // 既に winner がいる → abort（undefined を返す）
+                    return undefined;
+                }, (error, committed, snapshot) => {
+                    if (error) {
+                        console.error('[SUBMIT] Transaction error:', error);
+                        // フォールバック: 通常書き込みして勝ち表示（エラー時の救済）
+                        showRoundResult('win', displayExpr + ' = 10', solveTime);
+                        return;
+                    }
+
+                    if (committed) {
+                        // 自分が winner を獲得した（勝ち）
+                        console.log(`[SUBMIT] Transaction committed - I won round ${gameState.round}`);
+                        showRoundResult('win', displayExpr + ' = 10', solveTime);
+                    } else {
+                        // 他プレイヤーが先に winner を設定した（負け）
+                        console.log(`[SUBMIT] Transaction aborted - opponent won round ${gameState.round}`);
+                        const data = snapshot.val() || {};
+                        const opponentKey = gameState.isHost ? 'guest' : 'host';
+                        const oppData = data[opponentKey] || {};
+                        const oppExpr = (oppData.expression || '???')
+                            .replace(/\*/g, '×')
+                            .replace(/\//g, '÷');
+                        showRoundResult('lose', oppExpr + ' = 10', oppData.solveTime);
+                    }
+                }, false); // applyLocally = false
             }
         }
 
