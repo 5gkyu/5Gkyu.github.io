@@ -1253,10 +1253,10 @@
                     <!-- 演算子・括弧ボタン（数字の下） -->
                     <div class="operator-row" id="operator-row">
                         <button class="op-btn bracket" data-op="(">(</button>
-                        <button class="op-btn" data-op="/">÷</button>
-                        <button class="op-btn" data-op="*">×</button>
-                        <button class="op-btn" data-op="-">−</button>
                         <button class="op-btn" data-op="+">+</button>
+                        <button class="op-btn" data-op="-">−</button>
+                        <button class="op-btn" data-op="*">×</button>
+                        <button class="op-btn" data-op="/">÷</button>
                         <button class="op-btn bracket" data-op=")">)</button>
                     </div>
 
@@ -1814,6 +1814,7 @@
         function openJoinModal(roomId, meta) {
             document.getElementById('join-room-name').value = meta.roomName;
             document.getElementById('join-room-id').value = roomId;
+            document.getElementById('guest-name-input').value = currentDisplayName || '';
             
             const passwordGroup = document.getElementById('join-password-group');
             if (meta.passwordHash) {
@@ -2471,6 +2472,30 @@
 
                     await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).set({
                         digits: problem.digits,
+                        hostReady: true,
+                        guestReady: false,
+                        startTime: null
+                    });
+                    
+                    // ゲストの準備完了を待つ
+                    const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    await new Promise((resolve) => {
+                        const listener = roundRef.on('value', (snapshot) => {
+                            const data = snapshot.val();
+                            if (data && data.guestReady) {
+                                roundRef.off('value', listener);
+                                resolve();
+                            }
+                        });
+                        // 10秒でタイムアウト（ゲストが来ない場合）
+                        setTimeout(() => {
+                            roundRef.off('value', listener);
+                            resolve();
+                        }, 10000);
+                    });
+                    
+                    // 開始時刻を記録
+                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
                         startTime: firebase.database.ServerValue.TIMESTAMP
                     });
                 } else {
@@ -2486,6 +2511,28 @@
                                 resolve();
                             }
                         });
+                    });
+                    
+                    // ゲストの準備完了を通知
+                    await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
+                        guestReady: true
+                    });
+                    
+                    // ホストが開始時刻を書き込むのを待つ
+                    const startRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
+                    await new Promise((resolve) => {
+                        const listener = startRef.on('value', (snapshot) => {
+                            const data = snapshot.val();
+                            if (data && data.startTime) {
+                                startRef.off('value', listener);
+                                resolve();
+                            }
+                        });
+                        // 5秒でタイムアウト
+                        setTimeout(() => {
+                            startRef.off('value', listener);
+                            resolve();
+                        }, 5000);
                     });
                 }
             } else {
@@ -2646,15 +2693,7 @@
                 }
 
                 // 相手が正解したかチェック（自分がまだ結果表示していない場合）
-                if (data && data.finished && data.correct && !gameState.submitted) {
-                    // 相手が先に正解した
-                    gameState.submitted = true;
-                    clearInterval(gameState.timerInterval);
-                    stopOpponentExpressionListener();
-                    stopRoundResultListener();
-                    const opponentExpr = data.expression || '???';
-                    showRoundResult('lose', opponentExpr + ' = 10', data.solveTime);
-                }
+                // ※ startRoundResultListener で処理するのでここでは何もしない
             });
         }
 
