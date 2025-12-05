@@ -2567,6 +2567,25 @@
                     gameState.digits = problem.digits;
                     gameState.solutions = problem.solutions;
                 }
+
+                // --- 追加: 開始時点で相手が既に正解していないかチェック ---
+                try {
+                    const opponentKey = gameState.isHost ? 'guest' : 'host';
+                    const oppSnap = await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).once('value');
+                    const oppData = oppSnap.val();
+                    if (oppData && oppData.finished && oppData.correct && !gameState.submitted && !gameState.resultShown) {
+                        console.log(`[ROUND] Opponent already finished for round ${gameState.round}:`, oppData);
+                        gameState.submitted = true;
+                        if (gameState.timerInterval) { clearInterval(gameState.timerInterval); gameState.timerInterval = null; }
+                        stopOpponentExpressionListener();
+                        stopRoundResultListener();
+                        const opponentExpr = oppData.expression || '???';
+                        showRoundResult('lose', opponentExpr + ' = 10', oppData.solveTime);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('[ROUND] Error checking opponent pre-finish:', e);
+                }
             } else {
                 // テストモードまたはローカル: 問題を生成
                 const problem = generateProblem();
