@@ -86,6 +86,8 @@
             object-fit: cover;
         }
 
+        
+
         .user-info .status-dot {
             width: 10px;
             height: 10px;
@@ -1700,6 +1702,15 @@
         // ルーム作成
         // ========================================
         document.getElementById('create-room-btn').addEventListener('click', () => {
+            // ルーム作成モーダルを開く前に、ユーザーの表示名があればホスト名入力にセットする
+            try {
+                const hostInput = document.getElementById('host-name-input');
+                if (hostInput) {
+                    hostInput.value = currentUserName && currentUserName !== 'ゲスト' ? currentUserName : '';
+                }
+            } catch (e) {
+                console.warn('host name prefill failed', e);
+            }
             showModal(createRoomModal);
         });
 
@@ -2239,12 +2250,9 @@
                     }
                 }
             }
-            // 重複を除去
+            // 重複を除去して文字列配列を返す
             const uniqueExprs = [...new Set(solutions.map(s => s.expr))];
-            return uniqueExprs.map(expr => {
-                const hasBrackets = expr.includes('(');
-                return { expr, hasBrackets };
-            });
+            return uniqueExprs;
         }
 
         function formatOp(op) {
@@ -2821,11 +2829,21 @@
             if (result === 'win') {
                 titleEl.textContent = '🎉 正解！';
                 titleEl.className = 'result-title win';
-                gameState.hostScore++;
+                // 'win' means the current player won
+                if (gameState.isHost) {
+                    gameState.hostScore++;
+                } else {
+                    gameState.guestScore++;
+                }
             } else if (result === 'lose') {
                 titleEl.textContent = '😢 相手が先に正解';
                 titleEl.className = 'result-title lose';
-                gameState.guestScore++;
+                // 'lose' means opponent won
+                if (gameState.isHost) {
+                    gameState.guestScore++;
+                } else {
+                    gameState.hostScore++;
+                }
             } else {
                 titleEl.textContent = '⏱️ タイムアップ';
                 titleEl.className = 'result-title draw';
