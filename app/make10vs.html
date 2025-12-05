@@ -1107,6 +1107,32 @@ font-weight: bold;
 color: var(--text-muted);
 }
 
+.match-result-avatar.winner {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+}
+.match-result-avatar.loser {
+    border-color: var(--danger-color);
+    opacity: 0.7;
+}
+.match-result-avatar.draw {
+    border-color: var(--text-muted);
+}
+
+/* 王冠表示（アバター上部） */
+.match-result-avatar.winner::after,
+.game-player-avatar.winner::after {
+    content: "👑";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.game-player-avatar { position: relative; }
+
 /* テストモード表示 */
 .test-mode-badge {
 background: var(--warning-color);
@@ -2089,16 +2115,16 @@ gameState.timeLimit = meta.timeLimit || 30;
 // ホスト・ゲストのアバターをDBから取得
 const fetchAvatars = async () => {
 try {
-if (meta.hostId) {
-const hostProfile = await database.ref(`users/${meta.hostId}`).once('value');
-const hp = hostProfile.val();
-if (hp && hp.avatar) gameState.hostAvatar = hp.avatar;
-}
-if (meta.guestId) {
-const guestProfile = await database.ref(`users/${meta.guestId}`).once('value');
-const gp = guestProfile.val();
-if (gp && gp.avatar) gameState.guestAvatar = gp.avatar;
-}
+        if (meta.hostId) {
+            const hostProfile = await database.ref(`users/${meta.hostId}`).once('value');
+            const hp = hostProfile.val();
+            if (hp && hp.avatar && !gameState.isTestMode) gameState.hostAvatar = hp.avatar;
+        }
+        if (meta.guestId) {
+            const guestProfile = await database.ref(`users/${meta.guestId}`).once('value');
+            const gp = guestProfile.val();
+            if (gp && gp.avatar && !gameState.isTestMode) gameState.guestAvatar = gp.avatar;
+        }
 } catch (err) {
 console.warn('アバター取得失敗:', err);
 }
@@ -2451,6 +2477,8 @@ gameState.hostScore = 0;
 gameState.guestScore = 0;
 gameState.hostName = 'あなた';
 gameState.guestName = 'CPU';
+    // テストモードのCPUアイコンは専用画像を使う
+    gameState.guestAvatar = '../image/make10bot.png';
 gameState.difficulty = 'easy';
 gameState.allowBrackets = false;
 gameState.allowHint = true; // テストモードではヒントあり
@@ -2487,8 +2515,9 @@ guestAvatarEl.textContent = '👤';
 }
 
 if (gameState.isTestMode) {
-document.getElementById('game-guest-name').innerHTML = gameState.guestName + ' <span class="test-mode-badge">TEST</span>';
-guestAvatarEl.textContent = '🤖';
+    // テストモード表示: CPU 名前はそのまま表示（ラベル削除）
+    document.getElementById('game-guest-name').textContent = gameState.guestName;
+    // guestAvatarEl は上で gameState.guestAvatar を参照して描画されるためここでの上書きはしない
 }
 
 // ヒントボタンの表示/非表示
@@ -2998,18 +3027,18 @@ updateScoreDisplay();
 // 勝敗チェック
 const winTarget = Math.ceil(gameState.bo / 2);
 
-setTimeout(() => {
-overlay.classList.add('hidden');
+    setTimeout(() => {
+        overlay.classList.add('hidden');
 
-if (gameState.hostScore >= winTarget) {
-showMatchResult('win');
-} else if (gameState.guestScore >= winTarget) {
-showMatchResult('lose');
-} else {
-gameState.round++;
-startRound();
-}
-}, 3000);
+        if (gameState.hostScore >= winTarget) {
+            showMatchResult('win');
+        } else if (gameState.guestScore >= winTarget) {
+            showMatchResult('lose');
+        } else {
+            // BO1 の場合や引き分けはマッチを引き分け扱いで終了
+            showMatchResult('draw');
+        }
+    }, 3000);
 }
 
 function updateScoreDisplay() {
@@ -3029,46 +3058,86 @@ const guestDot = document.createElement('div');
 guestDot.className = 'score-dot' + (i < gameState.guestScore ? ' win' : '');
 guestScoreEl.appendChild(guestDot);
 }
+
+    // ゲーム中のアバターに王冠を表示（先行者に crown）
+    const gameHostAvatar = document.getElementById('game-host-avatar');
+    const gameGuestAvatar = document.getElementById('game-guest-avatar');
+    if (gameState.hostScore > gameState.guestScore) {
+        gameHostAvatar.classList.add('winner');
+        gameGuestAvatar.classList.remove('winner');
+    } else if (gameState.guestScore > gameState.hostScore) {
+        gameGuestAvatar.classList.add('winner');
+        gameHostAvatar.classList.remove('winner');
+    } else {
+        gameHostAvatar.classList.remove('winner');
+        gameGuestAvatar.classList.remove('winner');
+    }
 }
 
 function showMatchResult(result) {
-const overlay = document.getElementById('match-result-overlay');
-const titleEl = document.getElementById('match-result-title');
-const scoreEl = document.getElementById('match-result-score');
+    const overlay = document.getElementById('match-result-overlay');
+    const titleEl = document.getElementById('match-result-title');
+    const scoreEl = document.getElementById('match-result-score');
 
-// プレイヤー情報を表示
-const resultHostAvatar = document.getElementById('result-host-avatar');
-const resultHostName = document.getElementById('result-host-name');
-const resultGuestAvatar = document.getElementById('result-guest-avatar');
-const resultGuestName = document.getElementById('result-guest-name');
+    // プレイヤー情報を表示
+    const resultHostAvatar = document.getElementById('result-host-avatar');
+    const resultHostName = document.getElementById('result-host-name');
+    const resultGuestAvatar = document.getElementById('result-guest-avatar');
+    const resultGuestName = document.getElementById('result-guest-name');
 
-// ホストのアイコンと名前
-if (gameState.hostAvatar) {
-resultHostAvatar.innerHTML = `<img src="${gameState.hostAvatar}" alt="host">`;
-} else {
-resultHostAvatar.textContent = '👑';
-}
-resultHostName.textContent = gameState.hostName || 'ホスト';
+    // ホストのアイコンと名前
+    if (gameState.hostAvatar) {
+        resultHostAvatar.innerHTML = `<img src="${gameState.hostAvatar}" alt="host">`;
+    } else {
+        resultHostAvatar.textContent = '👑';
+    }
+    resultHostName.textContent = gameState.hostName || 'ホスト';
 
-// ゲストのアイコンと名前
-if (gameState.guestAvatar) {
-resultGuestAvatar.innerHTML = `<img src="${gameState.guestAvatar}" alt="guest">`;
-} else {
-resultGuestAvatar.textContent = '🎮';
-}
-resultGuestName.textContent = gameState.guestName || 'ゲスト';
+    // ゲストのアイコンと名前
+    if (gameState.guestAvatar) {
+        resultGuestAvatar.innerHTML = `<img src="${gameState.guestAvatar}" alt="guest">`;
+    } else {
+        resultGuestAvatar.textContent = '🎮';
+    }
+    resultGuestName.textContent = gameState.guestName || 'ゲスト';
 
-overlay.classList.remove('hidden');
+    // クラスをリセット
+    resultHostAvatar.classList.remove('winner', 'loser', 'draw');
+    resultGuestAvatar.classList.remove('winner', 'loser', 'draw');
 
-if (result === 'win') {
-titleEl.textContent = '🎉 勝利！';
-titleEl.style.color = 'var(--secondary-color)';
-} else {
-titleEl.textContent = '😢 敗北...';
-titleEl.style.color = 'var(--danger-color)';
-}
+    overlay.classList.remove('hidden');
 
-scoreEl.textContent = `${gameState.hostScore} - ${gameState.guestScore}`;
+    // 結果に応じた表示
+    if (result === 'win') {
+        titleEl.textContent = '🎉 勝利！';
+        titleEl.style.color = 'var(--secondary-color)';
+        // 現在のユーザーが勝者
+        if (gameState.isHost) {
+            resultHostAvatar.classList.add('winner');
+            resultGuestAvatar.classList.add('loser');
+        } else {
+            resultGuestAvatar.classList.add('winner');
+            resultHostAvatar.classList.add('loser');
+        }
+    } else if (result === 'lose') {
+        titleEl.textContent = '😢 敗北...';
+        titleEl.style.color = 'var(--danger-color)';
+        // 相手が勝者
+        if (gameState.isHost) {
+            resultGuestAvatar.classList.add('winner');
+            resultHostAvatar.classList.add('loser');
+        } else {
+            resultHostAvatar.classList.add('winner');
+            resultGuestAvatar.classList.add('loser');
+        }
+    } else if (result === 'draw') {
+        titleEl.textContent = '⚖️ 引き分け';
+        titleEl.style.color = 'var(--text-muted)';
+        resultHostAvatar.classList.add('draw');
+        resultGuestAvatar.classList.add('draw');
+    }
+
+    scoreEl.textContent = `${gameState.hostScore} - ${gameState.guestScore}`;
 }
 
 document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
