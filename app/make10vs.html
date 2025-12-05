@@ -2434,35 +2434,35 @@
             return true;
         }
 
-        // ヒント機能
+        // ヒント機能（タイマーを止めずに表示）
         function showHint() {
             if (gameState.hintUsed || !gameState.allowHint) return;
             
             gameState.hintUsed = true;
             document.getElementById('hint-btn').disabled = true;
             
-            // タイマーを一時停止
-            const savedTimeLeft = gameState.timeLeft;
-            if (gameState.timerInterval) {
-                clearInterval(gameState.timerInterval);
-                gameState.timerInterval = null;
-            }
-            
             // 解の1つから最初の数字と演算子をヒントとして表示
+            let hintText = 'ヒントはありません';
             if (gameState.solutions && gameState.solutions.length > 0) {
                 const solution = gameState.solutions[0];
                 // 最初の3文字程度をヒントとして表示（例: "3 + "）
                 const hint = solution.substring(0, 4).trim();
-                alert(`💡 ヒント: 「${hint}...」から始めてみよう！`);
-            } else {
-                alert('💡 ヒントはありません');
+                hintText = `「${hint}...」から始めてみよう！`;
             }
             
-            // タイマーを再開（まだ回答していない場合のみ）
-            if (!gameState.submitted) {
-                gameState.timeLeft = savedTimeLeft;
-                startTimer();
-            }
+            // 式表示エリアにヒントを一時的に表示（タイマーを止めない）
+            const resultEl = document.getElementById('expression-result');
+            const originalText = resultEl.textContent;
+            resultEl.textContent = '💡 ' + hintText;
+            resultEl.style.color = 'var(--secondary-color)';
+            
+            // 3秒後に元に戻す
+            setTimeout(() => {
+                if (!gameState.submitted) {
+                    resultEl.textContent = originalText;
+                    resultEl.style.color = '';
+                }
+            }, 3000);
         }
 
         // テストモード開始
@@ -2597,33 +2597,33 @@
                     // ゲストはDBから問題を読み取る（ホストが書き込むまで待機）
                     const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
                     
-                    // まず現在のデータを確認
-                    const currentData = await roundRef.once('value');
-                    const existingData = currentData.val();
-                    
-                    if (existingData && existingData.digits) {
-                        // 既にデータがある場合はそれを使用
-                        gameState.digits = existingData.digits;
-                        gameState.solutions = findSolutions(existingData.digits);
-                    } else {
-                        // データがない場合は待機
-                        await new Promise((resolve) => {
-                            const listener = roundRef.on('value', (snapshot) => {
-                                const data = snapshot.val();
+                    // ホストが新しいラウンドデータを書き込むまで待機
+                    // hostReady: true になるまで待つことで、前のラウンドのデータと区別
+                    await new Promise((resolve) => {
+                        const listener = roundRef.on('value', (snapshot) => {
+                            const data = snapshot.val();
+                            // hostReadyがtrueで、まだguestReadyがfalseなら新しいラウンド
+                            if (data && data.digits && data.hostReady && !data.guestReady) {
+                                gameState.digits = data.digits;
+                                gameState.solutions = findSolutions(data.digits);
+                                roundRef.off('value', listener);
+                                resolve();
+                            }
+                        });
+                        // 15秒でタイムアウト
+                        setTimeout(() => {
+                            roundRef.off('value', listener);
+                            // タイムアウトでも現在のデータを使用
+                            roundRef.once('value').then(snap => {
+                                const data = snap.val();
                                 if (data && data.digits) {
                                     gameState.digits = data.digits;
                                     gameState.solutions = findSolutions(data.digits);
-                                    roundRef.off('value', listener);
-                                    resolve();
                                 }
                             });
-                            // 15秒でタイムアウト
-                            setTimeout(() => {
-                                roundRef.off('value', listener);
-                                resolve();
-                            }, 15000);
-                        });
-                    }
+                            resolve();
+                        }, 15000);
+                    });
                     
                     // ゲストの準備完了を通知
                     await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
@@ -3102,7 +3102,7 @@
             // 勝敗チェック
             const winTarget = Math.ceil(gameState.bo / 2);
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 overlay.classList.add('hidden');
 
                 if (gameState.hostScore >= winTarget) {
@@ -3112,7 +3112,41 @@
                     // ゲストが勝った
                     showMatchResult(gameState.isHost ? 'lose' : 'win');
                 } else {
-                    gameState.round++;
+                    // 次のラウンドへ
+                    const nextRound = gameState.round + 1;
+                    
+                    // オンライン対戦時は次ラウンドの準備ができるまで待つ
+                    if (!gameState.isTestMode && currentRoomId) {
+                        // ゲストは次ラウンドのデータが書き込まれるまで待機
+                        if (!gameState.isHost) {
+                            const nextRoundRef = database.ref(`rooms/${currentRoomId}/game/round${nextRound}`);
+                            await new Promise((resolve) => {
+                                const checkData = async () => {
+                                    const snap = await nextRoundRef.once('value');
+                                    if (snap.val() && snap.val().digits) {
+                                        resolve();
+                                    } else {
+                                        // リスナーで待機
+                                        const listener = nextRoundRef.on('value', (snapshot) => {
+                                            const data = snapshot.val();
+                                            if (data && data.digits) {
+                                                nextRoundRef.off('value', listener);
+                                                resolve();
+                                            }
+                                        });
+                                        // 10秒でタイムアウト
+                                        setTimeout(() => {
+                                            nextRoundRef.off('value', listener);
+                                            resolve();
+                                        }, 10000);
+                                    }
+                                };
+                                checkData();
+                            });
+                        }
+                    }
+                    
+                    gameState.round = nextRound;
                     startRound();
                 }
             }, 3000);
