@@ -2741,6 +2741,7 @@
         // 相手の式をFirebaseに同期
         let opponentExpressionListener = null;
         let roundResultListener = null;
+        let roundResultRef = null;
 
         function syncExpressionToFirebase() {
             if (gameState.isTestMode || !currentRoomId) return;
@@ -2784,11 +2785,13 @@
             if (roundResultListener) {
                 stopRoundResultListener();
             }
-            
+
+            if (!currentRoomId) return;
             const opponentKey = gameState.isHost ? 'guest' : 'host';
-            const resultRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`);
-            
-            roundResultListener = resultRef.on('value', (snapshot) => {
+            const path = `rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`;
+            roundResultRef = database.ref(path);
+
+            roundResultListener = (snapshot) => {
                 const data = snapshot.val();
                 // 相手が正解し、まだ自分が回答・結果表示していない場合
                 if (data && data.finished && data.correct && !gameState.submitted && !gameState.resultShown) {
@@ -2801,13 +2804,19 @@
                     const opponentExpr = data.expression || '???';
                     showRoundResult('lose', opponentExpr + ' = 10', data.solveTime);
                 }
-            });
+            };
+
+            roundResultRef.on('value', roundResultListener);
         }
 
         function stopRoundResultListener() {
-            if (roundResultListener) {
-                const opponentKey = gameState.isHost ? 'guest' : 'host';
-                database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`).off('value', roundResultListener);
+            if (roundResultRef && roundResultListener) {
+                try {
+                    roundResultRef.off('value', roundResultListener);
+                } catch (e) {
+                    // ignore
+                }
+                roundResultRef = null;
                 roundResultListener = null;
             }
         }
