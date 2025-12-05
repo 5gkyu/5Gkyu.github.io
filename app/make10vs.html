@@ -1478,10 +1478,27 @@
 
                 // 試合開始状態になった
                 if (meta.state === 'playing') {
-                    // ゲーム画面に移行（後で実装）
+                    // ゲーム画面へ遷移
                     document.getElementById('waiting-message').textContent = '試合開始！';
                     document.getElementById('waiting-spinner').style.display = 'none';
-                    // TODO: ゲーム画面に遷移
+
+                    // ロビー一覧の監視を止め、現在のルームIDを設定
+                    try {
+                        unsubscribeFromRooms();
+                    } catch (e) {
+                        console.warn('unsubscribe error', e);
+                    }
+
+                    currentRoomId = roomId;
+                    gameState.isTestMode = false;
+                    gameState.bo = meta.bo || gameState.bo;
+                    gameState.round = 1;
+                    gameState.hostName = meta.hostName || 'ホスト';
+                    gameState.guestName = meta.guestName || 'ゲスト';
+
+                    // UI反映してゲーム開始
+                    currentUserNameEl.textContent = currentUserName;
+                    startGame();
                 }
             });
         }
