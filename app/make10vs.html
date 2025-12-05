@@ -2699,9 +2699,11 @@ usedCount: gameState.usedDigits.length
 }
 
 function startOpponentExpressionListener() {
-if (opponentExpressionListener) {
-opponentExpressionListener.off();
-}
+    if (opponentExpressionListener) {
+        // opponentExpressionListener は ref.off を持たない（.on() の戻り値はコールバック）ため
+        // 共通の停止関数を使って安全に解除する
+        stopOpponentExpressionListener();
+    }
 
 const opponentKey = gameState.isHost ? 'guest' : 'host';
 const opponentRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}/${opponentKey}`);
