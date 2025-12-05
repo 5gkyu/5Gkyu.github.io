@@ -1323,6 +1323,7 @@
                 <div class="expression-display" id="expression-display"></div>
 
                 <div class="opponent-status" id="opponent-status">相手: 入力中...</div>
+                <button class="btn btn-danger quit-game-btn" id="quit-game-btn" style="display: none; margin-top: 1rem;">🚪 途中でやめる</button>
             </div>
 
         <!-- カウントダウンオーバーレイ -->
@@ -1524,6 +1525,7 @@
         // ========================================
         let currentUserId = null;
         let currentUserName = 'ゲスト';
+        let currentUserAvatar = null;
         let currentRoomId = null;
         let currentRoomRef = null;
         let roomsListener = null;
@@ -1880,7 +1882,7 @@
         function openJoinModal(roomId, meta) {
             document.getElementById('join-room-name').value = meta.roomName;
             document.getElementById('join-room-id').value = roomId;
-            document.getElementById('guest-name-input').value = currentDisplayName || '';
+            document.getElementById('guest-name-input').value = currentUserName && currentUserName !== 'ゲスト' ? currentUserName : '';
             
             const passwordGroup = document.getElementById('join-password-group');
             if (meta.passwordHash) {
@@ -2458,14 +2460,14 @@
             gameState.round = 1;
             gameState.hostScore = 0;
             gameState.guestScore = 0;
-            gameState.hostName = 'あなた';
+            gameState.hostName = currentUserName || 'あなた';
             gameState.guestName = 'CPU';
+            gameState.hostAvatar = currentUserAvatar || null;
+            gameState.guestAvatar = null;
             gameState.difficulty = 'easy';
             gameState.allowBrackets = false;
-            gameState.allowHint = true; // テストモードではヒントあり
+            gameState.allowHint = true; // ソロプレイではヒントあり
             gameState.timeLimit = 30;
-            currentUserName = 'あなた';
-            currentUserNameEl.textContent = 'あなた (テスト)';
 
             // ルーム監視を停止（対戦中はロビーを見ない）
             unsubscribeFromRooms();
@@ -2513,6 +2515,14 @@
             bracketBtns.forEach(btn => {
                 btn.style.display = gameState.allowBrackets ? 'inline-block' : 'none';
             });
+
+            // 途中でやめるボタンの表示/非表示（ソロプレイのみ表示）
+            const quitBtn = document.getElementById('quit-game-btn');
+            if (gameState.isTestMode) {
+                quitBtn.style.display = 'inline-block';
+            } else {
+                quitBtn.style.display = 'none';
+            }
 
             startRound();
         }
@@ -3117,6 +3127,25 @@
             attemptAuthAndSubscribe();
         });
 
+        // 途中でやめるボタン（ソロプレイ用）
+        document.getElementById('quit-game-btn').addEventListener('click', () => {
+            if (confirm('本当にやめますか？')) {
+                // タイマー停止
+                if (gameState.timerInterval) {
+                    clearInterval(gameState.timerInterval);
+                    gameState.timerInterval = null;
+                }
+                // オーバーレイを非表示
+                document.getElementById('countdown-overlay').classList.add('hidden');
+                document.getElementById('result-overlay').classList.add('hidden');
+                document.getElementById('match-result-overlay').classList.add('hidden');
+                // ロビーに戻る
+                gameState.isTestMode = false;
+                showScreen('lobby-screen');
+                attemptAuthAndSubscribe();
+            }
+        });
+
         // キーボード入力対応
         document.addEventListener('keydown', (e) => {
             if (!document.getElementById('game-screen').classList.contains('active')) return;
@@ -3345,6 +3374,7 @@
             
             if (savedAvatar) {
                 userAvatarUrl = savedAvatar;
+                currentUserAvatar = savedAvatar;
                 userAvatarEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
                 userAvatarLargeEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
             }
@@ -3385,6 +3415,7 @@
                             }
                             if (profile.avatar) {
                                 userAvatarUrl = profile.avatar;
+                                currentUserAvatar = profile.avatar;
                                 userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
                                 userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
                                 localStorage.setItem('userAvatar', userAvatarUrl);
