@@ -845,17 +845,6 @@
             color: #fff;
         }
 
-        .action-btn.hint {
-            background: var(--info-color, #3498db);
-            color: #fff;
-        }
-
-        .action-btn.hint:disabled {
-            background: #444;
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         /* Mobile adjustments: make game screen fit a single smartphone viewport */
         @media (max-width: 420px) {
             .game-screen {
@@ -1308,7 +1297,6 @@
                     <div class="action-row" id="action-row">
                         <button class="action-btn backspace" data-action="backspace">⌫ 戻す</button>
                         <button class="action-btn reset" data-action="reset">AC リセット</button>
-                        <button class="action-btn hint" data-action="hint" id="hint-btn" style="display: none;">💡 ヒント</button>
                     </div>
                 </div>
 
@@ -1401,13 +1389,6 @@
                     <select id="room-brackets-input">
                         <option value="no" selected>出題しない</option>
                         <option value="yes">出題する</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>ヒントボタン</label>
-                    <select id="room-hint-input">
-                        <option value="no">なし</option>
-                        <option value="yes" selected>あり（各ラウンド1回）</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1811,7 +1792,6 @@
             const bo = parseInt(document.getElementById('room-bo-input').value);
             const difficulty = document.getElementById('room-difficulty-input').value;
             const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
-            const allowHint = document.getElementById('room-hint-input').value === 'yes';
             const timeLimit = parseInt(document.getElementById('room-timelimit-input').value) || 30;
 
             try {
@@ -1829,7 +1809,6 @@
                         bo: bo,
                         difficulty: difficulty,
                         allowBrackets: allowBrackets,
-                        allowHint: allowHint,
                         timeLimit: timeLimit,
                         state: 'open',
                         createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -2094,7 +2073,6 @@
                     // ルーム設定を反映
                     gameState.difficulty = meta.difficulty || 'easy';
                     gameState.allowBrackets = meta.allowBrackets === true;
-                    gameState.allowHint = meta.allowHint !== false;
                     gameState.timeLimit = meta.timeLimit || 30;
 
                     // ホスト・ゲストのアバターをDBから取得
@@ -2224,13 +2202,12 @@
             timeLeft: 25,
             timerInterval: null,
             submitted: false,
+            resultShown: false, // 結果表示済みフラグ（重複防止）
             solutions: [],
             roundStartTime: null,
             // ルーム設定
             difficulty: 'easy',
             allowBrackets: false,
-            allowHint: true,
-            hintUsed: false,
             timeLimit: 30
         };
 
@@ -2434,37 +2411,6 @@
             return true;
         }
 
-        // ヒント機能（タイマーを止めずに表示）
-        function showHint() {
-            if (gameState.hintUsed || !gameState.allowHint) return;
-            
-            gameState.hintUsed = true;
-            document.getElementById('hint-btn').disabled = true;
-            
-            // 解の1つから最初の数字と演算子をヒントとして表示
-            let hintText = 'ヒントはありません';
-            if (gameState.solutions && gameState.solutions.length > 0) {
-                const solution = gameState.solutions[0];
-                // 最初の3文字程度をヒントとして表示（例: "3 + "）
-                const hint = solution.substring(0, 4).trim();
-                hintText = `「${hint}...」から始めてみよう！`;
-            }
-            
-            // 式表示エリアにヒントを一時的に表示（タイマーを止めない）
-            const resultEl = document.getElementById('expression-result');
-            const originalText = resultEl.textContent;
-            resultEl.textContent = '💡 ' + hintText;
-            resultEl.style.color = 'var(--secondary-color)';
-            
-            // 3秒後に元に戻す
-            setTimeout(() => {
-                if (!gameState.submitted) {
-                    resultEl.textContent = originalText;
-                    resultEl.style.color = '';
-                }
-            }, 3000);
-        }
-
         // テストモード開始
         document.getElementById('test-room-btn').addEventListener('click', () => {
             gameState.isTestMode = true;
@@ -2479,7 +2425,6 @@
             gameState.guestAvatar = null;
             gameState.difficulty = 'easy';
             gameState.allowBrackets = false;
-            gameState.allowHint = true; // ソロプレイではヒントあり
             gameState.timeLimit = 30;
 
             // ルーム監視を停止（対戦中はロビーを見ない）
@@ -2515,14 +2460,6 @@
                 guestAvatarEl.textContent = '🤖';
             }
 
-            // ヒントボタンの表示/非表示
-            const hintBtn = document.getElementById('hint-btn');
-            if (gameState.allowHint) {
-                hintBtn.style.display = 'inline-block';
-            } else {
-                hintBtn.style.display = 'none';
-            }
-
             // 括弧ボタンの表示/非表示
             const bracketBtns = document.querySelectorAll('.op-btn.bracket');
             bracketBtns.forEach(btn => {
@@ -2550,12 +2487,8 @@
             gameState.usedDigits = [];
             gameState.expression = '';
             gameState.submitted = false;
+            gameState.resultShown = false;
             gameState.timeLeft = gameState.timeLimit || 30;
-            gameState.hintUsed = false;
-            
-            // ヒントボタンをリセット
-            const hintBtn = document.getElementById('hint-btn');
-            if (hintBtn) hintBtn.disabled = false;
 
             // オンライン対戦の場合、問題をFirebase経由で共有
             if (!gameState.isTestMode && currentRoomId) {
@@ -2744,11 +2677,12 @@
         }
 
         function handleTimeout() {
-            if (gameState.submitted) return; // 既に処理済みなら何もしない
+            if (gameState.submitted || gameState.resultShown) return; // 既に処理済みなら何もしない
             
             // タイムアウト処理
             gameState.submitted = true;
             clearInterval(gameState.timerInterval);
+            gameState.timerInterval = null;
             stopOpponentExpressionListener();
             stopRoundResultListener();
             
@@ -2827,10 +2761,12 @@
             
             roundResultListener = resultRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                if (data && data.finished && data.correct && !gameState.submitted) {
+                // 相手が正解し、まだ自分が回答・結果表示していない場合
+                if (data && data.finished && data.correct && !gameState.submitted && !gameState.resultShown) {
                     // 相手が先に正解
                     gameState.submitted = true;
                     clearInterval(gameState.timerInterval);
+                    gameState.timerInterval = null;
                     stopOpponentExpressionListener();
                     stopRoundResultListener();
                     const opponentExpr = data.expression || '???';
@@ -3061,6 +2997,21 @@
         }
 
         function showRoundResult(result, answer, solveTime) {
+            // 結果表示の重複を防止
+            if (gameState.resultShown) {
+                console.log('showRoundResult already called, skipping');
+                return;
+            }
+            gameState.resultShown = true;
+            
+            // 全てのリスナーとタイマーを確実に停止
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            stopOpponentExpressionListener();
+            stopRoundResultListener();
+            
             const overlay = document.getElementById('result-overlay');
             const titleEl = document.getElementById('result-title');
             const answerEl = document.getElementById('result-answer');
