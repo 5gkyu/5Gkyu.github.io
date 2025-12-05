@@ -3126,11 +3126,27 @@
                 out.textContent = (new Date()).toLocaleTimeString() + ' - ' + msg + '\n' + out.textContent;
             }
 
-            if (authBtn) authBtn.addEventListener('click', () => {
+            if (authBtn) authBtn.addEventListener('click', async () => {
                 const u = auth.currentUser;
-                write('currentUser: ' + JSON.stringify(u, Object.getOwnPropertyNames(u || {}), 2));
-                if (u && u.getIdToken) {
-                    u.getIdToken(true).then(token => write('ID token (short): ' + token.substring(0, 40) + '...')).catch(e => write('getIdToken error: ' + e));
+                if (!u) {
+                    write('currentUser: null');
+                    return;
+                }
+                // show key details (uid and provider info)
+                try {
+                    write('currentUser.uid: ' + (u.uid || '(no uid)'));
+                    write('currentUser.providerData: ' + JSON.stringify(u.providerData || []));
+                    const token = await u.getIdToken(true);
+                    write('ID token (short): ' + token.substring(0, 40) + '...');
+                    try {
+                        const tr = await u.getIdTokenResult();
+                        write('ID token issuer/aud: issuer=' + (tr.issuer || '') + ', aud=' + (tr.audience || tr.claims.aud || ''));
+                        write('Token authTime: ' + (tr.authTime || '')); 
+                    } catch (e2) {
+                        write('getIdTokenResult error: ' + e2);
+                    }
+                } catch (e) {
+                    write('auth info error: ' + e);
                 }
             });
 
