@@ -3227,6 +3227,8 @@
                 // 2問目以降は両者の Ready を待つ（ホストは既に次ラウンドを書き込んでいることが多い）
                 if (nextRound >= 2 && !gameState.isTestMode && currentRoomId) {
                     showReadyOverlay(nextRound);
+                    // 自分の準備状態は自動送信しておく（ユーザーがボタンを押さなくてもOK）
+                    try { sendReady(nextRound); } catch (e) { console.warn('auto sendReady failed', e); }
                     startReadyListener(nextRound, async () => {
                         hideReadyOverlay();
                         gameState.round = nextRound;
