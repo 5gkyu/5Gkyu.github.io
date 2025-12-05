@@ -1052,10 +1052,54 @@
             margin-bottom: 2rem;
         }
 
+        .match-result-players {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .match-result-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-result-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 3px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .match-result-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .match-result-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .match-result-score {
             font-size: 4rem;
             font-weight: bold;
-            margin-bottom: 2rem;
+            color: white;
         }
 
         /* テストモード表示 */
@@ -1151,7 +1195,7 @@
                 <h2>🎮 ルーム一覧</h2>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary" id="test-room-btn">
-                        🧪 テストプレイ
+                        🎮 ソロプレイ
                     </button>
                     <button class="btn btn-primary" id="create-room-btn">
                         ➕ ルームを作成
@@ -1299,7 +1343,17 @@
         <!-- マッチ結果オーバーレイ -->
         <div class="match-result-overlay hidden" id="match-result-overlay">
             <div class="match-result-title" id="match-result-title">🎉 勝利！</div>
-            <div class="match-result-score" id="match-result-score">3 - 1</div>
+            <div class="match-result-players">
+                <div class="match-result-player">
+                    <div class="match-result-avatar" id="match-host-avatar">👤</div>
+                    <div class="match-result-name" id="match-host-name">ホスト</div>
+                </div>
+                <div class="match-result-score" id="match-result-score">3 - 1</div>
+                <div class="match-result-player">
+                    <div class="match-result-avatar" id="match-guest-avatar">👤</div>
+                    <div class="match-result-name" id="match-guest-name">ゲスト</div>
+                </div>
+            </div>
             <button class="btn btn-primary" id="back-to-lobby-btn">ロビーに戻る</button>
         </div>
     </div>
@@ -1674,16 +1728,15 @@
                     </div>
                     <div class="room-players">
                         <span class="player-count ${playerCount >= 2 ? 'full' : ''}">${playerCount}/2</span>
-                        <button class="btn btn-success" ${playerCount >= 2 ? 'disabled' : ''}>
+                        <button class="btn btn-success join-room-btn" data-room-id="${roomId}" ${playerCount >= 2 ? 'disabled' : ''}>
                             参加
                         </button>
                     </div>
                 `;
 
-                const joinBtn = card.querySelector('.btn-success');
-                if (playerCount < 2) {
-                    joinBtn.addEventListener('click', () => openJoinModal(roomId, meta));
-                }
+                // メタデータをデータ属性に保存
+                card.dataset.roomId = roomId;
+                card.dataset.roomMeta = JSON.stringify(meta);
 
                 roomList.insertBefore(card, emptyState);
 
@@ -1703,6 +1756,19 @@
                 }
             });
         }
+
+        // イベント委任で参加ボタンのクリックを処理
+        roomList.addEventListener('click', (e) => {
+            const joinBtn = e.target.closest('.join-room-btn');
+            if (joinBtn && !joinBtn.disabled) {
+                const card = joinBtn.closest('.room-card');
+                if (card && card.dataset.roomId && card.dataset.roomMeta) {
+                    const roomId = card.dataset.roomId;
+                    const meta = JSON.parse(card.dataset.roomMeta);
+                    openJoinModal(roomId, meta);
+                }
+            }
+        });
 
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -2430,7 +2496,7 @@
             }
             
             if (gameState.isTestMode) {
-                document.getElementById('game-guest-name').innerHTML = gameState.guestName + ' <span class="test-mode-badge">TEST</span>';
+                document.getElementById('game-guest-name').textContent = gameState.guestName;
                 guestAvatarEl.textContent = '🤖';
             }
 
@@ -3020,6 +3086,22 @@
             }
 
             scoreEl.textContent = `${gameState.hostScore} - ${gameState.guestScore}`;
+
+            // プレイヤー情報を表示
+            const hostAvatarEl = document.getElementById('match-host-avatar');
+            const hostNameEl = document.getElementById('match-host-name');
+            const guestAvatarEl = document.getElementById('match-guest-avatar');
+            const guestNameEl = document.getElementById('match-guest-name');
+
+            // ゲーム画面のアバターをコピー
+            const gameHostAvatar = document.getElementById('game-host-avatar');
+            const gameGuestAvatar = document.getElementById('game-guest-avatar');
+            
+            hostAvatarEl.innerHTML = gameHostAvatar.innerHTML;
+            guestAvatarEl.innerHTML = gameGuestAvatar.innerHTML;
+            
+            hostNameEl.textContent = gameState.hostName || 'ホスト';
+            guestNameEl.textContent = gameState.guestName || 'ゲスト';
         }
 
         document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
