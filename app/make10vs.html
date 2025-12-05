@@ -772,23 +772,24 @@ color: var(--secondary-color);
 
 /* 演算子・括弧ボタン行 */
 .operator-row {
-display: flex;
-justify-content: center;
-gap: 0.5rem;
-margin: 0.75rem 0;
+    /* グリッドにして幅に応じて2行に折り返しやすくする（UI崩れ対策） */
+    display: grid;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 0.5rem;
+    margin: 0.75rem 0;
 }
 
 .op-btn {
-width: 50px;
-height: 50px;
-font-size: 1.5rem;
-font-weight: bold;
-border: none;
-border-radius: 12px;
-cursor: pointer;
-transition: all 0.15s ease;
-background: var(--warning-color);
-color: #000;
+    width: 100%;
+    height: 50px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--warning-color);
+    color: #000;
 }
 
 .op-btn:hover {
@@ -811,10 +812,10 @@ background: #8e44ad;
 
 /* アクションボタン行 */
 .action-row {
-display: flex;
-justify-content: center;
-gap: 0.75rem;
-margin: 0.5rem 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
+    gap: 0.75rem;
+    margin: 0.5rem 0;
 }
 
 .action-btn {
@@ -1412,8 +1413,8 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>出題難易度</label>
 <select id="room-difficulty-input">
-<option value="all">すべて（ランダム）</option>
-<option value="easy" selected>簡単（解が多い問題）</option>
+<option value="all" selected>すべて（ランダム）</option>
+<option value="easy">簡単（解が多い問題）</option>
 <option value="normal">普通</option>
 <option value="hard">難しい（解が少ない問題）</option>
 </select>
@@ -1421,8 +1422,8 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>括弧を使う問題</label>
 <select id="room-brackets-input">
-<option value="no" selected>出題しない</option>
-<option value="yes">出題する</option>
+<option value="no">出題しない</option>
+<option value="yes" selected>出題する</option>
 </select>
 </div>
 <div class="form-group">
