@@ -474,6 +474,14 @@
             justify-content: center;
             font-size: 2rem;
             margin: 0 auto 0.5rem;
+            overflow: hidden;
+        }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .player-avatar.empty {
@@ -526,6 +534,32 @@
         .game-player {
             text-align: center;
             flex: 1;
+        }
+
+        .game-player-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .game-player-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .game-player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .game-player-name {
@@ -1158,12 +1192,18 @@
             <!-- スコアヘッダー -->
             <div class="game-header">
                 <div class="game-player">
-                    <div class="game-player-name" id="game-host-name">ホスト</div>
+                    <div class="game-player-info">
+                        <div class="game-player-avatar" id="game-host-avatar">👤</div>
+                        <div class="game-player-name" id="game-host-name">ホスト</div>
+                    </div>
                     <div class="game-score" id="host-score"></div>
                 </div>
                 <div class="game-vs">VS</div>
                 <div class="game-player">
-                    <div class="game-player-name" id="game-guest-name">ゲスト</div>
+                    <div class="game-player-info">
+                        <div class="game-player-name" id="game-guest-name">ゲスト</div>
+                        <div class="game-player-avatar" id="game-guest-avatar">👤</div>
+                    </div>
                     <div class="game-score" id="guest-score"></div>
                 </div>
             </div>
@@ -1246,8 +1286,8 @@
             </div>
             <form id="create-room-form">
                 <div class="form-group">
-                    <label>ルーム名 <span class="required">*</span></label>
-                    <input type="text" id="room-name-input" placeholder="例: 初心者歓迎！" required maxlength="20">
+                    <label>ルーム名</label>
+                    <input type="text" id="room-name-input" placeholder="ルーム1" maxlength="20">
                 </div>
                 <div class="form-group">
                     <label>あなたの名前</label>
@@ -1446,9 +1486,19 @@
         function subscribeToRooms() {
             const roomsRef = database.ref('rooms');
             
-            roomsListener = roomsRef.orderByChild('meta/state').equalTo('open').on('value', (snapshot) => {
-                const rooms = snapshot.val() || {};
+            // orderByChildを使わずにシンプルにリスナーを設定（DBルールとの互換性向上）
+            roomsListener = roomsRef.on('value', (snapshot) => {
+                const allRooms = snapshot.val() || {};
+                // クライアント側でopenなルームをフィルター
+                const rooms = {};
+                Object.entries(allRooms).forEach(([id, room]) => {
+                    if (room.meta && room.meta.state === 'open') {
+                        rooms[id] = room;
+                    }
+                });
                 renderRoomList(rooms);
+            }, (error) => {
+                console.error('ルーム取得エラー:', error);
             });
         }
 
@@ -1556,18 +1606,13 @@
         document.getElementById('create-room-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const roomName = document.getElementById('room-name-input').value.trim();
+            const roomName = document.getElementById('room-name-input').value.trim() || 'ルーム1';
             const hostName = document.getElementById('host-name-input').value.trim() || 'ホスト';
             const password = document.getElementById('room-password-input').value;
             const bo = parseInt(document.getElementById('room-bo-input').value);
             const difficulty = document.getElementById('room-difficulty-input').value;
             const allowBrackets = document.getElementById('room-brackets-input').value === 'yes';
             const allowHint = document.getElementById('room-hint-input').value === 'yes';
-
-            if (!roomName) {
-                alert('ルーム名を入力してください');
-                return;
-            }
 
             try {
                 const newRoomRef = database.ref('rooms').push();
@@ -1730,7 +1775,7 @@
                 }
             }).catch((err) => console.warn('初回ルームメタ取得失敗:', err));
 
-            currentRoomRef.on('value', (snapshot) => {
+            currentRoomRef.on('value', async (snapshot) => {
                 const meta = snapshot.val();
                 console.log('rooms/' + roomId + '/meta changed:', meta);
                 if (!meta) {
@@ -1788,11 +1833,32 @@
                     gameState.guestScore = 0;
                     gameState.hostName = meta.hostName || 'ホスト';
                     gameState.guestName = meta.guestName || 'ゲスト';
+                    gameState.hostAvatar = null;
+                    gameState.guestAvatar = null;
                     
                     // ルーム設定を反映
                     gameState.difficulty = meta.difficulty || 'all';
                     gameState.allowBrackets = meta.allowBrackets !== false;
                     gameState.allowHint = meta.allowHint === true;
+
+                    // ホスト・ゲストのアバターをDBから取得
+                    const fetchAvatars = async () => {
+                        try {
+                            if (meta.hostId) {
+                                const hostProfile = await database.ref(`users/${meta.hostId}`).once('value');
+                                const hp = hostProfile.val();
+                                if (hp && hp.avatar) gameState.hostAvatar = hp.avatar;
+                            }
+                            if (meta.guestId) {
+                                const guestProfile = await database.ref(`users/${meta.guestId}`).once('value');
+                                const gp = guestProfile.val();
+                                if (gp && gp.avatar) gameState.guestAvatar = gp.avatar;
+                            }
+                        } catch (err) {
+                            console.warn('アバター取得失敗:', err);
+                        }
+                    };
+                    await fetchAvatars();
 
                     // UI反映してゲーム開始（既にゲーム画面なら重複呼び出ししない）
                     currentUserNameEl.textContent = currentUserName;
@@ -1890,6 +1956,8 @@
             guestScore: 0,
             hostName: 'ホスト',
             guestName: 'ゲスト',
+            hostAvatar: null,
+            guestAvatar: null,
             digits: [],
             usedDigits: [],
             expression: '',
@@ -2153,8 +2221,25 @@
             document.getElementById('game-host-name').textContent = gameState.hostName;
             document.getElementById('game-guest-name').textContent = gameState.guestName;
             
+            // ホスト・ゲストのアイコンを設定
+            const hostAvatarEl = document.getElementById('game-host-avatar');
+            const guestAvatarEl = document.getElementById('game-guest-avatar');
+            
+            if (gameState.hostAvatar) {
+                hostAvatarEl.innerHTML = `<img src="${gameState.hostAvatar}" alt="host">`;
+            } else {
+                hostAvatarEl.textContent = '👑';
+            }
+            
+            if (gameState.guestAvatar) {
+                guestAvatarEl.innerHTML = `<img src="${gameState.guestAvatar}" alt="guest">`;
+            } else {
+                guestAvatarEl.textContent = '👤';
+            }
+            
             if (gameState.isTestMode) {
                 document.getElementById('game-guest-name').innerHTML = gameState.guestName + ' <span class="test-mode-badge">TEST</span>';
+                guestAvatarEl.textContent = '🤖';
             }
 
             // ヒントボタンの表示/非表示
