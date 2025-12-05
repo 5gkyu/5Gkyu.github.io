@@ -1724,7 +1724,7 @@
                             </div>
                             <div class="room-meta">
                                 <span class="host-name">👤 ${escapeHtml(meta.hostName || 'ホスト')}</span>
-                                <span>🎯 BO${meta.bo}</span>
+                                <span>🎯 BO${meta.bo || 5}</span>
                             </div>
                         </div>
                     </div>
@@ -2441,6 +2441,13 @@
             gameState.hintUsed = true;
             document.getElementById('hint-btn').disabled = true;
             
+            // タイマーを一時停止
+            const savedTimeLeft = gameState.timeLeft;
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            
             // 解の1つから最初の数字と演算子をヒントとして表示
             if (gameState.solutions && gameState.solutions.length > 0) {
                 const solution = gameState.solutions[0];
@@ -2449,6 +2456,12 @@
                 alert(`💡 ヒント: 「${hint}...」から始めてみよう！`);
             } else {
                 alert('💡 ヒントはありません');
+            }
+            
+            // タイマーを再開（まだ回答していない場合のみ）
+            if (!gameState.submitted) {
+                gameState.timeLeft = savedTimeLeft;
+                startTimer();
             }
         }
 
@@ -2528,6 +2541,12 @@
         }
 
         async function startRound() {
+            // 既存のタイマーを確実にクリア
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            
             gameState.usedDigits = [];
             gameState.expression = '';
             gameState.submitted = false;
@@ -2577,17 +2596,34 @@
                 } else {
                     // ゲストはDBから問題を読み取る（ホストが書き込むまで待機）
                     const roundRef = database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`);
-                    await new Promise((resolve) => {
-                        const listener = roundRef.on('value', (snapshot) => {
-                            const data = snapshot.val();
-                            if (data && data.digits) {
-                                gameState.digits = data.digits;
-                                gameState.solutions = findSolutions(data.digits);
+                    
+                    // まず現在のデータを確認
+                    const currentData = await roundRef.once('value');
+                    const existingData = currentData.val();
+                    
+                    if (existingData && existingData.digits) {
+                        // 既にデータがある場合はそれを使用
+                        gameState.digits = existingData.digits;
+                        gameState.solutions = findSolutions(existingData.digits);
+                    } else {
+                        // データがない場合は待機
+                        await new Promise((resolve) => {
+                            const listener = roundRef.on('value', (snapshot) => {
+                                const data = snapshot.val();
+                                if (data && data.digits) {
+                                    gameState.digits = data.digits;
+                                    gameState.solutions = findSolutions(data.digits);
+                                    roundRef.off('value', listener);
+                                    resolve();
+                                }
+                            });
+                            // 15秒でタイムアウト
+                            setTimeout(() => {
                                 roundRef.off('value', listener);
                                 resolve();
-                            }
+                            }, 15000);
                         });
-                    });
+                    }
                     
                     // ゲストの準備完了を通知
                     await database.ref(`rooms/${currentRoomId}/game/round${gameState.round}`).update({
@@ -2678,6 +2714,12 @@
         }
 
         function startTimer() {
+            // 既存のタイマーがあればクリア（倍速防止）
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            
             const timerFill = document.getElementById('timer-fill');
             const timerText = document.getElementById('timer-text');
             const maxTime = gameState.timeLimit || 30;
