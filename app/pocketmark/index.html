@@ -19,10 +19,10 @@
     }
 
     html,body{height:100%;width:100%;margin:0;font-family:Inter, "Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
-    body{background-image: url(../../image/backimage.png);background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
+    /* Background path updated for GitHub Pages structure: ../../image/backimage.png */
+    body{background-image: url('../../image/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
     .wrap{max-width:980px;margin:0 auto;padding:16px}
-      /* Footer styling (統合) */
-      footer{background-color:#74728F;color:#FFFFFFde;padding:20px 16px;text-align:center;font-size:14px;margin-top:0;border-radius:0;width:100%}
+      /* Footer styling removed - footer will not be rendered in this build */
 
     /* Sticky header so search is always visible */
     header.card{position:fixed;left:0;right:0;top:0;z-index:1000;background:linear-gradient(180deg, var(--card), #fbffff);backdrop-filter: blur(6px);padding:12px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(2,18,22,0.06);border:1px solid rgba(6,50,58,0.04);display:flex;flex-direction:column;align-items:stretch;gap:8px}
@@ -260,6 +260,13 @@
       #auth-ui{flex-wrap:nowrap;}
     }
 
+    /* Prevent iOS Safari auto-zoom on input focus by ensuring tappable inputs use at least 16px font-size */
+    @media(max-width:560px){
+      html,body{ -webkit-text-size-adjust:100%; }
+      input,select,textarea,button{ font-size:16px !important; }
+      .modal .panel input, .modal .panel textarea, .modal .panel select{ font-size:16px !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -331,10 +338,7 @@
     </main>
   </div>
 
-  <!-- footer -->
-  <footer>
-    © 2025 ブロスタ・作戦 リンク集 | <a href="#" style="color:#FFFFFFde;text-decoration:none;opacity:0.8">About</a>
-  </footer>
+  
   <button class="fab" id="openAdd" title="ブックマークを追加">＋</button>
 
   <!-- edit mode toggle button -->
@@ -1703,6 +1707,14 @@ if (!window.firebase) {
   console.error('Firebase SDK が読み込まれていません。index.html で SDK を一度だけ読み込んでください。');
 } else {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    // Try to set persistence at init time without awaiting so popup remains user-initiated on mobile Safari
+    try {
+      if (firebase.auth && firebase.auth().setPersistence) {
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence init failed', e));
+      }
+    } catch (e) {
+      console.warn('setPersistence init error', e);
+    }
 }
 
 const db = (window.firebase) ? firebase.database() : null;
@@ -1968,8 +1980,18 @@ async function signInWithGoogle(){
   provider.addScope('profile');
   provider.addScope('email');
     try {
-      // 明示的に永続性を LOCAL に設定して、リロード後もセッションを維持する
-      try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(e){ console.warn('setPersistence failed', e); }
+      // Detect iOS Safari (popup handling is unreliable there) and use redirect
+      const ua = navigator.userAgent || '';
+      const isIos = /iP(hone|od|ad)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
+      const useRedirect = isIos && isSafari;
+      if (useRedirect) {
+        // Redirect flow is more reliable on iOS Safari
+        await firebase.auth().signInWithRedirect(provider);
+        return;
+      }
+      // setPersistence already attempted at init; attempt again but don't await to avoid breaking user gesture
+      try{ firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); } catch(e){}
       const res = await firebase.auth().signInWithPopup(provider);
       console.log('signInWithPopup result:', res && res.user && res.user.uid);
       // サインイン直後に明示的に同期を開始し、res.user を使って確実に同期を行う
