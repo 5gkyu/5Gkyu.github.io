@@ -20,7 +20,7 @@
 
     html,body{height:100%;width:100%;margin:0;font-family:Inter, "Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
     /* Background path updated for GitHub Pages structure: ../../image/backimage.png */
-    body{background-image: url('../../image/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
+    body{background-image: url('../../../image/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
     .wrap{max-width:980px;margin:0 auto;padding:16px}
       /* Footer styling removed - footer will not be rendered in this build */
 
@@ -2054,6 +2054,101 @@ if (window.firebase) {
 
 /* unload 保険 */
 window.addEventListener('beforeunload', ()=>{ try{ saveBookmarksToRemote(); } catch(e){} });
+</script>
+
+<!-- Cookie consent banner (inserted by assistant) -->
+<style>
+  #cookieBanner {
+    position:fixed;
+    left:16px;
+    right:16px;
+    bottom:18px;
+    z-index:1200;
+    background: rgba(15, 184, 191, 0.98);
+    color: #fff;
+    padding:12px 14px;
+    border-radius:12px;
+    box-shadow: 0 8px 24px rgba(2,18,22,0.12);
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    max-width:980px;
+    margin:0 auto;
+    box-sizing:border-box;
+    font-size:14px;
+  }
+  #cookieBanner .msg{flex:1;min-width:0; margin-right:12px; color: #02292c; font-weight:700}
+  #cookieBanner .actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+  #cookieBanner .cookie-btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+  #cookieBanner .cookie-accept{background:#fff;color:var(--text)}
+  #cookieBanner .cookie-more{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3)}
+  @media(max-width:560px){
+    #cookieBanner{left:10px;right:10px;padding:10px;flex-direction:column;align-items:flex-start;gap:8px}
+    #cookieBanner .actions{align-self:stretch;justify-content:flex-end;width:100%}
+    #cookieBanner .msg{font-size:15px;font-weight:700;color:#fff}
+    #cookieBanner .cookie-accept{width:110px}
+  }
+</style>
+
+<div id="cookieBanner" role="region" aria-label="クッキーの利用について" hidden>
+  <div class="msg">当サイトは正常な動作のためクッキーを使用します。続行することで同意したものとみなします。</div>
+  <div class="actions">
+    <button class="cookie-btn cookie-more" id="cookieMore">詳細</button>
+    <button class="cookie-btn cookie-accept" id="cookieAccept">同意する</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  try{
+    const BANNER_KEY = 'cookie_consent_v1';
+    const banner = document.getElementById('cookieBanner');
+    const acceptBtn = document.getElementById('cookieAccept');
+    const moreBtn = document.getElementById('cookieMore');
+
+    function showBanner(){
+      if(!banner) return;
+      banner.hidden = false;
+      banner.style.display = '';
+      acceptBtn && acceptBtn.focus();
+      console.log('cookieBanner shown');
+    }
+    function hideBanner(){
+      if(!banner) return;
+      try{ banner.hidden = true; }catch(e){}
+      try{ banner.style.display = 'none'; }catch(e){}
+      console.log('cookieBanner hidden');
+    }
+
+    function hasConsent(){
+      try{ return localStorage.getItem(BANNER_KEY) === '1'; }catch(e){ return false; }
+    }
+    function setConsent(){
+      try{ localStorage.setItem(BANNER_KEY, '1'); }catch(e){}
+    }
+
+    if(!hasConsent()) window.requestAnimationFrame(()=>{ showBanner(); }); else hideBanner();
+
+    // Use both addEventListener and onclick assignment to be robust
+    if(acceptBtn){
+      acceptBtn.addEventListener('click', onAccept);
+      acceptBtn.onclick = onAccept;
+    }
+    if(moreBtn){
+      moreBtn.addEventListener('click', ()=>{ window.open('#','_blank','noopener'); });
+      moreBtn.onclick = ()=>{ window.open('#','_blank','noopener'); };
+    }
+
+    function onAccept(e){
+      console.log('cookie accept clicked', e);
+      setConsent();
+      hideBanner();
+    }
+
+    document.addEventListener('keydown', (e)=>{ if((e.key==='Escape' || e.key==='Esc') && banner && !banner.hidden){ setConsent(); hideBanner(); } });
+  }catch(e){ console.warn('cookie banner init error', e); }
+})();
 </script>
 
 </body>
