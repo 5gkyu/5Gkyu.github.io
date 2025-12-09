@@ -19,8 +19,8 @@
     }
 
     html,body{height:100%;width:100%;margin:0;font-family:Inter, "Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
-    /* Background path updated for GitHub Pages structure: ../../image/backimage.png */
-    body{background-image: url('../../../image/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
+    /* Background image located in same folder as this HTML file */
+    body{background-image: url('backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
     .wrap{max-width:980px;margin:0 auto;padding:8px}
     /* Desktop layout: content row with optional left sidebar for folders */
     .content-row{display:flex;gap:12px;align-items:flex-start}
@@ -1974,6 +1974,13 @@ async function signInWithGoogle(){
       const useRedirect = isIos && isSafari;
       if (useRedirect) {
         // Redirect flow is more reliable on iOS Safari
+        try{
+          // Ensure persistence is set before redirect (await so Safari applies it)
+          if (firebase.auth && firebase.auth().setPersistence) {
+            await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+          }
+        }catch(e){ console.warn('setPersistence before redirect failed', e); }
+        try{ localStorage.setItem('auth_redirecting', '1'); }catch(e){}
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
@@ -2030,10 +2037,26 @@ if (window.firebase) {
       console.warn('No authenticated user');
       return;
     }
+      try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
     try{
       startSyncForUser(user.uid);
     }catch(e){ console.error('startSyncForUser failed', e); }
   });
+
+  // Handle redirect results explicitly to ensure mobile redirect flows complete login
+  try{
+    firebase.auth().getRedirectResult().then(result => {
+      if(result && result.user){
+        console.log('getRedirectResult user:', result.user.uid);
+        try{ firebaseUid = result.user.uid; }catch(e){}
+        try{ updateAuthUI(result.user); }catch(e){}
+        try{ startSyncForUser(result.user.uid); }catch(e){ console.warn('startSyncForUser after redirect failed', e); }
+        try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
+      }
+    }).catch(err => {
+      console.warn('getRedirectResult error', err);
+    });
+  }catch(e){ console.warn('getRedirectResult init error', e); }
 }
 
 /* merge anonymous -> target */
