@@ -21,11 +21,26 @@
     html,body{height:100%;width:100%;margin:0;font-family:Inter, "Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
     /* Background path updated for GitHub Pages structure: ../../image/backimage.png */
     body{background-image: url('../../../image/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
+    .wrap{max-width:980px;margin:0 auto;padding:8px}
+    /* Desktop layout: content row with optional left sidebar for folders */
+    .content-row{display:flex;gap:12px;align-items:flex-start}
+    .sidebar{display:block;width:260px;flex:0 0 260px;position:sticky;top:var(--hdr-h,0px);align-self:flex-start;max-height:calc(100vh - var(--hdr-h,0px));overflow:auto;padding:8px}
+    @media(max-width:880px){.sidebar{display:none}.content-row{display:block}}
+    /* Desktop: pin sidebar to viewport left edge and push main content to the right so
+       there's no left gap and the right side doesn't get clipped. This only applies
+       on sufficiently wide screens. */
+    @media(min-width:881px){
+      .sidebar{position:fixed;left:0;top:var(--hdr-h,0px);height:calc(100vh - var(--hdr-h,0px));overflow:auto;z-index:994}
+      /* make the outer wrap reserve space for the fixed sidebar */
+      .wrap{box-sizing:border-box;padding-left:280px;max-width:none}
+      /* ensure content row takes remaining width and doesn't overflow */
+      .content-row{margin:0;max-width:100%;}
+      main{max-width:calc(100% - 280px);}
+    }
       /* Footer styling removed - footer will not be rendered in this build */
 
     /* Sticky header so search is always visible */
-    header.card{position:fixed;left:0;right:0;top:0;z-index:1000;background:linear-gradient(180deg, var(--card), #fbffff);backdrop-filter: blur(6px);padding:12px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(2,18,22,0.06);border:1px solid rgba(6,50,58,0.04);display:flex;flex-direction:column;align-items:stretch;gap:8px}
+    header.card{position:fixed;left:0;right:0;top:0;z-index:1000;background:linear-gradient(180deg, var(--card), #fbffff);backdrop-filter: blur(6px);padding:12px;border-radius:0;box-shadow:0 10px 30px rgba(2,18,22,0.06);border:1px solid rgba(6,50,58,0.04);display:flex;flex-direction:column;align-items:stretch;gap:8px}
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .search{flex:1;min-width:200px;position:relative}
     .search input{width:100%;padding:12px 44px 12px 12px;border-radius:10px;border:1px solid rgba(6,50,58,0.08);background:var(--card);color:var(--text);font-size:16px;box-shadow: inset 0 1px 0 rgba(2,12,14,0.02)}
@@ -39,13 +54,7 @@
 
     /* Header controls: ensure selector and top-buttons are visible in header */
   header.card .selector{display:flex;align-items:center}
-  header.card .top-buttons{display:flex;align-items:center;gap:8px}
-  /* headerInner as a horizontal flex container so items align neatly */
-  .headerInner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
-  /* top-buttons flow in the layout (no absolute) so they don't overlap the auth area */
-  header.card .top-buttons{position:static;margin-left:12px}
-
-    main{margin-top:14px;padding-bottom:80px}
+    
     .list{display:flex;flex-direction:column;gap:8px}
 
     .row{display:flex;align-items:center;height:var(--row-h);gap:12px;padding:8px;border-radius:12px;background:linear-gradient(180deg, var(--card), #fbffff);border:1px solid rgba(6,50,58,0.04);box-shadow:0 2px 8px rgba(2,18,22,0.04)}
@@ -80,12 +89,7 @@
     }
     .fab:active{transform:translateY(2px)}
 
-    /* floating edit mode button */
-    .edit-mode-btn{
-      position:fixed;right:20px;top:84px;z-index:240;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#888,#aaa);color:#ffffff;font-weight:900;font-size:13px;border:none;box-shadow:0 8px 24px rgba(6,50,58,0.12);cursor:pointer;text-align:center;padding:4px;line-height:1.2;
-    }
-    .edit-mode-btn:active{transform:translateY(2px)}
-    .edit-mode-btn.active{background:linear-gradient(90deg,#ff6b6b,#ff8787)}
+    /* (削除済) 旧・編集モードのフローティングボタンは廃止 */
 
   /* action buttons visibility in edit mode */
   .actions{flex:0 0 110px;display:flex;justify-content:flex-end;gap:8px}
@@ -112,57 +116,21 @@
     .view-mode-menu .menu-radio input[type="radio"]{cursor:pointer}
     .view-mode-menu .menu-radio input[type="radio"]:checked + span{font-weight:700;color:var(--accent-1)}
 
-    /* 表示モード: small（最小） */
-    .list--small .row{height:auto;min-height:40px;padding:6px 8px;gap:10px}
-    .list--small .icon-wrap{flex:0 0 32px;height:32px;border-radius:6px}
-    .list--small .icon-wrap img{width:28px;height:28px;border-radius:6px}
+    /* 表示モード: small（最小） — コンパクト化: 行高・余白を縮めてより多く表示 */
+    .list--small .row{height:auto;min-height:32px;padding:4px 6px;gap:6px}
+    .list--small .icon-wrap{flex:0 0 24px;height:24px;border-radius:4px}
+    .list--small .icon-wrap img{width:20px;height:20px;border-radius:4px}
     .list--small .meta{flex:1;min-width:0}
-    .list--small .title{font-size:14px;font-weight:700}
+    .list--small .title{font-size:13px;font-weight:700}
     .list--small .desc, .list--small .tags{display:none} /* 説明とタグを非表示 */
-    .list--small .actions{flex:0 0 90px}
+    .list--small .actions{flex:0 0 76px}
+    /* 小表示で編集ボタンをよりコンパクトにする（行の高さ増加を防止） */
+    .list--small .open-btn{padding:6px 8px;font-size:12px;border-radius:6px}
+    .list--small .open-btn span{display:none}
 
     /* 表示モード: medium（既存：デフォルト） */
     /* .list--medium .row は既存スタイルを継承するため、明示的な上書きは不要です */
 
-    /* 表示モード: large（2列カード） -- 無効化 */
-    .list--large_disabled{display:grid;grid-template-columns:repeat(2, 1fr);gap:12px}
-    .list--large_disabled .row{display:flex;flex-direction:column;align-items:stretch;height:auto;aspect-ratio:1/1;padding:12px;gap:10px}
-    .list--large_disabled .icon-wrap{flex:0 0 auto;width:100%;height:auto;aspect-ratio:1/1;max-height:140px;border-radius:10px}
-    .list--large_disabled .icon-wrap img{width:100%;height:100%;border-radius:10px}
-    /* ensure icon-wrap can position overlay controls like the selector checkbox */
-    .icon-wrap{position:relative}
-    .icon-wrap input.row-selector{position:absolute;top:8px;left:8px;z-index:20;width:20px;height:20px;margin:0;padding:0}
-    .list--large_disabled .meta{flex:1;display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden}
-    .list--large_disabled .title{font-size:15px;font-weight:700;white-space:normal;line-height:1.3}
-    /* large モードの説明は最大3行で省略表示する（webkit と標準プロパティを両方定義） */
-    .list--large_disabled .desc{
-      font-size:12px;
-      color:var(--muted);
-      white-space:normal;
-      overflow:hidden;
-      display:-webkit-box; /* for WebKit-based browsers */
-      -webkit-box-orient:vertical;
-      -webkit-line-clamp:3; /* vendor prefixed */
-      line-clamp:3; /* 標準プロパティ（互換性向上のため追記） */
-      line-height:1.4;
-    }
-    .list--large_disabled .tags{margin-top:4px}
-    .list--large_disabled .actions{flex:0 0 auto;justify-content:center}
-    @media(max-width:560px){
-      /* Keep two columns for large view even on small screens per user request (disabled) */
-      .list--large_disabled{grid-template-columns:repeat(2, 1fr);}
-      /* On narrow screens, remove the fixed 1/1 aspect ratio so meta (title/desc/tags)
-         can flow beneath the image instead of being clipped. Also slightly reduce
-         icon max-height to give room for text. */
-      .list--large_disabled .row{aspect-ratio:auto;height:auto}
-      .list--large_disabled .icon-wrap{max-height:120px}
-      /* Ensure grid items don't overlap when one becomes taller on selection */
-      .list--large_disabled{align-items:start;grid-auto-rows:auto}
-      .list--large_disabled .row{align-self:start;min-height:0;height:auto !important}
-    }
-
-    /* Prevent selected rows from overlapping neighboring columns (disabled) */
-    .list--large_disabled .row.selected{position:relative;z-index:2}
     @media(max-width:560px){
       .header-toggle{display:inline-flex}
       /* keep hamburger inline within the top-row on small screens to avoid overlapping mid-row */
@@ -177,6 +145,11 @@
     }
     @media(min-width:561px){
       header.card.collapsed .headerInner{display:block}
+    }
+
+    /* On desktop, hide the old mid-row view-mode and sort controls (now available via hamburger menu) */
+    @media(min-width:881px){
+      .mid-row .selector{display:none}
     }
 
     /* modal */
@@ -194,7 +167,7 @@
 
     /* tag overflow control */
     .tagbar{display:flex;gap:8px;align-items:center;flex-wrap:nowrap;overflow:hidden;margin-top:10px}
-    .chip{padding:8px 10px;border-radius:999px;background:#eafffb;border:1px solid rgba(6,50,58,0.06);cursor:pointer;white-space:nowrap;color:var(--text);font-weight:700}
+    .chip{padding:8px 10px;border-radius:999px;background:#eafffb;border:1px solid rgba(6,50,58,0.06);cursor:pointer;white-space:nowrap;color:var(--text);font-weight:700;overflow:hidden;text-overflow:ellipsis;min-width:0}
     .chip.active{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#ffffff;border-color:transparent;font-weight:700}
     .chip-container{display:flex;gap:8px;overflow:hidden;min-width:0}
     .more-btn{padding:8px 10px;border-radius:999px;background:#eafffb;border:1px solid rgba(6,50,58,0.06);cursor:pointer;color:var(--text);font-weight:700}
@@ -227,6 +200,22 @@
   #authRight{margin-left:auto;flex-shrink:0}
   .top-row .search{flex:1;min-width:0;margin:0 12px}
 
+  /* Current folder button: match tag-list style (white/pill background) */
+  /* Current folder button: white/pill background similar to tag-list (slightly muted) */
+  #currentFolderBtn{background:var(--card);border:1px solid rgba(6,50,58,0.06);border-radius:999px;padding:6px 8px;color:var(--text);cursor:pointer}
+  #currentFolderBtn:hover{background:linear-gradient(180deg,var(--card),#fbffff);color:var(--text);box-shadow:0 6px 18px rgba(6,50,58,0.04)}
+  #currentFolderBtn:active{transform:translateY(1px)}
+
+  /* folder icon inside button */
+  .folder-icon{display:inline-block;margin-right:8px;font-size:16px;line-height:1;vertical-align:middle}
+
+  /* Keep the count/actions row visible while scrolling */
+    /* make count row sticky and reduce horizontal padding to save space
+      top will be set dynamically to the header height via --hdr-h */
+    #count{position:sticky;top:var(--hdr-h,0px);z-index:995;padding:4px 0}
+    /* subtle translucent gray background to visually separate the line */
+    #count .count-row{background:rgba(6,50,58,0.18);padding:6px 6px;border-radius:0;box-shadow:none}
+
     /* ユーザー設定モーダル */
     .user-avatar-large{
       width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
@@ -244,7 +233,10 @@
       /* Stack header vertically on small screens for readability */
       header.card{flex-direction:column;align-items:stretch}
   .selector{width:100%;margin-top:8px}
-  .selector select, .selector button{width:100%}
+  /* On narrow screens keep the view button compact and let the select fill remaining space */
+  .selector{display:flex;gap:8px;align-items:center}
+  .selector select{flex:1;min-width:0}
+  .selector button{flex:0 0 auto}
   .search{width:100%}
   .search input{width:100%}
   /* ensure proper stacking order (no explicit order so layout remains stable) */
@@ -253,7 +245,6 @@
   .top-buttons{order:unset}
       .top-buttons{display:flex;gap:8px;margin-top:8px}
       .fab{display:none}
-      .edit-mode-btn{display:none}
       /* reduce action width on narrow screens to give meta more room */
       .actions{flex:0 0 96px}
       /* auth-ui をコンパクトに */
@@ -279,7 +270,7 @@
         </div>
 
         <div class="search" aria-hidden="false" style="flex:1;min-width:0;margin:0 12px;">
-          <input id="q" placeholder="リンク名で検索（ひらがな対応）" autocomplete="off" />
+          <input id="q" placeholder="検索" autocomplete="off" />
           <div class="icon">🔎</div>
         </div>
 
@@ -291,39 +282,19 @@
         </div>
       </div>
 
-      <div class="mid-row">
-        <div class="selector" style="min-width:260px;flex-shrink:0;">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button id="viewModeBtn" class="top-btn" type="button" title="表示サイズを変更">表示サイズ</button>
-            <select id="sort">
-            <option value="kana">50音順（昇順）</option>
-            <option value="kana-desc">50音順（降順）</option>
-            <option value="name">アルファベット順</option>
-            <option value="date-new">追加日時（新しい順）</option>
-            <option value="date-old">追加日時（古い順）</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="top-buttons" style="margin-left:8px;flex-shrink:0">
-          <!-- buttons moved to count row -->
-          <button id="exportJsonBtn" class="top-btn" title="JSON をエクスポート" style="display:none">エクスポート</button>
-          <button id="importJsonBtn" class="top-btn" title="JSON をインポート" style="display:none">インポート</button>
-        </div>
-      </div>
-
-      <div class="bottom-row">
-        <div class="tagbar" id="tagbar" aria-label="タグで絞り込み" style="width:100%">
-          <div class="chip-container" id="chipContainer"></div>
-        </div>
-      </div>
+      <!-- mid-row removed: display-size and sort moved to hamburger menu -->
     </header>
 
-    <main>
+    <div class="content-row">
+      <aside id="sidebarFolderList" class="sidebar" aria-label="フォルダ一覧">
+        <!-- デスクトップ用サイドフォルダ一覧（JSで描画されます） -->
+      </aside>
+
+      <main>
       <div id="count" style="color:var(--muted);margin:8px 0">
-        <div class="count-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div class="count-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <button id="currentFolderBtn" class="top-btn" style="background:transparent;border-color:transparent;color:var(--muted);padding:4px 8px;">All</button>
+            <button id="currentFolderBtn" class="top-btn"><span class="folder-icon">📁</span><span class="folder-label">すべて</span></button>
             <div id="countText" style="color:var(--muted)">読み込み中…</div>
           </div>
           <div class="count-actions" style="display:flex;gap:8px;align-items:center">
@@ -335,14 +306,14 @@
         </div>
       </div>
       <div class="list" id="list"></div>
-    </main>
+      </main>
+    </div>
   </div>
 
   
   <button class="fab" id="openAdd" title="ブックマークを追加">＋</button>
 
-  <!-- edit mode toggle button -->
-  <button class="edit-mode-btn" id="editModeBtn" title="選択モードを切り替える">選択<br>モード</button>
+  <!-- (削除) 旧・編集モードフローティングボタンは廃止 -->
 
   <!-- modal for adding a bookmark -->
   <div class="modal" id="addModal" role="dialog" aria-modal="true">
@@ -416,6 +387,7 @@
       <div id="folderList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:320px;overflow:auto"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
         <button id="folderRenameBtn" class="small-btn" type="button">名前変更</button>
+        <button id="folderMoveBtn" class="small-btn" type="button">移動</button>
         <button id="folderDeleteBtn" class="small-btn" type="button" style="background:#e74c3c;color:#fff;border-color:#e74c3c;">削除</button>
         <button id="folderClose" class="small-btn" type="button">閉じる</button>
       </div>
@@ -426,10 +398,9 @@
   <div class="modal" id="viewModeModal" role="dialog" aria-modal="true">
     <div class="panel" role="document" style="max-width:360px;">
       <h3 style="margin-top:0;">表示サイズ</h3>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="vmode" value="small"> 小</label>
         <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="vmode" value="medium"> 中</label>
-        <label style="display:flex;align-items:center;gap:8px;color:#999"><input type="radio" name="vmode" value="large" disabled> 大（無効）</label>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
         <button id="viewModeCancel" class="small-btn" type="button">キャンセル</button>
@@ -438,21 +409,7 @@
     </div>
   </div>
 
-  <!-- modal for JSON import (and paste) -->
-  <div class="modal" id="jsonModal" role="dialog" aria-modal="true">
-    <div class="panel">
-      <h3>ブックマーク JSON の読み込み / 書き出し</h3>
-      <div style="margin-bottom:8px">
-        <input id="jsonFileInput" type="file" accept=".json,application/json" />
-      </div>
-      <textarea id="jsonTextarea" style="width:100%;height:200px;padding:8px;border-radius:8px;border:1px solid rgba(6,50,58,0.08);box-sizing:border-box" placeholder="ここに JSON を貼り付けるか、ファイルを選択してください"></textarea>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button id="jsonCancelBtn" class="small-btn">キャンセル</button>
-        <button id="jsonLoadBtn" class="open-btn">読み込む</button>
-      </div>
-    </div>
-
-  </div>
+  <!-- JSON import/export UI removed -->
 
   <!-- ユーザー設定モーダル -->
   <div class="modal" id="userSettingsModal" role="dialog" aria-modal="true">
@@ -510,49 +467,7 @@ function toHiragana(str){
 }
 function normalizeForSearch(s){ if(!s) return ''; return toHiragana(s).replace(/\s+/g,'').toLowerCase(); }
 
-function parseCSV(text){
-  const rows = [];
-  let cur = [];
-  let field = '';
-  let inQuotes = false;
-  for(let i=0;i<text.length;i++){
-    const ch = text[i];
-    if(inQuotes){
-      if(ch === '"'){ if(text[i+1] === '"'){ field += '"'; i++; } else { inQuotes = false; } }
-      else field += ch;
-    } else {
-      if(ch === '"'){ inQuotes = true; }
-      else if(ch === ',') { cur.push(field); field=''; }
-      else if(ch === '\r') continue;
-      else if(ch === '\n'){ cur.push(field); field=''; rows.push(cur); cur=[]; }
-      else field += ch;
-    }
-  }
-  if(field !== '' || inQuotes || cur.length){ cur.push(field); rows.push(cur); }
-  return rows;
-}
-function rowsToData(rows){
-  if(rows.length === 0) return [];
-  const header = rows[0].map(h=>h.trim().toLowerCase());
-  const hasHeader = header.includes('title') && header.includes('url');
-  const out = [];
-  for(let r = (hasHeader?1:0); r<rows.length; r++){
-    const row = rows[r];
-    if(row.length === 0) continue;
-    let obj = {};
-    if(hasHeader){
-      for(let c=0;c<header.length;c++){
-        const key = header[c];
-        obj[key] = (row[c]||'').trim();
-      }
-    } else {
-      obj.title = row[0]||''; obj.url = row[1]||''; obj.icon_url = row[2]||''; obj.desc = row[3]||''; obj.tags = row[4]||'';
-    }
-    const tags = (obj.tags||'').toString().split(/[,;|]/).map(s=>s.trim()).filter(Boolean);
-    out.push({ id: r, title: obj.title||obj.name||'', url: obj.url||'', icon_url: obj.icon_url||'', desc: obj.desc||'', tags });
-  }
-  return out;
-}
+/* CSV parser removed (unused). Keep utilities small. */
 function faviconFromUrl(u, size=64){
   try{ const url = new URL(u); return `https://www.google.com/s2/favicons?sz=${size}&domain=${url.hostname}`; } catch(e){ return '' }
 }
@@ -594,50 +509,46 @@ const VIEW_MODE_KEY = 'bookmark_view_mode_v1'; // localStorage キー
 const SORT_KEY = 'bookmark_sort_v1';
 const FOLDER_KEY = 'bookmark_folder_v1';
 const FOLDERS_KEY = 'bookmark_folder_list_v1';
+// Special folder for items without any folder assignment. Always present and not deletable.
+const UNCATEGORIZED = '未分類';
 const state = { q:'', tags: new Set(), sort:'kana', editMode: false, viewMode: 'medium', selectedIds: new Set(), currentFolder: 'All' };
 const el = {
-  q:document.getElementById('q'),
-  list:document.getElementById('list'),
-  chipContainer:document.getElementById('chipContainer'),
-  tagbar:document.getElementById('tagbar'),
-  count:document.getElementById('count'),
+  q: document.getElementById('q'),
+  list: document.getElementById('list'),
+  chipContainer: document.getElementById('chipContainer'),
+  tagbar: document.getElementById('tagbar'),
+  moreTagsBtn: document.getElementById('moreTagsBtn'),
+  tagModal: document.getElementById('tagModal'),
+  modalTags: document.getElementById('modalTags'),
+  closeModal: document.getElementById('closeModal'),
+  tagSearch: document.getElementById('tagSearch'),
+  count: document.getElementById('count'),
   countText: document.getElementById('countText'),
-  sort:document.getElementById('sort'),
-  moreTagsBtn:document.getElementById('moreTagsBtn'),
-  tagModal:document.getElementById('tagModal'),
-  modalTags:document.getElementById('modalTags'),
-  closeModal:document.getElementById('closeModal'),
-  tagSearch:document.getElementById('tagSearch'),
-  openAdd:document.getElementById('openAdd'),
-  topOpenAdd:document.getElementById('topOpenAdd'),
-  editModeBtn:document.getElementById('editModeBtn'),
-  topEditModeBtn:document.getElementById('topEditModeBtn'),
-  addModal:document.getElementById('addModal'),
-  addUrl:document.getElementById('addUrl'),
-  addTitleInput:document.getElementById('addTitleInput'),
-  addIcon:document.getElementById('addIcon'),
-  addDesc:document.getElementById('addDesc'),
-  addTags:document.getElementById('addTags'),
-  addFolder:document.getElementById('addFolder'),
-  pasteUrlBtn:document.getElementById('pasteUrlBtn'),
-  saveAdd:document.getElementById('saveAdd'),
-  cancelAdd:document.getElementById('cancelAdd'),
-  exportJsonBtn:document.getElementById('exportJsonBtn'),
-  importJsonBtn:document.getElementById('importJsonBtn'),
-  jsonModal:document.getElementById('jsonModal'),
-  jsonTextarea:document.getElementById('jsonTextarea'),
-  jsonFileInput:document.getElementById('jsonFileInput'),
-  jsonLoadBtn:document.getElementById('jsonLoadBtn'),
-  jsonCancelBtn:document.getElementById('jsonCancelBtn')
-  , topDeleteSelectedBtn: document.getElementById('topDeleteSelectedBtn')
-  , viewModeBtn: null
-  , viewModeModal: null
-  , viewModeCancel: null
-  , viewModeSave: null
-  , deleteInModal: document.getElementById('deleteInModal')
-  , folderBtn: null
-  , folderModal: null
-  , folderSelectInModal: null
+  sort: document.getElementById('sort'),
+  
+  openAdd: document.getElementById('openAdd'),
+  topOpenAdd: document.getElementById('topOpenAdd'),
+  editModeBtn: document.getElementById('editModeBtn'),
+  topEditModeBtn: document.getElementById('topEditModeBtn'),
+  addModal: document.getElementById('addModal'),
+  addUrl: document.getElementById('addUrl'),
+  addTitleInput: document.getElementById('addTitleInput'),
+  addIcon: document.getElementById('addIcon'),
+  addDesc: document.getElementById('addDesc'),
+  addTags: document.getElementById('addTags'),
+  addFolder: document.getElementById('addFolder'),
+  pasteUrlBtn: document.getElementById('pasteUrlBtn'),
+  saveAdd: document.getElementById('saveAdd'),
+  cancelAdd: document.getElementById('cancelAdd'),
+  topDeleteSelectedBtn: document.getElementById('topDeleteSelectedBtn'),
+  viewModeBtn: null,
+  viewModeModal: null,
+  viewModeCancel: null,
+  viewModeSave: null,
+  deleteInModal: document.getElementById('deleteInModal'),
+  folderBtn: null,
+  folderModal: null,
+  folderSelectInModal: null
 };
 
 const STORAGE_KEY = 'bookmark_data_v1';
@@ -708,13 +619,15 @@ function buildAllTags(data){
 }
 function buildAllFolders(data){
   const set = new Set();
-  // add folders from data
+  // add folders from data (explicit folder names)
   (data || []).forEach(d=>{ if(d && d.folder) set.add(d.folder); });
   // also include user-created (possibly empty) folders saved separately
   try{
     const raw = localStorage.getItem(FOLDERS_KEY);
     if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) parsed.forEach(f=>{ if(f) set.add(f); }); }
   }catch(e){ /* ignore */ }
+  // ensure UNCATEGORIZED is available for display (items with no folder)
+  set.delete('All'); // don't include 'All' as a stored folder
   // Sort hierarchically: split by /, compare each segment
   const arr = Array.from(set).sort((a,b)=>{
     const aParts = a.split('/');
@@ -727,15 +640,25 @@ function buildAllFolders(data){
     }
     return 0;
   });
-  return ['All', ...arr];
+  // Remove any folders defined under the special UNCATEGORIZED prefix (not allowed)
+  const sanitized = arr.filter(f => !f.startsWith(UNCATEGORIZED + '/'));
+  // Always present: top-level 'All' (すべて) and '未分類'
+  return ['All', UNCATEGORIZED, ...sanitized.filter(f => f !== UNCATEGORIZED)];
 }
 
 function getFolderDepth(path){
   // Treat 'All' as depth 1 per user request
   if(!path) return 0;
   if(path === 'All') return 1;
+  if(path === UNCATEGORIZED) return 1;
   return path.split('/').length + 0; // segments count (root=1)
 }
+
+// Return a visible tree prefix for a given depth. Examples:
+// depth=1 -> ''
+// depth=2 -> '└─ '
+// depth=3 -> '│ └─ '
+// (removed getFolderPrefix helper; use simple full-width space indentation)
 
 function getParentFolder(path){
   if(!path || path === 'All') return 'All';
@@ -747,6 +670,7 @@ function getParentFolder(path){
 
 function getFolderName(path){
   if(!path || path === 'All') return 'すべて';
+  if(path === UNCATEGORIZED) return UNCATEGORIZED;
   const parts = path.split('/');
   return parts[parts.length - 1];
 }
@@ -769,7 +693,9 @@ function createNewFolder(name, parentPath){
   try{
     const n = (name || '').toString().trim();
     if(!n) return false;
-    if(n === 'All' || n.includes('/')) return false;
+    if(n === 'All' || n === UNCATEGORIZED || n.includes('/')) return false;
+    // Prevent creating a folder under UNCATEGORIZED; treat as root
+    if(parentPath === UNCATEGORIZED) parentPath = null;
     const fullPath = (parentPath && parentPath !== 'All') ? parentPath + '/' + n : n;
     // Enforce max depth = 3 (All is depth 1)
     const depth = getFolderDepth(fullPath);
@@ -783,7 +709,15 @@ function createNewFolder(name, parentPath){
     saveFoldersList(list);
     renderFolderList();
     // update add modal select options if open
-    try{ if(el.addFolder){ const o = document.createElement('option'); o.value = fullPath; o.textContent = fullPath; el.addFolder.appendChild(o); } }catch(e){}
+    try{
+      if(el.addFolder){
+        const o = document.createElement('option');
+        o.value = fullPath;
+        const depth = getFolderDepth(fullPath);
+        o.textContent = '　'.repeat(Math.max(0, depth-1)) + getFolderName(fullPath);
+        el.addFolder.appendChild(o);
+      }
+    }catch(e){}
     return fullPath;
   }catch(e){ console.warn('createNewFolder error', e); return false; }
 }
@@ -792,17 +726,20 @@ function updateFolderUI(){
   try{
     if(el.currentFolderBtn){
       const path = state.currentFolder || 'All';
+      let label = '';
       if(path === 'All'){
-        el.currentFolderBtn.textContent = 'すべて';
+        label = 'すべて';
       } else {
-        // Show breadcrumb-style: Parent > Current
-        const parts = path.split('/');
-        if(parts.length > 1){
-          el.currentFolderBtn.textContent = '...' + parts.slice(-2).join(' > ');
-        } else {
-          el.currentFolderBtn.textContent = parts[0];
-        }
+        // show only the current folder (leaf)
+        const leaf = getFolderName(path);
+        // truncate after 4 characters, show ellipsis from 5th onward
+        label = (leaf && leaf.length > 4) ? leaf.slice(0,4) + '…' : (leaf || '');
       }
+      try{
+        // keep the folder icon, show truncated label, full path in title for tooltip
+        el.currentFolderBtn.innerHTML = '<span class="folder-icon">📁</span><span class="folder-label">' + label + '</span>';
+        el.currentFolderBtn.title = path === 'All' ? 'すべて' : path;
+      }catch(e){}
     }
   }catch(e){}
 }
@@ -811,80 +748,93 @@ function renderFolderList(){
   try{
     const all = buildAllFolders(DATA);
     const container = document.getElementById('folderList');
-    if(!container) return;
-    container.innerHTML = '';
+    const sidebar = document.getElementById('sidebarFolderList');
+    if(!container && !sidebar) return;
+    if(container) container.innerHTML = '';
+    if(sidebar) sidebar.innerHTML = '';
     
     // Track expanded state
     if(!window.folderExpandedState) window.folderExpandedState = new Set();
     
-    all.forEach(f=>{
+    // helper to build a folder row (so we can render into both modal and sidebar)
+    function buildRowForFolder(f){
       const depth = getFolderDepth(f);
       const name = getFolderName(f);
       const hasChildren = all.some(x => x !== f && x.startsWith(f + '/'));
-      
+
       const row = document.createElement('div');
       row.style.display = 'flex';
       row.style.alignItems = 'center';
       row.style.gap = '4px';
-      // indent by (depth - 1) so that top-level folders (depth=1) have no indent
-      const pad = Math.max(0, (depth - 1)) * 16;
+      // For top-level special folders ('All' and UNCATEGORIZED), align to left edge (no indent)
+      const pad = (f === 'All' || f === UNCATEGORIZED) ? 0 : Math.max(0, (depth - 1)) * 16;
       row.style.paddingLeft = pad + 'px';
       row.style.marginBottom = '4px';
-      
-      // Expand/collapse icon
+
       if(hasChildren){
         const toggle = document.createElement('span');
         toggle.style.cursor = 'pointer';
         toggle.style.fontSize = '12px';
         toggle.style.width = '16px';
         toggle.textContent = window.folderExpandedState.has(f) ? '▼' : '▶';
-        toggle.addEventListener('click', (e)=>{
-          e.stopPropagation();
-          if(window.folderExpandedState.has(f)) window.folderExpandedState.delete(f);
-          else window.folderExpandedState.add(f);
-          renderFolderList();
-        });
+        toggle.addEventListener('click', (e)=>{ e.stopPropagation(); if(window.folderExpandedState.has(f)) window.folderExpandedState.delete(f); else window.folderExpandedState.add(f); renderFolderList(); });
         row.appendChild(toggle);
       } else {
         const spacer = document.createElement('span');
-        spacer.style.width = '16px';
+        // If this is a top-level special folder, don't reserve spacer width
+        spacer.style.width = (f === 'All' || f === UNCATEGORIZED) ? '0px' : '16px';
         row.appendChild(spacer);
       }
-      
-      // Check if should be hidden (parent collapsed)
-      let shouldShow = true;
+
+      // hide if parent collapsed
       if(f !== 'All'){
         const parent = getParentFolder(f);
         if(parent !== 'All' && !window.folderExpandedState.has(parent)){
-          shouldShow = false;
+          return null;
         }
       }
-      
-      if(!shouldShow){
-        return;
-      }
-      
+
       const btn = document.createElement('button');
-      btn.className = 'chip';
-      btn.style.flex = '1';
-      btn.style.textAlign = 'left';
-      // compute count of links directly in this folder
+      btn.className = 'chip'; btn.style.flex = '1'; btn.style.textAlign = 'left';
       let count = 0;
-      try{ if(f === 'All') count = (DATA || []).length; else count = (DATA || []).filter(d => (d.folder || '') === f).length; }catch(e){}
+      try{
+        if(f === 'All') count = (DATA || []).length;
+        else if(f === UNCATEGORIZED) count = (DATA || []).filter(d => !(d.folder && String(d.folder).trim())).length;
+        else count = (DATA || []).filter(d => { const fld = (d.folder || '').toString(); if(!fld) return false; return fld === f || fld.startsWith(f + '/'); }).length;
+      }catch(e){}
       btn.textContent = name + (count ? ` (${count})` : ' (0)');
       if(state.currentFolder === f) btn.classList.add('active');
-      btn.addEventListener('click', ()=>{
-        state.currentFolder = f;
-        saveFolder();
-        updateFolderUI();
-        renderList();
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        // Select folder
+        state.currentFolder = f; saveFolder(); updateFolderUI(); renderList();
         try{ if(el.addFolder) el.addFolder.value = state.currentFolder && state.currentFolder !== 'All' ? state.currentFolder : ''; }catch(e){}
-        // refresh folder list UI so the active background updates immediately
+        // If folder has children, toggle expanded state as well so tapping the folder opens/closes subtree
+        try{
+          if(hasChildren){
+            if(window.folderExpandedState.has(f)) window.folderExpandedState.delete(f);
+            else window.folderExpandedState.add(f);
+          }
+        }catch(err){}
+        // re-render folder list to reflect expanded state
         renderFolderList();
-        // keep modal open when a folder is selected (user requested)
       });
+
+      // clicking on row toggles expand (including when clicking the row area)
+      row.addEventListener('click', (e)=>{ try{ if(hasChildren){ if(window.folderExpandedState.has(f)) window.folderExpandedState.delete(f); else window.folderExpandedState.add(f); renderFolderList(); } }catch(err){} });
       row.appendChild(btn);
-      container.appendChild(row);
+      return row;
+    }
+
+    all.forEach(f=>{
+      const rowForModal = buildRowForFolder(f);
+      if(!rowForModal) return;
+      if(container) container.appendChild(rowForModal);
+      // build a separate row for sidebar so event listeners and styles are fresh
+      if(sidebar){
+        const rowForSidebar = buildRowForFolder(f);
+        if(rowForSidebar) sidebar.appendChild(rowForSidebar);
+      }
     });
   }catch(e){ console.warn('renderFolderList failed', e); }
 }
@@ -893,26 +843,37 @@ function saveFolder(){ try{ localStorage.setItem(FOLDER_KEY, state.currentFolder
 function loadFolder(){ try{ const v = localStorage.getItem(FOLDER_KEY); if(v) state.currentFolder = v; }catch(e){} }
 function renderTags(){
   const all = buildAllTags(DATA);
-  el.chipContainer.innerHTML = '';
   const showN = 8;
-  all.slice(0,showN).forEach(t=>{
-    const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
-    const chip = document.createElement('button'); chip.className='chip'+(state.tags.has(t)?' active':''); chip.textContent = `${t} (${count})`;
-    chip.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderTags(); renderList(); });
-    el.chipContainer.appendChild(chip);
-  });
-  const remaining = Math.max(0, all.length - showN);
-  el.moreTagsBtn.textContent = remaining>0 ? `＋タグ一覧（あと ${remaining} 件）` : '＋タグ一覧';
-  renderModalTags(all);
+  try{
+    if(el.chipContainer){
+      el.chipContainer.innerHTML = '';
+      all.slice(0,showN).forEach(t=>{
+        const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
+        const chip = document.createElement('button');
+        chip.className = 'chip' + (state.tags.has(t) ? ' active' : '');
+        chip.textContent = `${t} (${count})`;
+        chip.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderTags(); renderList(); });
+        el.chipContainer.appendChild(chip);
+      });
+    }
+    const remaining = Math.max(0, all.length - showN);
+    if(el.moreTagsBtn) el.moreTagsBtn.textContent = remaining>0 ? `＋タグ一覧（あと ${remaining} 件）` : '＋タグ一覧';
+    renderModalTags(all);
+  }catch(e){ console.warn('renderTags error', e); }
 }
 function renderModalTags(all){
-  el.modalTags.innerHTML = '';
-  all.forEach(t=>{
-    const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
-    const cb = document.createElement('button'); cb.className='chip'+(state.tags.has(t)?' active':''); cb.textContent = `${t} (${count})`;
-    cb.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderModalTags(all); renderTags(); renderList(); });
-    el.modalTags.appendChild(cb);
-  });
+  try{
+    if(!el.modalTags) return;
+    el.modalTags.innerHTML = '';
+    all.forEach(t=>{
+      const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
+      const cb = document.createElement('button');
+      cb.className = 'chip' + (state.tags.has(t) ? ' active' : '');
+      cb.textContent = `${t} (${count})`;
+      cb.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderModalTags(all); renderTags(); renderList(); });
+      el.modalTags.appendChild(cb);
+    });
+  }catch(e){ console.warn('renderModalTags error', e); }
 }
 
 /* ------------------ フィルタ・ソート・リスト表示 ------------------ */
@@ -929,7 +890,12 @@ function filterAndSort(){
   // Folder filter: if a specific folder is selected (not 'All'), filter items
   try{
     if(state.currentFolder && state.currentFolder !== 'All'){
-      arr = arr.filter(it => (it.folder || '') === state.currentFolder);
+      // Special handling for "未分類" (UNCATEGORIZED): items that have no folder (empty/undefined)
+      if(state.currentFolder === UNCATEGORIZED){
+        arr = arr.filter(it => !(it.folder && String(it.folder).trim()));
+      } else {
+        arr = arr.filter(it => (it.folder || '') === state.currentFolder);
+      }
     }
   }catch(e){/* ignore */}
 
@@ -1030,17 +996,9 @@ function renderList(){
       // small / medium の既存フロー
       if(state.viewMode !== 'small'){
         const desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = item.desc || '';
-        // show folder path in medium view
-        if(state.viewMode === 'medium' && item.folder){
-          const folderEl = document.createElement('div'); folderEl.className = 'desc'; folderEl.style.fontSize='12px'; folderEl.style.color='var(--muted)'; folderEl.textContent = item.folder;
-          meta.appendChild(title);
-          meta.appendChild(folderEl);
-          meta.appendChild(desc);
-        } else {
-          const tagsWrap = document.createElement('div'); tagsWrap.className = 'tags';
-          (item.tags || []).forEach(t=>{ const s=document.createElement('span'); s.className='tag'; s.textContent=t; tagsWrap.appendChild(s); });
-          meta.appendChild(title); meta.appendChild(desc); meta.appendChild(tagsWrap);
-        }
+        const tagsWrap = document.createElement('div'); tagsWrap.className = 'tags';
+        (item.tags || []).forEach(t=>{ const s=document.createElement('span'); s.className='tag'; s.textContent=t; tagsWrap.appendChild(s); });
+        meta.appendChild(title); meta.appendChild(desc); meta.appendChild(tagsWrap);
       } else {
         meta.appendChild(title);
       }
@@ -1115,9 +1073,7 @@ function loadViewMode(){
     }
   }catch(e){ console.warn('viewMode load failed', e); }
 }
-function saveViewMode(){
-  try{ localStorage.setItem(VIEW_MODE_KEY, state.viewMode); }catch(e){}
-}
+// saveViewMode defined earlier; keep single implementation
 
 function loadSort(){
   try{
@@ -1159,7 +1115,7 @@ function updateViewModeUI(){
 
 /* ------------------ イベントワイヤリング ------------------ */
 el.q.addEventListener('input', ()=>{ state.q = el.q.value; renderList(); });
-el.sort.addEventListener('change', ()=>{ state.sort = el.sort.value; saveSort(); renderList(); });
+if(el.sort){ el.sort.addEventListener('change', ()=>{ state.sort = el.sort.value; saveSort(); renderList(); }); }
 
 // 表示モード選択イベント: 旧メニューは削除。モーダルで選択します。
 
@@ -1175,8 +1131,7 @@ setTimeout(()=>{
     if(el.viewModeSave) el.viewModeSave.addEventListener('click', ()=>{
       const radios = document.getElementsByName('vmode'); let sel = 'medium';
       for(let i=0;i<radios.length;i++){ if(radios[i].checked) { sel = radios[i].value; break; } }
-      // large is disabled; if selected, fallback to medium
-      if(sel === 'large') sel = 'medium';
+      // 'large' option was removed; no special fallback required
       state.viewMode = sel; saveViewMode(); updateViewModeUI(); renderList(); if(el.viewModeModal) el.viewModeModal.style.display='none';
     });
   }catch(e){ console.warn('viewMode modal init failed', e); }
@@ -1187,6 +1142,8 @@ setTimeout(()=>{
   try{
     el.currentFolderBtn = document.getElementById('currentFolderBtn');
     el.folderModal = document.getElementById('folderModal');
+    // Reflect stored current folder in the UI now that the button element exists
+    try{ loadFolder(); updateFolderUI(); }catch(e){}
     const folderClose = document.getElementById('folderClose');
     if(el.currentFolderBtn) el.currentFolderBtn.addEventListener('click', ()=>{ renderFolderList(); if(el.folderModal) el.folderModal.style.display='flex'; });
     if(folderClose) folderClose.addEventListener('click', ()=>{ if(el.folderModal) el.folderModal.style.display='none'; });
@@ -1199,7 +1156,7 @@ setTimeout(()=>{
           const name = input.value && input.value.trim();
           if(!name){ alert('フォルダ名を入力してください'); return; }
           if(name.includes('/')){ alert('フォルダ名に / は使用できません'); return; }
-          const parent = (state.currentFolder && state.currentFolder !== 'All') ? state.currentFolder : null;
+          const parent = (state.currentFolder && state.currentFolder !== 'All' && state.currentFolder !== UNCATEGORIZED) ? state.currentFolder : null;
           // check depth before creating
           const tentative = (parent ? parent + '/' + name : name);
           if(getFolderDepth(tentative) > 3){ alert('フォルダの最大深さは 3 です'); return; }
@@ -1227,6 +1184,7 @@ setTimeout(()=>{
         renameBtn.addEventListener('click', ()=>{
           const cur = state.currentFolder || 'All';
           if(!cur || cur === 'All'){ alert('「すべて」は名前変更できません'); return; }
+          if(cur === UNCATEGORIZED){ alert('「未分類」は名前変更できません'); return; }
           const leaf = getFolderName(cur);
           const parent = getParentFolder(cur);
           const name = prompt('フォルダ名を変更', leaf);
@@ -1271,7 +1229,7 @@ setTimeout(()=>{
       if(deleteBtn){
         deleteBtn.addEventListener('click', ()=>{
           const cur = state.currentFolder || 'All';
-          if(!cur || cur === 'All'){ alert('「すべて」は削除できません'); return; }
+          if(!cur || cur === 'All' || cur === UNCATEGORIZED){ alert('「すべて」および「未分類」は削除できません'); return; }
           if(!confirm(`フォルダ「${cur}」とそのサブフォルダを削除しますか？\nこの操作は元に戻せません。`)) return;
           const list = loadFoldersList();
           const newList = list.filter(f => !(f === cur || f.startsWith(cur + '/')));
@@ -1281,7 +1239,7 @@ setTimeout(()=>{
               el.addFolder.innerHTML = '';
               const empty = document.createElement('option'); empty.value=''; empty.textContent='（なし）'; el.addFolder.appendChild(empty);
               const foldersAll = buildAllFolders(DATA);
-              foldersAll.forEach(f=>{ if(f==='All') return; const o=document.createElement('option'); o.value=f; const depth=getFolderDepth(f); o.textContent = '　'.repeat(Math.max(0,depth-1)) + getFolderName(f); el.addFolder.appendChild(o); });
+              foldersAll.forEach(f=>{ if(f==='All') return; const o=document.createElement('option'); o.value=f; const depth=getFolderDepth(f); o.textContent = '　'.repeat(Math.max(0,depth-1)) + (depth>1 ? '└ ' : '') + getFolderName(f); el.addFolder.appendChild(o); });
               el.addFolder.value = state.currentFolder && state.currentFolder !== 'All' ? state.currentFolder : '';
             }
           }catch(e){}
@@ -1298,6 +1256,49 @@ setTimeout(()=>{
           renderList();
         });
       }
+      // folder move wiring
+      try{
+        const moveBtn = document.getElementById('folderMoveBtn');
+        if(moveBtn){
+          moveBtn.addEventListener('click', ()=>{
+            const cur = state.currentFolder || 'All';
+            if(!cur || cur === 'All' || cur === UNCATEGORIZED){ alert('「すべて」および「未分類」は移動できません'); return; }
+            const leaf = getFolderName(cur);
+            // candidates: exclude All, UNCATEGORIZED, current, and descendants
+            const candidates = buildAllFolders(DATA).filter(f => f !== 'All' && f !== UNCATEGORIZED && f !== cur && !f.startsWith(cur + '/'));
+            let lines = ['0: すべて'];
+            candidates.forEach((f,i)=> lines.push((i+1) + ': ' + f));
+            const sel = prompt('移動先フォルダを番号で選択してください（キャンセルで中止）\n' + lines.join('\n'));
+            if(sel === null) return;
+            const idx = parseInt(sel, 10);
+            if(isNaN(idx) || idx < 0 || idx > candidates.length){ alert('無効な選択です'); return; }
+            const destParent = idx === 0 ? 'All' : candidates[idx - 1];
+            const newFull = destParent === 'All' ? leaf : destParent + '/' + leaf;
+            if(getFolderDepth(newFull) > 3){ alert('移動先により深さ制限を超えます'); return; }
+            const existing = buildAllFolders(DATA).filter(x=>x !== 'All' && x !== UNCATEGORIZED);
+            if(existing.includes(newFull)){ alert('移動先に同名のフォルダが存在します'); return; }
+            const list = loadFoldersList();
+            const newList = list.map(f => {
+              if(f === cur) return newFull;
+              if(f.startsWith(cur + '/')) return newFull + f.slice(cur.length);
+              return f;
+            });
+            saveFoldersList(newList);
+            // update DATA items
+            (DATA || []).forEach(it=>{
+              if(!it || !it.folder) return;
+              if(it.folder === cur) it.folder = newFull;
+              else if(it.folder.startsWith(cur + '/')) it.folder = newFull + it.folder.slice(cur.length);
+            });
+            saveToStorage();
+            state.currentFolder = newFull;
+            saveFolder();
+            updateFolderUI();
+            renderFolderList();
+            renderList();
+          });
+        }
+      }catch(e){ console.warn('folder move wire failed', e); }
     }catch(e){ console.warn('folder rename/delete wire failed', e); }
     
     
@@ -1347,9 +1348,9 @@ if(el.deleteInModal) el.deleteInModal.addEventListener('click', ()=>{
   }catch(e){ console.error('deleteInModal error', e); alert('削除に失敗しました'); }
 });
 
-el.moreTagsBtn.addEventListener('click', ()=>{ el.tagModal.style.display='flex'; el.tagSearch.value=''; el.tagSearch.focus(); });
-el.closeModal.addEventListener('click', ()=>{ el.tagModal.style.display='none'; });
-el.tagSearch.addEventListener('input', ()=>{ const q=el.tagSearch.value.trim().toLowerCase(); const all=buildAllTags(DATA); const filtered = all.filter(t=>t.toLowerCase().includes(q)); renderModalTags(filtered); });
+if(el.moreTagsBtn) el.moreTagsBtn.addEventListener('click', ()=>{ if(el.tagModal) el.tagModal.style.display='flex'; try{ if(el.tagSearch){ el.tagSearch.value=''; el.tagSearch.focus(); } }catch(e){} });
+if(el.closeModal) el.closeModal.addEventListener('click', ()=>{ if(el.tagModal) el.tagModal.style.display='none'; });
+if(el.tagSearch) el.tagSearch.addEventListener('input', ()=>{ const q=el.tagSearch.value.trim().toLowerCase(); const all=buildAllTags(DATA); const filtered = all.filter(t=>t.toLowerCase().includes(q)); renderModalTags(filtered); });
 
 function openAddModal(){
   el.addModal.style.display='flex';
@@ -1379,50 +1380,9 @@ function openAddModal(){
 }
 function closeAddModal(){ el.addModal.style.display='none'; }
 
-function exportJson(){
-  try{
-    const dataStr = JSON.stringify(DATA, null, 2);
-    const blob = new Blob([dataStr], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'bookmarks.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  } catch(e){ alert('エクスポートに失敗しました: ' + e.message); }
-}
-if(el.exportJsonBtn) el.exportJsonBtn.addEventListener('click', exportJson);
-if(el.importJsonBtn) el.importJsonBtn.addEventListener('click', ()=>{ openJsonModal(); });
+/* export/import JSON UI removed */
 
-function openJsonModal(){ if(el.jsonModal){ el.jsonModal.style.display='flex'; el.jsonTextarea.value=''; el.jsonFileInput.value=''; setTimeout(()=>el.jsonTextarea.focus(),50); } }
-function closeJsonModal(){ if(el.jsonModal) el.jsonModal.style.display='none'; }
-
-if(el.jsonFileInput) el.jsonFileInput.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ el.jsonTextarea.value = reader.result || ''; }; reader.readAsText(f); });
-if(el.jsonCancelBtn) el.jsonCancelBtn.addEventListener('click', ()=>{ closeJsonModal(); });
-
-if(el.jsonLoadBtn) el.jsonLoadBtn.addEventListener('click', ()=>{
-  const txt = el.jsonTextarea.value.trim();
-  if(!txt){ alert('JSON を貼り付けるかファイルを選択してください。'); return; }
-  try{
-    let parsed = JSON.parse(txt);
-    if(parsed && parsed.items && Array.isArray(parsed.items)) parsed = parsed.items;
-    if(!Array.isArray(parsed)){ alert('JSON は配列である必要があります。'); return; }
-    const now = Date.now();
-    const normalized = parsed.map((d,i)=>({
-      id: d.id || (now + i),
-      title: d.title || d.name || '',
-      url: d.url || '',
-      icon_url: d.icon_url || d.icon || '',
-      desc: d.desc || d.description || '',
-      tags: Array.isArray(d.tags)? d.tags : (d.tags||'').toString().split(/[,;|]/).map(s=>s.trim()).filter(Boolean),
-      folder: d.folder || '',
-      created_at: d.created_at || now
-    }));
-    if(!confirm('読み込むと現在のデータは置き換わります。よろしいですか？')) return;
-    // 自動的に重複を排除してから適用
-    DATA = dedupeData(normalized);
-    saveToStorage(); renderTags(); renderList(); closeJsonModal();
-    // sync to remote
-    if (typeof saveBookmarksToRemote === 'function') saveBookmarksToRemote();
-    alert('インポートが完了しました。');
-  } catch(e){ alert('JSON の解析に失敗しました: ' + e.message); }
-});
+/* JSON import/export feature removed (unused). */
 
 el.pasteUrlBtn.addEventListener('click', async ()=>{
   try{
@@ -1642,7 +1602,10 @@ function adjustWrapForHeader(){
   const wrap = document.querySelector('.wrap');
   if(hdr && wrap){
     const h = hdr.offsetHeight || 0;
-    wrap.style.paddingTop = (h + 8) + 'px';
+    // align content directly under header; minimize extra gap
+    wrap.style.paddingTop = (h) + 'px';
+    // expose header height as CSS variable so sticky elements can align exactly
+    try{ document.documentElement.style.setProperty('--hdr-h', h + 'px'); }catch(e){}
   }
 }
 adjustWrapForHeader();
@@ -1654,12 +1617,36 @@ if(headerToggle && headerEl){
   function setInitialCollapsed(){ if(window.innerWidth <= 560){ headerEl.classList.add('collapsed'); headerToggle.setAttribute('aria-expanded','false'); } else { headerEl.classList.remove('collapsed'); headerToggle.setAttribute('aria-expanded','true'); } }
   setInitialCollapsed();
   window.addEventListener('resize', setInitialCollapsed);
-  headerToggle.addEventListener('click', ()=>{
-    const collapsed = headerEl.classList.toggle('collapsed');
-    headerToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    // adjust page padding to account for header height change
-    try{ adjustWrapForHeader(); }catch(e){/* ignore */}
-  });
+  // Replace collapse toggle with an anchored view-mode menu (same behavior as kyu68002_links.html)
+  let viewMenuEl = null;
+  function createViewMenu(){
+    const wrap = document.getElementById('viewToggleWrap');
+    if(!wrap) return null;
+    const existing = wrap.querySelector('.view-mode-menu');
+    if(existing) return existing;
+    const menu = document.createElement('div'); menu.className='view-mode-menu';
+    menu.style.position='absolute'; menu.style.top='calc(100% + 6px)'; menu.style.left='0'; menu.style.zIndex='1020'; menu.style.background='var(--card)'; menu.style.border='1px solid rgba(6,50,58,0.08)'; menu.style.borderRadius='10px'; menu.style.padding='10px'; menu.style.boxShadow='0 8px 24px rgba(2,18,22,0.12)'; menu.style.minWidth='160px';
+    const title = document.createElement('div'); title.className='menu-title'; title.textContent='表示サイズ'; title.style.fontWeight='700'; title.style.marginBottom='8px'; menu.appendChild(title);
+    ['small','medium'].forEach(mode=>{
+      const row = document.createElement('label'); row.className='menu-radio'; row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px'; row.style.padding='6px 8px'; row.style.cursor='pointer';
+      const r = document.createElement('input'); r.type='radio'; r.name='viewMode'; r.value=mode; r.style.cursor='pointer';
+      r.checked = (state.viewMode === mode);
+      r.addEventListener('change', ()=>{ state.viewMode = r.value; saveViewMode(); renderList(); updateViewModeUI(); });
+      const span = document.createElement('span'); span.textContent = mode==='small' ? '小（コンパクト）' : '通常';
+      row.appendChild(r); row.appendChild(span); menu.appendChild(row);
+    });
+    // sort select (sync with header sort)
+    const sWrap = document.createElement('div'); sWrap.style.marginTop='8px';
+    const s = document.createElement('select'); s.style.width='100%'; s.innerHTML = (document.getElementById('sort') || {innerHTML:''}).innerHTML;
+    try{ s.value = document.getElementById('sort').value; }catch(e){}
+    s.addEventListener('change',(e)=>{ try{ document.getElementById('sort').value = e.target.value; document.getElementById('sort').dispatchEvent(new Event('change')); }catch(err){} });
+    sWrap.appendChild(s); menu.appendChild(sWrap);
+    wrap.appendChild(menu);
+    return menu;
+  }
+  function toggleViewMenu(ev){ ev && ev.stopPropagation(); if(!viewMenuEl) viewMenuEl = createViewMenu(); if(!viewMenuEl) return; const vis = viewMenuEl.style.display !== 'block'; viewMenuEl.style.display = vis ? 'block' : 'none'; headerToggle.setAttribute('aria-expanded', vis ? 'true' : 'false'); }
+  headerToggle.addEventListener('click', (ev)=>{ toggleViewMenu(ev); });
+  document.addEventListener('click', (ev)=>{ if(viewMenuEl && viewMenuEl.style.display === 'block'){ const wrap = document.getElementById('viewToggleWrap'); if(!wrap.contains(ev.target)) viewMenuEl.style.display='none'; } });
 
   // Ensure padding is correct after initial collapsed state is applied
   try{ adjustWrapForHeader(); }catch(e){}
