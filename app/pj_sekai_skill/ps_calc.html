@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>プロセカ 実効値・内部値 計算ツール</title>
+
+  <!-- Meta: 説明・robots・canonical -->
+  <meta name="description" content="プロセカ用 実効値・内部値 計算器 — 5つの数値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。3桁優先の分割ルールを採用。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://5gkyu.github.io/app/pj_sekai_skill/ps_calc.html">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="プロセカ 実効値・内部値 計算器">
+  <meta property="og:description" content="5つの数値を連結入力して実効値（Leader + sum(sub)/5）と内部値（合計）を即時表示するツール。">
+  <meta property="og:url" content="https://5gkyu.github.io/app/pj_sekai_skill/ps_calc.html">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- JSON-LD: WebApplication / SoftwareApplication の例 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "プロセカ 実効値・内部値計算",
+    "url": "https://5gkyu.github.io/app/pj_sekai_skill/index.html",
+    "description": "5つの数値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。",
+    "applicationCategory": "Utilities",
+    "operatingSystem": "Web",
+    "author": {
+      "@type": "Person",
+      "name": "5gkyu"
+    }
+  }
+  </script>
+  <style>
+    html, body { height: 100%; min-height: 100vh; margin: 0; }
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", Meiryo, Helvetica, Arial;
+      padding: 8px;
+      color: #111;
+      background-color: #f7f8fb;
+      position: relative;
+      overflow-x: hidden;
+    }
+    /* 背景画像を固定レイヤーで敷き、常にビューポート全体を埋める (モバイルの余白対策) */
+    body::before{
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url('https://5gkyu.github.io/image/backimage.png');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+    .card{background:#fff;border-radius:6px;padding:12px;max-width:520px;margin:6px auto;box-shadow:0 1px 4px rgba(20,20,40,.04);width:auto;box-sizing:border-box}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input[type="text"]{width:100%;font-size:1rem;padding:8px;border:1px solid #d8dbe6;border-radius:6px}
+    .big-input{width:100%;font-size:1.4rem;padding:10px 60px 10px 12px;height:52px;box-sizing:border-box;border-radius:8px;border:1px solid #cfd8ff}
+    .reset-button{position:absolute;top:50%;right:6px;transform:translateY(-50%);background:#fff5f5;border:1px solid #ffd6d6;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:#a00010;font-size:0.9rem;line-height:1}
+    .reset-button:hover{background:#fff0f0}
+    .row{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .box{flex:1;padding:8px;background:#E6FBFA;border-radius:6px;border:1px solid #dff6f4}
+    .muted{color:#666;font-size:.9rem}
+    .error{color:#b00020;font-weight:700}
+    .parts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;align-items:center}
+    .parts-labels{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .parts-values{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .label-cell{background:transparent;text-align:center;padding:4px 6px;border-radius:6px;color:#234;font-weight:700;font-size:.95rem}
+    .parts-labels .label-cell:first-child{background:#e6fbff;color:#00a3c4}
+    .value-cell{background:#f6fbff;text-align:center;padding:8px 6px;border-radius:6px;border:1px solid #e6f0ff;font-weight:800}
+    .example{font-size:.95rem;color:#444;margin-top:8px}
+    .result-value{display:inline-block;font-size:1.4rem;font-weight:800;margin-left:8px}
+    .result-effective{color:#0b66ff}
+    .result-internal{color:#0b9d3b}
+    .result-box{background:#E6FBFA;padding:10px;border-radius:8px;border:1px solid #dff6f4}
+    .label-small{font-size:0.85rem;color:#334}
+    .top-actions{display:flex;justify-content:flex-end;margin-bottom:6px}
+    .x-button{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#000;color:#fff;text-decoration:none;font-weight:700;font-size:0.95rem}
+    .x-button:hover{background:#111}
+    .x-glyph{font-size:18px;line-height:1;display:inline-block;font-weight:800}
+    /* プレースホルダを薄く表示 */
+    input::placeholder { color: #9aa !important; opacity: 1; }
+    input::-webkit-input-placeholder { color: #9aa; }
+    input::-moz-placeholder { color: #9aa; opacity:1; }
+    input:-ms-input-placeholder { color: #9aa; }
+    input:-moz-placeholder { color: #9aa; }
+    /* メイン入力周りの強調 */
+    .input-area{background:#E6FBFA;border-radius:10px;padding:6px;}
+    /* 計算途中式表示 */
+    .calc-steps{margin-top:10px;padding:8px;border-radius:6px;background:rgba(255,255,255,0.6);font-size:0.95rem;color:#123;border:1px dashed rgba(0,0,0,0.03)}
+    .calc-steps .line{margin-top:6px}
+    .calc-steps .expr{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", monospace; background:transparent}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-actions">
+      <a class="x-button" href="https://x.com/5gkyu" target="_blank" rel="noopener noreferrer" aria-label="X の @5gkyu に移動">
+        <span class="x-glyph" aria-hidden="true">𝕏</span>
+        <span>@5gkyu</span>
+      </a>
+    </div>
+    <h1>プロセカ — 実効値 内部値計算</h1>
+    <p class="muted">スコアUP%を連結させて入力。</p>
+        <p class="muted">例: リーダー160%,その他150%,140%,130%,130%の場合<br>  → 160150140130130を入力。</p>
+
+
+    <div class="input-area" style="position:relative;">
+      <input id="input" class="big-input" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="ここに入力してください" aria-describedby="help">
+      <button id="reset" type="button" class="reset-button" aria-label="リセット入力">リセット</button>
+    </div>
+
+    <div class="row">
+      <div class="box result-box">
+        <div><strong>計算結果</strong></div>
+        <div style="margin-top:12px"><div class="label-small">実効値</div><div id="effective" class="result-value result-effective">—</div></div>
+        <div style="margin-top:12px"><div class="label-small">内部値</div><div id="internal" class="result-value result-internal">—</div></div>
+        <div id="error" class="error" style="margin-top:12px" aria-live="polite"></div>
+      </div>
+
+      <div class="box" style="margin-top:14px">
+        <div><strong>分割結果</strong></div>
+        <div id="parts" class="parts" aria-live="polite"></div>
+        <div id="calc-steps" class="calc-steps" aria-live="polite" style="display:none"></div>
+        <div id="parts-msg" class="muted" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const el = {
+      input: document.getElementById('input'),
+      reset: document.getElementById('reset'),
+      parts: document.getElementById('parts'),
+      calcSteps: document.getElementById('calc-steps'),
+      partsMsg: document.getElementById('parts-msg'),
+      internal: document.getElementById('internal'),
+      effective: document.getElementById('effective'),
+      error: document.getElementById('error')
+    };
+
+    // 一時エラーメッセージタイマー
+    let pasteErrorTimer = null;
+    function showTempError(msg) {
+      el.error.textContent = msg;
+      if (pasteErrorTimer) clearTimeout(pasteErrorTimer);
+      pasteErrorTimer = setTimeout(() => {
+        // 既に別のエラーに差し替わっていなければクリア
+        if (el.error.textContent === msg) el.error.textContent = '';
+        pasteErrorTimer = null;
+      }, 4000);
+    }
+
+    // 貼り付け最適化: カンマ/空白/%/、/。を除去し、その後非数字を除去して即時処理、エラーフィードバック
+    el.input.addEventListener('paste', (ev) => {
+      try {
+        ev.preventDefault();
+        const text = (ev.clipboardData || window.clipboardData).getData('text') || '';
+        // まず想定される区切り文字や記号を除去
+        const sanitized = text.replace(/[,%\s、。]/g, '');
+        // 次に残る非数字を除去して数字だけにする
+        const digitsOnly = sanitized.replace(/\D+/g, '');
+        if (!digitsOnly) {
+          showTempError('貼り付けに数字が含まれていませんでした。');
+          return;
+        }
+        // フィードバック: クリップボードに想定の記号が含まれていた場合
+        if (sanitized !== text) {
+          showTempError('貼り付け時にカンマ・空白・%・、・。を自動削除しました。');
+        } else if (digitsOnly !== sanitized) {
+          // 想定記号以外の非数字が含まれていた場合の補足表示
+          showTempError('貼り付け時に非数字を自動削除しました。');
+        }
+        el.input.value = digitsOnly; // メイン入力に反映（桁数は検証で通知）
+        // フォーカスを維持して処理実行
+        setTimeout(() => { onInput(); el.input.focus(); }, 0);
+      } catch (e) {
+        // 失敗したら既存の動作にフォールバック
+      }
+    });
+
+    function clearDisplay() {
+      el.parts.innerHTML = '';
+      el.partsMsg.textContent = '';
+      el.internal.textContent = '—';
+      el.effective.textContent = '—';
+      el.error.textContent = '';
+    }
+
+    function setError(msg) {
+      el.error.textContent = msg;
+      el.internal.textContent = '—';
+      el.effective.textContent = '—';
+    }
+
+    // currentParts は UI 上の分割の現在の値（数値か null）
+    let currentParts = [null, null, null, null, null];
+
+    function updateResultsFromParts(parts) {
+      // parts: 配列（長さ5）で各要素は数値または null
+      if (!parts || parts.length !== 5) {
+        el.internal.textContent = '—';
+        el.effective.textContent = '—';
+        return;
+      }
+      // 全部が有効な数値か判定
+      for (let v of parts) {
+        if (typeof v !== 'number' || !Number.isFinite(v) || v < 10 || v > 160) {
+          // 編集途中や無効値がある場合は結果をクリア
+          el.internal.textContent = '—';
+          el.effective.textContent = '—';
+          return;
+        }
+      }
+      const internal = parts.reduce((a, b) => a + b, 0);
+      const first = parts[0];
+      const restSum = parts.slice(1).reduce((a, b) => a + b, 0);
+      const effective = first + (restSum / 5);
+      el.internal.textContent = String(internal);
+      el.effective.textContent = String(Math.trunc(effective));
+      el.error.textContent = '';
+      // 途中式を表示
+      renderCalcSteps(parts, { internal, effective, restSum });
+    }
+
+    function renderParts(arr) {
+      el.parts.innerHTML = '';
+      const labels = ['リーダー','サブ1','サブ2','サブ3','サブ4'];
+      // ラベル行
+      const labelsRow = document.createElement('div');
+      labelsRow.className = 'parts-labels';
+      for (let i = 0; i < 5; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'label-cell';
+        cell.textContent = labels[i] || '';
+        labelsRow.appendChild(cell);
+      }
+      // 値行（編集可能なテキストボックス）
+      const valuesRow = document.createElement('div');
+      valuesRow.className = 'parts-values';
+      for (let i = 0; i < 5; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'value-cell';
+        const input = document.createElement('input');
+        input.type = 'tel';
+        input.inputMode = 'numeric';
+        input.pattern = '[0-9]*';
+        input.maxLength = 3;
+        input.style.width = '100%';
+        input.style.border = 'none';
+        input.style.background = 'transparent';
+        input.style.textAlign = 'center';
+        input.style.fontWeight = '700';
+        input.style.padding = '0';
+        input.style.margin = '0';
+        input.style.boxSizing = 'border-box';
+        input.value = (typeof arr[i] !== 'undefined') ? String(arr[i]) : '';
+        input.dataset.index = String(i);
+        // 初期 currentParts を設定
+        const parsed = input.value === '' ? null : Number(input.value);
+        currentParts[i] = (parsed === null || Number.isNaN(parsed)) ? null : parsed;
+
+        input.addEventListener('input', (ev) => {
+          const idx = Number(ev.target.dataset.index);
+          const v = ev.target.value.trim();
+          if (v === '') {
+            currentParts[idx] = null;
+          } else if (/^\d+$/.test(v)) {
+            const n = Number(v);
+            if (Number.isFinite(n)) currentParts[idx] = n; else currentParts[idx] = null;
+          } else {
+            currentParts[idx] = null;
+          }
+          // 編集時は結果を更新
+          updateResultsFromParts(currentParts);
+          // オプション: 全部が有効ならメイン入力を更新して同期する
+          const allValid = currentParts.every(x => typeof x === 'number' && Number.isFinite(x));
+          if (allValid) {
+            // 連結してメイン入力に反映（ゼロ埋めなし）
+            el.input.value = currentParts.map(x => String(x)).join('');
+          }
+        });
+
+        cell.appendChild(input);
+        valuesRow.appendChild(cell);
+      }
+      el.parts.appendChild(labelsRow);
+      el.parts.appendChild(valuesRow);
+
+      // 初回レンダリング後に結果反映
+      updateResultsFromParts(currentParts);
+    }
+
+    // 分割結果の下に途中式をレンダリング
+    function renderCalcSteps(parts, computed) {
+      if (!parts || parts.length !== 5) {
+        el.calcSteps.style.display = 'none';
+        el.calcSteps.innerHTML = '';
+        return;
+      }
+      // parts が有効な数列かをチェック
+      const allValid = parts.every(x => typeof x === 'number' && Number.isFinite(x) && x >= 10 && x <= 160);
+      if (!allValid || !computed) {
+        el.calcSteps.style.display = 'none';
+        el.calcSteps.innerHTML = '';
+        return;
+      }
+      const [a,b,c,d,e] = parts;
+      const internal = computed.internal;
+      const restSum = computed.restSum;
+      const effectiveFull = computed.effective; // may be fractional
+
+      const internalExpr = `内部値 = ${a} + ${b} + ${c} + ${d} + ${e} = ${internal}`;
+      const effectiveExpr = `実効値 = ${a} + (${restSum}) / 5 = ${effectiveFull.toFixed(2)} → ${Math.trunc(effectiveFull)}`;
+
+      el.calcSteps.style.display = 'block';
+      el.calcSteps.innerHTML = `
+        <div class="line"><span class="label-small">${effectiveExpr}</span></div>
+        <div class="line"><span class="label-small">${internalExpr}</span></div>
+      `;
+    }
+
+    // 3桁優先の分割（各ブロックは 2 or 3 桁）
+    function findPartition(s) {
+      const n = s.length;
+      if (n < 10 || n > 15) return null;
+      const result = [];
+      const lengths = [3, 2]; // 優先順: 3桁 -> 2桁
+
+      function backtrack(pos, k) {
+        if (k === 0) return pos === n;
+        const rem = n - pos;
+        // prune: remaining chars must fit into k blocks of [2..3]
+        if (rem < k*2 || rem > k*3) return false;
+        for (const len of lengths) {
+          if (pos + len > n) continue;
+          const part = s.slice(pos, pos + len);
+          if (part.length === 0) continue;
+          if (part[0] === '0') continue; // 先頭ゼロは無効
+          const val = Number(part);
+          if (!Number.isFinite(val)) continue;
+          if (val < 10 || val > 160) continue;
+          result.push(val);
+          if (backtrack(pos + len, k - 1)) return true;
+          result.pop();
+        }
+        return false;
+      }
+
+      if (backtrack(0, 5)) return result.slice();
+      return null;
+    }
+
+    function computeInternal(nums) {
+      return nums.reduce((a, b) => a + b, 0);
+    }
+
+    function computeEffective(nums) {
+      const first = nums[0];
+      const restSum = nums.slice(1).reduce((a, b) => a + b, 0);
+      return first + (restSum / 5);
+    }
+
+    function onInput() {
+      const raw = el.input.value.trim();
+      el.error.textContent = '';
+      el.partsMsg.textContent = '';
+      el.parts.innerHTML = '';
+
+      if (raw.length === 0) { clearDisplay(); return; }
+      if (/\D/.test(raw)) { setError('入力は数字のみで指定してください（0-9）。'); return; }
+      if (raw.length < 10) { clearDisplay(); el.partsMsg.textContent = '入力を続けてください（最低10桁）。'; return; }
+      if (raw.length > 15) { setError('入力は最大15桁までです。'); return; }
+
+      const parts = findPartition(raw);
+      if (!parts) { setError('有効な分割が見つかりません。桁数や各値の範囲(10〜160)を確認してください。'); return; }
+
+      renderParts(parts);
+      el.partsMsg.textContent = '分割成功';
+      const internal = computeInternal(parts);
+      const effective = computeEffective(parts);
+      el.internal.textContent = String(internal);
+      // 実効値は整数部分のみ表示
+      el.effective.textContent = String(Math.trunc(effective));
+    }
+
+    el.input.addEventListener('input', onInput);
+    el.reset.addEventListener('click', () => {
+      el.input.value = '';
+      el.input.focus();
+      clearDisplay();
+    });
+    // 初期表示: 画面表示時にメイン入力にフォーカスを移す
+    clearDisplay();
+    try { setTimeout(() => { el.input.focus(); }, 0); } catch (e) {}
+
+    
+  </script>
+</body>
+</html>
