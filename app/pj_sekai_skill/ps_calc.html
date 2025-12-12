@@ -107,7 +107,7 @@
       </a>
     </div>
     <h1>プロセカ 実効値・内部値計算</h1>
-    <p class="muted">スコアUP%を連結させて入力。</p>
+    <p class="muted">スコアUP%を連結させて入力。下限30%、上限160%。</p>
         <p class="muted">例: リーダー160%,その他150%,140%,130%,130%の場合<br>  → 160150140130130を入力。半角数字のみ。</p>
 
 
@@ -135,6 +135,14 @@
   </div>
 
   <script>
+    // ==================================================
+    // ps_calc.html: プロセカ 実効値・内部値 計算ツール
+    // - 単一入力を分割して 5 つの値にし、内部値(合計)と実効値(リーダー + 残り合計/5)を表示
+    // - 3桁優先分割ルール (各ブロックは 2 or 3 桁)、各値の許容範囲は 30〜160
+    // - ペースト時の記号自動削除、入力時の数字以外除去、編集用の分割ボックスを同期
+    // - スクロール禁止やモバイル用キーボード最適化などの UX 処理を含む
+    // ==================================================
+
     const el = {
       input: document.getElementById('input'),
       reset: document.getElementById('reset'),
@@ -150,6 +158,7 @@
     let pasteErrorTimer = null;
     let inputHintTimer = null;
     function showTempError(msg) {
+      // 短時間だけ表示するエラーメッセージ（上書き防止のためタイマーを管理）
       el.error.textContent = msg;
       if (pasteErrorTimer) clearTimeout(pasteErrorTimer);
       pasteErrorTimer = setTimeout(() => {
@@ -159,7 +168,10 @@
       }, 4000);
     }
 
-    // 貼り付け最適化: カンマ/空白/%/、/。を除去し、その後非数字を除去して即時処理、エラーフィードバック
+    // 貼り付け最適化:
+    // - よくある区切り文字（カンマ・空白・%・、・。）を自動除去
+    // - さらに残る非数字も除去して数字列のみを main input にセット
+    // - 不正な貼り付けは軽いフィードバックを出す
     el.input.addEventListener('paste', (ev) => {
       try {
         ev.preventDefault();
@@ -187,7 +199,9 @@
       }
     });
 
-    // 入力時は半角数字以外をすべて除去（スペース含む）してから処理
+    // 入力時のサニタイズ:
+    // - ユーザーがタイプするたびに非数字を除去（スペース含む）
+    // - 省略表現や余計な文字を自動で取り除き、短いヒントを表示
     el.input.addEventListener('input', (ev) => {
       const original = ev.target.value;
       const cleaned = original.replace(/\D+/g, '');
@@ -228,9 +242,9 @@
         el.effective.textContent = '—';
         return;
       }
-      // 全部が有効な数値か判定
+      // 全部が有効な数値か判定（30〜160 の範囲に収まっているか）
       for (let v of parts) {
-        if (typeof v !== 'number' || !Number.isFinite(v) || v < 10 || v > 160) {
+        if (typeof v !== 'number' || !Number.isFinite(v) || v < 30 || v > 160) {
           // 編集途中や無効値がある場合は結果をクリア
           el.internal.textContent = '—';
           el.effective.textContent = '—';
@@ -286,7 +300,7 @@
         currentParts[i] = (parsed === null || Number.isNaN(parsed)) ? null : parsed;
 
         input.addEventListener('input', (ev) => {
-          // 編集欄でも数字以外を自動除去（スペース含む）してから処理
+          // 分割用の各入力欄でも同様に数字以外を除去
           ev.target.value = ev.target.value.replace(/\D+/g, '');
           const idx = Number(ev.target.dataset.index);
           const v = ev.target.value;
@@ -298,7 +312,7 @@
           }
           // 編集時は結果を更新
           updateResultsFromParts(currentParts);
-          // オプション: 全部が有効ならメイン入力を更新して同期する
+          // すべてのパーツが有効（数値）ならメイン入力に連結して同期する
           const allValid = currentParts.every(x => typeof x === 'number' && Number.isFinite(x));
           if (allValid) {
             // 連結してメイン入力に反映（ゼロ埋めなし）
@@ -312,8 +326,10 @@
       el.parts.appendChild(labelsRow);
       el.parts.appendChild(valuesRow);
 
-      // 初回レンダリング後に結果反映
+      // 初回レンダリング後に結果を反映（編集欄があればその内容で評価される）
       updateResultsFromParts(currentParts);
+      // 注意: ここではレンダリング後に同期を行わない。ユーザーが全て入力したときに
+      // 個別の入力イベント側でメイン入力へ連結される設計です。
     }
 
     // 分割結果の下に途中式をレンダリング
@@ -323,8 +339,8 @@
         el.calcSteps.innerHTML = '';
         return;
       }
-      // parts が有効な数列かをチェック
-      const allValid = parts.every(x => typeof x === 'number' && Number.isFinite(x) && x >= 10 && x <= 160);
+      // parts が有効な数列かをチェック（表示する途中式は 30〜160 の有効値であることが前提）
+      const allValid = parts.every(x => typeof x === 'number' && Number.isFinite(x) && x >= 30 && x <= 160);
       if (!allValid || !computed) {
         el.calcSteps.style.display = 'none';
         el.calcSteps.innerHTML = '';
@@ -357,14 +373,18 @@
         const rem = n - pos;
         // prune: remaining chars must fit into k blocks of [2..3]
         if (rem < k*2 || rem > k*3) return false;
+        // 長さの候補 (3→2) を順に試し、各候補が範囲 (30〜160) にあるか確認します。
+        // 先頭ゼロのブロックは無効とし、見つかった場合は result に積み上げて再帰的に探索します。
         for (const len of lengths) {
           if (pos + len > n) continue;
           const part = s.slice(pos, pos + len);
           if (part.length === 0) continue;
-          if (part[0] === '0') continue; // 先頭ゼロは無効
+          // 先頭ゼロは無効（'010' のような解を排除）
+          if (part[0] === '0') continue;
           const val = Number(part);
           if (!Number.isFinite(val)) continue;
-          if (val < 10 || val > 160) continue;
+          // バリデーション: 各パートは 30〜160 の範囲である必要がある
+          if (val < 30 || val > 160) continue;
           result.push(val);
           if (backtrack(pos + len, k - 1)) return true;
           result.pop();
@@ -398,7 +418,7 @@
       if (raw.length > 15) { setError('入力は最大15桁までです。'); return; }
 
       const parts = findPartition(raw);
-      if (!parts) { setError('有効な分割が見つかりません。桁数や各値の範囲(10〜160)を確認してください。'); return; }
+      if (!parts) { setError('有効な分割が見つかりません。桁数や各値の範囲(30〜160)を確認してください。'); return; }
 
       renderParts(parts);
       el.partsMsg.textContent = '分割成功';
