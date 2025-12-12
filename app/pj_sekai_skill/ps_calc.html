@@ -80,6 +80,7 @@
     .result-box{background:#E6FBFA;padding:10px;border-radius:8px;border:1px solid #dff6f4}
     .label-small{font-size:0.85rem;color:#334}
     .top-actions{display:flex;justify-content:flex-end;margin-bottom:6px}
+    h1{font-size:clamp(22px,6vw,36px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 0 12px 0;line-height:1.05}
     .x-button{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#000;color:#fff;text-decoration:none;font-weight:700;font-size:0.95rem}
     .x-button:hover{background:#111}
     .x-glyph{font-size:18px;line-height:1;display:inline-block;font-weight:800}
@@ -91,6 +92,7 @@
     input:-moz-placeholder { color: #9aa; }
     /* メイン入力周りの強調 */
     .input-area{background:#E6FBFA;border-radius:10px;padding:6px;}
+    .input-hint{font-size:0.85rem;color:#b00020;position:absolute;left:12px;bottom:8px;display:none;z-index:3}
     /* 計算途中式表示 */
     .calc-steps{margin-top:10px;padding:8px;border-radius:6px;background:rgba(255,255,255,0.6);font-size:0.95rem;color:#123;border:1px dashed rgba(0,0,0,0.03)}
     .calc-steps .line{margin-top:6px}
@@ -105,14 +107,15 @@
         <span>@5gkyu</span>
       </a>
     </div>
-    <h1>プロセカ — 実効値 内部値計算</h1>
+    <h1>プロセカ 実効値・内部値計算</h1>
     <p class="muted">スコアUP%を連結させて入力。</p>
-        <p class="muted">例: リーダー160%,その他150%,140%,130%,130%の場合<br>  → 160150140130130を入力。</p>
+        <p class="muted">例: リーダー160%,その他150%,140%,130%,130%の場合<br>  → 160150140130130を入力。半角数字のみ。</p>
 
 
     <div class="input-area" style="position:relative;">
       <input id="input" class="big-input" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="ここに入力してください" aria-describedby="help">
       <button id="reset" type="button" class="reset-button" aria-label="リセット入力">リセット</button>
+      <div id="input-hint" class="input-hint" aria-live="polite">数字のみ入力できます（半角）</div>
     </div>
 
     <div class="row">
@@ -146,6 +149,7 @@
 
     // 一時エラーメッセージタイマー
     let pasteErrorTimer = null;
+    let inputHintTimer = null;
     function showTempError(msg) {
       el.error.textContent = msg;
       if (pasteErrorTimer) clearTimeout(pasteErrorTimer);
@@ -161,9 +165,9 @@
       try {
         ev.preventDefault();
         const text = (ev.clipboardData || window.clipboardData).getData('text') || '';
-        // まず想定される区切り文字や記号を除去
+        // まず想定される区切り文字や記号を除去（半角スペースを含む空白も削除）
         const sanitized = text.replace(/[,%\s、。]/g, '');
-        // 次に残る非数字を除去して数字だけにする
+        // 次に残る非数字を除去して数字だけにする（スペースや全角数字記号も除去）
         const digitsOnly = sanitized.replace(/\D+/g, '');
         if (!digitsOnly) {
           showTempError('貼り付けに数字が含まれていませんでした。');
@@ -182,6 +186,23 @@
       } catch (e) {
         // 失敗したら既存の動作にフォールバック
       }
+    });
+
+    // 入力時は半角数字以外をすべて除去（スペース含む）してから処理
+    el.input.addEventListener('input', (ev) => {
+      const original = ev.target.value;
+      const cleaned = original.replace(/\D+/g, '');
+      if (original !== cleaned) {
+        ev.target.value = cleaned;
+        // show small hint briefly
+        const hint = document.getElementById('input-hint');
+        if (hint) {
+          hint.style.display = 'block';
+          if (inputHintTimer) clearTimeout(inputHintTimer);
+          inputHintTimer = setTimeout(() => { hint.style.display = 'none'; inputHintTimer = null; }, 2000);
+        }
+      }
+      onInput();
     });
 
     function clearDisplay() {
@@ -266,15 +287,15 @@
         currentParts[i] = (parsed === null || Number.isNaN(parsed)) ? null : parsed;
 
         input.addEventListener('input', (ev) => {
+          // 編集欄でも数字以外を自動除去（スペース含む）してから処理
+          ev.target.value = ev.target.value.replace(/\D+/g, '');
           const idx = Number(ev.target.dataset.index);
-          const v = ev.target.value.trim();
+          const v = ev.target.value;
           if (v === '') {
             currentParts[idx] = null;
-          } else if (/^\d+$/.test(v)) {
-            const n = Number(v);
-            if (Number.isFinite(n)) currentParts[idx] = n; else currentParts[idx] = null;
           } else {
-            currentParts[idx] = null;
+            const n = Number(v);
+            currentParts[idx] = Number.isFinite(n) ? n : null;
           }
           // 編集時は結果を更新
           updateResultsFromParts(currentParts);
