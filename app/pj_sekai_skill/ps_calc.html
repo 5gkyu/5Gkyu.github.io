@@ -38,13 +38,15 @@
   
   <style>
     html, body { height: 100%; min-height: 100vh; margin: 0; }
+    /* スクロール禁止: 全体を固定し、スクロール周りのデフォルト挙動を抑止します */
     body{
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", Meiryo, Helvetica, Arial;
       padding: 8px;
       color: #111;
       background-color: #f7f8fb;
       position: relative;
-      overflow-x: hidden;
+      /* 全体のスクロールを禁止（必要なら input 等はフォーカス時に挙動を許可します） */
+      overflow: hidden;
     }
     /* 背景画像を固定レイヤーで敷き、常にビューポート全体を埋める (モバイルの余白対策) */
     body::before{
@@ -420,7 +422,43 @@
     clearDisplay();
     try { setTimeout(() => { el.input.focus(); }, 0); } catch (e) {}
 
-    
+    // ページスクロールを抑止（ホイール / タッチムーブ）。ただし入力等の操作は許可する。
+    (function disableScroll(){
+      try {
+        // CSS でも overflow:hidden を設定済みだが、念のためスクリプト側でも抑止
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        // 入力要素に対するスクロールやタッチは許可する
+        const isFormControl = (el) => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT');
+
+        document.addEventListener('wheel', function(e){
+          try {
+            if (e.target && e.target.closest && e.target.closest('input,textarea,select')) return;
+            e.preventDefault();
+          } catch (er) {}
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e){
+          try {
+            if (e.target && e.target.closest && e.target.closest('input,textarea,select')) return;
+            e.preventDefault();
+          } catch (er) {}
+        }, { passive: false });
+
+        // ページスクロールにつながるキー操作を抑止（入力フォーカス時は許可）
+        document.addEventListener('keydown', function(e){
+          try {
+            const active = document.activeElement;
+            const editing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+            const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+            if (!editing && keys.indexOf(e.key) !== -1) {
+              e.preventDefault();
+            }
+          } catch (er) {}
+        }, { passive: false });
+      } catch (e) {}
+    })();
   </script>
 </body>
 </html>
