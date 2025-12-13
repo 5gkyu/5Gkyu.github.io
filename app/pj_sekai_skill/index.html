@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- iOS / mobile: 電話番号の自動リンク作成を無効化 -->
+  <meta name="format-detection" content="telephone=no">
   <title>プロセカ 実効値・内部値 計算ツール</title>
 
   <!-- Meta: 説明・robots・canonical -->
@@ -34,6 +36,11 @@
   </script>
   
   <style>
+     /* Prevent browsers from making phone-number-like strings clickable
+       (extra CSS safeguard in case the meta tag doesn't cover all engines) */
+     a[href^="tel:"]{ pointer-events: none; color: inherit; text-decoration: none; }
+     .no-tel{ -webkit-touch-callout: none; -webkit-user-select: text; user-select: text; }
+
     html, body { height: 100%; min-height: 100vh; margin: 0; }
     /* スクロール禁止: 全体を固定し、スクロール周りのデフォルト挙動を抑止します */
     body{
@@ -112,7 +119,7 @@
 
 
     <div class="input-area" style="position:relative;">
-      <input id="input" class="big-input" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="ここに入力してください" aria-describedby="help">
+      <input id="input" class="big-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="ここに入力してください" aria-describedby="help" autocomplete="off" autocorrect="off" autocapitalize="off">
       <button id="reset" type="button" class="reset-button" aria-label="リセット入力">リセット</button>
       <div id="input-hint" class="input-hint" aria-live="polite">数字のみ入力できます（半角）</div>
     </div>
