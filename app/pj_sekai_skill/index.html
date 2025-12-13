@@ -458,41 +458,11 @@
     clearDisplay();
     try { setTimeout(() => { el.input.focus(); }, 0); } catch (e) {}
 
-    // ページスクロールを抑止（ホイール / タッチムーブ）。ただし入力等の操作は許可する。
-    (function disableScroll(){
+    // ページスクロールを許可する（モバイルでキーボード表示時や長い結果表示のため）
+    (function enableScroll(){
       try {
-        // CSS でも overflow:hidden を設定済みだが、念のためスクリプト側でも抑止
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-
-        // 入力要素に対するスクロールやタッチは許可する
-        const isFormControl = (el) => el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT');
-
-        document.addEventListener('wheel', function(e){
-          try {
-            if (e.target && e.target.closest && e.target.closest('input,textarea,select')) return;
-            e.preventDefault();
-          } catch (er) {}
-        }, { passive: false });
-
-        document.addEventListener('touchmove', function(e){
-          try {
-            if (e.target && e.target.closest && e.target.closest('input,textarea,select')) return;
-            e.preventDefault();
-          } catch (er) {}
-        }, { passive: false });
-
-        // ページスクロールにつながるキー操作を抑止（入力フォーカス時は許可）
-        document.addEventListener('keydown', function(e){
-          try {
-            const active = document.activeElement;
-            const editing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
-            const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
-            if (!editing && keys.indexOf(e.key) !== -1) {
-              e.preventDefault();
-            }
-          } catch (er) {}
-        }, { passive: false });
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'auto';
       } catch (e) {}
     })();
   </script>
