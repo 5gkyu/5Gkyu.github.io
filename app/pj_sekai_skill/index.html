@@ -50,7 +50,7 @@
       background-color: #f7f8fb;
       position: relative;
       /* 全体のスクロールを禁止（必要なら input 等はフォーカス時に挙動を許可します） */
-      overflow: hidden;
+      overflow: auto;
     }
     /* 背景画像を固定レイヤーで敷き、常にビューポート全体を埋める (モバイルの余白対策) */
     body::before{
@@ -90,6 +90,18 @@
     .x-button{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#000;color:#fff;text-decoration:none;font-weight:700;font-size:0.95rem}
     .x-button:hover{background:#111}
     .x-glyph{font-size:18px;line-height:1;display:inline-block;font-weight:800}
+
+    /* Mobile: keep X button fixed at bottom so it's always reachable when keyboard opens */
+    @media(max-width:560px){
+      /* ensure content can scroll behind the fixed button */
+      body{ padding-bottom: 88px; }
+      .top-actions .x-button{
+        position:fixed;
+        bottom:calc(env(safe-area-inset-bottom,16px));
+        right:16px;
+        z-index:1200;
+      }
+    }
     /* プレースホルダを薄く表示 */
     input::placeholder { color: #9aa !important; opacity: 1; }
     input::-webkit-input-placeholder { color: #9aa; }
