@@ -2111,25 +2111,28 @@ async function signInWithGoogle(){
   provider.addScope('profile');
   provider.addScope('email');
     try {
-      // Detect iOS Safari (popup handling is unreliable there) and use redirect
-      const ua = navigator.userAgent || '';
-      const isIos = /iP(hone|od|ad)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
-      const useRedirect = isIos && isSafari;
+      // モバイル端末かどうかを検出（タッチ対応デバイス全般）
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                       || ('ontouchstart' in window) 
+                       || (navigator.maxTouchPoints > 0);
+      
+      const useRedirect = isMobile;
+      
       if (useRedirect) {
-        // Redirect flow is more reliable on iOS Safari
+        // モバイルではリダイレクトフローを使用（ポップアップはブロックされやすいため）
+        console.log('Mobile detected, using redirect flow');
         try{
-          // Ensure persistence is set before redirect (await so Safari applies it)
-          if (firebase.auth && firebase.auth().setPersistence) {
-            await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-          }
+          // リダイレクト前にセッション永続化を確実に設定
+          await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
         }catch(e){ console.warn('setPersistence before redirect failed', e); }
         try{ localStorage.setItem('auth_redirecting', '1'); }catch(e){}
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
-      // setPersistence already attempted at init; attempt again but don't await to avoid breaking user gesture
-      try{ firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); } catch(e){}
+      
+      // デスクトップではポップアップフローを使用
+      console.log('Desktop detected, using popup flow');
+      try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(e){}
       const res = await firebase.auth().signInWithPopup(provider);
       console.log('signInWithPopup result:', res && res.user && res.user.uid);
       // サインイン直後に明示的に同期を開始し、res.user を使って確実に同期を行う
@@ -2173,34 +2176,49 @@ if (signOutBtn2) signOutBtn2.addEventListener('click', async ()=>{
 
 /* onAuthStateChanged */
 if (window.firebase) {
-  firebase.auth().onAuthStateChanged(async user => {
-    console.log('onAuthStateChanged user:', user && (user.uid || user.email));
-    updateAuthUI(user);
-    if (!user) {
-      // 未ログイン時は何もしない
-      console.warn('No authenticated user');
-      return;
-    }
+  // リダイレクト結果を最初に処理（ページ読み込み時に確実に取得）
+  firebase.auth().getRedirectResult().then(result => {
+    if(result && result.user){
+      console.log('getRedirectResult user:', result.user.uid);
+      try{ firebaseUid = result.user.uid; }catch(e){}
+      try{ updateAuthUI(result.user); }catch(e){}
+      try{ startSyncForUser(result.user.uid); }catch(e){ console.warn('startSyncForUser after redirect failed', e); }
+      try{ 
+        // リダイレクト後にローカルデータがあれば同期
+        const local = getLocalBookmarks() || [];
+        if(local.length > 0){
+          console.log('Local has items after redirect, pushing to remote');
+          saveBookmarksToRemote();
+        }
+      }catch(e){ console.warn('post-redirect sync failed', e); }
       try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
-    try{
-      startSyncForUser(user.uid);
-    }catch(e){ console.error('startSyncForUser failed', e); }
-  });
-
-  // Handle redirect results explicitly to ensure mobile redirect flows complete login
-  try{
-    firebase.auth().getRedirectResult().then(result => {
-      if(result && result.user){
-        console.log('getRedirectResult user:', result.user.uid);
-        try{ firebaseUid = result.user.uid; }catch(e){}
-        try{ updateAuthUI(result.user); }catch(e){}
-        try{ startSyncForUser(result.user.uid); }catch(e){ console.warn('startSyncForUser after redirect failed', e); }
-        try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
+      // 成功メッセージを表示
+      setTimeout(()=>{ alert('ログインしました！'); }, 300);
+    } else {
+      // リダイレクトがなかった場合（通常のページ読み込み）
+      console.log('No redirect result');
+    }
+  }).catch(err => {
+    console.error('getRedirectResult error', err);
+    try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
+    // エラーをユーザーに通知
+    alert('ログイン処理でエラーが発生しました: ' + (err.message || err.code || err));
+  }).finally(() => {
+    // リダイレクト処理完了後にonAuthStateChangedを設定
+    firebase.auth().onAuthStateChanged(async user => {
+      console.log('onAuthStateChanged user:', user && (user.uid || user.email));
+      updateAuthUI(user);
+      if (!user) {
+        // 未ログイン時は何もしない
+        console.warn('No authenticated user');
+        return;
       }
-    }).catch(err => {
-      console.warn('getRedirectResult error', err);
+      try{ localStorage.removeItem('auth_redirecting'); }catch(e){}
+      try{
+        startSyncForUser(user.uid);
+      }catch(e){ console.error('startSyncForUser failed', e); }
     });
-  }catch(e){ console.warn('getRedirectResult init error', e); }
+  });
 }
 
 /* merge anonymous -> target */
