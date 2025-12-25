@@ -3545,9 +3545,10 @@ el.classList.remove('empty');
 }
 }).catch((err) => console.warn('初回ルームメタ取得失敗:', err));
 
-currentRoomRef.on('value', async (snapshot) => {
-const meta = snapshot.val();
-console.log('rooms/' + roomId + '/meta changed:', meta);
+    let roomGameStarted = false;
+    currentRoomRef.on('value', async (snapshot) => {
+        const meta = snapshot.val();
+        console.log('rooms/' + roomId + '/meta changed:', meta);
 if (!meta) {
 // ルームが削除された
 alert('ルームが削除されました');
@@ -3576,6 +3577,30 @@ document.getElementById('waiting-message').textContent = '2人揃いました！
 // ゲストが揃ったので自動削除タイマーを解除
 try { if (isHost) clearRoomExpiry(roomId); } catch(e){console.warn('clear expiry on guest join failed',e)}
 }
+        // ホスト側では、ゲストが揃った時点でルーム状態を 'playing' に遷移させる
+        if (meta.guestId && meta.guestName && isHost && meta.state === 'open') {
+            try {
+                // 先攻情報を解決して保存（random の場合はホストで決定）
+                let resolvedIsBlue = true;
+                if (meta.firstMove === 'host') resolvedIsBlue = true;
+                else if (meta.firstMove === 'guest') resolvedIsBlue = false;
+                else resolvedIsBlue = Math.random() < 0.5;
+
+                await database.ref(`rooms/${roomId}/meta`).update({ state: 'playing', resolvedFirstMoveIsBlue: resolvedIsBlue });
+            } catch (err) {
+                console.warn('failed to update room state to playing:', err);
+            }
+        }
+
+        // ルームが playing 状態になったら両クライアントでゲーム開始処理を呼ぶ
+        if (meta.state === 'playing' && !roomGameStarted) {
+            roomGameStarted = true;
+            try {
+                startOnlineMode(meta, roomId);
+            } catch (err) {
+                console.warn('startOnlineMode error:', err);
+            }
+        }
 });
 }
 
@@ -4681,6 +4706,82 @@ function startTestMode(modeKey, mapName, firstMove) {
         }
     }
     
+    startPhaseTimer();
+}
+
+// オンライン対戦開始処理 (meta は rooms/{id}/meta の内容)
+function startOnlineMode(meta, roomId) {
+    // 先攻情報の解決（host が決定済みの resolvedFirstMoveIsBlue を優先）
+    let resolvedIsBlue = true;
+    if (typeof meta.resolvedFirstMoveIsBlue !== 'undefined') {
+        resolvedIsBlue = !!meta.resolvedFirstMoveIsBlue;
+    } else if (meta.firstMove === 'host') {
+        resolvedIsBlue = true;
+    } else if (meta.firstMove === 'guest') {
+        resolvedIsBlue = false;
+    } else {
+        resolvedIsBlue = Math.random() < 0.5;
+    }
+
+    const amHost = (currentUserId === meta.hostId);
+    // クライアントから見た自チーム: ホストが先攻で resolvedIsBlue=true ならホストは青
+    const myIsBlue = amHost ? resolvedIsBlue : !resolvedIsBlue;
+
+    // 状態リセット（オンラインプレイ）
+    banpicState = {
+        isTestMode: false,
+        isBlueTeam: myIsBlue,
+        phase: 'ban',
+        phaseIndex: 0,
+        timer: 20,
+        timerInterval: null,
+        selectedCharacters: [],
+        blueBans: [],
+        redBans: [],
+        bluePicks: [],
+        redPicks: [],
+        allBannedIds: [],
+        mode: { id: (meta.mode || 'eme'), name: (MODE_DATA && MODE_DATA[meta.mode] ? MODE_DATA[meta.mode].label : (meta.mode || 'エメラルドハント')) },
+        map: meta.mapName || '静かな広場'
+    };
+
+    // UI 初期化
+    const banpicModeEl = document.getElementById('banpic-mode');
+    const banpicMapEl = document.getElementById('banpic-map');
+    if (banpicModeEl) banpicModeEl.textContent = banpicState.mode.name;
+    if (banpicMapEl) banpicMapEl.textContent = banpicState.map;
+
+    document.querySelectorAll('.ban-slot, .pick-slot').forEach(slot => {
+        slot.innerHTML = '';
+        slot.classList.remove('filled');
+        slot.classList.add('empty');
+    });
+
+    const blueNameEl = document.getElementById('blue-player-name');
+    const redNameEl = document.getElementById('red-player-name');
+    // 左（青）はホストかゲストかを resolvedIsBlue で判定
+    const blueIsHost = resolvedIsBlue;
+    if (blueIsHost) {
+        if (blueNameEl) blueNameEl.textContent = meta.hostName || 'ホスト';
+        if (redNameEl) redNameEl.textContent = meta.guestName || 'ゲスト';
+    } else {
+        if (blueNameEl) blueNameEl.textContent = meta.guestName || 'ゲスト';
+        if (redNameEl) redNameEl.textContent = meta.hostName || 'ホスト';
+    }
+
+    // 先攻表示（名前で表示）
+    const firstMoveIndicator = document.getElementById('first-move-indicator');
+    if (firstMoveIndicator) {
+        const firstName = resolvedIsBlue ? (meta.hostName || 'ホスト') : (meta.guestName || 'ゲスト');
+        firstMoveIndicator.textContent = `先攻: ${firstName}`;
+    }
+
+    showScreen('game-screen');
+    renderCharacterGrid();
+    updateSlotPreview();
+    updatePickOrderLabels();
+    updatePhaseDisplay();
+    updateConfirmButton();
     startPhaseTimer();
 }
 
