@@ -1,0 +1,4811 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BANPIC - ブロスタツール</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+:root {
+--primary-color: #4a90d9;
+--primary-dark: #357abd;
+--secondary-color: #2ecc71;
+--danger-color: #e74c3c;
+--warning-color: #f39c12;
+--bg-color: #1a1a2e;
+--card-bg: #16213e;
+--text-color: #eee;
+--text-muted: #888;
+--border-radius: 12px;
+}
+
+body {
+font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+background: var(--bg-color);
+color: var(--text-color);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* ヘッダー */
+header {
+background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+padding: 0.75rem 1rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+height: 60px;
+flex-shrink: 0;
+}
+
+header h1 {
+font-size: 1.5rem;
+font-weight: bold;
+letter-spacing: 2px;
+}
+
+header h1 span {
+color: var(--warning-color);
+}
+
+.user-info {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+font-size: 0.9rem;
+cursor: pointer;
+padding: 0.5rem;
+border-radius: 8px;
+transition: background 0.2s;
+}
+
+.user-info:hover {
+background: rgba(255,255,255,0.1);
+}
+
+.user-avatar {
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: var(--primary-dark);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1rem;
+overflow: hidden;
+}
+
+.user-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+/* モードバナー（ヘッダー左上） */
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.mode-banner{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    position:relative;
+    height: clamp(2rem, 4.5vw, 2.8rem);
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0.04));
+}
+.mode-banner .mode-logo{
+    height: 100%;
+    width: auto;
+    display:block;
+    border-radius:6px;
+}
+.mode-banner .banner-text{
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+}
+.mode-banner .mode-name{ font-weight:700; font-size: clamp(0.78rem, 1.8vw, 0.98rem); }
+.mode-banner .map-name{ font-size: clamp(0.56rem, 1.4vw, 0.72rem); opacity:0.95; }
+
+/* テスト用コントロール */
+.mode-controls{ display:flex; gap:0.4rem; align-items:center; }
+.mode-controls select, .mode-controls input{ background: rgba(255,255,255,0.06); color:var(--text-color); border:1px solid rgba(255,255,255,0.06); padding:0.25rem 0.35rem; border-radius:6px; }
+
+
+
+
+.user-info .status-dot {
+width: 10px;
+height: 10px;
+background: var(--secondary-color);
+border-radius: 50%;
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.5; }
+}
+
+/* メインコンテナ */
+.container {
+flex: 1;
+max-width: 100%;
+width: 100%;
+margin: 0 auto;
+padding: 0;
+overflow: hidden;
+}
+
+/* 画面切り替え */
+.screen {
+display: none;
+}
+
+.screen.active {
+display: block;
+}
+
+/* ロビー画面 */
+#lobby-screen.active {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+
+.pick-area {
+    flex: 1 1 60%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.pick-row {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pick-slot {
+    min-width: 40px;
+    min-height: 40px;
+    aspect-ratio: 1 / 1;
+    flex: 1 1 0;
+    background: #222;
+    border: 2px dashed #444;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.95rem, 3.2vw, 1.8rem);
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.btn:active {
+transform: translateY(0);
+}
+
+.btn-primary {
+background: var(--primary-color);
+color: white;
+}
+
+.btn-primary:hover {
+background: var(--primary-dark);
+}
+
+.btn-success {
+background: var(--secondary-color);
+color: white;
+}
+
+.btn-danger {
+background: var(--danger-color);
+color: white;
+}
+
+.btn-secondary {
+background: #555;
+color: white;
+}
+
+/* ルーム一覧 */
+.room-list {
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+}
+
+.room-list-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.5rem 0;
+border-bottom: 1px solid #333;
+margin-bottom: 0.5rem;
+}
+
+.room-count {
+font-size: 0.9rem;
+color: var(--text-muted);
+}
+
+.refresh-btn {
+background: transparent;
+border: none;
+color: var(--primary-color);
+cursor: pointer;
+font-size: 1.2rem;
+padding: 0.25rem;
+}
+
+.room-card {
+background: var(--card-bg);
+border-radius: var(--border-radius);
+padding: 1rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+transition: all 0.2s ease;
+border: 2px solid transparent;
+}
+
+.room-card:hover {
+border-color: var(--primary-color);
+transform: translateX(5px);
+}
+
+.room-info {
+flex: 1;
+}
+
+/* ルーム一覧用アバター */
+.room-avatar {
+width: 48px;
+height: 48px;
+border-radius: 50%;
+background: var(--primary-dark);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.25rem;
+overflow: hidden;
+flex-shrink: 0;
+}
+
+.room-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+/* ロビーのエラーバナー */
+.lobby-error {
+background: #ffefef;
+border: 1px solid #ffb3b3;
+color: #7a1f1f;
+padding: 0.75rem;
+border-radius: 8px;
+margin: 0.75rem 0;
+text-align: center;
+}
+
+.lobby-error .lobby-error-text {
+font-weight: bold;
+}
+
+/* ルームカード内でアバターと情報を横並びにする調整 */
+.room-card .room-info {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+/* ロビー全体の中央寄せとカードグリッド */
+#lobby-screen .lobby-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    max-width: 960px;
+    margin: 0 auto 1rem;
+    width: 100%;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.room-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+    align-items: start;
+    margin-top: 1rem;
+}
+
+.room-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* ユーザー情報を右端寄せ（ヘッダー内） */
+header .user-info { margin-left: auto; }
+
+.room-name {
+font-size: 1.1rem;
+font-weight: bold;
+margin-bottom: 0.25rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.room-name .lock-icon {
+font-size: 0.9rem;
+color: var(--warning-color);
+}
+
+.room-meta {
+font-size: 0.85rem;
+color: var(--text-muted);
+display: flex;
+gap: 1rem;
+}
+
+.room-players {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.player-count {
+background: var(--primary-color);
+padding: 0.25rem 0.75rem;
+border-radius: 20px;
+font-size: 0.85rem;
+font-weight: bold;
+}
+
+.player-count.full {
+background: var(--danger-color);
+}
+
+.empty-state {
+text-align: center;
+padding: 3rem;
+color: var(--text-muted);
+}
+
+.empty-state .icon {
+font-size: 3rem;
+margin-bottom: 1rem;
+}
+
+/* モーダル */
+.modal-overlay {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.7);
+justify-content: center;
+align-items: center;
+z-index: 1000;
+padding: 1rem;
+}
+
+.modal-overlay.active {
+display: flex;
+}
+
+.modal {
+background: var(--card-bg);
+border-radius: var(--border-radius);
+width: 100%;
+max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+padding: 1.5rem;
+animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+from {
+opacity: 0;
+transform: translateY(-20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 1.5rem;
+}
+
+.modal-header h3 {
+font-size: 1.2rem;
+}
+
+.modal-close {
+background: transparent;
+border: none;
+color: var(--text-muted);
+font-size: 1.5rem;
+cursor: pointer;
+padding: 0;
+line-height: 1;
+}
+
+.modal-close:hover {
+color: var(--text-color);
+}
+
+/* フォーム */
+.form-group {
+margin-bottom: 1rem;
+}
+
+.form-group label {
+display: block;
+margin-bottom: 0.5rem;
+font-size: 0.9rem;
+color: var(--text-muted);
+}
+
+.form-group label .required {
+color: var(--danger-color);
+}
+
+.form-group input,
+.form-group select {
+width: 100%;
+padding: 0.75rem 1rem;
+border: 2px solid #333;
+border-radius: 8px;
+background: var(--bg-color);
+color: var(--text-color);
+font-size: 1rem;
+transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+outline: none;
+border-color: var(--primary-color);
+}
+
+.form-group input::placeholder {
+color: #555;
+}
+
+.form-actions {
+display: flex;
+gap: 0.75rem;
+margin-top: 1.5rem;
+}
+
+.form-actions .btn {
+flex: 1;
+}
+
+/* 待機画面 */
+#waiting-screen {
+text-align: center;
+padding: 2rem;
+}
+
+.waiting-room-info {
+background: var(--card-bg);
+border-radius: var(--border-radius);
+padding: 2rem;
+margin-bottom: 2rem;
+}
+
+.waiting-room-name {
+font-size: 1.5rem;
+font-weight: bold;
+margin-bottom: 1rem;
+}
+
+.waiting-players {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 2rem;
+margin: 2rem 0;
+}
+
+.waiting-player {
+text-align: center;
+}
+
+.waiting-vs {
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2rem;
+font-weight: bold;
+color: #555;
+min-width: 60px;
+}
+
+.player-avatar {
+width: 80px;
+height: 80px;
+border-radius: 50%;
+background: var(--primary-color);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2rem;
+margin: 0 auto 0.5rem;
+overflow: hidden;
+}
+
+.player-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 50%;
+}
+
+.player-avatar.empty {
+background: #333;
+border: 3px dashed #555;
+}
+
+.player-name {
+font-weight: bold;
+}
+
+.waiting-status {
+color: var(--text-muted);
+margin-bottom: 1rem;
+}
+
+.waiting-spinner {
+display: inline-block;
+width: 30px;
+height: 30px;
+border: 3px solid #333;
+border-top-color: var(--primary-color);
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin-bottom: 1rem;
+}
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+/* ゲーム画面 */
+#game-screen.active {
+display: flex;
+flex-direction: column;
+justify-content: center; /* 縦方向中央寄せ */
+align-items: stretch;
+height: calc(100vh - 80px);
+max-height: calc(100vh - 80px);
+}
+
+.game-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.75rem;
+background: var(--card-bg);
+border-radius: var(--border-radius);
+margin-bottom: 0.5rem;
+}
+
+.game-player {
+text-align: center;
+flex: 1;
+}
+
+.game-player-info {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.5rem;
+}
+
+.game-player-avatar {
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: var(--primary-color);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1rem;
+overflow: hidden;
+}
+
+.game-player-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 50%;
+}
+
+.game-player-name {
+font-weight: bold;
+font-size: 1rem;
+margin-bottom: 0.25rem;
+}
+
+.game-player-name.highlight {
+color: var(--warning-color);
+}
+
+.game-score {
+display: flex;
+justify-content: center;
+gap: 0.25rem;
+}
+
+.score-dot {
+width: 20px;
+height: 20px;
+border-radius: 50%;
+background: #333;
+border: 2px solid #555;
+}
+
+.score-dot.win {
+background: var(--secondary-color);
+border-color: var(--secondary-color);
+}
+
+.score-dot.lose {
+background: var(--danger-color);
+border-color: var(--danger-color);
+}
+
+.game-vs {
+font-size: 1.2rem;
+font-weight: bold;
+color: #555;
+padding: 0 0.25rem;
+}
+
+/* 問題エリア */
+.game-main {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: var(--card-bg);
+border-radius: var(--border-radius);
+padding: 1rem;
+margin-bottom: 0.5rem;
+min-height: 0;
+}
+
+.round-info {
+text-align: center;
+margin-bottom: 0.5rem;
+}
+
+.round-number {
+font-size: 1.1rem;
+color: var(--text-muted);
+}
+
+.difficulty {
+display: inline-block;
+padding: 0.25rem 0.75rem;
+border-radius: 20px;
+font-size: 0.8rem;
+margin-left: 0.5rem;
+}
+
+.difficulty-1 { background: #27ae60; }
+.difficulty-2 { background: #2ecc71; }
+.difficulty-3 { background: #f39c12; }
+.difficulty-4 { background: #e67e22; }
+.difficulty-5 { background: #e74c3c; }
+
+.problem-display {
+flex: 1;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+}
+
+.problem-digits {
+display: flex;
+justify-content: center;
+gap: 1rem;
+margin: 1rem 0;
+}
+
+.digit-card {
+width: 60px;
+height: 70px;
+background: linear-gradient(135deg, #4a90d9, #357abd);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2rem;
+font-weight: bold;
+box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+cursor: pointer;
+transition: all 0.15s ease;
+user-select: none;
+}
+
+.digit-card:hover:not(.used) {
+transform: scale(1.1);
+box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.digit-card:active:not(.used) {
+transform: scale(0.95);
+}
+
+.digit-card.used {
+opacity: 0.3;
+transform: scale(0.85);
+cursor: not-allowed;
+background: #444;
+}
+
+/* タイマー */
+.timer-container {
+text-align: center;
+margin: 0.5rem 0;
+}
+
+.timer-bar {
+height: 8px;
+background: #333;
+border-radius: 4px;
+overflow: hidden;
+margin-bottom: 0.5rem;
+}
+
+.timer-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--secondary-color), var(--warning-color));
+transition: width 0.1s linear;
+}
+
+.timer-fill.danger {
+background: linear-gradient(90deg, var(--warning-color), var(--danger-color));
+}
+
+.timer-text {
+font-size: 1.5rem;
+font-weight: bold;
+}
+
+/* 式表示 */
+.expression-display {
+background: var(--bg-color);
+border: 2px solid #333;
+border-radius: 10px;
+padding: 1rem;
+min-height: 60px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+font-family: 'Consolas', monospace;
+margin: 0.5rem 0;
+}
+
+.expression-display.correct {
+border-color: var(--secondary-color);
+background: rgba(46, 204, 113, 0.1);
+}
+
+.expression-display.wrong {
+border-color: var(--danger-color);
+background: rgba(231, 76, 60, 0.1);
+}
+
+.expression-result {
+text-align: center;
+font-size: 1rem;
+color: var(--text-muted);
+margin-bottom: 0.5rem;
+}
+
+.expression-result.valid {
+color: var(--secondary-color);
+}
+
+/* 演算子・括弧ボタン行 */
+.operator-row {
+    /* グリッドにして幅に応じて2行に折り返しやすくする（UI崩れ対策） */
+    display: grid;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+.op-btn {
+    width: 100%;
+    height: 50px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--warning-color);
+    color: #000;
+}
+
+.op-btn:hover {
+transform: scale(1.1);
+background: #e67e22;
+}
+
+.op-btn:active {
+transform: scale(0.95);
+}
+
+.op-btn.bracket {
+background: #9b59b6;
+color: #fff;
+}
+
+.op-btn.bracket:hover {
+background: #8e44ad;
+}
+
+/* アクションボタン行 */
+.action-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.action-btn {
+padding: 0.6rem 1.2rem;
+font-size: 1rem;
+font-weight: bold;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+transform: scale(1.05);
+}
+
+.action-btn:active {
+transform: scale(0.95);
+}
+
+.action-btn.backspace {
+background: #555;
+color: #fff;
+}
+
+.action-btn.reset {
+background: var(--danger-color);
+color: #fff;
+}
+
+.action-btn.hint {
+background: var(--info-color, #3498db);
+color: #fff;
+}
+
+.action-btn.hint:disabled {
+background: #444;
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+/* Mobile adjustments: make game screen fit a single smartphone viewport */
+@media (max-width: 420px) {
+.game-screen {
+padding: 0.5rem;
+}
+
+.game-header, .game-main {
+padding: 0.25rem 0.5rem;
+}
+
+.digit-card {
+width: 48px;
+height: 56px;
+font-size: 1.6rem;
+margin: 0 0.25rem;
+}
+
+.problem-digits {
+display: flex;
+gap: 0.4rem;
+justify-content: center;
+flex-wrap: nowrap;
+}
+
+.operator-row {
+gap: 0.4rem;
+padding: 0.25rem 0;
+}
+
+.op-btn {
+width: 40px;
+height: 40px;
+font-size: 1.1rem;
+border-radius: 10px;
+}
+
+.action-row { gap: 0.5rem; }
+
+.action-btn { padding: 0.45rem 0.8rem; font-size: 0.9rem; }
+
+.expression-display {
+    min-height: 44px;
+    font-size: 1.1rem;
+    padding: 0.5rem;
+}
+
+.expression-result { font-size: 0.9rem; }
+
+.timer-text { font-size: 1.1rem; }
+
+.round-info { gap: 0.4rem; }
+.round-number { font-size: 1rem; }
+.difficulty { font-size: 0.85rem; }
+
+.problem-display { margin-bottom: 0.4rem; }
+
+.user-avatar-large { width: 56px; height: 56px; font-size: 1.6rem; }
+
+.opponent-status { font-size: 0.8rem; padding: 0.4rem; }
+}
+
+/* 相手の状態表示 */
+.opponent-status {
+text-align: center;
+padding: 0.5rem;
+background: rgba(0,0,0,0.3);
+border-radius: 8px;
+font-size: 0.85rem;
+color: var(--text-muted);
+}
+
+.opponent-status.submitted {
+color: var(--warning-color);
+}
+
+.opponent-status.correct {
+color: var(--secondary-color);
+}
+
+/* カウントダウンオーバーレイ */
+.countdown-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.8);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 500;
+}
+
+.countdown-overlay.hidden {
+display: none;
+}
+
+.countdown-round {
+font-size: 1.5rem;
+color: var(--text-muted);
+margin-bottom: 1rem;
+}
+
+.countdown-number {
+font-size: 8rem;
+font-weight: bold;
+color: var(--primary-color);
+animation: countPulse 1s ease-in-out infinite;
+}
+
+@keyframes countPulse {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.1); }
+}
+
+/* 結果オーバーレイ */
+.result-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.85);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 500;
+}
+
+.result-overlay.hidden {
+display: none;
+}
+
+.result-title {
+font-size: 2rem;
+font-weight: bold;
+margin-bottom: 1rem;
+}
+
+.result-title.win {
+color: var(--secondary-color);
+}
+
+.result-title.lose {
+color: var(--danger-color);
+}
+
+.result-title.draw {
+color: var(--warning-color);
+}
+
+.result-answer {
+background: var(--card-bg);
+padding: 1.5rem 2rem;
+border-radius: var(--border-radius);
+margin-bottom: 1rem;
+}
+
+.result-answer-label {
+font-size: 0.9rem;
+color: var(--text-muted);
+margin-bottom: 0.5rem;
+}
+
+.result-answer-expr {
+font-size: 1.5rem;
+font-family: 'Consolas', monospace;
+}
+
+/* マッチ結果 */
+.match-result-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.9);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 600;
+}
+
+.match-result-overlay.hidden {
+display: none;
+}
+
+.match-result-title {
+font-size: 3rem;
+font-weight: bold;
+margin-bottom: 2rem;
+}
+
+.match-result-score {
+font-size: 4rem;
+font-weight: bold;
+margin-bottom: 2rem;
+}
+
+.match-result-players {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 2rem;
+margin-bottom: 2rem;
+}
+
+.match-result-player {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0.5rem;
+}
+
+.match-result-avatar {
+width: 80px;
+height: 80px;
+border-radius: 50%;
+background: var(--card-bg);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.5rem;
+overflow: hidden;
+border: 3px solid var(--text-muted);
+}
+
+.match-result-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.match-result-name {
+font-size: 1rem;
+color: var(--text-color);
+max-width: 100px;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.match-result-vs {
+font-size: 1.5rem;
+font-weight: bold;
+color: var(--text-muted);
+}
+
+.match-result-avatar.winner {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+}
+.match-result-avatar.loser {
+    border-color: var(--danger-color);
+    opacity: 0.7;
+}
+.match-result-avatar.draw {
+    border-color: var(--text-muted);
+}
+
+/* 王冠表示（アバター上部） */
+.match-result-avatar.winner::after,
+.game-player-avatar.winner::after {
+    content: "👑";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.game-player-avatar { position: relative; }
+
+/* ユーザー設定モーダル */
+.user-avatar-large {
+width: 100px;
+height: 100px;
+border-radius: 50%;
+background: var(--primary-color);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 3rem;
+margin: 0 auto;
+overflow: hidden;
+}
+
+.user-avatar-large img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+header {
+flex-direction: column;
+gap: 0.5rem;
+text-align: center;
+}
+
+.lobby-header {
+flex-direction: column;
+text-align: center;
+}
+
+.room-card {
+flex-direction: column;
+gap: 1rem;
+text-align: center;
+}
+
+.room-meta {
+justify-content: center;
+}
+
+.waiting-players {
+flex-direction: column;
+}
+
+.digit-card {
+width: 50px;
+height: 60px;
+font-size: 1.5rem;
+}
+
+.input-btn {
+padding: 0.6rem;
+font-size: 1.1rem;
+}
+
+.expression-display {
+font-size: 1.2rem;
+}
+}
+
+/* ========================================
+   BANPIC ゲーム画面 スタイル
+   ======================================== */
+
+#game-screen.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 縦方向中央寄せ */
+    align-items: stretch;
+    height: calc(100vh - 60px);
+    max-height: calc(100vh - 60px);
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* マップ画像表示エリア */
+.map-display-area {
+    width: 100%;
+    background: linear-gradient(180deg, #0f0f1a, #1a1a2e);
+    border-bottom: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.5rem;
+    flex-shrink: 0;
+    height: auto;
+    min-height: 50px;
+}
+.map-display-area .banpic-mode-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(74, 144, 217, 0.2), rgba(74, 144, 217, 0.1));
+    border: 1px solid rgba(74, 144, 217, 0.3);
+    transition: all 0.2s ease;
+}
+.map-display-area .banpic-mode-banner:hover {
+    background: linear-gradient(135deg, rgba(74, 144, 217, 0.3), rgba(74, 144, 217, 0.2));
+    transform: scale(1.02);
+}
+.map-display-area .mode-logo {
+    height: 32px;
+    width: auto;
+    border-radius: 6px;
+}
+.map-display-area .banner-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+.map-view-hint {
+    font-size: 1.2rem;
+    margin-left: 0.3rem;
+    opacity: 0.8;
+}
+
+/* banpic-header 内に配置したバナースタイル（以前の .map-display-area と同等） */
+.banpic-header .banpic-mode-banner,
+.banpic-mode-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(74, 144, 217, 0.2), rgba(74, 144, 217, 0.1));
+    border: 1px solid rgba(74, 144, 217, 0.3);
+    transition: all 0.2s ease;
+}
+.banpic-header .banpic-mode-banner:hover,
+.banpic-mode-banner:hover {
+    background: linear-gradient(135deg, rgba(74, 144, 217, 0.3), rgba(74, 144, 217, 0.2));
+    transform: scale(1.02);
+}
+.banpic-header .mode-logo, .banpic-mode-banner .mode-logo {
+    height: 32px;
+    width: auto;
+    border-radius: 6px;
+}
+.banpic-header .banner-text, .banpic-mode-banner .banner-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+
+/* マップモーダル */
+.map-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+.map-modal-overlay.active {
+    display: flex;
+}
+.map-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 95vw;
+    max-height: 85vh;
+}
+.map-modal-timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--warning-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.map-modal-image {
+    max-width: 100%;
+    max-height: 65vh;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.map-modal-close {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.map-modal-close:hover {
+    background: #357abd;
+    transform: scale(1.05);
+}
+
+.banpic-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.5rem;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-bottom: 2px solid #333;
+    flex-shrink: 0;
+    min-height: 50px;
+    height: clamp(45px, 8vh, 60px);
+}
+
+.banpic-phase-display {
+    text-align: center;
+}
+
+.phase-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--warning-color);
+}
+
+.phase-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.timer-icon {
+    font-size: 0.9rem;
+}
+
+.timer-value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+
+.btn-sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+/* フェーズインジケーター */
+.phase-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: #111;
+    flex-shrink: 0;
+    min-height: 32px;
+}
+
+.phase-indicator-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.phase-step {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 4px;
+    background: #333;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.phase-step.active {
+    background: var(--warning-color);
+    color: #000;
+}
+
+/* PICフェーズのチーム色（先攻=145=青、後攻=236=赤） */
+.phase-step.active[data-phase="pic1"],
+.phase-step.active[data-phase="pic4"],
+.phase-step.active[data-phase="pic5"] {
+    background: #4a90d9;
+    color: #fff;
+}
+
+.phase-step.active[data-phase="pic2"],
+.phase-step.active[data-phase="pic3"],
+.phase-step.active[data-phase="pic6"] {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.phase-step.completed {
+    background: var(--secondary-color);
+    color: #fff;
+}
+
+/* キャラクターグリッド */
+.character-grid-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: transparent;
+    flex: 0 0 auto;
+    min-height: 0;
+    height: fit-content;
+}
+
+.character-grid {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(60px, 75px));
+    grid-auto-flow: column;
+    gap: 0.4rem;
+    padding: 0.4rem 0.3rem;
+    height: fit-content;
+    min-height: auto;
+}
+
+.character-card {
+    width: 95px;
+    height: 70px;
+    background: linear-gradient(135deg, #4a90d9, #357abd);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    border: 3px solid transparent;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.character-card:hover:not(.banned):not(.picked) {
+    transform: scale(1.1);
+    border-color: var(--warning-color);
+    z-index: 10;
+}
+
+.character-card.selected {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 10px var(--warning-color);
+}
+
+.character-card.banned {
+    cursor: not-allowed;
+    position: relative;
+}
+
+.character-card.banned::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(231, 76, 60, 0.75);
+    z-index: 2;
+}
+
+.character-card.banned::after {
+    content: '禁止';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.character-card.picked {
+    cursor: not-allowed;
+    position: relative;
+}
+
+.character-card.picked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2;
+}
+
+.character-card.picked::after {
+    content: '選択済';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.character-card.banned .char-name,
+.character-card.picked .char-name {
+    opacity: 1;
+    z-index: 4;
+}
+
+.character-card .char-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.character-card .char-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.character-card .char-name {
+    position: relative;
+    z-index: 3;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-align: left;
+    color: #fff;
+    padding: 0.25rem 0.35rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.4), transparent);
+    width: 100%;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.character-card .ban-overlay {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: var(--danger-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.character-card .rarity-badge {
+    display: none;
+}
+
+/* レア度ごとの背景色 */
+.character-card[data-rarity="1"] {
+    background: linear-gradient(135deg, #6c757d, #495057);
+}
+/* レア: 黄緑 */
+.character-card[data-rarity="2"] {
+    background: linear-gradient(135deg, #9be564, #57b846);
+}
+/* スーパーレア: 青（従来のレア色） */
+.character-card[data-rarity="3"] {
+    background: linear-gradient(135deg, #4a90e2, #2e5f9e);
+}
+.character-card[data-rarity="4"] {
+    background: linear-gradient(135deg, #e056fd, #b03bc2);
+}
+.character-card[data-rarity="5"] {
+    background: linear-gradient(135deg, #ff4757, #c23647);
+}
+.character-card[data-rarity="6"] {
+    background: linear-gradient(135deg, #ffd93d, #f39c12);
+}
+
+/* BAN/PICK スロットエリア */
+.banpic-slots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    background: linear-gradient(90deg, rgba(8,28,64,1) 0%, rgba(8,28,64,0.95) 35%, rgba(96,16,16,0.95) 65%, rgba(96,16,16,1) 100%);
+    border-top: 2px solid #333;
+    flex-shrink: 0;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: fit-content;
+    position: relative;
+}
+
+.ban-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    min-width: 28px;
+    flex-shrink: 0;
+}
+
+.ban-label {
+    display: none;
+}
+
+.ban-left .ban-label {
+    display: none;
+}
+
+.ban-right .ban-label {
+    display: none;
+}
+
+.ban-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* 中央のVS画像スペース（PICスロット間の中央に配置） */
+.vs-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+}
+.vs-center .vs-text { display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-weight:900; color: #fff; font-size: 1.6rem; letter-spacing: -1px; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+
+/* PICスロット左下のピック順バッジ（黒丸に白文字） */
+.pick-order {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.ban-slot {
+    min-width: 38px;
+    min-height: 38px;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
+    background: #262737; /* 少し明るめのダークグレー */
+    border: 2px dashed #666; /* 明るめのグレー枠 */
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    overflow: hidden;
+}
+
+.ban-slot.filled {
+    border-style: solid;
+    border-color: var(--danger-color);
+}
+
+.ban-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+}
+
+.ban-slot.filled img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+}
+
+/* アイコン表示をクラスで制御（インラインスタイルは削除） */
+.slot-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    line-height: 1;
+    font-size: 1.1rem; /* 基本サイズ */
+}
+.slot-icon-pick {
+    font-size: 1.8rem; /* PICK は大きめ */
+}
+
+/* 確定チェックの表示 */
+.slot-check {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #28a745;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+    opacity: 0.98;
+}
+
+/* 未確定選択は薄く見せる */
+.ban-slot.selected {
+    outline: 2px dashed rgba(255,255,255,0.08);
+}
+
+/* PIC 選択時: 既存の青/赤の色を白系に置き換える（追加の白アウトラインは使わない） */
+.pick-row-blue .pick-slot.pic-phase-active,
+.pick-row-red .pick-slot.pic-phase-active {
+    border-color: rgba(255,255,255,0.95) !important;
+    background: rgba(255,255,255,0.06) !important;
+    box-shadow: none !important;
+}
+
+/* 未決定スロットのデフォルト画像は少し内側にして大きすぎないようにする */
+.ban-slot.empty img {
+    width: 84%;
+    height: 84%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.pick-slot.empty img {
+    width: 90%;
+    height: 90%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* スロットの最大サイズを制限して、デフォルト画像が過度に拡大されないようにする */
+.ban-slot, .pick-slot {
+    box-sizing: border-box;
+    max-width: 160px;
+    max-height: 160px;
+}
+
+/* 未決定スロットの画像は枠内に収める（拡大抑制） */
+.ban-slot.empty img,
+.pick-slot.empty img {
+    object-fit: contain;
+    width: 78%;
+    height: 78%;
+    max-width: 140px;
+    max-height: 140px;
+    background: transparent;
+}
+
+/* ピックスロットの拡張を抑えつつレスポンシブを保つ */
+:root {
+    --slot-size: min(11vw, 90px);
+    --ban-slot-size: min(5.5vw, 50px);
+}
+
+/* PICK スロットは完全な正方形 */
+.pick-slot {
+    width: var(--slot-size);
+    height: var(--slot-size);
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 90px;
+    max-height: 90px;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
+}
+
+/* BANスロットは基本的に固定寄りにする（列内で揺らがないように） */
+.ban-slot {
+    flex: 0 0 auto;
+    width: var(--ban-slot-size);
+    height: var(--ban-slot-size);
+    min-width: 30px;
+    min-height: 30px;
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.ban-left .ban-slot {
+    border-color: #4a90d9;
+}
+
+.ban-right .ban-slot {
+    border-color: #e74c3c;
+}
+
+/* PICK エリア */
+.pick-area {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5.5rem;
+    min-width: 0;
+    position: relative;
+}
+
+.pick-row {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.pick-slot {
+    width: var(--slot-size);
+    height: var(--slot-size);
+    min-width: 55px;
+    min-height: 55px;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
+    background: #222;
+    border: 2px dashed #444;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+    font-size: clamp(0.9rem, 2.6vw, 1.5rem);
+    position: relative;
+    overflow: hidden;
+}
+
+.pick-slot.filled {
+    border-style: solid;
+}
+
+.pick-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 6px;
+}
+
+.pick-row-blue .pick-slot {
+    border-color: #4a90d9;
+    background: rgba(74, 144, 217, 0.1);
+}
+
+.pick-row-red .pick-slot {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+
+
+/* プレイヤー情報表示エリア */
+.banpic-actions {
+    padding: 0.5rem 0.75rem;
+    background: #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 50px;
+    gap: 1rem;
+}
+
+.player-info-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.player-info-display.left {
+    justify-content: flex-start;
+}
+
+.player-info-display.right {
+    justify-content: flex-end;
+}
+
+.player-display-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.player-display-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-display-name {
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+
+
+/* フローティング確定ボタン */
+.floating-confirm-btn {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+}
+
+.floating-confirm-btn:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+}
+
+.floating-confirm-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.mode-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.map-name {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* テストモードバッジ */
+.test-mode-indicator {
+    position: fixed;
+    top: 70px;
+    right: 10px;
+    z-index: 100;
+}
+
+/* タブレット調整 (iPad等) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    :root {
+        --slot-size: 12vw;
+        --ban-slot-size: 6vw;
+    }
+    
+    .character-card {
+        width: 90px;
+        height: 66px;
+    }
+    
+    .character-card .char-name {
+        font-size: 0.58rem;
+        padding: 0.2rem 0.3rem;
+    }
+    
+    .character-grid {
+        grid-template-rows: repeat(2, 66px);
+        height: fit-content;
+        gap: 0.35rem;
+    }
+    
+    .ban-slot {
+        width: 5vw;
+        height: 5vw;
+        min-width: 40px;
+        min-height: 40px;
+        max-width: 55px;
+        max-height: 55px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: 0.95rem;
+    }
+    
+    .pick-slot {
+        width: 10vw;
+        height: 10vw;
+        min-width: 65px;
+        min-height: 65px;
+        max-width: 85px;
+        max-height: 85px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: clamp(0.85rem, 2.2vw, 1.35rem);
+    }
+    
+    .pick-area {
+        gap: 1.5rem;
+    }
+    
+    .pick-row {
+        gap: 0.4rem;
+    }
+    
+    .ban-slots {
+        gap: 0.3rem;
+    }
+    
+    .banpic-slots {
+        padding: 0.5rem 0.4rem;
+        gap: 0.4rem;
+    }
+    
+    .phase-text {
+        font-size: 0.9rem;
+    }
+    
+    .phase-step {
+        font-size: 0.68rem;
+        padding: 0.22rem 0.45rem;
+    }
+}
+
+/* slot-icon のレスポンシブ調整 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .slot-icon { font-size: 1.2rem; }
+    .slot-icon-pick { font-size: 1.9rem; }
+}
+
+@media (max-width: 767px) {
+    .slot-icon { font-size: 1.0rem; }
+    .slot-icon-pick { font-size: 1.6rem; }
+}
+
+@media (max-width: 480px) {
+    .slot-icon { font-size: 0.95rem; }
+    .slot-icon-pick { font-size: 1.3rem; }
+}
+
+/* スマホでチェックマークが大きすぎる問題を解消 */
+@media (max-width: 480px) {
+    .slot-check {
+        width: 12px;
+        height: 12px;
+        font-size: 9px;
+        right: 4px;
+        bottom: 4px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+}
+
+@media (max-width: 767px) and (min-width: 481px) {
+    .slot-check {
+        width: 14px;
+        height: 14px;
+        font-size: 9.5px;
+        right: 5px;
+        bottom: 5px;
+    }
+}
+
+/* モバイル調整 */
+@media (max-width: 767px) {
+    .character-card {
+        width: 85px;
+        height: 62px;
+    }
+    
+    .character-card .char-name {
+        font-size: 0.55rem;
+        padding: 0.2rem 0.3rem;
+    }
+    
+    .character-card.banned::after {
+        font-size: 0.95rem;
+    }
+    
+    .character-card.picked::after {
+        font-size: 0.75rem;
+    }
+    
+    .character-grid {
+        grid-template-rows: repeat(2, 64px);
+        height: fit-content;
+        gap: 0.35rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .ban-slot {
+        width: 38px;
+        height: 38px;
+        min-width: 32px;
+        min-height: 32px;
+        max-width: 45px;
+        max-height: 45px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: 0.7rem;
+    }
+    
+    .ban-column {
+        min-width: auto;
+    }
+    
+    .ban-label {
+        display: none;
+    }
+    
+    .pick-slot {
+        width: 60px;
+        height: 60px;
+        min-width: 50px;
+        min-height: 50px;
+        max-width: 70px;
+        max-height: 70px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: clamp(0.8rem, 2.4vw, 1.1rem);
+    }
+    
+    .pick-area {
+        gap: 1rem;
+        min-width: 0;
+    }
+    
+    .pick-row {
+        gap: 0.35rem;
+    }
+    
+    .ban-slots {
+        gap: 0.25rem;
+    }
+    
+    .banpic-slots {
+        gap: 0.3rem;
+        padding: 0.4rem 0.3rem;
+    }
+    
+    .phase-text {
+        font-size: 0.8rem;
+    }
+    
+    .phase-step {
+        font-size: 0.62rem;
+        padding: 0.18rem 0.38rem;
+    }
+    
+    .mode-name {
+        font-size: 0.85rem;
+    }
+    
+    .map-name {
+        font-size: 0.72rem;
+    }
+    
+    .banpic-header {
+        padding: 0.35rem 0.65rem;
+    }
+    
+    .vs-divider {
+        font-size: 0.95rem;
+        padding: 0 0.22rem;
+    }
+    
+    .banpic-slots {
+        padding: 0.5rem;
+    }
+    
+    .player-display-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+    
+    .player-display-name {
+        font-size: 0.85rem;
+    }
+    
+    .vs-text {
+        font-size: 1.2rem;
+    }
+    
+    .floating-confirm-btn {
+        bottom: 60px;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .character-card {
+        width: 75px;
+        height: 58px;
+    }
+    
+    .character-card .char-name {
+        font-size: 0.52rem;
+        padding: 0.18rem 0.25rem;
+    }
+    
+    .character-card.banned::after {
+        font-size: 0.85rem;
+    }
+    
+    .character-card.picked::after {
+        font-size: 0.7rem;
+    }
+    
+    .character-grid {
+        grid-template-rows: repeat(2, 58px);
+        height: fit-content;
+        gap: 0.3rem;
+        padding-bottom: 0.3rem;
+    }
+    
+    .player-display-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+    
+    .player-display-name {
+        font-size: 0.75rem;
+    }
+    
+    .vs-text {
+        font-size: 1rem;
+    }
+    
+    .floating-confirm-btn {
+        bottom: 58px;
+        padding: 0.55rem 1.2rem;
+        font-size: 0.85rem;
+    }
+    
+    .ban-slot {
+        width: 30px;
+        height: 30px;
+        min-width: 26px;
+        min-height: 26px;
+        max-width: 36px;
+        max-height: 36px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: 0.6rem;
+    }
+    
+    .ban-column {
+        min-width: auto;
+    }
+    
+    .ban-label {
+        display: none;
+    }
+    
+    .pick-slot {
+        width: 50px;
+        height: 50px;
+        min-width: 42px;
+        min-height: 42px;
+        max-width: 58px;
+        max-height: 58px;
+        aspect-ratio: 1 / 1;
+        flex: 0 0 auto;
+        font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+    }
+    
+    .pick-area {
+        gap: 0.8rem;
+        min-width: 0;
+    }
+    
+    .pick-row {
+        gap: 0.3rem;
+    }
+    
+    .ban-slots {
+        gap: 0.2rem;
+    }
+    
+    .banpic-slots {
+        padding: 0.3rem 0.2rem;
+        gap: 0.25rem;
+    }
+    
+    .phase-text {
+        font-size: 0.72rem;
+    }
+    
+    .phase-step {
+        font-size: 0.58rem;
+        padding: 0.15rem 0.28rem;
+    }
+    
+    .mode-name {
+        font-size: 0.8rem;
+    }
+    
+    .map-name {
+        font-size: 0.68rem;
+    }
+    
+    .timer-value {
+        font-size: 0.85rem;
+    }
+    
+    .vs-divider {
+        font-size: 0.85rem;
+        padding: 0 0.18rem;
+    }
+    
+    .btn-lg {
+        padding: 0.55rem 1.3rem;
+        font-size: 0.95rem;
+    }
+    
+    .banpic-slots {
+        padding: 0.45rem;
+    }
+    
+    .banpic-header {
+        padding: 0.3rem 0.55rem;
+    }
+
+    /* ヘッダー内でバナーとフェーズを左右に配置 */
+    .banpic-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .phase-indicator {
+        padding: 0.3rem 0.4rem;
+    }
+    
+    .banpic-actions {
+        padding: 0.6rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .banpic-slots {
+        padding: 0.5rem;
+        gap: 0.3rem;
+    }
+    
+    .banpic-header {
+        padding: 0.35rem 0.6rem;
+    }
+    /* バナーを左端に寄せる上書きルール */
+    .banpic-header {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .banpic-mode-banner {
+        margin-left: 0 !important;
+    }
+
+    /* バナーを画面左端に固定配置し、フェーズ表示のために余白を確保 */
+    .banpic-header {
+        position: relative;
+    }
+    .banpic-mode-banner {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 20;
+    }
+    .banpic-header .banpic-phase-display {
+        margin-left: 240px; /* バナー幅分の余白（必要なら調整） */
+    }
+}
+</style>
+</head>
+<body>
+<!-- ヘッダー -->
+<header>
+    <div class="header-left">
+        <h1 style="font-size:1rem; color: #fff;">BANPIC</h1>
+    </div>
+    <!-- mode banner removed: injected dynamically via applyBanner() when needed -->
+    <div class="user-info" id="user-info-btn">
+        <div class="user-avatar" id="user-avatar">👤</div>
+        <span class="status-dot"></span>
+        <span id="current-user-name">ゲスト</span>
+    </div>
+</header>
+
+<div class="container">
+<!-- ロビー画面 -->
+<div id="lobby-screen" class="screen active">
+<div class="lobby-header">
+<h2>🎮 ルーム一覧</h2>
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="btn btn-primary" id="create-room-btn">
+➕ ルームを作成
+</button>
+<button class="btn btn-warning" id="test-mode-btn" style="background: var(--warning-color); color: #000;">
+🤖 テストモード
+</button>
+</div>
+</div>
+
+<div class="room-list-header">
+<span class="room-count" id="room-count">0 部屋</span>
+<button class="refresh-btn" id="refresh-btn" title="更新">🔄</button>
+</div>
+
+<div class="lobby-error" id="lobby-error" style="display:none;">
+<div class="lobby-error-text" id="lobby-error-text">データにアクセスできません。</div>
+<div style="margin-top:0.5rem; display:flex; gap:0.5rem; justify-content:center;">
+<button class="btn btn-primary" id="lobby-retry-btn">再試行</button>
+<button class="btn" id="lobby-help-btn">ヘルプ</button>
+</div>
+</div>
+<!-- debug panel removed -->
+<div class="room-list" id="room-list">
+<!-- ルームカードがここに動的に追加される -->
+<div class="empty-state" id="empty-state">
+<div class="icon">🎯</div>
+<p>現在募集中のルームはありません</p>
+<p style="margin-top: 0.5rem; font-size: 0.9rem;">新しいルームを作成して対戦相手を待ちましょう！</p>
+</div>
+</div>
+</div>
+
+<!-- 待機画面 -->
+<div id="waiting-screen" class="screen">
+<div class="waiting-room-info">
+<div class="waiting-room-name" id="waiting-room-name">ルーム名</div>
+<div class="waiting-status">
+<span id="waiting-room-id">Room ID: ---</span>
+</div>
+
+<div class="waiting-players">
+<div class="waiting-player">
+<div class="player-avatar" id="host-avatar">👑</div>
+<div class="player-name" id="host-name">ホスト</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">ホスト</div>
+</div>
+<div class="waiting-vs">
+<span>VS</span>
+</div>
+<div class="waiting-player">
+<div class="player-avatar empty" id="guest-avatar">?</div>
+<div class="player-name" id="guest-name">待機中...</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">ゲスト</div>
+</div>
+</div>
+
+<div class="waiting-spinner" id="waiting-spinner"></div>
+<p id="waiting-message">対戦相手を待っています...</p>
+</div>
+
+<button class="btn btn-danger" id="leave-room-btn">🚪 ルームを退出</button>
+</div>
+
+<!-- BANPIC ゲーム画面 -->
+<div id="game-screen" class="screen">
+    <!-- 上部ヘッダー: バナー（左）とフェーズ（右） -->
+    <div class="banpic-header">
+        <div class="banpic-mode-banner" id="banpic-mode-banner" style="cursor: pointer;" onclick="openMapModal()">
+            <img id="banpic-mode-logo" class="mode-logo" src="image/e-soccer.png" alt="mode logo">
+            <div class="banner-text">
+                <div class="mode-name" id="banpic-mode">ブロストライカー</div>
+                <div class="map-name" id="banpic-map">静かな広場</div>
+                    <div id="first-move-indicator" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">先攻: ランダム</div>
+            </div>
+            <span class="map-view-hint">🖼️</span>
+        </div>
+        <div class="banpic-phase-display">
+            <span class="phase-text" id="phase-text">使用禁止キャラクターを指定してください</span>
+            <div class="phase-timer">
+                <span class="timer-icon">⏱</span>
+                <span class="timer-value" id="phase-timer">20秒</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- フェーズインジケーター -->
+    <div class="phase-indicator">
+        <div class="phase-indicator-wrapper">
+            <div class="phase-step active" data-phase="ban">BAN</div>
+            <div class="phase-step" data-phase="pic1">PIC1</div>
+            <div class="phase-step" data-phase="pic2">PIC2</div>
+            <div class="phase-step" data-phase="pic3">PIC3</div>
+            <div class="phase-step" data-phase="pic4">PIC4</div>
+            <div class="phase-step" data-phase="pic5">PIC5</div>
+            <div class="phase-step" data-phase="pic6">PIC6</div>
+            <div class="phase-step" data-phase="done">終了</div>
+        </div>
+        <!-- ソート切り替えボタン（右端に配置） -->
+        <button class="btn btn-secondary btn-sm" id="sort-toggle-btn" style="font-size: 0.65rem; padding: 0.2rem 0.4rem;" title="表示順を変更">📊</button>
+    </div>
+
+    <!-- キャラクター選択エリア（横スクロール） -->
+    <div class="character-grid-container">
+        <div class="character-grid" id="character-grid">
+            <!-- キャラクターがここに動的に追加される -->
+        </div>
+    </div>
+
+    <!-- 下部: BAN/PICK スロット表示 -->
+    <div class="banpic-slots">
+        <!-- 左側: 自分のBANスロット (縦3つ) -->
+        <div class="ban-column ban-left">
+            <div class="ban-label">BAN</div>
+            <div class="ban-slots" id="ban-slots-left">
+                <div class="ban-slot empty" data-slot="0"></div>
+                <div class="ban-slot empty" data-slot="1"></div>
+                <div class="ban-slot empty" data-slot="2"></div>
+            </div>
+        </div>
+
+        <!-- 中央: PICKスロット (6つ、3x3 → 上段自分、下段相手 などレイアウト) -->
+        <div class="pick-area">
+            <div class="pick-row pick-row-blue" id="pick-slots-blue">
+                <div class="pick-slot empty" data-slot="0"><span class="pick-order">1</span></div>
+                <div class="pick-slot empty" data-slot="1"><span class="pick-order">2</span></div>
+                <div class="pick-slot empty" data-slot="2"><span class="pick-order">3</span></div>
+            </div>
+            <div class="pick-row pick-row-red" id="pick-slots-red">
+                <div class="pick-slot empty" data-slot="0"><span class="pick-order">4</span></div>
+                <div class="pick-slot empty" data-slot="1"><span class="pick-order">5</span></div>
+                <div class="pick-slot empty" data-slot="2"><span class="pick-order">6</span></div>
+            </div>
+        </div>
+
+        <!-- 中央: VS テキストスペース -->
+        <div class="vs-center" aria-hidden="true">
+            <span class="vs-text">VS</span>
+        </div>
+
+        <!-- 右側: 相手のBANスロット (縦3つ) -->
+        <div class="ban-column ban-right">
+            <div class="ban-label">BAN</div>
+            <div class="ban-slots" id="ban-slots-right">
+                <div class="ban-slot empty" data-slot="0"></div>
+                <div class="ban-slot empty" data-slot="1"></div>
+                <div class="ban-slot empty" data-slot="2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- プレイヤー情報表示エリア -->
+    <div class="banpic-actions">
+        <div class="player-info-display left">
+            <div class="player-display-avatar" id="blue-player-avatar">👤</div>
+            <div class="player-display-name" id="blue-player-name">プレイヤー1</div>
+        </div>
+        <div class="player-info-display right">
+            <div class="player-display-name" id="red-player-name">プレイヤー2</div>
+            <div class="player-display-avatar" id="red-player-avatar">👤</div>
+        </div>
+    </div>
+    
+    <!-- フローティング確定ボタン -->
+    <button class="floating-confirm-btn" id="confirm-selection-btn" disabled>選択を確定</button>
+</div>
+
+<!-- マップ画像モーダル -->
+<div class="map-modal-overlay" id="map-modal" onclick="closeMapModal()">
+    <div class="map-modal-content">
+        <div class="map-modal-timer">
+            <span class="timer-icon">⏱</span>
+            <span id="map-modal-timer-value">20秒</span>
+        </div>
+        <img id="map-modal-image" class="map-modal-image" src="" alt="マップ画像">
+    </div>
+</div>
+
+<!-- テストモード開始ボタン（ロビーに追加） -->
+
+<!-- ルーム作成モーダル -->
+<div class="modal-overlay" id="create-room-modal">
+<div class="modal">
+<div class="modal-header">
+<h3>🎮 ルームを作成</h3>
+<button class="modal-close" id="close-create-modal">&times;</button>
+</div>
+<form id="create-room-form">
+<div class="form-group">
+<label>ルーム名</label>
+<input type="text" id="room-name-input" placeholder="ルーム1" maxlength="20">
+</div>
+<div class="form-group">
+<!-- 名前入力は不要のため削除 -->
+</div>
+<div class="form-group">
+<label>モード</label>
+<select id="room-mode-select" required>
+<option value="eme" selected>エメラルドハント</option>
+<option value="bounty">賞金稼ぎ</option>
+<option value="soccer">ブロストライカー</option>
+<option value="hotzone">ホットゾーン</option>
+<option value="heist">強奪</option>
+<option value="knockout">ノックアウト</option>
+</select>
+</div>
+<div class="form-group">
+<label>マップ</label>
+<select id="room-map-select" required>
+<option value="">選択してください</option>
+</select>
+</div>
+<div class="form-group">
+<label>先攻後攻</label>
+<select id="room-first-move-select" required>
+<option value="random" selected>ランダム</option>
+<option value="host">ホスト先攻</option>
+<option value="guest">ゲスト先攻</option>
+</select>
+</div>
+<div class="form-group">
+<label>パスワード（任意）</label>
+<input type="password" id="room-password-input" placeholder="なしの場合は空欄">
+</div>
+<div class="form-actions">
+<button type="button" class="btn btn-secondary" id="cancel-create-room">キャンセル</button>
+<button type="submit" class="btn btn-primary">作成する</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- ルーム参加モーダル -->
+<div class="modal-overlay" id="join-room-modal">
+<div class="modal">
+<div class="modal-header">
+<h3>🚀 ルームに参加</h3>
+<button class="modal-close" id="close-join-modal">&times;</button>
+</div>
+<form id="join-room-form">
+<div class="form-group">
+<label>参加するルーム</label>
+<input type="text" id="join-room-name" readonly style="background: #222;">
+</div>
+<div class="form-group">
+<label>あなたの名前</label>
+<input type="text" id="guest-name-input" placeholder="ゲスト" maxlength="10">
+</div>
+<div class="form-group" id="join-password-group" style="display: none;">
+<label>パスワード <span class="required">*</span></label>
+<input type="password" id="join-password-input" placeholder="パスワードを入力">
+</div>
+<input type="hidden" id="join-room-id">
+<div class="form-actions">
+<button type="button" class="btn btn-secondary" id="cancel-join-room">キャンセル</button>
+<button type="submit" class="btn btn-success">参加する</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- ユーザー設定モーダル -->
+<div class="modal-overlay" id="user-settings-modal">
+<div class="modal">
+<div class="modal-header">
+<h3>👤 ユーザー設定</h3>
+<button class="modal-close" id="close-user-settings">&times;</button>
+</div>
+<div style="text-align: center; margin-bottom: 1.5rem;">
+<div class="user-avatar-large" id="user-avatar-large">👤</div>
+<input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+<button class="btn btn-secondary" id="upload-avatar-btn" style="margin-top: 1rem;">
+📷 アイコンを変更
+</button>
+</div>
+<div class="form-group">
+<label>表示名</label>
+<input type="text" id="display-name-input" placeholder="名前を入力" maxlength="10">
+</div>
+<div id="login-section">
+<p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
+Googleでログインすると、名前とアイコンが保存されます
+</p>
+<button class="btn btn-primary" id="google-login-btn" style="width: 100%;">
+<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px;">
+Googleでログイン
+</button>
+</div>
+<div id="logout-section" style="display: none;">
+<p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;" id="logged-in-email"></p>
+<button class="btn btn-danger" id="logout-btn" style="width: 100%;">
+ログアウト
+</button>
+</div>
+<div class="form-actions" style="margin-top: 1.5rem;">
+<button class="btn btn-success" id="save-user-settings" style="width: 100%;">保存</button>
+</div>
+</div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+// ========================================
+// Firebase 初期化
+// ========================================
+const firebaseConfig = {
+apiKey: "AIzaSyBM_6leTzC3lKdmO_b4nvb0SgubTSn2rO0",
+authDomain: "make10vs.firebaseapp.com",
+databaseURL: "https://make10vs-default-rtdb.firebaseio.com",
+projectId: "make10vs",
+storageBucket: "make10vs.firebasestorage.app",
+messagingSenderId: "461653417380",
+appId: "1:461653417380:web:d0c64a9c8b0b5498fc7531",
+measurementId: "G-35DCQ7MMMR"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+// ========================================
+// グローバル状態
+// ========================================
+let currentUserId = null;
+let currentUserName = 'ゲスト';
+let currentRoomId = null;
+let currentRoomRef = null;
+let roomsListener = null;
+let hostHeartbeatInterval = null;
+let guestHeartbeatInterval = null;
+// room expiry timers: { roomId: timeoutId }
+const roomExpiryTimers = {};
+
+// 画像データ
+let IMAGE_DATA = null;
+let BRAWLERS = [];
+
+// ========================================
+// 画像データ読み込み
+// ========================================
+async function loadImageData() {
+    try {
+        const response = await fetch('image-data-full.json');
+        IMAGE_DATA = await response.json();
+        
+        // キャラクターデータを読み込み
+        BRAWLERS = IMAGE_DATA.brawlers || [];
+        
+        // 初期表示は現在のモード選択に合わせる
+        const modeEl = document.getElementById('room-mode-select');
+        const initialMode = (modeEl && modeEl.value) ? modeEl.value : 'eme';
+        populateMapSelect(initialMode);
+    } catch (error) {
+        console.error('画像データの読み込みエラー:', error);
+        IMAGE_DATA = { modes: {}, maps: [], brawlers: [] };
+        BRAWLERS = [];
+    }
+}
+
+// room-mode-select が変更されたら map セレクトを再描画
+const modeSelectEl = document.getElementById('room-mode-select');
+if (modeSelectEl) {
+    modeSelectEl.addEventListener('change', (e) => {
+        const modeKey = e.target.value;
+        populateMapSelect(modeKey);
+    });
+}
+
+function populateMapSelect(modeKey) {
+    const mapSelect = document.getElementById('room-map-select');
+    if (!mapSelect || !IMAGE_DATA) return;
+
+    mapSelect.innerHTML = '<option value="">選択してください</option>';
+
+    // 判定: image data にモード情報が入っているか
+    const hasModeInfo = IMAGE_DATA.maps.some(m => Array.isArray(m.modes) && m.modes.length > 0);
+
+    let mapsToShow = IMAGE_DATA.maps;
+    if (modeKey && hasModeInfo) {
+        mapsToShow = IMAGE_DATA.maps.filter(m => Array.isArray(m.modes) && m.modes.includes(modeKey));
+        // フィルタで空になったらフォールバックで全表示
+        if (mapsToShow.length === 0) mapsToShow = IMAGE_DATA.maps;
+    }
+
+    mapsToShow.forEach(map => {
+        const option = document.createElement('option');
+        option.value = map.id;
+        option.textContent = map.name;
+        option.dataset.image = map.image;
+        mapSelect.appendChild(option);
+    });
+}
+
+// ========================================
+// DOM要素
+// ========================================
+const lobbyScreen = document.getElementById('lobby-screen');
+
+// -------------------------
+// モードバナー（テスト用）
+// -------------------------
+const modeBanner = document.getElementById('mode-banner');
+const modeLogo = document.getElementById('mode-logo');
+const bannerModeName = document.getElementById('banner-mode-name');
+const bannerMapName = document.getElementById('banner-map-name');
+const banpicModeLogo = document.getElementById('banpic-mode-logo');
+const banpicModeBanner = document.getElementById('banpic-mode-banner');
+const banpicModeNameEl = document.getElementById('banpic-mode');
+const banpicMapNameEl = document.getElementById('banpic-map');
+const mapDisplayImg = document.getElementById('map-display-img');
+
+const MODE_DATA = {
+    eme:    { label: 'エメラルドハント', color: '#9A3DF3', logo: 'e-eme.png' },
+    bounty: { label: '賞金稼ぎ',       color: '#00CFFF', logo: 'e-syoukin.png' },
+    soccer: { label: 'ブロストライカー', color: '#8CA0E0', logo: 'e-soccer.png' },
+    hotzone:{ label: 'ホットゾーン',     color: '#E33B50', logo: 'e-hotzone.png' },
+    heist:  { label: '強奪',           color: '#D65CD3', logo: 'e-godatu.png' },
+    knockout:{ label: 'ノックアウト',    color: '#F7831C', logo: 'e-knock.png' }
+};
+
+function applyBanner(modeKey, mapName, mapImage){
+    const data = MODE_DATA[modeKey] || MODE_DATA.eme;
+    if (typeof bannerModeName !== 'undefined' && bannerModeName) bannerModeName.textContent = data.label;
+    if (typeof bannerMapName !== 'undefined' && bannerMapName) bannerMapName.textContent = mapName || bannerMapName.textContent;
+    if (typeof modeLogo !== 'undefined' && modeLogo) modeLogo.src = 'image/' + data.logo;
+    if (typeof modeBanner !== 'undefined' && modeBanner) {
+        modeBanner.style.setProperty('--mode-bg', data.color);
+        modeBanner.style.background = `linear-gradient(90deg, ${data.color}33, ${data.color}22)`;
+    }
+    // ゲーム画面用バナーにも反映
+    if(banpicModeLogo) banpicModeLogo.src = 'image/' + data.logo;
+    if(banpicModeBanner) banpicModeBanner.style.background = `linear-gradient(90deg, ${data.color}33, ${data.color}22)`;
+    if(banpicModeNameEl) banpicModeNameEl.textContent = data.label;
+    if(banpicMapNameEl) banpicMapNameEl.textContent = mapName || banpicMapNameEl.textContent;
+    // マップ画像を反映
+    if(mapDisplayImg && mapImage) {
+        mapDisplayImg.src = 'image/' + mapImage;
+    }
+}
+
+// 初期表示
+// 初期バナーの自動セットを削除（ヘッダーは選択時に設定される）
+// applyBanner('soccer', '静かな広場');
+const waitingScreen = document.getElementById('waiting-screen');
+const gameScreen = document.getElementById('game-screen');
+const roomList = document.getElementById('room-list');
+const emptyState = document.getElementById('empty-state');
+const roomCount = document.getElementById('room-count');
+const currentUserNameEl = document.getElementById('current-user-name');
+
+// モーダル
+const createRoomModal = document.getElementById('create-room-modal');
+const joinRoomModal = document.getElementById('join-room-modal');
+
+// ========================================
+// ユーティリティ関数
+// ========================================
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    // ヘッダー表示切替を適用
+    if (typeof setHeaderVisibilityForScreen === 'function') setHeaderVisibilityForScreen(screenId);
+}
+
+// ヘッダーの表示切替（ルーム内では非表示にする）
+function setHeaderVisibilityForScreen(screenId) {
+    const headerEl = document.querySelector('header');
+    if (!headerEl) return;
+    // ロビー画面のみヘッダーを表示、それ以外（waiting/game）は非表示
+    if (screenId === 'lobby-screen') {
+        headerEl.style.display = '';
+    } else {
+        headerEl.style.display = 'none';
+    }
+}
+
+function showModal(modal) {
+modal.classList.add('active');
+}
+
+function hideModal(modal) {
+modal.classList.remove('active');
+}
+
+function hashPassword(password) {
+// 簡易ハッシュ（本番ではより安全な方法を使用）
+if (!password) return null;
+let hash = 0;
+for (let i = 0; i < password.length; i++) {
+const char = password.charCodeAt(i);
+hash = ((hash << 5) - hash) + char;
+hash = hash & hash;
+}
+return hash.toString(16);
+}
+
+// ========================================
+// ルーム一覧の取得・表示
+// ========================================
+function subscribeToRooms() {
+const roomsRef = database.ref('rooms');
+
+// orderByChildを使わずにシンプルにリスナーを設定（DBルールとの互換性向上）
+roomsListener = roomsRef.on('value', (snapshot) => {
+const allRooms = snapshot.val() || {};
+// クライアント側でopenなルームをフィルター
+const rooms = {};
+Object.entries(allRooms).forEach(([id, room]) => {
+if (room.meta && room.meta.state === 'open') {
+rooms[id] = room;
+}
+});
+renderRoomList(rooms);
+}, (error) => {
+console.error('ルーム取得エラー:', error);
+// permission_denied のようなエラーはユーザーに表示して再試行できるようにする
+const message = (error && error.code) ? `${error.code}: ${error.message}` : 'ルーム取得に失敗しました。';
+showLobbyError('データにアクセスできません。' + message, true);
+});
+}
+
+function unsubscribeFromRooms() {
+if (roomsListener) {
+database.ref('rooms').off('value', roomsListener);
+roomsListener = null;
+}
+}
+
+// ルーム自動削除（作成後にゲストが入らなければ一定時間で削除）
+function scheduleRoomExpiry(roomId, delayMs = 120000) {
+try {
+clearRoomExpiry(roomId);
+roomExpiryTimers[roomId] = setTimeout(async () => {
+try {
+const snap = await database.ref(`rooms/${roomId}/meta`).once('value');
+const meta = snap.val();
+if (!meta) return; // already removed
+// ゲストがまだいない・状態が open の場合は削除
+if ((!meta.guestId) && meta.state === 'open') {
+console.log('Room expiry: removing room', roomId);
+await database.ref(`rooms/${roomId}`).remove();
+}
+} catch (err) {
+console.warn('room expiry check failed for', roomId, err);
+} finally {
+clearRoomExpiry(roomId);
+}
+}, delayMs);
+} catch (err) {
+console.warn('scheduleRoomExpiry failed:', err);
+}
+}
+
+function clearRoomExpiry(roomId) {
+try {
+const t = roomExpiryTimers[roomId];
+if (t) {
+clearTimeout(t);
+delete roomExpiryTimers[roomId];
+}
+} catch (err) {
+console.warn('clearRoomExpiry failed:', err);
+}
+}
+
+// ロビー用エラーバナー表示/非表示
+function showLobbyError(msg, canRetry = false) {
+const el = document.getElementById('lobby-error');
+const txt = document.getElementById('lobby-error-text');
+if (!el || !txt) return;
+txt.textContent = msg;
+el.style.display = 'block';
+const retryBtn = document.getElementById('lobby-retry-btn');
+if (retryBtn) retryBtn.style.display = canRetry ? 'inline-block' : 'none';
+}
+
+function hideLobbyError() {
+const el = document.getElementById('lobby-error');
+if (!el) return;
+el.style.display = 'none';
+}
+
+// 認証を試行してから再サブスクライブする（再試行ボタン用）
+async function attemptAuthAndSubscribe() {
+hideLobbyError();
+try {
+if (!auth.currentUser) {
+await auth.signInAnonymously();
+console.log('再試行: 匿名サインイン成功');
+}
+} catch (e) {
+console.error('再試行サインイン失敗:', e);
+showLobbyError('認証に失敗しました: ' + (e && e.message ? e.message : e), true);
+return;
+}
+
+try {
+// 既存リスナーをクリアして再設定
+unsubscribeFromRooms();
+subscribeToRooms();
+} catch (e) {
+console.error('再試行でルーム取得失敗:', e);
+showLobbyError('ルーム取得に失敗しました: ' + (e && e.message ? e.message : e), true);
+}
+}
+
+function renderRoomList(rooms) {
+const roomEntries = Object.entries(rooms).filter(([id, room]) => {
+return room.meta && room.meta.state === 'open';
+});
+
+roomCount.textContent = `${roomEntries.length} 部屋`;
+
+if (roomEntries.length === 0) {
+emptyState.style.display = 'block';
+// 既存のルームカードを削除
+document.querySelectorAll('.room-card').forEach(card => card.remove());
+return;
+}
+
+emptyState.style.display = 'none';
+
+// 既存のルームカードを削除
+document.querySelectorAll('.room-card').forEach(card => card.remove());
+
+// ルームカードを追加
+roomEntries.forEach(([roomId, room]) => {
+const meta = room.meta;
+const hasPassword = !!meta.passwordHash;
+const playerCount = meta.guestId ? 2 : 1;
+
+const card = document.createElement('div');
+card.className = 'room-card';
+card.innerHTML = `
+                   <div class="room-info">
+                       <div class="room-avatar" data-host-id="${meta.hostId || ''}">👑</div>
+                       <div>
+                           <div class="room-name">
+                               ${hasPassword ? '<span class="lock-icon">🔒</span>' : ''}
+                               ${escapeHtml(meta.roomName)}
+                           </div>
+                           <div class="room-meta">
+                               <span class="host-name">👤 ${escapeHtml(meta.hostName || 'ホスト')}</span>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="room-players">
+                       <span class="player-count ${playerCount >= 2 ? 'full' : ''}">${playerCount}/2</span>
+                       <button class="btn btn-success" ${playerCount >= 2 ? 'disabled' : ''}>
+                           参加
+                       </button>
+                   </div>
+               `;
+
+const joinBtn = card.querySelector('.btn-success');
+if (playerCount < 2) {
+joinBtn.addEventListener('click', () => openJoinModal(roomId, meta));
+}
+
+roomList.insertBefore(card, emptyState);
+
+// ホストのアバターを取得して差し替え（非同期）
+if (meta.hostId) {
+database.ref(`users/${meta.hostId}`).once('value').then((ps) => {
+const p = ps.val();
+const avatarEl = card.querySelector('.room-avatar');
+if (p && p.avatar) {
+avatarEl.innerHTML = `<img src="${p.avatar}" alt="host">`;
+} else {
+avatarEl.textContent = '👑';
+}
+}).catch((err) => {
+console.warn('ルーム一覧アバター取得失敗:', err);
+});
+}
+});
+}
+
+function escapeHtml(text) {
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+
+// ========================================
+// ルーム作成
+// ========================================
+document.getElementById('create-room-btn').addEventListener('click', () => {
+// ルーム作成モーダルを開く
+showModal(createRoomModal);
+});
+
+// ルーム作成モーダルが開かれる直前に map セレクトを初期化
+document.getElementById('create-room-btn').addEventListener('click', () => {
+    const modeSelect = document.getElementById('room-mode-select');
+    const mapSelect = document.getElementById('room-map-select');
+    const preferredMode = (banpicState && banpicState.mode && banpicState.mode.id) ? banpicState.mode.id : (modeSelect ? modeSelect.value : 'eme');
+    if (modeSelect) modeSelect.value = preferredMode;
+    if (typeof populateMapSelect === 'function') {
+        populateMapSelect(preferredMode);
+    }
+    // 選択候補があれば先頭を選択
+    if (mapSelect && mapSelect.options && mapSelect.options.length > 1) {
+        // 可能なら「ダブルレール」をデフォルト選択にする
+        let foundIndex = -1;
+        for (let i = 0; i < mapSelect.options.length; i++) {
+            if (mapSelect.options[i].text.includes('ダブルレール')) { foundIndex = i; break; }
+        }
+        mapSelect.selectedIndex = (foundIndex >= 0) ? foundIndex : 1; // 0 は '選択してください'
+    }
+});
+
+document.getElementById('close-create-modal').addEventListener('click', () => {
+// 閉じる時はテストモードフラグをクリア
+hideModal(createRoomModal);
+// モードに関わらず map select の必須を復元
+const mapSelectClose = document.getElementById('room-map-select');
+if (mapSelectClose) mapSelectClose.required = true;
+delete createRoomModal.dataset.testMode;
+const headerH3 = document.querySelector('#create-room-modal .modal-header h3');
+if (headerH3) headerH3.textContent = '🎮 ルームを作成';
+});
+
+document.getElementById('cancel-create-room').addEventListener('click', () => {
+// キャンセル時もテストモードフラグをクリア
+hideModal(createRoomModal);
+// map select の必須を復元
+const mapSelectCancel = document.getElementById('room-map-select');
+if (mapSelectCancel) mapSelectCancel.required = true;
+delete createRoomModal.dataset.testMode;
+const headerH3c = document.querySelector('#create-room-modal .modal-header h3');
+if (headerH3c) headerH3c.textContent = '🎮 ルームを作成';
+});
+
+document.getElementById('create-room-form').addEventListener('submit', async (e) => {
+e.preventDefault();
+
+const roomName = document.getElementById('room-name-input').value.trim() || 'ルーム1';
+// 名前入力を削除したため、ホスト名は現在のユーザー名を使う（ゲストなら 'ホスト'）
+const hostName = (typeof currentUserName !== 'undefined' && currentUserName && currentUserName !== 'ゲスト') ? currentUserName : 'ホスト';
+const password = document.getElementById('room-password-input').value;
+const modeKey = document.getElementById('room-mode-select').value;
+const mapId = document.getElementById('room-map-select').value;
+const firstMove = document.getElementById('room-first-move-select').value;
+
+// マップデータを安全に取得（IMAGE_DATAがまだ読込中の可能性を考慮）
+let mapData = null;
+if (IMAGE_DATA && Array.isArray(IMAGE_DATA.maps)) {
+    mapData = IMAGE_DATA.maps.find(m => m.id === mapId) || null;
+}
+const mapName = mapData ? mapData.name : '静かな広場';
+const mapImage = mapData ? mapData.image : 'm-静かな広場.png';
+
+// バナーを更新
+applyBanner(modeKey, mapName, mapImage);
+
+// テストモードで呼び出された場合はルームを作らずテストモードを開始（選択モード／マップを渡す）
+if (createRoomModal && createRoomModal.dataset.testMode === 'true') {
+    startTestMode(modeKey, mapName, firstMove);
+    hideModal(createRoomModal);
+    document.getElementById('create-room-form').reset();
+    // restore map select required attribute
+    const mapSelectSubmit = document.getElementById('room-map-select');
+    if (mapSelectSubmit) mapSelectSubmit.required = true;
+    delete createRoomModal.dataset.testMode;
+    const headerH3t = document.querySelector('#create-room-modal .modal-header h3');
+    if (headerH3t) headerH3t.textContent = '🎮 ルームを作成';
+    return;
+}
+
+try {
+const newRoomRef = database.ref('rooms').push();
+const roomId = newRoomRef.key;
+
+await newRoomRef.set({
+meta: {
+roomName: roomName,
+hostId: currentUserId,
+hostName: hostName,
+guestId: null,
+guestName: null,
+passwordHash: hashPassword(password),
+state: 'open',
+createdAt: firebase.database.ServerValue.TIMESTAMP,
+mode: modeKey,
+mapName: mapName,
+firstMove: firstMove
+}
+});
+
+// ホストが切断したらルームを削除する（onDisconnect）
+try {
+await newRoomRef.child('meta').onDisconnect().remove();
+} catch (err) {
+console.warn('onDisconnect remove 設定失敗:', err);
+}
+
+// ホストのハートビート（lastSeen）を設定
+try {
+await newRoomRef.child('meta').update({ lastSeen: firebase.database.ServerValue.TIMESTAMP });
+if (hostHeartbeatInterval) clearInterval(hostHeartbeatInterval);
+hostHeartbeatInterval = setInterval(() => {
+database.ref(`rooms/${roomId}/meta`).update({ lastSeen: firebase.database.ServerValue.TIMESTAMP }).catch(e => console.warn('heartbeat error', e));
+}, 30000);
+} catch (err) {
+console.warn('ホストハートビート初期化失敗:', err);
+}
+
+currentUserName = hostName;
+currentUserNameEl.textContent = hostName;
+currentRoomId = roomId;
+
+// 部屋が120秒間ゲストを待てなかったら自動削除
+try {
+scheduleRoomExpiry(roomId, 120000);
+} catch (err) {
+console.warn('scheduleRoomExpiry error:', err);
+}
+
+hideModal(createRoomModal);
+document.getElementById('create-room-form').reset();
+
+enterWaitingRoom(roomId, roomName, hostName, null, true);
+
+} catch (error) {
+console.error('ルーム作成エラー:', error);
+alert('ルームの作成に失敗しました');
+}
+});
+
+// ========================================
+// ルーム参加
+// ========================================
+function openJoinModal(roomId, meta) {
+document.getElementById('join-room-name').value = meta.roomName;
+document.getElementById('join-room-id').value = roomId;
+
+// 現在のユーザー名を自動入力
+const guestNameInput = document.getElementById('guest-name-input');
+if (currentUserName && currentUserName !== 'ゲスト') {
+guestNameInput.value = currentUserName;
+} else {
+guestNameInput.value = '';
+}
+
+const passwordGroup = document.getElementById('join-password-group');
+if (meta.passwordHash) {
+passwordGroup.style.display = 'block';
+document.getElementById('join-password-input').required = true;
+} else {
+passwordGroup.style.display = 'none';
+document.getElementById('join-password-input').required = false;
+}
+
+showModal(joinRoomModal);
+}
+
+document.getElementById('close-join-modal').addEventListener('click', () => {
+hideModal(joinRoomModal);
+});
+
+document.getElementById('cancel-join-room').addEventListener('click', () => {
+hideModal(joinRoomModal);
+});
+
+document.getElementById('join-room-form').addEventListener('submit', async (e) => {
+e.preventDefault();
+
+const roomId = document.getElementById('join-room-id').value;
+const guestName = document.getElementById('guest-name-input').value.trim() || 'ゲスト';
+const password = document.getElementById('join-password-input').value;
+
+try {
+const roomRef = database.ref(`rooms/${roomId}`);
+const snapshot = await roomRef.once('value');
+const room = snapshot.val();
+
+if (!room || room.meta.state !== 'open') {
+alert('このルームは既に開始されているか、存在しません');
+hideModal(joinRoomModal);
+return;
+}
+
+if (room.meta.guestId) {
+alert('このルームは既に満員です');
+hideModal(joinRoomModal);
+return;
+}
+
+// パスワードチェック
+if (room.meta.passwordHash && hashPassword(password) !== room.meta.passwordHash) {
+alert('パスワードが正しくありません');
+return;
+}
+
+// ゲストとして参加
+await roomRef.child('meta').update({
+guestId: currentUserId,
+guestName: guestName
+});
+
+// 参加したのでルーム自動削除タイマーをクリア（安全側）
+try {
+clearRoomExpiry(roomId);
+} catch (err) {
+console.warn('clearRoomExpiry error (guest join):', err);
+}
+
+// ゲストが切断したら guest 情報をクリアする
+try {
+await roomRef.child('meta').onDisconnect().update({ guestId: null, guestName: null, state: 'open' });
+} catch (err) {
+console.warn('ゲスト onDisconnect 設定失敗:', err);
+}
+
+// ゲストのハートビート（guestLastSeen）を設定
+try {
+await roomRef.child('meta').update({ guestLastSeen: firebase.database.ServerValue.TIMESTAMP });
+if (guestHeartbeatInterval) clearInterval(guestHeartbeatInterval);
+guestHeartbeatInterval = setInterval(() => {
+database.ref(`rooms/${roomId}/meta`).update({ guestLastSeen: firebase.database.ServerValue.TIMESTAMP }).catch(e => console.warn('guest heartbeat error', e));
+}, 30000);
+} catch (err) {
+console.warn('ゲストハートビート初期化失敗:', err);
+}
+
+currentUserName = guestName;
+currentUserNameEl.textContent = guestName;
+currentRoomId = roomId;
+
+hideModal(joinRoomModal);
+document.getElementById('join-room-form').reset();
+
+enterWaitingRoom(roomId, room.meta.roomName, room.meta.hostName, guestName, false);
+
+} catch (error) {
+console.error('ルーム参加エラー:', error);
+alert('ルームへの参加に失敗しました');
+}
+});
+
+// ========================================
+// 待機画面
+// ========================================
+function enterWaitingRoom(roomId, roomName, hostName, guestName, isHost) {
+showScreen('waiting-screen');
+
+document.getElementById('waiting-room-name').textContent = roomName;
+document.getElementById('waiting-room-id').textContent = `Room ID: ${roomId.slice(-6)}`;
+document.getElementById('host-name').textContent = hostName;
+
+if (guestName) {
+document.getElementById('guest-name').textContent = guestName;
+document.getElementById('guest-avatar').textContent = '🎮';
+document.getElementById('guest-avatar').classList.remove('empty');
+} else {
+document.getElementById('guest-name').textContent = '待機中...';
+document.getElementById('guest-avatar').textContent = '?';
+document.getElementById('guest-avatar').classList.add('empty');
+}
+
+// ルームの変更を監視
+currentRoomRef = database.ref(`rooms/${roomId}/meta`);
+// 初回取得でホスト/ゲストのアバターがあれば表示
+database.ref(`rooms/${roomId}/meta`).once('value').then((snap) => {
+const initialMeta = snap.val();
+if (initialMeta && initialMeta.hostId) {
+database.ref(`users/${initialMeta.hostId}`).once('value').then((ps) => {
+const p = ps.val();
+if (p && p.avatar) {
+const el = document.getElementById('host-avatar');
+el.innerHTML = `<img src="${p.avatar}" alt="host">`;
+}
+}).catch((err) => console.warn('ホストプロフィール取得失敗:', err));
+}
+if (initialMeta && initialMeta.guestId) {
+database.ref(`users/${initialMeta.guestId}`).once('value').then((ps) => {
+const p = ps.val();
+if (p && p.avatar) {
+const el = document.getElementById('guest-avatar');
+el.innerHTML = `<img src="${p.avatar}" alt="guest">`;
+el.classList.remove('empty');
+}
+}).catch((err) => console.warn('ゲストプロフィール取得失敗:', err));
+}
+}).catch((err) => console.warn('初回ルームメタ取得失敗:', err));
+
+currentRoomRef.on('value', async (snapshot) => {
+const meta = snapshot.val();
+console.log('rooms/' + roomId + '/meta changed:', meta);
+if (!meta) {
+// ルームが削除された
+alert('ルームが削除されました');
+leaveRoom();
+return;
+}
+
+// ゲストが参加した
+if (meta.guestId && meta.guestName) {
+document.getElementById('guest-name').textContent = meta.guestName;
+document.getElementById('guest-avatar').classList.remove('empty');
+// ゲストのプロフィールをDBから取得し、アバターがあれば表示
+database.ref(`users/${meta.guestId}`).once('value').then((ps) => {
+const p = ps.val();
+if (p && p.avatar) {
+document.getElementById('guest-avatar').innerHTML = `<img src="${p.avatar}" alt="guest">`;
+} else {
+document.getElementById('guest-avatar').textContent = '🎮';
+}
+}).catch((err) => {
+console.warn('ゲストプロフィール取得失敗:', err);
+document.getElementById('guest-avatar').textContent = '🎮';
+});
+document.getElementById('waiting-message').textContent = '2人揃いました！';
+
+// ゲストが揃ったので自動削除タイマーを解除
+try { if (isHost) clearRoomExpiry(roomId); } catch(e){console.warn('clear expiry on guest join failed',e)}
+}
+});
+}
+
+// ========================================
+// ルーム退出
+// ========================================
+document.getElementById('leave-room-btn').addEventListener('click', () => {
+if (confirm('本当にルームを退出しますか？')) {
+leaveRoom();
+}
+});
+
+async function leaveRoom() {
+if (currentRoomRef) {
+currentRoomRef.off();
+}
+
+if (currentRoomId) {
+try {
+const roomRef = database.ref(`rooms/${currentRoomId}/meta`);
+const snapshot = await roomRef.once('value');
+const meta = snapshot.val();
+
+if (meta) {
+if (meta.hostId === currentUserId) {
+// ホストが退出 → ルーム削除
+await database.ref(`rooms/${currentRoomId}`).remove();
+if (hostHeartbeatInterval) { clearInterval(hostHeartbeatInterval); hostHeartbeatInterval = null; }
+try { clearRoomExpiry(currentRoomId); } catch(e){console.warn('clear expiry on host leave', e);}
+} else if (meta.guestId === currentUserId) {
+// ゲストが退出
+await roomRef.update({
+guestId: null,
+guestName: null,
+state: 'open'
+});
+if (guestHeartbeatInterval) { clearInterval(guestHeartbeatInterval); guestHeartbeatInterval = null; }
+try { scheduleRoomExpiry(currentRoomId, 120000); } catch(e){console.warn('reschedule expiry on guest leave', e);}
+}
+}
+} catch (error) {
+console.error('退出エラー:', error);
+}
+}
+
+currentRoomId = null;
+currentRoomRef = null;
+showScreen('lobby-screen');
+}
+
+// ========================================
+// 更新ボタン
+// ========================================
+document.getElementById('refresh-btn').addEventListener('click', () => {
+const btn = document.getElementById('refresh-btn');
+btn.style.transform = 'rotate(360deg)';
+setTimeout(() => btn.style.transform = '', 500);
+});
+
+// ========================================
+// モーダル外クリックで閉じる
+// ========================================
+createRoomModal.addEventListener('click', (e) => {
+if (e.target === createRoomModal) hideModal(createRoomModal);
+});
+
+joinRoomModal.addEventListener('click', (e) => {
+if (e.target === joinRoomModal) hideModal(joinRoomModal);
+});
+
+// ========================================
+// ゲーム画面（開発中）から戻るボタン
+// ========================================
+const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
+if (backToLobbyBtn) {
+backToLobbyBtn.addEventListener('click', () => {
+if (currentRoomId) {
+leaveRoom();
+} else {
+showScreen('lobby-screen');
+}
+});
+}
+
+// ========================================
+// ユーザー設定・Googleログイン
+// ========================================
+const GOOGLE_ICON_URL = 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg';
+const userSettingsModal = document.getElementById('user-settings-modal');
+const userAvatarEl = document.getElementById('user-avatar');
+const userAvatarLargeEl = document.getElementById('user-avatar-large');
+let userAvatarUrl = null;
+
+document.getElementById('user-info-btn').addEventListener('click', () => {
+// 現在の設定を反映
+document.getElementById('display-name-input').value = currentUserName;
+updateLoginSection();
+showModal(userSettingsModal);
+});
+
+document.getElementById('close-user-settings').addEventListener('click', () => {
+hideModal(userSettingsModal);
+});
+
+userSettingsModal.addEventListener('click', (e) => {
+if (e.target === userSettingsModal) hideModal(userSettingsModal);
+});
+
+// アバターアップロード
+document.getElementById('upload-avatar-btn').addEventListener('click', () => {
+document.getElementById('avatar-upload').click();
+});
+
+document.getElementById('avatar-upload').addEventListener('change', (e) => {
+const file = e.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = (event) => {
+userAvatarUrl = event.target.result;
+userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+// LocalStorageに保存
+localStorage.setItem('userAvatar', userAvatarUrl);
+// Firebase Realtime Database にも保存（Storageは使わないため、base64データをDBに置く）
+if (currentUserId) {
+try {
+database.ref(`users/${currentUserId}`).update({
+avatar: userAvatarUrl,
+displayName: currentUserName || null
+});
+} catch (err) {
+console.warn('DBへアバター保存失敗:', err);
+}
+}
+};
+reader.readAsDataURL(file);
+}
+});
+
+// Googleログイン
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+document.getElementById('google-login-btn').addEventListener('click', async () => {
+try {
+let result;
+const current = auth.currentUser;
+// 既に匿名ユーザーならリンクして同じUIDにGoogleを紐付ける
+if (current && current.isAnonymous) {
+try {
+result = await current.linkWithPopup(googleProvider);
+} catch (linkErr) {
+// リンクが失敗したら通常のサインインにフォールバック
+console.warn('linkWithPopup失敗、signInWithPopupにフォールバック:', linkErr);
+result = await auth.signInWithPopup(googleProvider);
+}
+} else {
+result = await auth.signInWithPopup(googleProvider);
+}
+
+const user = result.user;
+currentUserId = user.uid;
+currentUserName = user.displayName || currentUserName || 'ユーザー';
+currentUserNameEl.textContent = currentUserName;
+document.getElementById('display-name-input').value = currentUserName;
+
+// Googleのプロフィール画像があれば使い、無ければGoogleアイコンを表示
+if (user.photoURL) {
+userAvatarUrl = user.photoURL;
+} else {
+userAvatarUrl = GOOGLE_ICON_URL;
+}
+userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+
+// DBにも保存（他クライアントが取得できるように）
+try {
+await database.ref(`users/${currentUserId}`).update({
+displayName: currentUserName,
+avatar: userAvatarUrl
+});
+} catch (err) {
+console.warn('プロフィールDB保存エラー:', err);
+}
+
+updateLoginSection();
+console.log('Googleログイン成功:', user.email || user.uid);
+} catch (error) {
+console.error('Googleログインエラー:', error);
+if (error && error.code === 'auth/popup-blocked') {
+alert('ポップアップがブロックされました。ポップアップを許可してください。');
+} else if (error && error.code === 'auth/unauthorized-domain') {
+alert('このドメインは認証に使用できません。Firebase ConsoleでAuthorized domainsに追加してください。');
+} else {
+alert('ログインに失敗しました: ' + (error && error.message ? error.message : error));
+}
+}
+});
+
+// ログアウト
+document.getElementById('logout-btn').addEventListener('click', async () => {
+try {
+await auth.signOut();
+// 匿名で再ログイン
+const userCredential = await auth.signInAnonymously();
+currentUserId = userCredential.user.uid;
+currentUserName = 'ゲスト';
+currentUserNameEl.textContent = currentUserName;
+userAvatarUrl = null;
+userAvatarEl.innerHTML = '👤';
+userAvatarLargeEl.innerHTML = '👤';
+localStorage.removeItem('userAvatar');
+updateLoginSection();
+console.log('ログアウト完了');
+} catch (error) {
+console.error('ログアウトエラー:', error);
+}
+});
+
+function updateLoginSection() {
+const user = auth.currentUser;
+const loginSection = document.getElementById('login-section');
+const logoutSection = document.getElementById('logout-section');
+
+if (user && !user.isAnonymous) {
+loginSection.style.display = 'none';
+logoutSection.style.display = 'block';
+document.getElementById('logged-in-email').textContent = `ログイン中: ${user.email}`;
+} else {
+loginSection.style.display = 'block';
+logoutSection.style.display = 'none';
+}
+}
+
+// 設定保存
+document.getElementById('save-user-settings').addEventListener('click', () => {
+const newName = document.getElementById('display-name-input').value.trim();
+if (newName) {
+currentUserName = newName;
+currentUserNameEl.textContent = newName;
+localStorage.setItem('userName', newName);
+// DBに保存（匿名含む）
+if (currentUserId) {
+try {
+database.ref(`users/${currentUserId}`).update({
+displayName: newName,
+avatar: userAvatarUrl || null
+});
+} catch (err) {
+console.warn('DBへユーザー名保存失敗:', err);
+}
+}
+}
+hideModal(userSettingsModal);
+});
+
+// LocalStorageから復元
+function restoreUserSettings() {
+const savedName = localStorage.getItem('userName');
+const savedAvatar = localStorage.getItem('userAvatar');
+
+if (savedName) {
+currentUserName = savedName;
+currentUserNameEl.textContent = savedName;
+}
+
+if (savedAvatar) {
+userAvatarUrl = savedAvatar;
+userAvatarEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
+userAvatarLargeEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
+}
+}
+
+// ========================================
+// 初期化
+// ========================================
+// 認証状態の監視
+auth.onAuthStateChanged((user) => {
+if (user) {
+currentUserId = user.uid;
+console.log('認証状態変更 - User ID:', currentUserId);
+
+if (!user.isAnonymous && user.displayName) {
+currentUserName = user.displayName;
+currentUserNameEl.textContent = currentUserName;
+}
+
+if (!user.isAnonymous && user.photoURL) {
+userAvatarUrl = user.photoURL;
+userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+}
+else if (user.providerData && user.providerData.some(p => p.providerId === 'google.com')) {
+// GoogleでログインしているがphotoURLを持たない場合はGoogleアイコンを使う
+userAvatarUrl = GOOGLE_ICON_URL;
+userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+}
+// DBに保存されているプロフィールがあるかチェック（優先）
+try {
+database.ref(`users/${currentUserId}`).once('value').then((snap) => {
+const profile = snap.val();
+if (profile) {
+if (profile.displayName) {
+currentUserName = profile.displayName;
+currentUserNameEl.textContent = currentUserName;
+localStorage.setItem('userName', currentUserName);
+}
+if (profile.avatar) {
+userAvatarUrl = profile.avatar;
+userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+localStorage.setItem('userAvatar', userAvatarUrl);
+} else {
+// 無ければ既存のlocalStorageを復元
+restoreUserSettings();
+}
+} else {
+restoreUserSettings();
+}
+}).catch((err) => {
+console.warn('プロフィール取得エラー:', err);
+restoreUserSettings();
+});
+} catch (err) {
+console.warn('プロフィールDBチェック失敗:', err);
+restoreUserSettings();
+}
+
+subscribeToRooms();
+console.log('make10 vs - 初期化完了');
+} else {
+// ユーザーがいない場合は匿名サインイン
+auth.signInAnonymously()
+.then((userCredential) => {
+currentUserId = userCredential.user.uid;
+console.log('匿名サインイン成功');
+console.log('User ID:', currentUserId);
+restoreUserSettings();
+subscribeToRooms();
+console.log('make10 vs - 初期化完了');
+})
+.catch((error) => {
+console.error('匿名サインイン失敗:', error);
+alert('サーバーへの接続に失敗しました。ページを再読み込みしてください。');
+});
+}
+});
+
+// ロビーの再試行・ヘルプボタン設定
+document.addEventListener('DOMContentLoaded', () => {
+loadImageData().then(() => {
+    // 画像データ読込後にスロット初期表示を更新
+    if (typeof updateSlotPreview === 'function') updateSlotPreview();
+}).catch(() => {
+    if (typeof updateSlotPreview === 'function') updateSlotPreview();
+}); // 画像データを読み込み
+const retryBtn = document.getElementById('lobby-retry-btn');
+const helpBtn = document.getElementById('lobby-help-btn');
+if (retryBtn) retryBtn.addEventListener('click', attemptAuthAndSubscribe);
+if (helpBtn) helpBtn.addEventListener('click', () => {
+alert('ルーム取得に失敗しました。Firebase の Realtime Database のルールを確認してください。\n\n- 開発中は一時的に " .read": true を設定して動作確認できます\n- 本番では "auth != null" を使用し、匿名ログイン(Anonymous)を有効にしてください');
+});
+});
+
+// debug handlers removed
+
+// ========================================
+// BANPIC ゲームロジック
+// ========================================
+
+// ブロスタのキャラクターデータ（画像ベース・拡張可能）
+// rarity順序: 1=初期, 2=レア, 3=スーパーレア, 4=エピック, 5=ミシック, 6=レジェンド
+// キャラクターソート関数
+function sortBrawlers(brawlers, sortType = 'rarity') {
+    const sorted = [...brawlers];
+    switch (sortType) {
+        case 'rarity':
+            // レア度順（rarityLevel昇順 → order昇順）
+            return sorted.sort((a, b) => {
+                if (a.rarityLevel !== b.rarityLevel) return a.rarityLevel - b.rarityLevel;
+                return a.order - b.order;
+            });
+        case 'name':
+            // 名前順（50音順）
+            return sorted.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+        case 'id':
+            // ID順（画像ファイル名順）
+            return sorted.sort((a, b) => a.image.localeCompare(b.image));
+        default:
+            return sorted;
+    }
+}
+
+// 現在のソート設定（将来的にUI で変更可能に）
+let currentBrawlerSort = 'rarity';
+
+// モード一覧（初期はエメラルドハント）
+const GAME_MODES = [
+    { id: 'gemgrab', name: 'エメラルドハント', icon: '💎' },
+    { id: 'bounty', name: '賞金稼ぎ', icon: '⭐' },
+    { id: 'brawlball', name: 'ブロストライカー', icon: '⚽' },
+    { id: 'hotzone', name: 'ホットゾーン', icon: '🔥' },
+    { id: 'heist', name: '強奪', icon: '🔐' },
+    { id: 'knockout', name: 'ノックアウト', icon: '🥊' },
+    { id: 'showdown', name: 'バトルロイヤル', icon: '💀' },
+];
+
+// BANPIC ゲーム状態
+let banpicState = {
+    isTestMode: false,
+    isBlueTeam: true,  // プレイヤーがブルーチームかどうか
+    phase: 'ban',      // 'ban', 'pic1'~'pic6', 'done'
+    phaseIndex: 0,     // 0=BAN, 1-6=PIC1-6, 7=done
+    timer: 20,
+    timerInterval: null,
+    
+    // 選択状態
+    selectedCharacters: [],  // 現在選択中（BAN時は最大3、PIC時は1）
+    
+    // 確定済み
+    blueBans: [],    // ブルーチームのBAN (3)
+    redBans: [],     // レッドチームのBAN (3)
+    bluePicks: [],   // ブルーチームのPICK (3)
+    redPicks: [],    // レッドチームのPICK (3)
+    
+    // BAN合算結果
+    allBannedIds: [],
+    
+    // 現在のモード/マップ
+    mode: { id: 'eme', name: (MODE_DATA && MODE_DATA.eme) ? MODE_DATA.eme.label : 'エメラルドハント' },
+    map: '静かな広場',
+};
+
+// キャラグリッドを描画
+function renderCharacterGrid() {
+    const grid = document.getElementById('character-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    // ソート適用
+    const sortedBrawlers = sortBrawlers(BRAWLERS, currentBrawlerSort);
+    
+    sortedBrawlers.forEach(brawler => {
+        const isBanned = banpicState.allBannedIds.includes(brawler.id);
+        const isPicked = [...banpicState.bluePicks, ...banpicState.redPicks].includes(brawler.id);
+        const isSelected = banpicState.selectedCharacters.includes(brawler.id);
+        
+        const card = document.createElement('div');
+        card.className = 'character-card';
+        card.setAttribute('data-rarity', brawler.rarityLevel);
+        if (isBanned) card.classList.add('banned');
+        if (isPicked) card.classList.add('picked');
+        if (isSelected) card.classList.add('selected');
+        
+        card.innerHTML = `
+            <div class="char-icon"><img src="image/${brawler.image}" alt="${brawler.name}"></div>
+            <div class="char-name">${brawler.name}</div>
+            ${isBanned ? '<div class="ban-overlay">🚫</div>' : ''}
+        `;
+        
+        if (!isBanned && !isPicked) {
+            card.addEventListener('click', () => selectCharacter(brawler.id));
+        }
+        
+        grid.appendChild(card);
+    });
+}
+
+// キャラクター選択
+function selectCharacter(charId) {
+    const phase = banpicState.phase;
+    
+    // BOTのターンなら選択できない（BANは同時なので除外）
+    if (banpicState.isTestMode && phase.startsWith('pic') && !isPlayerTurn()) {
+        return;
+    }
+    
+    if (phase === 'ban') {
+        // BANフェーズ: 最大3体まで選択可能（トグル）
+        const idx = banpicState.selectedCharacters.indexOf(charId);
+        if (idx >= 0) {
+            banpicState.selectedCharacters.splice(idx, 1);
+        } else if (banpicState.selectedCharacters.length < 3) {
+            banpicState.selectedCharacters.push(charId);
+        }
+    } else if (phase.startsWith('pic')) {
+        // PICフェーズ: 1体だけ選択（置き換え）
+        // 既に同じキャラが選択されている場合、再度押すと即確定
+        if (banpicState.selectedCharacters.length === 1 && banpicState.selectedCharacters[0] === charId) {
+            if (isPlayerTurn()) {
+                confirmSelection();
+                return;
+            }
+        }
+        banpicState.selectedCharacters = [charId];
+    }
+    
+    renderCharacterGrid();
+    updateConfirmButton();
+    updateSlotPreview();
+}
+
+// 確定ボタンの有効/無効
+function updateConfirmButton() {
+    const btn = document.getElementById('confirm-selection-btn');
+    if (!btn) return;
+    
+    const phase = banpicState.phase;
+    
+    if (phase === 'ban') {
+        btn.disabled = banpicState.selectedCharacters.length !== 3;
+        btn.textContent = `BAN確定 (${banpicState.selectedCharacters.length}/3)`;
+    } else if (phase.startsWith('pic')) {
+        btn.disabled = banpicState.selectedCharacters.length !== 1;
+        btn.textContent = '選択を確定';
+    } else {
+        btn.disabled = true;
+        btn.textContent = '完了';
+    }
+}
+
+// スロットプレビュー更新
+function updateSlotPreview() {
+    // 未決定スロット用のデフォルト画像をセットするユーティリティ
+    function setSlotToDefault(slot) {
+        if (!slot) return;
+        slot.classList.remove('filled');
+        slot.classList.add('empty');
+        // pick-orderバッジを保持
+        const existingOrder = slot.querySelector('.pick-order');
+        const orderHTML = existingOrder ? existingOrder.outerHTML : '';
+        if (slot.classList.contains('ban-slot')) {
+            slot.innerHTML = `<img src="image/default_ban.png" alt="BAN">`;
+        } else if (slot.classList.contains('pick-slot')) {
+            slot.innerHTML = `<img src="image/default_pic.png" alt="PIC">${orderHTML}`;
+        } else {
+            slot.innerHTML = '';
+        }
+    }
+
+    // 先に全スロットをデフォルト表示に戻す
+    const allLeft = document.querySelectorAll('#ban-slots-left .ban-slot');
+    const allRight = document.querySelectorAll('#ban-slots-right .ban-slot');
+    const allBluePick = document.querySelectorAll('#pick-slots-blue .pick-slot');
+    const allRedPick = document.querySelectorAll('#pick-slots-red .pick-slot');
+    allLeft.forEach(setSlotToDefault);
+    allRight.forEach(setSlotToDefault);
+    allBluePick.forEach(setSlotToDefault);
+    allRedPick.forEach(setSlotToDefault);
+
+    // BANスロット表示
+    const leftSlots = document.querySelectorAll('#ban-slots-left .ban-slot');
+    const rightSlots = document.querySelectorAll('#ban-slots-right .ban-slot');
+    
+    banpicState.blueBans.forEach((charId, i) => {
+        const brawler = BRAWLERS.find(b => b.id === charId);
+        if (brawler && leftSlots[i]) {
+            leftSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}">`;
+            leftSlots[i].classList.add('filled');
+            leftSlots[i].classList.remove('empty');
+        }
+    });
+    
+    banpicState.redBans.forEach((charId, i) => {
+        const brawler = BRAWLERS.find(b => b.id === charId);
+        if (brawler && rightSlots[i]) {
+            rightSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}">`;
+            rightSlots[i].classList.add('filled');
+            rightSlots[i].classList.remove('empty');
+        }
+    });
+    
+    // PICKスロット表示
+    const bluePickSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
+    const redPickSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
+    
+    banpicState.bluePicks.forEach((charId, i) => {
+        const brawler = BRAWLERS.find(b => b.id === charId);
+        if (brawler && bluePickSlots[i]) {
+            const orderBadge = bluePickSlots[i].querySelector('.pick-order');
+            const orderHTML = orderBadge ? orderBadge.outerHTML : '';
+            bluePickSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
+            bluePickSlots[i].classList.add('filled');
+            bluePickSlots[i].classList.remove('empty');
+        }
+    });
+    
+    banpicState.redPicks.forEach((charId, i) => {
+        const brawler = BRAWLERS.find(b => b.id === charId);
+        // レッド側は逆順で表示（data-slot="2,1,0"の順）
+        const slotIndex = 2 - i;
+        const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(slotIndex));
+        if (brawler && slot) {
+            const orderBadge = slot.querySelector('.pick-order');
+            const orderHTML = orderBadge ? orderBadge.outerHTML : '';
+            slot.innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
+            slot.classList.add('filled');
+            slot.classList.remove('empty');
+        }
+    });
+
+    // 未確定の選択をスロットに表示（自分の選択）
+    const phase = banpicState.phase;
+    const isBluePlayer = banpicState.isBlueTeam;
+    if (banpicState.selectedCharacters.length > 0) {
+        if (phase === 'ban') {
+            // BAN時は同じ列（自チーム）に選択を表示
+            const targetSlots = isBluePlayer ? leftSlots : rightSlots;
+            banpicState.selectedCharacters.forEach((charId, i) => {
+                const b = BRAWLERS.find(x => x.id === charId);
+                if (b && targetSlots[i] && targetSlots[i].classList.contains('empty')) {
+                    targetSlots[i].innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    targetSlots[i].classList.add('selected');
+                    targetSlots[i].classList.remove('empty');
+                }
+            });
+        } else if (phase.startsWith('pic')) {
+            // PIC時は自チームの次のピックスロットに表示
+            if (isBluePlayer) {
+                const nextIndex = banpicState.bluePicks.length; // 0..2
+                const slot = bluePickSlots[nextIndex];
+                const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
+                if (b && slot && slot.classList.contains('empty')) {
+                    slot.innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    slot.classList.add('selected');
+                    slot.classList.remove('empty');
+                }
+            } else {
+                // レッドは逆位置
+                const nextIndex = banpicState.redPicks.length; // 0..2
+                const targetSlotIndex = 2 - nextIndex; // data-slot mapping
+                const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
+                const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
+                if (b && slot && slot.classList.contains('empty')) {
+                    slot.innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    slot.classList.add('selected');
+                    slot.classList.remove('empty');
+                }
+            }
+        }
+    }
+
+    // PIC フェーズに応じて該当スロットをハイライト（クラス pic-phase-active）
+    // まず既存のフラグをクリア
+    document.querySelectorAll('#pick-slots-blue .pick-slot, #pick-slots-red .pick-slot').forEach(s => s.classList.remove('pic-phase-active'));
+    if (banpicState.phase && banpicState.phase.startsWith('pic')) {
+        const picNum = parseInt(banpicState.phase.replace('pic',''));
+        const isBlueTurn = ['1','4','5'].includes(String(picNum)) ? true : false;
+        // ただし実際のプレイヤーがブルーかは関係なく、表示上は自チームの次スロットを白にする
+        if (isBlueTurn) {
+            const nextIndex = banpicState.bluePicks.length; // 次に埋まるインデックス
+            const target = bluePickSlots[nextIndex];
+            if (target) target.classList.add('pic-phase-active');
+        } else {
+            const nextIndex = banpicState.redPicks.length; // 0..2
+            const targetSlotIndex = 2 - nextIndex;
+            const target = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
+            if (target) target.classList.add('pic-phase-active');
+        }
+    }
+    // ピック順バッジが消えることがあるため、スロット更新後に再描画
+    if (typeof updatePickOrderLabels === 'function') updatePickOrderLabels();
+}
+
+// フェーズ表示を更新
+function updatePhaseDisplay() {
+    const phaseText = document.getElementById('phase-text');
+    const timerEl = document.getElementById('phase-timer');
+    
+    const phaseSteps = document.querySelectorAll('.phase-step');
+    phaseSteps.forEach((step, i) => {
+        step.classList.remove('active', 'completed');
+        if (i < banpicState.phaseIndex) {
+            step.classList.add('completed');
+        } else if (i === banpicState.phaseIndex) {
+            step.classList.add('active');
+        }
+    });
+    
+    if (phaseText) {
+        switch (banpicState.phase) {
+            case 'ban':
+                phaseText.textContent = '使用禁止キャラクターを指定してください';
+                break;
+            case 'pic1':
+            case 'pic2':
+            case 'pic3':
+            case 'pic4':
+            case 'pic5':
+            case 'pic6':
+                const picNum = parseInt(banpicState.phase.replace('pic', ''));
+                const isMyTurn = isPlayerTurn();
+                phaseText.textContent = isMyTurn 
+                    ? `キャラクターを選択してください (PICK ${picNum})` 
+                    : `相手がキャラクターを選択中... (PICK ${picNum})`;
+                break;
+            case 'done':
+                phaseText.textContent = 'BANPIC完了！';
+                break;
+        }
+    }
+    
+    if (timerEl) {
+        timerEl.textContent = `${banpicState.timer}秒`;
+        if (banpicState.timer <= 5) {
+            timerEl.style.color = 'var(--danger-color)';
+        } else {
+            timerEl.style.color = 'var(--warning-color)';
+        }
+    }
+    
+    // マップモーダルのタイマーも更新
+    const mapModalTimer = document.getElementById('map-modal-timer-value');
+    if (mapModalTimer) {
+        mapModalTimer.textContent = `${banpicState.timer}秒`;
+    }
+}
+
+// マップモーダルを開く
+function openMapModal() {
+    const modal = document.getElementById('map-modal');
+    const mapImage = document.getElementById('map-modal-image');
+    const mapName = banpicState.map;
+    
+    // マップ画像を設定
+    if (IMAGE_DATA && IMAGE_DATA.maps) {
+        const mapData = IMAGE_DATA.maps.find(m => m.name === mapName);
+        if (mapData) {
+            mapImage.src = `image/${mapData.image}`;
+        } else {
+            mapImage.src = `image/m-${mapName}.png`;
+        }
+    } else {
+        mapImage.src = `image/m-${mapName}.png`;
+    }
+    
+    // タイマーを同期
+    const mapModalTimer = document.getElementById('map-modal-timer-value');
+    if (mapModalTimer) {
+        mapModalTimer.textContent = `${banpicState.timer}秒`;
+    }
+    
+    modal.classList.add('active');
+}
+
+// マップモーダルを閉じる
+function closeMapModal() {
+    const modal = document.getElementById('map-modal');
+    modal.classList.remove('active');
+}
+
+// 自分のターンかどうかを判定
+// PICK順: 先攻A→後攻B,B→先攻A,A→後攻B
+// プレイヤーのターン判定（先攻後攻を考慮）
+// ホスト先攻(isBlueTeam=true): 1,4,5=青 / 2,3,6=赤
+// ゲスト先攻(isBlueTeam=false): 1,4,5=赤 / 2,3,6=青
+function isPlayerTurn() {
+    const phase = banpicState.phase;
+    const isBlue = banpicState.isBlueTeam;
+    
+    if (phase === 'ban') return true;  // BANは同時なので常に自分のターン
+    
+    // 先攻がPIC1,4,5 / 後攻がPIC2,3,6
+    const firstMoveTurns = ['pic1', 'pic4', 'pic5'];
+    const secondMoveTurns = ['pic2', 'pic3', 'pic6'];
+    
+    if (isBlue) {
+        // ホスト先攻: プレイヤー=青=先攻
+        return firstMoveTurns.includes(phase);
+    } else {
+        // ゲスト先攻: プレイヤー=赤=先攻（よってプレイヤーのターンは後攻ターン）
+        return secondMoveTurns.includes(phase);
+    }
+}
+
+// タイマー開始
+function startPhaseTimer() {
+    stopPhaseTimer();
+    banpicState.timer = 20;
+    updatePhaseDisplay();
+    
+    banpicState.timerInterval = setInterval(() => {
+        banpicState.timer--;
+        updatePhaseDisplay();
+        
+        if (banpicState.timer <= 0) {
+            // タイムアウト: ランダム選択で確定
+            handleTimeout();
+        }
+    }, 1000);
+}
+
+function stopPhaseTimer() {
+    if (banpicState.timerInterval) {
+        clearInterval(banpicState.timerInterval);
+        banpicState.timerInterval = null;
+    }
+}
+
+// タイムアウト処理
+function handleTimeout() {
+    const phase = banpicState.phase;
+    const available = getAvailableCharacters();
+    
+    if (phase === 'ban') {
+        // 足りない分をランダムで埋める
+        while (banpicState.selectedCharacters.length < 3 && available.length > 0) {
+            const randomIdx = Math.floor(Math.random() * available.length);
+            const charId = available[randomIdx].id;
+            if (!banpicState.selectedCharacters.includes(charId)) {
+                banpicState.selectedCharacters.push(charId);
+                available.splice(randomIdx, 1);
+            }
+        }
+    } else if (phase.startsWith('pic') && banpicState.selectedCharacters.length === 0) {
+        // ランダムで1体選択
+        if (available.length > 0) {
+            const randomIdx = Math.floor(Math.random() * available.length);
+            banpicState.selectedCharacters = [available[randomIdx].id];
+        }
+    }
+    
+    confirmSelection();
+}
+
+// 利用可能なキャラを取得
+function getAvailableCharacters() {
+    return BRAWLERS.filter(b => {
+        return !banpicState.allBannedIds.includes(b.id) 
+            && !banpicState.bluePicks.includes(b.id)
+            && !banpicState.redPicks.includes(b.id);
+    });
+}
+
+// 選択確定
+function confirmSelection() {
+    stopPhaseTimer();
+    
+    const phase = banpicState.phase;
+    const isBlue = banpicState.isBlueTeam;
+    
+    if (phase === 'ban') {
+        // プレイヤーのチームにBANを確定
+        if (isBlue) {
+            banpicState.blueBans = [...banpicState.selectedCharacters];
+        } else {
+            banpicState.redBans = [...banpicState.selectedCharacters];
+        }
+        banpicState.selectedCharacters = [];
+        
+        // テストモードならBOTのBANを生成
+        if (banpicState.isTestMode) {
+            if (isBlue) {
+                banpicState.redBans = generateBotBans();
+            } else {
+                banpicState.blueBans = generateBotBans();
+            }
+        }
+        
+        // BAN合算
+        const allBans = new Set([...banpicState.blueBans, ...banpicState.redBans]);
+        banpicState.allBannedIds = [...allBans];
+        
+        // PIC1へ移行
+        banpicState.phase = 'pic1';
+        banpicState.phaseIndex = 1;
+        
+        // テストモードでPIC1がBOTのターンなら自動選択
+        if (banpicState.isTestMode && !isPlayerTurn()) {
+            renderCharacterGrid();
+            updateSlotPreview();
+            updatePhaseDisplay();
+            updateConfirmButton();
+            setTimeout(() => {
+                botSelectPick();
+            }, 1000);
+            return;
+        }
+        
+    } else if (phase.startsWith('pic')) {
+        const picNum = parseInt(phase.replace('pic', ''));
+        const isBlue = banpicState.isBlueTeam;
+        const isMyTurn = isPlayerTurn();
+        
+        if (isMyTurn) {
+            // 自分のPICKを確定
+            if (isBlue) {
+                banpicState.bluePicks.push(banpicState.selectedCharacters[0]);
+            } else {
+                banpicState.redPicks.push(banpicState.selectedCharacters[0]);
+            }
+            banpicState.selectedCharacters = [];
+        }
+        
+        // 次のフェーズへ
+        if (picNum < 6) {
+            banpicState.phase = `pic${picNum + 1}`;
+            banpicState.phaseIndex = picNum + 1;
+            
+            // テストモードでBOTのターンなら自動選択
+            if (banpicState.isTestMode && !isPlayerTurn()) {
+                setTimeout(() => {
+                    botSelectPick();
+                }, 1000);
+                return;  // タイマーはBOT完了後に開始
+            }
+        } else {
+            banpicState.phase = 'done';
+            banpicState.phaseIndex = 7;
+            showBanpicResult();
+            return;
+        }
+    }
+    
+    renderCharacterGrid();
+    updateSlotPreview();
+    updatePhaseDisplay();
+    updateConfirmButton();
+    
+    if (banpicState.phase !== 'done') {
+        startPhaseTimer();
+    }
+}
+
+// BOTのBAN生成（ランダム3体）
+function generateBotBans() {
+    // プレイヤーがBANしたキャラを除外
+    const playerBans = banpicState.isBlueTeam ? banpicState.blueBans : banpicState.redBans;
+    const available = BRAWLERS.filter(b => !playerBans.includes(b.id));
+    const bans = [];
+    
+    for (let i = 0; i < 3 && available.length > 0; i++) {
+        const idx = Math.floor(Math.random() * available.length);
+        bans.push(available[idx].id);
+        available.splice(idx, 1);
+    }
+    
+    return bans;
+}
+
+// BOTのPICK選択
+function botSelectPick() {
+    const available = getAvailableCharacters();
+    if (available.length === 0) {
+        confirmSelection();
+        return;
+    }
+    
+    const idx = Math.floor(Math.random() * available.length);
+    const charId = available[idx].id;
+    
+    // BOTのPICKを追加（プレイヤーの反対側）
+    if (banpicState.isBlueTeam) {
+        // プレイヤーが青なのでBOTは赤
+        banpicState.redPicks.push(charId);
+    } else {
+        // プレイヤーが赤なのでBOTは青
+        banpicState.bluePicks.push(charId);
+    }
+    
+    // 次のフェーズへ
+    const picNum = parseInt(banpicState.phase.replace('pic', ''));
+    if (picNum < 6) {
+        banpicState.phase = `pic${picNum + 1}`;
+        banpicState.phaseIndex = picNum + 1;
+    } else {
+        banpicState.phase = 'done';
+        banpicState.phaseIndex = 7;
+        renderCharacterGrid();
+        updateSlotPreview();
+        updatePhaseDisplay();
+        showBanpicResult();
+        return;
+    }
+    
+    renderCharacterGrid();
+    updateSlotPreview();
+    updatePhaseDisplay();
+    updateConfirmButton();
+    
+    // BOTが連続ターンの場合
+    if (banpicState.isTestMode && !isPlayerTurn()) {
+        setTimeout(() => {
+            botSelectPick();
+        }, 1000);
+    } else {
+        startPhaseTimer();
+    }
+}
+
+// BANPIC結果表示
+function showBanpicResult() {
+    stopPhaseTimer();
+    
+    const phaseText = document.getElementById('phase-text');
+    if (phaseText) {
+        phaseText.textContent = '🎉 BANPIC完了！';
+        phaseText.style.color = 'var(--secondary-color)';
+    }
+    
+    // 確定ボタンを「ロビーに戻る」に変更
+    const btn = document.getElementById('confirm-selection-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'ロビーに戻る';
+        btn.onclick = exitBanpic;
+    }
+}
+
+// BANPIC開始（テストモード）
+// 引数: modeKey (optional) - MODE_DATA のキー、 mapName (optional)、firstMove (optional) - 'random'/'host'/'guest'
+function startTestMode(modeKey, mapName, firstMove) {
+    // 先攻後攻を決定（firstMoveがrandomなら50%で切り替え）
+    let isBlueFirst = true;
+    // random が指定されるか、引数が未指定の場合は50/50で決定
+    if (!firstMove || firstMove === 'random') {
+        isBlueFirst = Math.random() < 0.5;
+    } else if (firstMove === 'guest') {
+        isBlueFirst = false; // guest 指定ならプレイヤーは後攻（赤）になる
+    } else if (firstMove === 'host') {
+        isBlueFirst = true; // host 指定ならプレイヤーは先攻（青）
+    }
+    // 状態リセット
+    banpicState = {
+        isTestMode: true,
+        isBlueTeam: isBlueFirst,
+        phase: 'ban',
+        phaseIndex: 0,
+        timer: 20,
+        timerInterval: null,
+        selectedCharacters: [],
+        blueBans: [],
+        redBans: [],
+        bluePicks: [],
+        redPicks: [],
+        allBannedIds: [],
+        // mode は name プロパティを期待するためオブジェクト形式で格納
+        mode: null,
+        map: '静かな広場',
+    };
+    // 引数で渡された modeKey があればそれを使い、なければ既存の GAME_MODES からランダム選択
+    if (modeKey && MODE_DATA && MODE_DATA[modeKey]) {
+        banpicState.mode = { id: modeKey, name: MODE_DATA[modeKey].label };
+    } else if (typeof GAME_MODES !== 'undefined' && Array.isArray(GAME_MODES) && GAME_MODES.length) {
+        // GAME_MODES の各要素が {id, name} か {name} を想定
+        const gm = GAME_MODES[Math.floor(Math.random() * GAME_MODES.length)];
+        banpicState.mode = (gm && gm.name) ? gm : { id: gm && gm.id ? gm.id : 'soccer', name: gm && gm.name ? gm.name : (MODE_DATA && MODE_DATA.soccer ? MODE_DATA.soccer.label : 'ブロストライカー') };
+    } else {
+        banpicState.mode = { id: 'soccer', name: (MODE_DATA && MODE_DATA.soccer ? MODE_DATA.soccer.label : 'ブロストライカー') };
+    }
+
+    if (mapName) banpicState.map = mapName;
+
+    // モード・マップ表示
+    const banpicModeEl = document.getElementById('banpic-mode');
+    const banpicMapEl = document.getElementById('banpic-map');
+    if (banpicModeEl) banpicModeEl.textContent = banpicState.mode.name;
+    if (banpicMapEl) banpicMapEl.textContent = banpicState.map;
+    
+    // テストモードインジケーターは表示しない（右側のテキスト削除）
+    // 元の実装はここで要素を追加していたが、UIから除去します。
+    
+    // スロットリセット
+    document.querySelectorAll('.ban-slot, .pick-slot').forEach(slot => {
+        slot.innerHTML = '';
+        slot.classList.remove('filled');
+        slot.classList.add('empty');
+    });
+    
+    // 確定ボタンを初期化
+    const btn = document.getElementById('confirm-selection-btn');
+    if (btn) {
+        btn.onclick = null;
+        btn.textContent = '選択を確定';
+        btn.disabled = true;
+    }
+    
+    showScreen('game-screen');
+    renderCharacterGrid();
+    updateSlotPreview();
+    updatePickOrderLabels(); // ピック順ラベル更新
+    updatePhaseDisplay();
+    updateConfirmButton();
+    
+    // テストモードのプレイヤー名を設定
+    const blueNameEl = document.getElementById('blue-player-name');
+    const redNameEl = document.getElementById('red-player-name');
+    if (banpicState.isBlueTeam) {
+        // プレイヤーが青（左）、BOTが赤（右）
+        if (blueNameEl) blueNameEl.textContent = 'プレイヤー';
+        if (redNameEl) redNameEl.textContent = 'BOT';
+    } else {
+        // プレイヤーが赤（右）、BOTが青（左）
+        if (blueNameEl) blueNameEl.textContent = 'BOT';
+        if (redNameEl) redNameEl.textContent = 'プレイヤー';
+    }
+    // 先攻表示インジケーターを更新
+    const firstMoveIndicator = document.getElementById('first-move-indicator');
+    if (firstMoveIndicator) {
+        if (banpicState.isBlueTeam) {
+            firstMoveIndicator.textContent = '先攻: プレイヤー';
+        } else {
+            firstMoveIndicator.textContent = '先攻: BOT';
+        }
+    }
+    
+    startPhaseTimer();
+}
+
+// ピック順ラベル更新（先攻後攻に応じて変更）
+function updatePickOrderLabels() {
+    // 左から右への表示順を正しく設定します
+    // ホスト先攻(isBlueTeam=true): 全体 = 1,4,5,6,3,2  -> 青(左)=1,4,5 / 赤(右)=6,3,2
+    // ゲスト先攻(isBlueTeam=false): 全体 = 2,3,6,5,4,1 -> 青(左)=2,3,6 / 赤(右)=5,4,1
+    const blueSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
+    const redSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
+    
+    let blueOrder, redOrder;
+    if (banpicState.isBlueTeam) {
+        blueOrder = [1, 4, 5];
+        redOrder = [6, 3, 2];
+    } else {
+        blueOrder = [2, 3, 6];
+        redOrder = [5, 4, 1];
+    }
+    
+    blueSlots.forEach((slot, i) => {
+        let badge = slot.querySelector('.pick-order');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'pick-order';
+            slot.appendChild(badge);
+        }
+        badge.textContent = blueOrder[i] || (i+1);
+    });
+    
+    redSlots.forEach((slot, i) => {
+        let badge = slot.querySelector('.pick-order');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'pick-order';
+            slot.appendChild(badge);
+        }
+        badge.textContent = redOrder[i] || (i+4);
+    });
+}
+
+// BANPIC終了
+function exitBanpic() {
+    stopPhaseTimer();
+    
+    // テストモードインジケーター削除
+    const indicator = document.querySelector('.test-mode-indicator');
+    if (indicator) indicator.remove();
+    
+    // 確定ボタンのハンドラを元に戻す
+    const btn = document.getElementById('confirm-selection-btn');
+    if (btn) {
+        btn.onclick = null;
+        btn.removeEventListener('click', exitBanpic);
+        btn.addEventListener('click', confirmSelection);
+        btn.textContent = '選択を確定';
+        btn.disabled = true;
+    }
+    
+    showScreen('lobby-screen');
+}
+
+// イベントリスナー設定
+document.addEventListener('DOMContentLoaded', () => {
+    // テストモードボタン
+    const testModeBtn = document.getElementById('test-mode-btn');
+    if (testModeBtn) {
+        testModeBtn.addEventListener('click', () => {
+            // 既存のルーム作成モーダルをテストモード用に再利用
+            if (!createRoomModal) return;
+            createRoomModal.dataset.testMode = 'true';
+            // モーダルタイトルを変更
+            const headerH3 = document.querySelector('#create-room-modal .modal-header h3');
+            if (headerH3) headerH3.textContent = '🧪 テストモード設定';
+            // プレースホルダを埋める
+            const roomNameInput = document.getElementById('room-name-input');
+            const modeSelect = document.getElementById('room-mode-select');
+            const mapSelect = document.getElementById('room-map-select');
+            if (roomNameInput) roomNameInput.value = 'テストルーム';
+            if (modeSelect) modeSelect.value = 'eme';
+            if (mapSelect) {
+                // フォーム検証で submit が止まらないよう required を一時解除
+                mapSelect.required = false;
+                // populateMapSelect を呼んで対象モードの候補を作る
+                if (typeof populateMapSelect === 'function') populateMapSelect('eme');
+                if (mapSelect.options && mapSelect.options.length > 1) {
+                    // テストモードでもダブルレールを優先選択
+                    let foundIndex = -1;
+                    for (let i = 0; i < mapSelect.options.length; i++) {
+                        if (mapSelect.options[i].text.includes('ダブルレール')) { foundIndex = i; break; }
+                    }
+                    mapSelect.selectedIndex = (foundIndex >= 0) ? foundIndex : 1;
+                }
+            }
+            showModal(createRoomModal);
+        });
+    }
+    
+    // 確定ボタン
+    const confirmBtn = document.getElementById('confirm-selection-btn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', confirmSelection);
+    }
+    
+    // ソート切り替えボタン
+    const sortToggleBtn = document.getElementById('sort-toggle-btn');
+    if (sortToggleBtn) {
+        sortToggleBtn.addEventListener('click', () => {
+            // ソートモードを切り替え: rarity → name → id → rarity...
+            const sortModes = ['rarity', 'name', 'id'];
+            const currentIndex = sortModes.indexOf(currentBrawlerSort);
+            const nextIndex = (currentIndex + 1) % sortModes.length;
+            currentBrawlerSort = sortModes[nextIndex];
+            
+            // ボタンのテキストを更新
+            const labels = { rarity: '📊', name: '🔤', id: '🔢' };
+            sortToggleBtn.textContent = labels[currentBrawlerSort];
+            sortToggleBtn.title = currentBrawlerSort === 'rarity' ? 'レア度順' : 
+                                   currentBrawlerSort === 'name' ? '名前順' : 'ID順';
+            
+            // グリッドを再描画
+            renderCharacterGrid();
+        });
+    }
+});
+</script>
+</body>
+</html>
