@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ひとりの冒険</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    .hex-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, auto);
+      grid-template-areas:
+        ".   p0  p1  ."
+        "p5  .   .   p2"
+        ".   p4  p3  .";
+      gap: 8px;
+      justify-items: center;
+      align-items: start;
+    }
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .panel {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+    .red    { background-color: red; }
+    .blue   { background-color: blue; }
+    .yellow { background-color: gold; }
+    #controls {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    select, button {
+      font-size: 0.9rem;
+      padding: 6px;
+    }
+    #sequence {
+      margin-top: 12px;
+      font-size: 1rem;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="https://x.com/5gkyu">X:@5gkyu</a>
+  <a href="https://x.com/5Gkyu/status/1926190667308359902">使い方</a>
+  <hr>
+  <div class="hex-grid">
+    <div class="cell" style="grid-area: p0;">
+      <div class="panel red" id="p0">0</div>
+      <select id="c0"></select>
+    </div>
+    <div class="cell" style="grid-area: p1;">
+      <div class="panel blue" id="p1">1</div>
+      <select id="c1"></select>
+    </div>
+    <div class="cell" style="grid-area: p2;">
+      <div class="panel yellow" id="p2">2</div>
+      <select id="c2"></select>
+    </div>
+    <div class="cell" style="grid-area: p3;">
+      <div class="panel red" id="p3">3</div>
+      <select id="c3"></select>
+    </div>
+    <div class="cell" style="grid-area: p4;">
+      <div class="panel yellow" id="p4">4</div>
+      <select id="c4"></select>
+    </div>
+    <div class="cell" style="grid-area: p5;">
+      <div class="panel yellow" id="p5">5</div>
+      <select id="c5"></select>
+    </div>
+  </div>
+<hr>
+  <div id="controls">
+    <label>揃える色：
+      <select id="targetColor">
+        <option value="red">赤</option>
+        <option value="blue">青</option>
+        <option value="yellow">黄</option>
+      </select>
+    </label>
+    <label>枚数：
+      <select id="targetCount">
+        <option>5</option>
+        <option selected>6</option>
+      </select>
+    </label>
+    <div>
+    <button id="solve">解を求める</button>
+    <button id="reset">リセット</button>
+    </div>
+  </div>
+
+  <div id="sequence"></div>
+</div>
+
+
+<script>
+  const order = ["red","blue","yellow"];
+  const colorNames = { red: "赤", blue: "青", yellow: "黄" };
+  const neighbors = { 0:[1,5],1:[0,2],2:[1,3],3:[2,4],4:[3,5],5:[4,0] };
+
+  const panels = Array.from({length:6},(_,i)=>document.getElementById(`p${i}`));
+  const selects = Array.from({length:6},(_,i)=>document.getElementById(`c${i}`));
+  const seqDiv = document.getElementById("sequence");
+  const targetColorSel = document.getElementById("targetColor");
+  const targetCountSel = document.getElementById("targetCount");
+  const solveBtn = document.getElementById("solve");
+  const resetBtn = document.getElementById("reset");
+
+  const initialColors = ["red","blue","yellow","red","yellow","yellow"];
+
+  selects.forEach((sel,i)=>{
+    order.forEach(c=>{
+      const opt = document.createElement("option"); opt.value=c; opt.textContent=colorNames[c]; sel.appendChild(opt);
+    });
+    sel.value = initialColors[i];
+    sel.addEventListener("change",()=>{
+      panels[i].className = "panel " + sel.value;
+    });
+  });
+
+  let lastClicked = null;
+  panels.forEach((p,i)=>p.addEventListener("click",()=>{
+    if(lastClicked===i) return;
+    neighbors[i].forEach(n=>{
+      const el = panels[n];
+      const curr = order.find(c=>el.classList.contains(c));
+      const nxt = order[(order.indexOf(curr)+1)%3];
+      el.classList.replace(curr,nxt);
+      selects[n].value = nxt;
+    });
+    lastClicked = i;
+  }));
+
+  function getState(){ return panels.map(el=>order.indexOf(order.find(c=>el.classList.contains(c)))); }
+
+  function solve(){
+    const target = order.indexOf(targetColorSel.value);
+    const need = +targetCountSel.value;
+    const start = getState().join("");
+    const queue = [{state:start,path:[],last:null}];
+    const seen = new Set([`${start}|null`]);
+    while(queue.length){
+      const {state,path,last} = queue.shift();
+      const cnt = [0,0,0]; state.split("").forEach(d=>cnt[+d]++);
+      if(cnt[target]>=need){ seqDiv.textContent = `解: ${path.join(" → ")}`; return; }
+      for(let i=0;i<6;i++){
+        if(i===last) continue;
+        const arr=state.split("").map(Number);
+        neighbors[i].forEach(n=>arr[n]=(arr[n]+1)%3);
+        const ns=arr.join(""); const key=`${ns}|${i}`;
+        if(seen.has(key)) continue;
+        seen.add(key);
+        queue.push({state:ns,path:[...path,i],last:i});
+      }
+    }
+    seqDiv.textContent="解が見つかりませんでした。";
+  }
+
+  solveBtn.addEventListener("click",solve);
+  resetBtn.addEventListener("click",()=>{
+    initialColors.forEach((c,i)=>{ panels[i].className="panel " + c; selects[i].value=c; });
+    lastClicked=null; seqDiv.textContent="";
+  });
+  resetBtn.click();
+</script>
+</body>
+</html>
+
