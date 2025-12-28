@@ -4437,20 +4437,82 @@ function getAvailableCharacters() {
 // 選択確定
 function confirmSelection() {
     stopPhaseTimer();
-    
+
     const phase = banpicState.phase;
     const isBlue = banpicState.isBlueTeam;
-    
+    const roomId = banpicState.roomId;
+
+    // オンラインモード: Firebase に対して確定を書き込む
+    if (!banpicState.isTestMode && roomId) {
+        const gameRef = database.ref(`rooms/${roomId}/game`);
+
+        if (phase === 'ban') {
+            const updateData = {};
+            if (isBlue) {
+                updateData.blueBans = banpicState.selectedCharacters;
+                updateData.blueConfirmed = true;
+            } else {
+                updateData.redBans = banpicState.selectedCharacters;
+                updateData.redConfirmed = true;
+            }
+
+            gameRef.update(updateData).catch(err => {
+                console.error('BAN確定エラー:', err);
+                alert('確定に失敗しました');
+            });
+
+            banpicState.selectedCharacters = [];
+        } else if (phase.startsWith('pic')) {
+            const picNum = parseInt(phase.replace('pic', ''));
+            const isBluePhase = ['1','4','5'].includes(String(picNum));
+
+            // 自分のターンのみ確定を許す
+            if ((isBlue && isBluePhase) || (!isBlue && !isBluePhase)) {
+                // 読み出して配列に追加してから更新
+                gameRef.once('value').then(snap => {
+                    const current = snap.val() || {};
+                    const picks = isBlue ? (current.bluePicks || []) : (current.redPicks || []);
+                    // 選択がなければ無視
+                    if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length === 0) return;
+                    picks.push(banpicState.selectedCharacters[0]);
+
+                    const updateData = {};
+                    if (isBlue) {
+                        updateData.bluePicks = picks;
+                        updateData.blueConfirmed = true;
+                    } else {
+                        updateData.redPicks = picks;
+                        updateData.redConfirmed = true;
+                    }
+
+                    return gameRef.update(updateData);
+                }).catch(err => {
+                    console.error('PICK確定エラー:', err);
+                    alert('確定に失敗しました');
+                });
+
+                banpicState.selectedCharacters = [];
+            }
+        }
+
+        // UI を更新（フェーズ遷移は gameRef の監視で行う）
+        renderCharacterGrid();
+        updateSlotPreview();
+        updatePhaseDisplay();
+        updateConfirmButton();
+
+        return;
+    }
+
+    // テストモードの既存処理
     if (phase === 'ban') {
-        // プレイヤーのチームにBANを確定
         if (isBlue) {
             banpicState.blueBans = [...banpicState.selectedCharacters];
         } else {
             banpicState.redBans = [...banpicState.selectedCharacters];
         }
         banpicState.selectedCharacters = [];
-        
-        // テストモードならBOTのBANを生成
+
         if (banpicState.isTestMode) {
             if (isBlue) {
                 banpicState.redBans = generateBotBans();
@@ -4458,16 +4520,13 @@ function confirmSelection() {
                 banpicState.blueBans = generateBotBans();
             }
         }
-        
-        // BAN合算
+
         const allBans = new Set([...banpicState.blueBans, ...banpicState.redBans]);
         banpicState.allBannedIds = [...allBans];
-        
-        // PIC1へ移行
+
         banpicState.phase = 'pic1';
         banpicState.phaseIndex = 1;
-        
-        // テストモードでPIC1がBOTのターンなら自動選択
+
         if (banpicState.isTestMode && !isPlayerTurn()) {
             renderCharacterGrid();
             updateSlotPreview();
@@ -4478,14 +4537,12 @@ function confirmSelection() {
             }, 1000);
             return;
         }
-        
+
     } else if (phase.startsWith('pic')) {
         const picNum = parseInt(phase.replace('pic', ''));
-        const isBlue = banpicState.isBlueTeam;
         const isMyTurn = isPlayerTurn();
-        
+
         if (isMyTurn) {
-            // 自分のPICKを確定
             if (isBlue) {
                 banpicState.bluePicks.push(banpicState.selectedCharacters[0]);
             } else {
@@ -4493,18 +4550,16 @@ function confirmSelection() {
             }
             banpicState.selectedCharacters = [];
         }
-        
-        // 次のフェーズへ
+
         if (picNum < 6) {
             banpicState.phase = `pic${picNum + 1}`;
             banpicState.phaseIndex = picNum + 1;
-            
-            // テストモードでBOTのターンなら自動選択
+
             if (banpicState.isTestMode && !isPlayerTurn()) {
                 setTimeout(() => {
                     botSelectPick();
                 }, 1000);
-                return;  // タイマーはBOT完了後に開始
+                return;
             }
         } else {
             banpicState.phase = 'done';
@@ -4513,12 +4568,12 @@ function confirmSelection() {
             return;
         }
     }
-    
+
     renderCharacterGrid();
     updateSlotPreview();
     updatePhaseDisplay();
     updateConfirmButton();
-    
+
     if (banpicState.phase !== 'done') {
         startPhaseTimer();
     }
@@ -4742,8 +4797,87 @@ function startOnlineMode(meta, roomId) {
         redPicks: [],
         allBannedIds: [],
         mode: { id: (meta.mode || 'eme'), name: (MODE_DATA && MODE_DATA[meta.mode] ? MODE_DATA[meta.mode].label : (meta.mode || 'エメラルドハント')) },
-        map: meta.mapName || '静かな広場'
+        map: meta.mapName || '静かな広場',
+        roomId: roomId,
+        amHost: amHost
     };
+
+    // ホストは game ノードを初期化して進行を管理する
+    const gameRef = database.ref(`rooms/${roomId}/game`);
+    if (amHost) {
+        gameRef.set({
+            phase: 'ban',
+            phaseIndex: 0,
+            blueBans: [],
+            redBans: [],
+            bluePicks: [],
+            redPicks: [],
+            blueConfirmed: false,
+            redConfirmed: false
+        }).catch(e => console.warn('failed to init game node', e));
+    }
+
+    // ゲーム状態の監視
+    gameRef.on('value', (snapshot) => {
+        const gameData = snapshot.val();
+        if (!gameData) return;
+        console.log('Game state updated:', gameData);
+
+        // 選択の反映
+        banpicState.blueBans = gameData.blueBans || [];
+        banpicState.redBans = gameData.redBans || [];
+        banpicState.bluePicks = gameData.bluePicks || [];
+        banpicState.redPicks = gameData.redPicks || [];
+
+        const allBans = new Set([...(banpicState.blueBans || []), ...(banpicState.redBans || [])]);
+        banpicState.allBannedIds = [...allBans];
+
+        const currentPhase = gameData.phase;
+        const blueConfirmed = !!gameData.blueConfirmed;
+        const redConfirmed = !!gameData.redConfirmed;
+
+        // BAN フェーズ: 両者確定で PIC1
+        if (currentPhase === 'ban' && blueConfirmed && redConfirmed && banpicState.phase === 'ban') {
+            if (amHost) {
+                gameRef.update({ phase: 'pic1', phaseIndex: 1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
+            }
+        }
+
+        // PIC フェーズの進行（ホストのみが書き込み）
+        if (String(currentPhase).startsWith('pic')) {
+            const picNum = parseInt(String(currentPhase).replace('pic',''));
+            const isBluePhase = ['1','4','5'].includes(String(picNum));
+            const phaseConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
+
+            if (phaseConfirmed && amHost && banpicState.phase === currentPhase) {
+                if (picNum < 6) {
+                    gameRef.update({ phase: `pic${picNum+1}`, phaseIndex: picNum+1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
+                } else {
+                    gameRef.update({ phase: 'done', phaseIndex: 7 }).catch(e => console.warn(e));
+                }
+            }
+        }
+
+        // ローカルのフェーズを同期
+        if (gameData.phase && gameData.phase !== banpicState.phase) {
+            banpicState.phase = gameData.phase;
+            banpicState.phaseIndex = gameData.phaseIndex || banpicState.phaseIndex;
+            banpicState.selectedCharacters = [];
+
+            if (gameData.phase === 'done') {
+                showBanpicResult();
+            } else {
+                stopPhaseTimer();
+                startPhaseTimer();
+            }
+        }
+
+        renderCharacterGrid();
+        updateSlotPreview();
+        updatePickOrderLabels();
+        updatePhaseDisplay();
+        updateConfirmButton();
+    });
 
     // UI 初期化
     const banpicModeEl = document.getElementById('banpic-mode');
@@ -4759,7 +4893,6 @@ function startOnlineMode(meta, roomId) {
 
     const blueNameEl = document.getElementById('blue-player-name');
     const redNameEl = document.getElementById('red-player-name');
-    // 左（青）はホストかゲストかを resolvedIsBlue で判定
     const blueIsHost = resolvedIsBlue;
     if (blueIsHost) {
         if (blueNameEl) blueNameEl.textContent = meta.hostName || 'ホスト';
@@ -4769,7 +4902,6 @@ function startOnlineMode(meta, roomId) {
         if (redNameEl) redNameEl.textContent = meta.hostName || 'ホスト';
     }
 
-    // 先攻表示（名前で表示）
     const firstMoveIndicator = document.getElementById('first-move-indicator');
     if (firstMoveIndicator) {
         const firstName = resolvedIsBlue ? (meta.hostName || 'ホスト') : (meta.guestName || 'ゲスト');
