@@ -4,44 +4,44 @@
       "id": "eme",
       "label": "エメラルドハント",
       "color": "#9A3DF3",
-      "logo": "e-eme.png"
+      "logo": "e-eme.webp"
     },
     "heist": {
       "id": "heist",
       "label": "強奪",
       "color": "#D65CD3",
-      "logo": "e-godatu.png"
+      "logo": "e-godatu.webp"
     },
     "bounty": {
       "id": "bounty",
       "label": "賞金稼ぎ",
       "color": "#00CFFF",
-      "logo": "e-syoukin.png"
+      "logo": "e-syoukin.webp"
     },
     "soccer": {
       "id": "soccer",
       "label": "ブロストライカー",
       "color": "#8CA0E0",
-      "logo": "e-soccer.png"
+      "logo": "e-soccer.webp"
     },
     "hotzone": {
       "id": "hotzone",
       "label": "ホットゾーン",
       "color": "#E33B50",
-      "logo": "e-hotzone.png"
+      "logo": "e-hotzone.webp"
     },
     "knockout": {
       "id": "knockout",
       "label": "ノックアウト",
       "color": "#F7831C",
-      "logo": "e-knock.png"
+      "logo": "e-knock.webp"
     }
   },
   "maps": [
     {
       "id": "belles_rock",
       "name": "ベルの岩",
-      "image": "m-ベルの岩.png",
+      "image": "m-ベルの岩.webp",
       "modes": [
         "knockout"
       ]
@@ -49,7 +49,7 @@
     {
       "id": "bridge_too_far",
       "name": "橋の彼方",
-      "image": "m-橋の彼方.png",
+      "image": "m-橋の彼方.webp",
       "modes": [
         "heist"
       ]
@@ -57,7 +57,7 @@
     {
       "id": "canal_grande",
       "name": "グランドカナル",
-      "image": "m-グランドカナル.png",
+      "image": "m-グランドカナル.webp",
       "modes": [
         "bounty"
       ]
@@ -65,7 +65,7 @@
     {
       "id": "center_stage",
       "name": "中央コート",
-      "image": "m-中央コート.png",
+      "image": "m-中央コート.webp",
       "modes": [
         "soccer"
       ]
@@ -73,7 +73,7 @@
     {
       "id": "double_swoosh",
       "name": "ダブルレール",
-      "image": "m-ダブルレール.png",
+      "image": "m-ダブルレール.webp",
       "modes": [
         "eme"
       ]
@@ -81,7 +81,7 @@
     {
       "id": "dry_season",
       "name": "乾燥地帯",
-      "image": "m-乾燥地帯.png",
+      "image": "m-乾燥地帯.webp",
       "modes": [
         "bounty"
       ]
@@ -89,7 +89,7 @@
     {
       "id": "dueling_beetles",
       "name": "ビートルバトル",
-      "image": "m-ビートルバトル.png",
+      "image": "m-ビートルバトル.webp",
       "modes": [
         "hotzone"
       ]
@@ -97,7 +97,7 @@
     {
       "id": "flaring_phoenix",
       "name": "燃える不死鳥",
-      "image": "m-燃える不死鳥.png",
+      "image": "m-燃える不死鳥.webp",
       "modes": [
         "knockout"
       ]
@@ -105,7 +105,7 @@
     {
       "id": "gem_fort",
       "name": "エメラルドの要塞",
-      "image": "m-エメラルドの要塞.png",
+      "image": "m-エメラルドの要塞.webp",
       "modes": [
         "eme"
       ]
@@ -113,7 +113,7 @@
     {
       "id": "goldarm_gulch",
       "name": "ゴールドアームの渓谷",
-      "image": "m-ゴールドアームの渓谷.png",
+      "image": "m-ゴールドアームの渓谷.webp",
       "modes": [
         "knockout"
       ]
@@ -121,7 +121,7 @@
     {
       "id": "hard_rock_mine",
       "name": "ごつごつ坑道",
-      "image": "m-ごつごつ坑道.png",
+      "image": "m-ごつごつ坑道.webp",
       "modes": [
         "eme"
       ]
@@ -129,7 +129,7 @@
     {
       "id": "hideout",
       "name": "隠れ家",
-      "image": "m-隠れ家.png",
+      "image": "m-隠れ家.webp",
       "modes": [
         "bounty"
       ]
@@ -137,7 +137,7 @@
     {
       "id": "hot_potato",
       "name": "ホットポテト",
-      "image": "m-ホットポテト.png",
+      "image": "m-ホットポテト.webp",
       "modes": [
         "heist"
       ]
@@ -145,7 +145,7 @@
     {
       "id": "kaboom_canyon",
       "name": "どんぱち谷",
-      "image": "m-どんぱち谷.png",
+      "image": "m-どんぱち谷.webp",
       "modes": [
         "heist"
       ]
@@ -153,15 +153,15 @@
     {
       "id": "last_stop",
       "name": "ラストストップ",
-      "image": "m-ラストストップ.png",
+      "image": "m-ラストストップ.webp",
       "modes": [
-        "heist"
+        "eme"
       ]
     },
     {
       "id": "layer_cake",
       "name": "ミルフィーユ",
-      "image": "m-ミルフィーユ.png",
+      "image": "m-ミルフィーユ.webp",
       "modes": [
         "bounty"
       ]
@@ -169,7 +169,7 @@
     {
       "id": "new_horizons",
       "name": "新たなる地平",
-      "image": "m-新たなる地平.png",
+      "image": "m-新たなる地平.webp",
       "modes": [
         "knockout"
       ]
@@ -177,7 +177,7 @@
     {
       "id": "open_business",
       "name": "オープンビジネス",
-      "image": "m-オープンビジネス.png",
+      "image": "m-オープンビジネス.webp",
       "modes": [
         "hotzone"
       ]
@@ -185,7 +185,7 @@
     {
       "id": "out_in_the_open",
       "name": "オープンフィールド",
-      "image": "m-オープンフィールド.png",
+      "image": "m-オープンフィールド.webp",
       "modes": [
         "knockout"
       ]
@@ -193,7 +193,7 @@
     {
       "id": "parallel_plays",
       "name": "パラレルワールド",
-      "image": "m-パラレルワールド.png",
+      "image": "m-パラレルワールド.webp",
       "modes": [
         "hotzone"
       ]
@@ -201,7 +201,7 @@
     {
       "id": "pinball_dreams",
       "name": "ピンボールドリーム",
-      "image": "m-ピンボールドリーム.png",
+      "image": "m-ピンボールドリーム.webp",
       "modes": [
         "soccer"
       ]
@@ -209,7 +209,7 @@
     {
       "id": "ring_of_fire",
       "name": "炎のリング",
-      "image": "m-炎のリング.png",
+      "image": "m-炎のリング.webp",
       "modes": [
         "hotzone"
       ]
@@ -217,7 +217,7 @@
     {
       "id": "safe_zone",
       "name": "安全地帯",
-      "image": "m-安全地帯.png",
+      "image": "m-安全地帯.webp",
       "modes": [
         "heist"
       ]
@@ -225,7 +225,7 @@
     {
       "id": "shooting_star",
       "name": "流れ星",
-      "image": "m-流れ星.png",
+      "image": "m-流れ星.webp",
       "modes": [
         "bounty"
       ]
@@ -233,7 +233,7 @@
     {
       "id": "snake_prairie",
       "name": "静かな広場",
-      "image": "m-静かな広場.png",
+      "image": "m-静かな広場.webp",
       "modes": [
         "soccer"
       ]
@@ -241,7 +241,7 @@
     {
       "id": "sneaky_fields",
       "name": "ジグザグ草原",
-      "image": "m-ジグザグ草原.png",
+      "image": "m-ジグザグ草原.webp",
       "modes": [
         "bounty"
       ]
@@ -249,7 +249,7 @@
     {
       "id": "triple_dribble",
       "name": "トリプルドリブル",
-      "image": "m-トリプルドリブル.png",
+      "image": "m-トリプルドリブル.webp",
       "modes": [
         "soccer"
       ]
@@ -257,7 +257,7 @@
     {
       "id": "undermine",
       "name": "アンダーマイン",
-      "image": "m-アンダーマイン.png",
+      "image": "m-アンダーマイン.webp",
       "modes": [
         "eme"
       ]
@@ -267,7 +267,7 @@
     {
       "id": "shelly",
       "name": "シェリー",
-      "image": "c-01-shelly.png",
+      "image": "c-01-shelly.webp",
       "rarity": "初期",
       "rarityLevel": 1,
       "order": 1
@@ -275,7 +275,7 @@
     {
       "id": "nita",
       "name": "ニタ",
-      "image": "c-02-nita.png",
+      "image": "c-02-nita.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 1
@@ -283,7 +283,7 @@
     {
       "id": "colt",
       "name": "コルト",
-      "image": "c-03-colt.png",
+      "image": "c-03-colt.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 2
@@ -291,7 +291,7 @@
     {
       "id": "bull",
       "name": "ブル",
-      "image": "c-04-bull.png",
+      "image": "c-04-bull.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 3
@@ -299,7 +299,7 @@
     {
       "id": "brock",
       "name": "ブロック",
-      "image": "c-05-block.png",
+      "image": "c-05-block.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 4
@@ -307,7 +307,7 @@
     {
       "id": "elprimo",
       "name": "エル・プリモ",
-      "image": "c-06-elprimo.png",
+      "image": "c-06-elprimo.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 5
@@ -315,7 +315,7 @@
     {
       "id": "barley",
       "name": "バーリー",
-      "image": "c-07-barley.png",
+      "image": "c-07-barley.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 6
@@ -323,7 +323,7 @@
     {
       "id": "poco",
       "name": "ポコ",
-      "image": "c-08-poco.png",
+      "image": "c-08-poco.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 7
@@ -331,7 +331,7 @@
     {
       "id": "rosa",
       "name": "ローサ",
-      "image": "c-09-rosa.png",
+      "image": "c-09-rosa.webp",
       "rarity": "レア",
       "rarityLevel": 2,
       "order": 8
@@ -339,7 +339,7 @@
     {
       "id": "jessie",
       "name": "ジェシー",
-      "image": "c-11-jessi.png",
+      "image": "c-11-jessi.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 1
@@ -347,7 +347,7 @@
     {
       "id": "dynamike",
       "name": "ダイナマイク",
-      "image": "c-12-dynamike.png",
+      "image": "c-12-dynamike.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 2
@@ -355,7 +355,7 @@
     {
       "id": "tick",
       "name": "ティック",
-      "image": "c-13-tick.png",
+      "image": "c-13-tick.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 3
@@ -363,7 +363,7 @@
     {
       "id": "8bit",
       "name": "8ビット",
-      "image": "c-14-bit.png",
+      "image": "c-14-bit.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 4
@@ -371,7 +371,7 @@
     {
       "id": "rico",
       "name": "リコ",
-      "image": "c-15-rico.png",
+      "image": "c-15-rico.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 5
@@ -379,7 +379,7 @@
     {
       "id": "darryl",
       "name": "ダリル",
-      "image": "c-16-darryl.png",
+      "image": "c-16-darryl.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 6
@@ -387,7 +387,7 @@
     {
       "id": "penny",
       "name": "ペニー",
-      "image": "c-17-penny.png",
+      "image": "c-17-penny.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 7
@@ -395,7 +395,7 @@
     {
       "id": "carl",
       "name": "カール",
-      "image": "c-18-carl.png",
+      "image": "c-18-carl.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 8
@@ -403,7 +403,7 @@
     {
       "id": "jacky",
       "name": "ジャッキー",
-      "image": "c-19-0jacky.png",
+      "image": "c-19-0jacky.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 9
@@ -411,7 +411,7 @@
     {
       "id": "gus",
       "name": "ガス",
-      "image": "c-19-1gas.png",
+      "image": "c-19-1gas.webp",
       "rarity": "スーパーレア",
       "rarityLevel": 3,
       "order": 10
@@ -419,7 +419,7 @@
     {
       "id": "bo",
       "name": "ボウ",
-      "image": "c-21-bo.png",
+      "image": "c-21-bo.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 1
@@ -427,7 +427,7 @@
     {
       "id": "emz",
       "name": "EMZ",
-      "image": "c-22-emz.png",
+      "image": "c-22-emz.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 2
@@ -435,7 +435,7 @@
     {
       "id": "stu",
       "name": "ストゥー",
-      "image": "c-23-stu.png",
+      "image": "c-23-stu.webp",
       "rarity": "エピック",
       "rarityLevel": 3,
       "order": 11
@@ -443,7 +443,7 @@
     {
       "id": "piper",
       "name": "エリザベス",
-      "image": "c-24-piper.png",
+      "image": "c-24-piper.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 3
@@ -451,7 +451,7 @@
     {
       "id": "pam",
       "name": "パム",
-      "image": "c-25-pam.png",
+      "image": "c-25-pam.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 4
@@ -459,7 +459,7 @@
     {
       "id": "frank",
       "name": "フランケン",
-      "image": "c-26-frank.png",
+      "image": "c-26-frank.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 5
@@ -467,7 +467,7 @@
     {
       "id": "bibi",
       "name": "ビビ",
-      "image": "c-27-bibi.png",
+      "image": "c-27-bibi.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 6
@@ -475,7 +475,7 @@
     {
       "id": "bea",
       "name": "ビー",
-      "image": "c-28-bea.png",
+      "image": "c-28-bea.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 7
@@ -483,7 +483,7 @@
     {
       "id": "nani",
       "name": "ナーニ",
-      "image": "c-29-0nani.png",
+      "image": "c-29-0nani.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 8
@@ -491,7 +491,7 @@
     {
       "id": "edgar",
       "name": "エドガー",
-      "image": "c-29-1edger.png",
+      "image": "c-29-1edger.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 9
@@ -499,7 +499,7 @@
     {
       "id": "griff",
       "name": "グリフ",
-      "image": "c-29-2griff.png",
+      "image": "c-29-2griff.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 10
@@ -507,7 +507,7 @@
     {
       "id": "grom",
       "name": "グロム",
-      "image": "c-29-3grom.png",
+      "image": "c-29-3grom.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 11
@@ -515,7 +515,7 @@
     {
       "id": "bonnie",
       "name": "ボニー",
-      "image": "c-29-4bonny.png",
+      "image": "c-29-4bonny.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 12
@@ -523,7 +523,7 @@
     {
       "id": "gale",
       "name": "ゲイル",
-      "image": "c-29-5gale.png",
+      "image": "c-29-5gale.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 13
@@ -531,7 +531,7 @@
     {
       "id": "colette",
       "name": "コレット",
-      "image": "c-29-6collet.png",
+      "image": "c-29-6collet.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 14
@@ -539,7 +539,7 @@
     {
       "id": "belle",
       "name": "ベル",
-      "image": "c-29-7belle.png",
+      "image": "c-29-7belle.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 15
@@ -547,7 +547,7 @@
     {
       "id": "ash",
       "name": "アッシュ",
-      "image": "c-29-8ash.png",
+      "image": "c-29-8ash.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 16
@@ -555,7 +555,7 @@
     {
       "id": "lola",
       "name": "ローラ",
-      "image": "c-29-9lola.png",
+      "image": "c-29-9lola.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 17
@@ -563,7 +563,7 @@
     {
       "id": "sam",
       "name": "サム",
-      "image": "c-29-10sam.png",
+      "image": "c-29-10sam.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 18
@@ -571,7 +571,7 @@
     {
       "id": "mandy",
       "name": "マンディ",
-      "image": "c-29-11mandy.png",
+      "image": "c-29-11mandy.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 19
@@ -579,7 +579,7 @@
     {
       "id": "maisie",
       "name": "メイジー",
-      "image": "c-29-12maisie.png",
+      "image": "c-29-12maisie.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 20
@@ -587,7 +587,7 @@
     {
       "id": "hank",
       "name": "ハンク",
-      "image": "c-29-13hank.png",
+      "image": "c-29-13hank.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 21
@@ -595,7 +595,7 @@
     {
       "id": "pearl",
       "name": "パール",
-      "image": "c-29-14pearl.png",
+      "image": "c-29-14pearl.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 22
@@ -603,7 +603,7 @@
     {
       "id": "larry",
       "name": "ラリー&ローリー",
-      "image": "c-29-15larry.png",
+      "image": "c-29-15larry.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 23
@@ -611,7 +611,7 @@
     {
       "id": "angelo",
       "name": "アンジェロ",
-      "image": "c-29-16angero.png",
+      "image": "c-29-16angero.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 24
@@ -619,7 +619,7 @@
     {
       "id": "berry",
       "name": "ベリー",
-      "image": "c-29-17berry.png",
+      "image": "c-29-17berry.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 25
@@ -627,7 +627,7 @@
     {
       "id": "shade",
       "name": "シェイド",
-      "image": "c-29-18shade.png",
+      "image": "c-29-18shade.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 26
@@ -635,7 +635,7 @@
     {
       "id": "meeple",
       "name": "ミープル",
-      "image": "c-29-19meeple.png",
+      "image": "c-29-19meeple.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 27
@@ -643,7 +643,7 @@
     {
       "id": "trunk",
       "name": "トランク",
-      "image": "c-29-20trunk.png",
+      "image": "c-29-20trunk.webp",
       "rarity": "エピック",
       "rarityLevel": 4,
       "order": 28
@@ -651,7 +651,7 @@
     {
       "id": "mortis",
       "name": "モーティス",
-      "image": "c-31-mortis.png",
+      "image": "c-31-mortis.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 1
@@ -659,7 +659,7 @@
     {
       "id": "tara",
       "name": "タラ",
-      "image": "c-32-tara.png",
+      "image": "c-32-tara.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 2
@@ -667,7 +667,7 @@
     {
       "id": "gene",
       "name": "ジーン",
-      "image": "c-33-gene.png",
+      "image": "c-33-gene.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 3
@@ -675,7 +675,7 @@
     {
       "id": "max",
       "name": "MAX",
-      "image": "c-34-max.png",
+      "image": "c-34-max.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 4
@@ -683,7 +683,7 @@
     {
       "id": "mrp",
       "name": "Mr.P",
-      "image": "c-35-mrp.png",
+      "image": "c-35-mrp.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 5
@@ -691,7 +691,7 @@
     {
       "id": "sprout",
       "name": "スプラウト",
-      "image": "c-36-sprout.png",
+      "image": "c-36-sprout.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 6
@@ -699,7 +699,7 @@
     {
       "id": "byron",
       "name": "バイロン",
-      "image": "c-37-byron.png",
+      "image": "c-37-byron.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 7
@@ -707,7 +707,7 @@
     {
       "id": "squeak",
       "name": "スクウィーク",
-      "image": "c-38-squeak.png",
+      "image": "c-38-squeak.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 8
@@ -715,7 +715,7 @@
     {
       "id": "lou",
       "name": "ルー",
-      "image": "c-39-00lou.png",
+      "image": "c-39-00lou.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 9
@@ -723,7 +723,7 @@
     {
       "id": "ruffs",
       "name": "ラフス",
-      "image": "c-39-0ruffs.png",
+      "image": "c-39-0ruffs.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 10
@@ -731,7 +731,7 @@
     {
       "id": "buzz",
       "name": "バズ",
-      "image": "c-39-1buzz.png",
+      "image": "c-39-1buzz.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 11
@@ -739,7 +739,7 @@
     {
       "id": "fang",
       "name": "ファング",
-      "image": "c-39-2fang.png",
+      "image": "c-39-2fang.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 12
@@ -747,7 +747,7 @@
     {
       "id": "eve",
       "name": "イヴ",
-      "image": "c-39-3eve.png",
+      "image": "c-39-3eve.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 13
@@ -755,7 +755,7 @@
     {
       "id": "janet",
       "name": "ジャネット",
-      "image": "c-39-4janet.png",
+      "image": "c-39-4janet.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 14
@@ -763,7 +763,7 @@
     {
       "id": "otis",
       "name": "オーティス",
-      "image": "c-39-5otis.png",
+      "image": "c-39-5otis.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 15
@@ -771,7 +771,7 @@
     {
       "id": "buster",
       "name": "バスター",
-      "image": "c-39-6buster.png",
+      "image": "c-39-6buster.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 16
@@ -779,7 +779,7 @@
     {
       "id": "gray",
       "name": "グレイ",
-      "image": "c-39-7gray.png",
+      "image": "c-39-7gray.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 17
@@ -787,7 +787,7 @@
     {
       "id": "rt",
       "name": "R-T",
-      "image": "c-39-8rt.png",
+      "image": "c-39-8rt.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 18
@@ -795,7 +795,7 @@
     {
       "id": "willow",
       "name": "ウィロー",
-      "image": "c-39-9willow.png",
+      "image": "c-39-9willow.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 19
@@ -803,7 +803,7 @@
     {
       "id": "doug",
       "name": "ダグ",
-      "image": "c-39-10dug.png",
+      "image": "c-39-10dug.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 20
@@ -811,7 +811,7 @@
     {
       "id": "chuck",
       "name": "チャック",
-      "image": "c-39-11chuck.png",
+      "image": "c-39-11chuck.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 21
@@ -819,7 +819,7 @@
     {
       "id": "charlie",
       "name": "チャーリー",
-      "image": "c-39-12charlie.png",
+      "image": "c-39-12charlie.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 22
@@ -827,7 +827,7 @@
     {
       "id": "mico",
       "name": "ミコ",
-      "image": "c-39-13mico.png",
+      "image": "c-39-13mico.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 23
@@ -835,7 +835,7 @@
     {
       "id": "melodie",
       "name": "メロディー",
-      "image": "c-39-14melodhi.png",
+      "image": "c-39-14melodhi.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 24
@@ -843,7 +843,7 @@
     {
       "id": "lily",
       "name": "リリー",
-      "image": "c-39-15lily.png",
+      "image": "c-39-15lily.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 25
@@ -851,7 +851,7 @@
     {
       "id": "clancy",
       "name": "クランシー",
-      "image": "c-39-16clancy.png",
+      "image": "c-39-16clancy.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 26
@@ -859,7 +859,7 @@
     {
       "id": "moe",
       "name": "モー",
-      "image": "c-39-17moo.png",
+      "image": "c-39-17moo.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 27
@@ -867,7 +867,7 @@
     {
       "id": "juju",
       "name": "ジュジュ",
-      "image": "c-39-18juju.png",
+      "image": "c-39-18juju.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 28
@@ -875,7 +875,7 @@
     {
       "id": "ollie",
       "name": "オーリー",
-      "image": "c-39-19ollie.png",
+      "image": "c-39-19ollie.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 29
@@ -883,7 +883,7 @@
     {
       "id": "finx",
       "name": "フィンクス",
-      "image": "c-39-20finx.png",
+      "image": "c-39-20finx.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 30
@@ -891,7 +891,7 @@
     {
       "id": "lumi",
       "name": "ルミ",
-      "image": "c-39-21lumi.png",
+      "image": "c-39-21lumi.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 31
@@ -899,7 +899,7 @@
     {
       "id": "jaeyong",
       "name": "ジェヨン",
-      "image": "c-39-22jaeyong.png",
+      "image": "c-39-22jaeyong.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 32
@@ -907,7 +907,7 @@
     {
       "id": "alli",
       "name": "アリー",
-      "image": "c-39-23alli.png",
+      "image": "c-39-23alli.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 33
@@ -915,7 +915,7 @@
     {
       "id": "mina",
       "name": "ミナ",
-      "image": "c-39-24mina.png",
+      "image": "c-39-24mina.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 34
@@ -923,7 +923,7 @@
     {
       "id": "ziggy",
       "name": "ジギー",
-      "image": "c-39-25ziggy.png",
+      "image": "c-39-25ziggy.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 35
@@ -931,16 +931,15 @@
     {
       "id": "gigi",
       "name": "ジジ",
-      "image": "c-39-26gigi.png",
+      "image": "c-39-26gigi.webp",
       "rarity": "ミシック",
       "rarityLevel": 5,
       "order": 36
     },
-    
     {
       "id": "spike",
       "name": "スパイク",
-      "image": "c-41-spike.png",
+      "image": "c-41-spike.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 1
@@ -948,7 +947,7 @@
     {
       "id": "crow",
       "name": "クロウ",
-      "image": "c-42-crow.png",
+      "image": "c-42-crow.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 2
@@ -956,7 +955,7 @@
     {
       "id": "leon",
       "name": "レオン",
-      "image": "c-43-leon.png",
+      "image": "c-43-leon.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 3
@@ -964,7 +963,7 @@
     {
       "id": "sandy",
       "name": "サンディ",
-      "image": "c-44-sandy.png",
+      "image": "c-44-sandy.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 4
@@ -972,7 +971,7 @@
     {
       "id": "amber",
       "name": "アンバー",
-      "image": "c-45-amber.png",
+      "image": "c-45-amber.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 5
@@ -980,7 +979,7 @@
     {
       "id": "meg",
       "name": "メグ",
-      "image": "c-46-meg.png",
+      "image": "c-46-meg.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 6
@@ -988,7 +987,7 @@
     {
       "id": "surge",
       "name": "サージ",
-      "image": "c-48-surge.png",
+      "image": "c-48-surge.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 7
@@ -996,7 +995,7 @@
     {
       "id": "chester",
       "name": "チェスター",
-      "image": "c-47-cheser.png",
+      "image": "c-47-cheser.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 8
@@ -1004,16 +1003,15 @@
     {
       "id": "cordelius",
       "name": "コーデリアス",
-      "image": "c-49-0cordelious.png",
+      "image": "c-49-0cordelious.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 9
     },
-    
     {
       "id": "kit",
       "name": "キット",
-      "image": "c-49-1kit.png",
+      "image": "c-49-1kit.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 10
@@ -1021,7 +1019,7 @@
     {
       "id": "draco",
       "name": "ドラコ",
-      "image": "c-49-2draco.png",
+      "image": "c-49-2draco.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 11
@@ -1029,7 +1027,7 @@
     {
       "id": "kenji",
       "name": "ケンジ",
-      "image": "c-49-3kenji.png",
+      "image": "c-49-3kenji.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 12
@@ -1037,7 +1035,7 @@
     {
       "id": "pierce",
       "name": "ピアス",
-      "image": "c-49-4pierce.png",
+      "image": "c-49-4pierce.webp",
       "rarity": "レジェンド",
       "rarityLevel": 6,
       "order": 13
@@ -1045,7 +1043,7 @@
     {
       "id": "kaze",
       "name": "カゼ",
-      "image": "c-51-kaze.png",
+      "image": "c-51-kaze.webp",
       "rarity": "ウルトラレジェンド",
       "rarityLevel": 7,
       "order": 1
