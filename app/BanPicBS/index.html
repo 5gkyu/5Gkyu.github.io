@@ -257,27 +257,75 @@ transform: translateY(0);
 }
 
 .btn-primary {
-background: var(--primary-color);
+background: linear-gradient(135deg, #4a90d9, #357abd);
 color: white;
+box-shadow: 0 4px 15px rgba(74, 144, 217, 0.4);
+border: none;
 }
 
 .btn-primary:hover {
-background: var(--primary-dark);
+background: linear-gradient(135deg, #5a9fe9, #4080cd);
+box-shadow: 0 6px 20px rgba(74, 144, 217, 0.5);
+transform: translateY(-2px);
 }
 
 .btn-success {
-background: var(--secondary-color);
+background: linear-gradient(135deg, #2ecc71, #27ae60);
 color: white;
+box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+border: none;
+}
+
+.btn-success:hover {
+background: linear-gradient(135deg, #3ddb80, #2ecc71);
+box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+transform: translateY(-2px);
 }
 
 .btn-danger {
-background: var(--danger-color);
+background: linear-gradient(135deg, #e74c3c, #c0392b);
 color: white;
+box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+border: none;
+}
+
+.btn-danger:hover {
+background: linear-gradient(135deg, #f55c4e, #e74c3c);
+box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
+transform: translateY(-2px);
+}
+
+.btn-warning {
+background: linear-gradient(135deg, #f39c12, #e67e22);
+color: #000;
+box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+border: none;
+}
+
+.btn-warning:hover {
+background: linear-gradient(135deg, #f5ab35, #f39c12);
+box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+transform: translateY(-2px);
 }
 
 .btn-secondary {
-background: #555;
+background: linear-gradient(135deg, #555, #444);
 color: white;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+border: none;
+}
+
+.btn-secondary:hover {
+background: linear-gradient(135deg, #666, #555);
+box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+transform: translateY(-2px);
+}
+
+/* 管理者削除ボタン */
+.btn-admin-delete {
+padding: 0.3rem 0.5rem;
+font-size: 0.8rem;
+min-width: auto;
 }
 
 /* ルーム一覧 */
@@ -3304,10 +3352,12 @@ emptyState.style.display = 'none';
 document.querySelectorAll('.room-card').forEach(card => card.remove());
 
 // ルームカードを追加
+const ADMIN_USER_ID = 'cANK5ZBzjGPwfvz8cbH3o93wUZ33';
 roomEntries.forEach(([roomId, room]) => {
 const meta = room.meta;
 const hasPassword = !!meta.passwordHash;
 const playerCount = meta.guestId ? 2 : 1;
+const isAdmin = (currentUserId === ADMIN_USER_ID);
 
 const card = document.createElement('div');
 card.className = 'room-card';
@@ -3329,12 +3379,29 @@ card.innerHTML = `
                        <button class="btn btn-success" ${playerCount >= 2 ? 'disabled' : ''}>
                            参加
                        </button>
+                       ${isAdmin ? '<button class="btn btn-danger btn-admin-delete" title="管理者: 削除">🗑️</button>' : ''}
                    </div>
                `;
 
 const joinBtn = card.querySelector('.btn-success');
 if (playerCount < 2) {
 joinBtn.addEventListener('click', () => openJoinModal(roomId, meta));
+}
+
+// 管理者削除ボタン
+const adminDeleteBtn = card.querySelector('.btn-admin-delete');
+if (adminDeleteBtn) {
+    adminDeleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (confirm(`ルーム「${meta.roomName}」を削除しますか？`)) {
+            try {
+                await database.ref(`rooms/${roomId}`).remove();
+                console.log('Admin deleted room:', roomId);
+            } catch (err) {
+                alert('削除に失敗しました: ' + err.message);
+            }
+        }
+    });
 }
 
 roomList.insertBefore(card, emptyState);
@@ -5248,6 +5315,17 @@ function startOnlineMode(meta, roomId) {
         firstMoveIndicator.textContent = `先攻: ${firstMoverName}`;
     }
 
+    // マップバナーを正しく設定（ゲスト側でも反映）
+    const modeKey = meta.mode || 'eme';
+    const mapName = meta.mapName || '静かな広場';
+    // マップ画像を取得
+    let mapImage = null;
+    if (typeof imageData !== 'undefined' && imageData.maps) {
+        const mapObj = imageData.maps.find(m => m.name === mapName);
+        if (mapObj) mapImage = mapObj.image;
+    }
+    applyBanner(modeKey, mapName, mapImage);
+
     showScreen('game-screen');
     renderCharacterGrid();
     updateSlotPreview();
@@ -5263,8 +5341,10 @@ function updatePickOrderLabels() {
     const redSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
     
     // 常に固定: 左側(先攻)=1,4,5 / 右側(後攻)=2,3,6
+    // 表示は左から: top-row(青)が 1,4,5。
+    // bottom-row(赤)は左から 6,3,2 と表示する（左→右で 1 4 5 6 3 2 となるように）
     const blueOrder = [1, 4, 5];
-    const redOrder = [2, 3, 6];
+    const redOrder = [6, 3, 2];
     
     blueSlots.forEach((slot, i) => {
         let badge = slot.querySelector('.pick-order');
