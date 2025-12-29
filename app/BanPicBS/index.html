@@ -4025,6 +4025,9 @@ function sortBrawlers(brawlers, sortType = 'rarity') {
 // 現在のソート設定（将来的にUI で変更可能に）
 let currentBrawlerSort = 'rarity';
 
+// アクティブなゲームリファレンス（リスナークリーンアップ用）
+let activeGameRef = null;
+
 // モード一覧（初期はエメラルドハント）
 const GAME_MODES = [
     { id: 'gemgrab', name: 'エメラルドハント', icon: '💎' },
@@ -4414,18 +4417,18 @@ function closeMapModal() {
 }
 
 // 自分のターンかどうかを判定
-// PICK順: 先攻→後攻→先攻→先攻→後攻→後攻
-// PIC 1,3,4 = 先攻チームのターン
-// PIC 2,5,6 = 後攻チームのターン
+// PICK順: 先攻→後攻→後攻→先攻→先攻→後攻
+// PIC 1,4,5 = 先攻チームのターン
+// PIC 2,3,6 = 後攻チームのターン
 function isPlayerTurn() {
     const phase = banpicState.phase;
     const isBlue = banpicState.isBlueTeam;
     
     if (phase === 'ban') return true;  // BANは同時なので常に自分のターン
     
-    // 先攻がPIC1,3,4 / 後攻がPIC2,5,6
-    const firstMoveTurns = ['pic1', 'pic3', 'pic4'];
-    const secondMoveTurns = ['pic2', 'pic5', 'pic6'];
+    // 先攻がPIC1,4,5 / 後攻がPIC2,3,6
+    const firstMoveTurns = ['pic1', 'pic4', 'pic5'];
+    const secondMoveTurns = ['pic2', 'pic3', 'pic6'];
     
     // isBlue = true ならプレイヤーは先攻チーム
     if (isBlue) {
@@ -4437,7 +4440,15 @@ function isPlayerTurn() {
 
 // タイマー開始
 function startPhaseTimer() {
+    // 既存のタイマーを完全に停止
     stopPhaseTimer();
+    
+    // タイマーが既に動いている場合は何もしない（二重起動防止）
+    if (banpicState.timerInterval) {
+        console.warn('Timer already running, skipping start');
+        return;
+    }
+    
     banpicState.timer = 20;
     updatePhaseDisplay();
     
@@ -4558,8 +4569,8 @@ function confirmSelection() {
             }
 
             const picNum = parseInt(phase.replace('pic', ''));
-            // PIC 1,3,4 = 先攻(blue)のターン / PIC 2,5,6 = 後攻(red)のターン
-            const isBluePhase = [1,3,4].includes(picNum);
+            // PIC 1,4,5 = 先攻(blue)のターン / PIC 2,3,6 = 後攻(red)のターン
+            const isBluePhase = [1,4,5].includes(picNum);
 
             // 自分のターンのみ確定を許す
             if ((isBlue && isBluePhase) || (!isBlue && !isBluePhase)) {
@@ -4874,6 +4885,13 @@ function startTestMode(modeKey, mapName, firstMove) {
 
 // オンライン対戦開始処理 (meta は rooms/{id}/meta の内容)
 function startOnlineMode(meta, roomId) {
+    // 古いリスナーを解除（前回のルームの残骸防止）
+    if (activeGameRef) {
+        activeGameRef.off();
+        activeGameRef = null;
+    }
+    stopPhaseTimer();
+    
     // 先攻情報の解決（host が決定済みの resolvedFirstMoveIsBlue を優先）
     let resolvedIsBlue = true;
     if (typeof meta.resolvedFirstMoveIsBlue !== 'undefined') {
@@ -4914,6 +4932,7 @@ function startOnlineMode(meta, roomId) {
 
     // ホストは game ノードを初期化して進行を管理する
     const gameRef = database.ref(`rooms/${roomId}/game`);
+    activeGameRef = gameRef; // グローバルに保存（クリーンアップ用）
     if (amHost) {
         gameRef.set({
             phase: 'ban',
@@ -4982,7 +5001,8 @@ function startOnlineMode(meta, roomId) {
             // PIC進行: 該当チームが確定したら次へ
             if (dbPhase.startsWith('pic')) {
                 const picNum = parseInt(dbPhase.replace('pic', ''));
-                const isBluePhase = [1, 3, 4].includes(picNum);
+                // PIC 1,4,5 = 先攻(blue)のターン / PIC 2,3,6 = 後攻(red)のターン
+                const isBluePhase = [1, 4, 5].includes(picNum);
                 const turnConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
 
                 if (turnConfirmed) {
@@ -5093,14 +5113,14 @@ function startOnlineMode(meta, roomId) {
     startPhaseTimer();
 }
 
-// ピック順ラベル更新（固定: 左=1,3,4 / 右=2,5,6）
+// ピック順ラベル更新（固定: 左=1,4,5 / 右=2,3,6）
 function updatePickOrderLabels() {
     const blueSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
     const redSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
     
-    // 常に固定: 左側(青)=1,3,4 / 右側(赤)=2,5,6
-    const blueOrder = [1, 3, 4];
-    const redOrder = [2, 5, 6];
+    // 常に固定: 左側(先攻)=1,4,5 / 右側(後攻)=2,3,6
+    const blueOrder = [1, 4, 5];
+    const redOrder = [2, 3, 6];
     
     blueSlots.forEach((slot, i) => {
         let badge = slot.querySelector('.pick-order');
@@ -5126,6 +5146,17 @@ function updatePickOrderLabels() {
 // BANPIC終了
 function exitBanpic() {
     stopPhaseTimer();
+    
+    // Firebaseリスナーを解除（次回のルームで二重発火を防止）
+    if (activeGameRef) {
+        activeGameRef.off();
+        activeGameRef = null;
+    }
+    
+    // 状態をリセット
+    banpicState.roomId = null;
+    banpicState.confirmed = false;
+    banpicState.banPhaseComplete = false;
     
     // テストモードインジケーター削除
     const indicator = document.querySelector('.test-mode-indicator');
