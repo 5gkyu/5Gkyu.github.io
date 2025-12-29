@@ -716,10 +716,11 @@ to { transform: rotate(360deg); }
 #game-screen.active {
 display: flex;
 flex-direction: column;
-justify-content: center; /* 縦方向中央寄せ */
+justify-content: flex-start; /* 上から配置 */
 align-items: stretch;
 height: calc(100vh - 80px);
 max-height: calc(100vh - 80px);
+overflow-y: auto;
 }
 
 .game-header {
@@ -1386,7 +1387,7 @@ font-size: 1.2rem;
 #game-screen.active {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 縦方向中央寄せ */
+    justify-content: flex-start; /* 上から配置 */
     align-items: stretch;
     height: calc(100vh - 60px);
     max-height: calc(100vh - 60px);
@@ -1394,6 +1395,7 @@ font-size: 1.2rem;
     margin: 0;
     max-width: 100%;
     overflow: hidden;
+    overflow-y: auto; /* 必要時スクロール */
 }
 
 /* マップ画像表示エリア */
@@ -1542,43 +1544,66 @@ font-size: 1.2rem;
 /* スマホ縦向き */
 @media (max-width: 600px) and (orientation: portrait) {
     .banpic-header {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 0.4rem;
-        gap: 0.4rem;
-        height: auto;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0.4rem !important;
+        gap: 0.3rem !important;
+        height: auto !important;
+        min-height: auto !important;
     }
     .banpic-mode-banner {
         order: 1;
-        width: 100%;
-        justify-content: center;
+        width: 100% !important;
+        max-width: 100% !important;
+        justify-content: center !important;
+        flex-shrink: 0;
     }
     .banpic-phase-display {
         order: 2;
-        width: 100%;
+        width: 100% !important;
+        text-align: center !important;
+        flex-shrink: 0;
+    }
+    .phase-text {
+        font-size: 0.9rem !important;
+    }
+    .phase-timer {
+        justify-content: center !important;
     }
 }
 
 /* スマホ横向き: 上部見切れ対策 */
 @media (max-height: 500px) and (orientation: landscape) {
-    #game-screen {
-        overflow-y: auto;
+    #game-screen.active {
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh;
+        overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
+        justify-content: flex-start !important;
     }
     .banpic-header {
-        min-height: 40px;
-        padding: 0.2rem 0.5rem;
+        min-height: 36px;
+        padding: 0.15rem 0.4rem;
+        flex-shrink: 0;
     }
     .phase-indicator {
-        min-height: 28px;
-        padding: 0.15rem 0.3rem;
+        min-height: 24px;
+        padding: 0.1rem 0.3rem;
+        flex-shrink: 0;
     }
     .banpic-slots {
-        padding: 0.3rem;
+        padding: 0.25rem;
+        flex-shrink: 0;
     }
     .banpic-actions {
-        min-height: 40px;
-        padding: 0.3rem 0.5rem;
+        min-height: 36px;
+        padding: 0.2rem 0.4rem;
+        flex-shrink: 0;
+    }
+    .character-grid-container {
+        flex-shrink: 0;
+        min-height: 80px;
     }
 }
 
