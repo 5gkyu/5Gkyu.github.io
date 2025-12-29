@@ -4452,11 +4452,25 @@ function confirmSelection() {
     const isBlue = banpicState.isBlueTeam;
     const roomId = banpicState.roomId;
 
+    // 既に確定済みの場合は何もしない（二重確定防止）
+    if (banpicState.confirmed) {
+        console.log('Already confirmed, ignoring');
+        return;
+    }
+
     // オンラインモード: Firebase に対して確定を書き込む
     if (!banpicState.isTestMode && roomId) {
         const gameRef = database.ref(`rooms/${roomId}/game`);
 
         if (phase === 'ban') {
+            // BANは3体選択で確定
+            if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length !== 3) {
+                console.log('BAN requires exactly 3 characters');
+                return;
+            }
+
+            banpicState.confirmed = true; // 二重確定防止
+
             const updateData = {};
             if (isBlue) {
                 updateData.blueBans = banpicState.selectedCharacters;
@@ -4466,25 +4480,43 @@ function confirmSelection() {
                 updateData.redConfirmed = true;
             }
 
-            gameRef.update(updateData).catch(err => {
+            gameRef.update(updateData).then(() => {
+                banpicState.selectedCharacters = [];
+                updateConfirmButton();
+                renderCharacterGrid();
+            }).catch(err => {
                 console.error('BAN確定エラー:', err);
+                banpicState.confirmed = false;
                 alert('確定に失敗しました');
             });
 
-            banpicState.selectedCharacters = [];
         } else if (phase.startsWith('pic')) {
+            // PICは1体選択で確定
+            if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length !== 1) {
+                console.log('PIC requires exactly 1 character');
+                return;
+            }
+
             const picNum = parseInt(phase.replace('pic', ''));
-            const isBluePhase = ['1','4','5'].includes(String(picNum));
+            const isBluePhase = [1,4,5].includes(picNum);
 
             // 自分のターンのみ確定を許す
             if ((isBlue && isBluePhase) || (!isBlue && !isBluePhase)) {
+                banpicState.confirmed = true;
                 // 読み出して配列に追加してから更新
                 gameRef.once('value').then(snap => {
                     const current = snap.val() || {};
-                    const picks = isBlue ? (current.bluePicks || []) : (current.redPicks || []);
-                    // 選択がなければ無視
-                    if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length === 0) return;
-                    picks.push(banpicState.selectedCharacters[0]);
+                    const picks = isBlue ? ([...(current.bluePicks || [])]) : ([...(current.redPicks || [])]);
+
+                    // 既に同じピックがある場合はスキップ
+                    const pickId = banpicState.selectedCharacters[0];
+                    if (picks.includes(pickId)) {
+                        console.log('Character already picked');
+                        banpicState.confirmed = false;
+                        return;
+                    }
+
+                    picks.push(pickId);
 
                     const updateData = {};
                     if (isBlue) {
@@ -4496,12 +4528,17 @@ function confirmSelection() {
                     }
 
                     return gameRef.update(updateData);
+                }).then(() => {
+                    banpicState.selectedCharacters = [];
+                    updateConfirmButton();
+                    renderCharacterGrid();
                 }).catch(err => {
                     console.error('PICK確定エラー:', err);
+                    banpicState.confirmed = false;
                     alert('確定に失敗しました');
                 });
-
-                banpicState.selectedCharacters = [];
+            } else {
+                console.log('Not your turn');
             }
         }
 
@@ -4809,7 +4846,9 @@ function startOnlineMode(meta, roomId) {
         mode: { id: (meta.mode || 'eme'), name: (MODE_DATA && MODE_DATA[meta.mode] ? MODE_DATA[meta.mode].label : (meta.mode || 'エメラルドハント')) },
         map: meta.mapName || '静かな広場',
         roomId: roomId,
-        amHost: amHost
+        amHost: amHost,
+        confirmed: false,  // 確定済みフラグ（そのフェーズ内での二重確定防止）
+        banPhaseComplete: false
     };
 
     // ホストは game ノードを初期化して進行を管理する
@@ -4834,23 +4873,36 @@ function startOnlineMode(meta, roomId) {
         if (!gameData) return;
         console.log('Game state updated:', gameData);
 
-        // 選択の反映（常に最新のDBデータを優先）
-        banpicState.blueBans = gameData.blueBans || [];
-        banpicState.redBans = gameData.redBans || [];
+        const currentPhase = gameData.phase;
+        const blueConfirmed = !!gameData.blueConfirmed;
+        const redConfirmed = !!gameData.redConfirmed;
+
+        // BANフェーズ中は相手のBANを相手が確定するまで表示しない
+        if (currentPhase === 'ban') {
+            if (myIsBlue) {
+                banpicState.blueBans = gameData.blueBans || [];
+                banpicState.redBans = (blueConfirmed && redConfirmed) ? (gameData.redBans || []) : [];
+            } else {
+                banpicState.redBans = gameData.redBans || [];
+                banpicState.blueBans = (blueConfirmed && redConfirmed) ? (gameData.blueBans || []) : [];
+            }
+        } else {
+            // PIC以降は全て表示
+            banpicState.blueBans = gameData.blueBans || [];
+            banpicState.redBans = gameData.redBans || [];
+        }
+
         banpicState.bluePicks = gameData.bluePicks || [];
         banpicState.redPicks = gameData.redPicks || [];
 
         const allBans = new Set([...(banpicState.blueBans || []), ...(banpicState.redBans || [])]);
         banpicState.allBannedIds = [...allBans];
 
-        const currentPhase = gameData.phase;
-        const blueConfirmed = !!gameData.blueConfirmed;
-        const redConfirmed = !!gameData.redConfirmed;
-
-        // BAN フェーズ: 両者確定で PIC1（ホストのみが遷移を書き込む）
+        // BAN フェーズ完了判定
         if (currentPhase === 'ban' && blueConfirmed && redConfirmed) {
+            banpicState.banPhaseComplete = true;
             if (amHost && lastPhase === 'ban') {
-                lastPhase = 'pic1'; // 重複書き込み防止
+                lastPhase = 'pic1';
                 gameRef.update({ phase: 'pic1', phaseIndex: 1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
             }
         }
@@ -4879,6 +4931,7 @@ function startOnlineMode(meta, roomId) {
             banpicState.phaseIndex = gameData.phaseIndex || banpicState.phaseIndex;
             lastPhase = gameData.phase;
             banpicState.selectedCharacters = [];
+            banpicState.confirmed = false; // フェーズ移行で確定フラグをリセット
 
             if (gameData.phase === 'done') {
                 stopPhaseTimer();
