@@ -1987,23 +1987,25 @@ font-size: 1.2rem;
 
 /* キャラクターグリッド */
 .character-grid-container {
+    display: block;
     overflow-x: auto;
     overflow-y: hidden;
     background: transparent;
-    flex: 1 1 auto;
-    min-height: 0;
-    max-height: 100%;
+    padding: 0.05rem 0;
+    margin: 0;
+    max-height: none;
     -webkit-overflow-scrolling: touch;
 }
 
 .character-grid {
     display: grid;
-    grid-template-rows: repeat(2, minmax(60px, 75px));
+    grid-template-rows: repeat(2, minmax(48px, 64px));
     grid-auto-flow: column;
-    gap: 0.4rem;
-    padding: 0.4rem 0.3rem;
-    height: fit-content;
-    min-height: auto;
+    gap: 0.28rem;
+    padding: 0.15rem 0.3rem;
+    height: auto;
+    min-height: 0;
+    align-items: center;
 }
 
 .character-card {
@@ -3240,7 +3242,7 @@ font-size: 1.2rem;
     <!-- 上部ヘッダー: バナー（左）とフェーズ（右） -->
     <div class="banpic-header">
         <div class="banpic-mode-banner" id="banpic-mode-banner" style="cursor: pointer;" onclick="openMapModal()">
-                <img id="banpic-mode-logo" class="mode-logo" src="image/e-soccer.png" alt="mode logo">
+                <img id="banpic-mode-logo" class="mode-logo" src="imagewebp/e-soccer.webp" alt="mode logo">
                 <div class="banner-text">
                     <div class="mode-name" id="banpic-mode">ブロストライカー</div>
                     <div class="map-name" id="banpic-map">静かな広場</div>
@@ -3563,7 +3565,7 @@ function populateModeGrid() {
         item.className = 'mode-grid-item' + (idx === 0 ? ' selected' : '');
         item.dataset.mode = mode.id;
         item.innerHTML = `
-            <img src="image/${mode.logo}" alt="${mode.label}">
+            <img src="imagewebp/${mode.logo.replace(/\.[^/.]+$/, '.webp')}" alt="${mode.label}">
             <span class="mode-label">${mode.label}</span>
         `;
         item.addEventListener('click', () => {
@@ -3603,7 +3605,7 @@ function populateMapGrid(modeKey) {
         item.dataset.mapId = map.id;
         item.dataset.mapImage = map.image;
         item.innerHTML = `
-            <img src="image/${map.image}" alt="${map.name}">
+            <img src="imagewebp/${map.image.replace(/\.[^/.]+$/, '.webp')}" alt="${map.name}">
             <span class="map-label">${map.name}</span>
         `;
         item.addEventListener('click', () => {
@@ -3656,19 +3658,19 @@ function applyBanner(modeKey, mapName, mapImage){
     const data = MODE_DATA[modeKey] || MODE_DATA.eme;
     if (typeof bannerModeName !== 'undefined' && bannerModeName) bannerModeName.textContent = data.label;
     if (typeof bannerMapName !== 'undefined' && bannerMapName) bannerMapName.textContent = mapName || bannerMapName.textContent;
-    if (typeof modeLogo !== 'undefined' && modeLogo) modeLogo.src = 'image/' + data.logo;
+    if (typeof modeLogo !== 'undefined' && modeLogo) modeLogo.src = 'imagewebp/' + data.logo.replace(/\.[^/.]+$/, '.webp');
     if (typeof modeBanner !== 'undefined' && modeBanner) {
         modeBanner.style.setProperty('--mode-bg', data.color);
         modeBanner.style.background = `linear-gradient(90deg, ${data.color}33, ${data.color}22)`;
     }
     // ゲーム画面用バナーにも反映
-    if(banpicModeLogo) banpicModeLogo.src = 'image/' + data.logo;
+    if(banpicModeLogo) banpicModeLogo.src = 'imagewebp/' + data.logo.replace(/\.[^/.]+$/, '.webp');
     if(banpicModeBanner) banpicModeBanner.style.background = `linear-gradient(90deg, ${data.color}33, ${data.color}22)`;
     if(banpicModeNameEl) banpicModeNameEl.textContent = data.label;
     if(banpicMapNameEl) banpicMapNameEl.textContent = mapName || banpicMapNameEl.textContent;
     // マップ画像を反映
     if(mapDisplayImg && mapImage) {
-        mapDisplayImg.src = 'image/' + mapImage;
+        mapDisplayImg.src = 'imagewebp/' + mapImage.replace(/\.[^/.]+$/, '.webp');
     }
 }
 
@@ -4686,21 +4688,21 @@ function preloadImages() {
     const priorityBrawlers = BRAWLERS.slice(0, 20);
     priorityBrawlers.forEach(brawler => {
         const img = new Image();
-        img.src = `image/${brawler.image}`;
+        img.src = `imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}`;
     });
     
     // 残りは遅延ロード
     setTimeout(() => {
         BRAWLERS.slice(20).forEach(brawler => {
             const img = new Image();
-            img.src = `image/${brawler.image}`;
+            img.src = `imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}`;
         });
     }, 500);
     
     // デフォルト画像もプリロード
     ['default_ban.png', 'default_pic.png'].forEach(file => {
         const img = new Image();
-        img.src = `image/${file}`;
+        img.src = `imagewebp/${file.replace(/\.[^/.]+$/, '.webp')}`;
     });
 }
 
@@ -4816,7 +4818,7 @@ function renderCharacterGrid() {
         if (isSelected) card.classList.add('selected');
         
         card.innerHTML = `
-            <div class="char-icon"><img src="image/${brawler.image}" alt="${brawler.name}"></div>
+            <div class="char-icon"><img src="imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}" alt="${brawler.name}"></div>
             <div class="char-name">${brawler.name}</div>
             ${isBanned ? '<div class="ban-overlay">🚫</div>' : ''}
         `;
@@ -4928,9 +4930,9 @@ function updateSlotPreview() {
         const existingOrder = slot.querySelector('.pick-order');
         const orderHTML = existingOrder ? existingOrder.outerHTML : '';
         if (slot.classList.contains('ban-slot')) {
-            slot.innerHTML = `<img src="image/default_ban.png" alt="BAN">`;
+            slot.innerHTML = `<img src="imagewebp/default_ban.webp" alt="BAN">`;
         } else if (slot.classList.contains('pick-slot')) {
-            slot.innerHTML = `<img src="image/default_pic.png" alt="PIC">${orderHTML}`;
+            slot.innerHTML = `<img src="imagewebp/default_pic.webp" alt="PIC">${orderHTML}`;
         } else {
             slot.innerHTML = '';
         }
@@ -4953,7 +4955,7 @@ function updateSlotPreview() {
     banpicState.blueBans.forEach((charId, i) => {
         const brawler = BRAWLERS.find(b => b.id === charId);
         if (brawler && leftSlots[i]) {
-            leftSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}">`;
+            leftSlots[i].innerHTML = `<img src="imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}" alt="${brawler.name}">`;
             leftSlots[i].classList.add('filled');
             leftSlots[i].classList.remove('empty');
         }
@@ -4962,7 +4964,7 @@ function updateSlotPreview() {
     banpicState.redBans.forEach((charId, i) => {
         const brawler = BRAWLERS.find(b => b.id === charId);
         if (brawler && rightSlots[i]) {
-            rightSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}">`;
+            rightSlots[i].innerHTML = `<img src="imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}" alt="${brawler.name}">`;
             rightSlots[i].classList.add('filled');
             rightSlots[i].classList.remove('empty');
         }
@@ -4977,7 +4979,7 @@ function updateSlotPreview() {
         if (brawler && bluePickSlots[i]) {
             const orderBadge = bluePickSlots[i].querySelector('.pick-order');
             const orderHTML = orderBadge ? orderBadge.outerHTML : '';
-            bluePickSlots[i].innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
+            bluePickSlots[i].innerHTML = `<img src="imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
             bluePickSlots[i].classList.add('filled');
             bluePickSlots[i].classList.remove('empty');
         }
@@ -4991,7 +4993,7 @@ function updateSlotPreview() {
         if (brawler && slot) {
             const orderBadge = slot.querySelector('.pick-order');
             const orderHTML = orderBadge ? orderBadge.outerHTML : '';
-            slot.innerHTML = `<img src="image/${brawler.image}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
+            slot.innerHTML = `<img src="imagewebp/${brawler.image.replace(/\.[^/.]+$/, '.webp')}" alt="${brawler.name}"><span class="slot-check">✓</span>${orderHTML}`;
             slot.classList.add('filled');
             slot.classList.remove('empty');
         }
@@ -5007,7 +5009,7 @@ function updateSlotPreview() {
             banpicState.selectedCharacters.forEach((charId, i) => {
                 const b = BRAWLERS.find(x => x.id === charId);
                 if (b && targetSlots[i] && targetSlots[i].classList.contains('empty')) {
-                    targetSlots[i].innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    targetSlots[i].innerHTML = `<img src="imagewebp/${b.image.replace(/\.[^/.]+$/, '.webp')}" alt="${b.name}">`;
                     targetSlots[i].classList.add('selected');
                     targetSlots[i].classList.remove('empty');
                 }
@@ -5019,7 +5021,7 @@ function updateSlotPreview() {
                 const slot = bluePickSlots[nextIndex];
                 const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
                 if (b && slot && slot.classList.contains('empty')) {
-                    slot.innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    slot.innerHTML = `<img src="imagewebp/${b.image.replace(/\.[^/.]+$/, '.webp')}" alt="${b.name}">`;
                     slot.classList.add('selected');
                     slot.classList.remove('empty');
                 }
@@ -5030,7 +5032,7 @@ function updateSlotPreview() {
                 const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
                 const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
                 if (b && slot && slot.classList.contains('empty')) {
-                    slot.innerHTML = `<img src="image/${b.image}" alt="${b.name}">`;
+                    slot.innerHTML = `<img src="imagewebp/${b.image.replace(/\.[^/.]+$/, '.webp')}" alt="${b.name}">`;
                     slot.classList.add('selected');
                     slot.classList.remove('empty');
                 }
@@ -5121,12 +5123,12 @@ function openMapModal() {
     if (IMAGE_DATA && IMAGE_DATA.maps) {
         const mapData = IMAGE_DATA.maps.find(m => m.name === mapName);
         if (mapData) {
-            mapImage.src = `image/${mapData.image}`;
+            mapImage.src = `imagewebp/${mapData.image.replace(/\.[^/.]+$/, '.webp')}`;
         } else {
-            mapImage.src = `image/m-${mapName}.png`;
+            mapImage.src = `imagewebp/m-${mapName}.webp`;
         }
     } else {
-        mapImage.src = `image/m-${mapName}.png`;
+        mapImage.src = `imagewebp/m-${mapName}.webp`;
     }
     
     // タイマーを同期
@@ -5975,7 +5977,7 @@ function showMapPreview(mapName, mapImage) {
         overlay.className = 'map-preview-overlay';
         overlay.innerHTML = `
             <div class="map-preview-title">🗺️ ${mapName}</div>
-            <img src="image/${mapImage}" class="map-preview-image" alt="${mapName}">
+            <img src="imagewebp/${mapImage.replace(/\.[^/.]+$/, '.webp')}" class="map-preview-image" alt="${mapName}">
         `;
         document.body.appendChild(overlay);
         
