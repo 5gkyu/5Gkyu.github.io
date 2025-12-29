@@ -445,6 +445,15 @@ gap: 0.75rem;
     margin-top: 1rem;
 }
 
+/* 空状態メッセージをグリッド全幅に広げて中央寄せする */
+.room-list .empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .room-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
@@ -498,9 +507,14 @@ background: var(--danger-color);
 }
 
 .empty-state {
-text-align: center;
-padding: 3rem;
-color: var(--text-muted);
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
 }
 
 .empty-state .icon {
@@ -1541,6 +1555,27 @@ font-size: 1.2rem;
     gap: 0.3rem;
 }
 
+.banpic-spacer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    box-sizing: border-box;
+    background: transparent;
+}
+.banpic-spacer .banpic-phase-display {
+    width: 100%;
+    max-width: 980px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.03);
+}
+
 /* スマホ縦向き */
 @media (max-width: 600px) and (orientation: portrait) {
     .banpic-header {
@@ -1555,14 +1590,23 @@ font-size: 1.2rem;
         order: 1;
         width: 100% !important;
         max-width: 100% !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         flex-shrink: 0;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0.3rem 0.5rem !important;
     }
     .banpic-phase-display {
         order: 2;
         width: 100% !important;
-        text-align: center !important;
-        flex-shrink: 0;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        text-align: left !important;
+        padding: 0.2rem 0.5rem !important;
+        background: rgba(0,0,0,0.02) !important;
+        border-radius: 8px !important;
     }
     .phase-text {
         font-size: 0.9rem !important;
@@ -2263,6 +2307,24 @@ font-size: 1.2rem;
     opacity: 0.5;
 }
 
+/* バナー内に置く確定ボタン（バナー右端に表示） */
+.confirm-in-actions {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: var(--secondary-color);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.confirm-in-actions:disabled { opacity: 0.6; background: #777; color: #ddd; cursor: not-allowed; }
+
+@media (orientation: landscape) and (max-height: 480px) {
+    .floating-confirm-btn { display: none !important; }
+    .confirm-in-actions { padding: 0.28rem 0.6rem; font-size: 0.85rem; }
+}
+
 .mode-name {
     font-size: 1rem;
     font-weight: bold;
@@ -2712,7 +2774,136 @@ font-size: 1.2rem;
     }
 }
 </style>
+
+<!-- Override: 古い absolute レイアウトを無効化してバナー/フェーズを正常表示 -->
+<style>
+    .banpic-header { position: static !important; padding-left: 0.4rem !important; padding-right: 0.4rem !important; align-items: flex-start !important; }
+    .banpic-mode-banner { position: static !important; left: auto !important; top: auto !important; transform: none !important; margin-left: 0 !important; z-index: 1 !important; width: auto !important; max-width: 420px !important; display: flex !important; align-items: center !important; }
+    .banpic-header .banpic-phase-display { margin-left: 0 !important; width: 100% !important; max-width: 980px !important; }
+    .banpic-spacer { display: flex !important; }
+    /* フェーズ表示を全デバイスで中央寄せに統一 */
+    .banpic-phase-display {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+    .banpic-phase-display .phase-text { text-align: center !important; }
+    .banpic-phase-display .phase-timer { justify-content: center !important; }
+</style>
 </head>
+<style>
+/* 強制上書き: バナーとフェーズを別行で表示（全デバイス） */
+.banpic-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    padding: 0.35rem 0.5rem !important;
+}
+.banpic-mode-banner {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.32rem 0.6rem !important;
+}
+.banpic-spacer {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.18rem 0.5rem !important;
+}
+.banpic-spacer .banpic-phase-display,
+.banpic-phase-display {
+    width: 100% !important;
+    max-width: 980px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    text-align: center !important;
+}
+/* 無効化: 古い absolute レイアウトが残っている場合の上書き */
+.banpic-mode-banner[style], .banpic-mode-banner { left: auto !important; top: auto !important; transform: none !important; }
+</style>
+<style>
+/* スマホ横向き（高さが小さい端末）で1画面に収めるための縮小ルール */
+@media (orientation: landscape) and (max-height: 480px) {
+    #game-screen.active {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        /* 小さい横画面では縦スクロールを許可して下部要素を表示 */
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 72px !important; /* 下部領域を確保 */
+    }
+    /* ヘッダーをコンパクトに */
+    .banpic-header {
+        padding: 0.12rem 0.25rem !important;
+        min-height: 28px !important;
+        gap: 0.12rem !important;
+    }
+    .banpic-mode-banner {
+        padding: 0.08rem 0.3rem !important;
+    }
+    .banpic-mode-banner .mode-logo { height: 20px !important; }
+    .banpic-mode-banner .banner-text { gap: 0.08rem !important; }
+    .banpic-spacer { padding: 0.08rem 0.2rem !important; }
+    .banpic-spacer .banpic-phase-display { padding: 0.08rem 0.3rem !important; }
+    .phase-text { font-size: 0.78rem !important; }
+    .phase-timer .timer-value { font-size: 0.85rem !important; }
+
+    /* 下部のプレイヤー情報を確実に表示 */
+    .banpic-actions {
+        position: relative !important;
+        z-index: 30 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        padding: 0.08rem 0.5rem !important;
+        background: rgba(0,0,0,0.02) !important;
+        border-radius: 6px !important;
+    }
+
+    .banpic-confirm-area {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.5rem;
+    }
+    .confirm-in-actions {
+        /* ensure visible on dark bg */
+        background: var(--secondary-color);
+        color: #000;
+    }
+
+    /* キャラグリッド縮小 */
+    .character-grid { grid-template-rows: repeat(2, minmax(40px, 48px)) !important; gap: 0.18rem !important; padding: 0.15rem !important; }
+    .character-card { width: 68px !important; height: 48px !important; }
+    .character-card .char-name { font-size: 0.56rem !important; padding: 0.15rem !important; }
+
+    /* BAN/PICK スロットを小さく */
+    .banpic-slots { padding: 0.2rem !important; gap: 0.18rem !important; }
+    .ban-slot, .pick-slot { min-width: 30px !important; min-height: 30px !important; max-width: 110px !important; max-height: 110px !important; }
+    .vs-center { width: 48px !important; height: 48px !important; }
+    .pick-order { width: 18px !important; height: 18px !important; font-size: 0.65rem !important; left: 3px !important; bottom: 3px !important; }
+
+    /* フェーズインジケーターも小さく */
+    .phase-indicator { padding: 0.12rem 0.2rem !important; }
+    .phase-step { font-size: 0.6rem !important; padding: 0.18rem 0.36rem !important; }
+
+    /* テキスト縮小 */
+    body, #game-screen { font-size: 0.92rem !important; }
+}
+</style>
 <body>
 <!-- ヘッダー -->
 <header>
@@ -2801,21 +2992,14 @@ font-size: 1.2rem;
     <!-- 上部ヘッダー: バナー（左）とフェーズ（右） -->
     <div class="banpic-header">
         <div class="banpic-mode-banner" id="banpic-mode-banner" style="cursor: pointer;" onclick="openMapModal()">
-            <img id="banpic-mode-logo" class="mode-logo" src="image/e-soccer.png" alt="mode logo">
-            <div class="banner-text">
-                <div class="mode-name" id="banpic-mode">ブロストライカー</div>
-                <div class="map-name" id="banpic-map">静かな広場</div>
-                    <div id="first-move-indicator" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">先攻: ランダム</div>
+                <img id="banpic-mode-logo" class="mode-logo" src="image/e-soccer.png" alt="mode logo">
+                <div class="banner-text">
+                    <div class="mode-name" id="banpic-mode">ブロストライカー</div>
+                    <div class="map-name" id="banpic-map">静かな広場</div>
+                        <div id="first-move-indicator" style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">先攻: ランダム</div>
+                </div>
+                <span class="map-view-hint">🖼️</span>
             </div>
-            <span class="map-view-hint">🖼️</span>
-        </div>
-        <div class="banpic-phase-display">
-            <span class="phase-text" id="phase-text">使用禁止キャラクターを指定してください</span>
-            <div class="phase-timer">
-                <span class="timer-icon">⏱</span>
-                <span class="timer-value" id="phase-timer">20秒</span>
-            </div>
-        </div>
     </div>
 
     <!-- フェーズインジケーター -->
@@ -2832,6 +3016,17 @@ font-size: 1.2rem;
         </div>
         <!-- ソート切り替えボタン（右端に配置） -->
         <button class="btn btn-secondary btn-sm" id="sort-toggle-btn" style="font-size: 0.65rem; padding: 0.2rem 0.4rem;" title="表示順を変更">📊</button>
+    </div>
+
+    <!-- バナーとキャラの間のスペース: フェーズ表示をここに配置 -->
+    <div class="banpic-spacer">
+        <div class="banpic-phase-display">
+            <span class="phase-text" id="phase-text">使用禁止キャラクターを指定してください</span>
+            <div class="phase-timer">
+                <span class="timer-icon">⏱</span>
+                <span class="timer-value" id="phase-timer">20秒</span>
+            </div>
+        </div>
     </div>
 
     <!-- キャラクター選択エリア（横スクロール） -->
@@ -2889,14 +3084,17 @@ font-size: 1.2rem;
             <div class="player-display-avatar" id="blue-player-avatar">👤</div>
             <div class="player-display-name" id="blue-player-name">プレイヤー1</div>
         </div>
+        <div class="banpic-confirm-area">
+            <button id="confirm-selection-btn" class="confirm-in-actions" disabled>選択を確定</button>
+        </div>
         <div class="player-info-display right">
             <div class="player-display-avatar" id="red-player-avatar">👤</div>
             <div class="player-display-name" id="red-player-name">プレイヤー2</div>
         </div>
     </div>
     
-    <!-- フローティング確定ボタン -->
-    <button class="floating-confirm-btn" id="confirm-selection-btn" disabled>選択を確定</button>
+</div>
+    <!-- フローティング確定ボタン（削除。バナー内のボタンを使用） -->
 </div>
 
 <!-- マップ画像モーダル -->
