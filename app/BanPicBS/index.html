@@ -4113,12 +4113,7 @@ function selectCharacter(charId) {
         return;
     }
     
-    // PICフェーズで自分のターンでない場合は完全にブロック
-    if (phase.startsWith('pic') && !isPlayerTurn()) {
-        console.log('Not your turn - blocking selection');
-        return;
-    }
-    
+    // BANフェーズの処理
     if (phase === 'ban') {
         // BANフェーズ: 最大3体まで選択可能（トグル）
         const idx = banpicState.selectedCharacters.indexOf(charId);
@@ -4128,15 +4123,22 @@ function selectCharacter(charId) {
             banpicState.selectedCharacters.push(charId);
         }
     } else if (phase.startsWith('pic')) {
-        // PICフェーズ: 1体だけ選択（置き換え）
+        // PICフェーズ: 自分のターンのみ選択可能
+        if (!isPlayerTurn()) {
+            console.log('Not your turn - blocking selection');
+            return;
+        }
+        // 1体だけ選択（置き換え）
         // 既に同じキャラが選択されている場合、再度押すと即確定
         if (banpicState.selectedCharacters.length === 1 && banpicState.selectedCharacters[0] === charId) {
-            if (isPlayerTurn()) {
-                confirmSelection();
-                return;
-            }
+            confirmSelection();
+            return;
         }
         banpicState.selectedCharacters = [charId];
+    } else {
+        // 不明なフェーズは無視
+        console.log('Unknown phase:', phase);
+        return;
     }
     
     renderCharacterGrid();
@@ -4985,13 +4987,25 @@ function startOnlineMode(meta, roomId) {
         }
 
         // ローカルのフェーズをDBと同期（常にDBの値を信頼）
-        if (gameData.phase && gameData.phase !== banpicState.phase) {
-            console.log('Phase changed from', banpicState.phase, 'to', gameData.phase);
+        const phaseChanged = gameData.phase && gameData.phase !== banpicState.phase;
+        
+        // フェーズを常にDBの値に更新
+        if (gameData.phase) {
             banpicState.phase = gameData.phase;
             banpicState.phaseIndex = gameData.phaseIndex || banpicState.phaseIndex;
             lastPhase = gameData.phase;
+        }
+        
+        // 自分の確定状態をDBと同期（相手の確定状態ではなく自分の）
+        const myConfirmedInDB = myIsBlue ? blueConfirmed : redConfirmed;
+        banpicState.confirmed = myConfirmedInDB;
+        
+        // フェーズが変わった場合の追加処理
+        if (phaseChanged) {
+            console.log('Phase changed from', banpicState.phase, 'to', gameData.phase);
             banpicState.selectedCharacters = [];
-            banpicState.confirmed = false; // フェーズ移行で確定フラグをリセット
+            // フェーズ変更時は確定フラグをリセット（DB側でfalseになっているはず）
+            banpicState.confirmed = false;
 
             if (gameData.phase === 'done') {
                 stopPhaseTimer();
