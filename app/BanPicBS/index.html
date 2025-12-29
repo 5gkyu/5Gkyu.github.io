@@ -4112,15 +4112,36 @@ function updateConfirmButton() {
     
     const phase = banpicState.phase;
     
+    // 既に確定済みの場合
+    if (banpicState.confirmed) {
+        btn.disabled = true;
+        if (phase === 'ban') {
+            btn.textContent = '確定済み - 相手を待っています...';
+        } else {
+            btn.textContent = '確定済み';
+        }
+        return;
+    }
+    
     if (phase === 'ban') {
         btn.disabled = banpicState.selectedCharacters.length !== 3;
         btn.textContent = `BAN確定 (${banpicState.selectedCharacters.length}/3)`;
-    } else if (phase.startsWith('pic')) {
-        btn.disabled = banpicState.selectedCharacters.length !== 1;
-        btn.textContent = '選択を確定';
-    } else {
+    } else if (phase && phase.startsWith('pic')) {
+        // 自分のターンかどうか
+        const isMyTurn = isPlayerTurn();
+        if (!isMyTurn) {
+            btn.disabled = true;
+            btn.textContent = '相手のターン...';
+        } else {
+            btn.disabled = banpicState.selectedCharacters.length !== 1;
+            btn.textContent = banpicState.selectedCharacters.length === 1 ? '選択を確定' : 'キャラクターを選択';
+        }
+    } else if (phase === 'done') {
         btn.disabled = true;
         btn.textContent = '完了';
+    } else {
+        btn.disabled = true;
+        btn.textContent = '準備中...';
     }
 }
 
@@ -4961,21 +4982,28 @@ function startOnlineMode(meta, roomId) {
         slot.classList.add('empty');
     });
 
+    // 名前表示: 各クライアントで自分が左（青側）、相手が右（赤側）に表示
     const blueNameEl = document.getElementById('blue-player-name');
     const redNameEl = document.getElementById('red-player-name');
-    const blueIsHost = resolvedIsBlue;
-    if (blueIsHost) {
-        if (blueNameEl) blueNameEl.textContent = meta.hostName || 'ホスト';
-        if (redNameEl) redNameEl.textContent = meta.guestName || 'ゲスト';
+    const myName = amHost ? (meta.hostName || 'ホスト') : (meta.guestName || 'ゲスト');
+    const opponentName = amHost ? (meta.guestName || 'ゲスト') : (meta.hostName || 'ホスト');
+    
+    // 自分が青チーム（左側）なら自分の名前を左に、そうでなければ相手の名前を左に
+    if (myIsBlue) {
+        if (blueNameEl) blueNameEl.textContent = myName;
+        if (redNameEl) redNameEl.textContent = opponentName;
     } else {
-        if (blueNameEl) blueNameEl.textContent = meta.guestName || 'ゲスト';
-        if (redNameEl) redNameEl.textContent = meta.hostName || 'ホスト';
+        if (blueNameEl) blueNameEl.textContent = opponentName;
+        if (redNameEl) redNameEl.textContent = myName;
     }
 
     const firstMoveIndicator = document.getElementById('first-move-indicator');
     if (firstMoveIndicator) {
-        const firstName = resolvedIsBlue ? (meta.hostName || 'ホスト') : (meta.guestName || 'ゲスト');
-        firstMoveIndicator.textContent = `先攻: ${firstName}`;
+        // 先攻は常に青チーム側の名前
+        const firstMoverName = resolvedIsBlue 
+            ? (meta.hostName || 'ホスト') 
+            : (meta.guestName || 'ゲスト');
+        firstMoveIndicator.textContent = `先攻: ${firstMoverName}`;
     }
 
     showScreen('game-screen');
