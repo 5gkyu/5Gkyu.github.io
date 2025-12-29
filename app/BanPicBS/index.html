@@ -4305,7 +4305,10 @@ try { if (isHost) clearRoomExpiry(roomId); } catch(e){console.warn('clear expiry
                     const winnerName = meta.resolvedFirstMoveIsBlue 
                         ? (meta.hostName || 'ホスト') 
                         : (meta.guestName || 'ゲスト');
-                    await showCoinToss(winnerName);
+                    await showCoinToss(winnerName, meta.mapName, meta.mapImage);
+                } else {
+                    // 先攻後攻が事前に決まっている場合もマップを表示
+                    await showMapPreview(meta.mapName, meta.mapImage);
                 }
                 startOnlineMode(meta, roomId);
             } catch (err) {
@@ -5925,7 +5928,7 @@ function setPlayerAvatars(meta, amHost, myIsBlue) {
 }
 
 // コイントス演出を表示
-function showCoinToss(winnerName) {
+function showCoinToss(winnerName, mapName, mapImage) {
     return new Promise(resolve => {
         const overlay = document.createElement('div');
         overlay.className = 'coin-toss-overlay';
@@ -5936,26 +5939,18 @@ function showCoinToss(winnerName) {
         `;
         document.body.appendChild(overlay);
         
-        // 2.5秒後にコイン結果表示→マップ画像を4秒表示
+        // 2.5秒後にコイン結果表示→マップ画像を3秒表示
         setTimeout(() => {
             overlay.remove();
-            showMapPreview().then(resolve);
+            showMapPreview(mapName, mapImage).then(resolve);
         }, 2500);
     });
 }
 
-// コイントス後にマップ画像を4秒表示
-function showMapPreview() {
+// コイントス後にマップ画像を3秒表示
+function showMapPreview(mapName, mapImage) {
     return new Promise(resolve => {
-        const mapName = banpicState.map || '';
-        let mapImage = '';
-        
-        if (IMAGE_DATA && IMAGE_DATA.maps) {
-            const mapData = IMAGE_DATA.maps.find(m => m.name === mapName);
-            if (mapData) mapImage = mapData.image;
-        }
-        
-        if (!mapImage) {
+        if (!mapImage || !mapName) {
             resolve();
             return;
         }
@@ -5968,11 +5963,11 @@ function showMapPreview() {
         `;
         document.body.appendChild(overlay);
         
-        // 4秒後に削除
+        // 3秒後に削除
         setTimeout(() => {
             overlay.remove();
             resolve();
-        }, 4000);
+        }, 3000);
     });
 }
 
