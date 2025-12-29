@@ -2022,10 +2022,13 @@ font-size: 1.2rem;
 
 .player-info-display.left {
     justify-content: flex-start;
+    text-align: left;
 }
 
 .player-info-display.right {
     justify-content: flex-end;
+    text-align: right;
+    flex-direction: row-reverse;
 }
 
 .player-display-avatar {
@@ -2712,8 +2715,8 @@ font-size: 1.2rem;
             <div class="player-display-name" id="blue-player-name">プレイヤー1</div>
         </div>
         <div class="player-info-display right">
-            <div class="player-display-name" id="red-player-name">プレイヤー2</div>
             <div class="player-display-avatar" id="red-player-avatar">👤</div>
+            <div class="player-display-name" id="red-player-name">プレイヤー2</div>
         </div>
     </div>
     
@@ -4280,25 +4283,22 @@ function updatePhaseDisplay() {
     });
     
     if (phaseText) {
-        switch (banpicState.phase) {
-            case 'ban':
-                phaseText.textContent = '使用禁止キャラクターを指定してください';
-                break;
-            case 'pic1':
-            case 'pic2':
-            case 'pic3':
-            case 'pic4':
-            case 'pic5':
-            case 'pic6':
-                const picNum = parseInt(banpicState.phase.replace('pic', ''));
-                const isMyTurn = isPlayerTurn();
-                phaseText.textContent = isMyTurn 
-                    ? `キャラクターを選択してください (PICK ${picNum})` 
-                    : `相手がキャラクターを選択中... (PICK ${picNum})`;
-                break;
-            case 'done':
-                phaseText.textContent = 'BANPIC完了！';
-                break;
+        const phase = banpicState.phase;
+        if (phase === 'ban') {
+            phaseText.textContent = '使用禁止キャラクターを指定してください (BAN)';
+            phaseText.style.color = 'var(--text-color)';
+        } else if (phase && phase.startsWith('pic')) {
+            const picNum = parseInt(phase.replace('pic', ''));
+            const isMyTurn = isPlayerTurn();
+            phaseText.textContent = isMyTurn 
+                ? `キャラクターを選択してください (PICK ${picNum})` 
+                : `相手がキャラクターを選択中... (PICK ${picNum})`;
+            phaseText.style.color = 'var(--text-color)';
+        } else if (phase === 'done') {
+            phaseText.textContent = '🎉 BANPIC完了！';
+            phaseText.style.color = 'var(--secondary-color)';
+        } else {
+            phaseText.textContent = '準備中...';
         }
     }
     
@@ -4399,10 +4399,20 @@ function stopPhaseTimer() {
     }
 }
 
+// オンラインモードかどうかを判定
+function isOnlineMode() {
+    return !banpicState.isTestMode && banpicState.roomId;
+}
+
 // タイムアウト処理
 function handleTimeout() {
     const phase = banpicState.phase;
     const available = getAvailableCharacters();
+    
+    // オンラインモードで自分のターンでなければ何もしない（相手の時間切れは相手側で処理）
+    if (isOnlineMode() && !isPlayerTurn()) {
+        return;
+    }
     
     if (phase === 'ban') {
         // 足りない分をランダムで埋める
@@ -4818,12 +4828,13 @@ function startOnlineMode(meta, roomId) {
     }
 
     // ゲーム状態の監視
+    let lastPhase = 'ban';
     gameRef.on('value', (snapshot) => {
         const gameData = snapshot.val();
         if (!gameData) return;
         console.log('Game state updated:', gameData);
 
-        // 選択の反映
+        // 選択の反映（常に最新のDBデータを優先）
         banpicState.blueBans = gameData.blueBans || [];
         banpicState.redBans = gameData.redBans || [];
         banpicState.bluePicks = gameData.bluePicks || [];
@@ -4836,9 +4847,10 @@ function startOnlineMode(meta, roomId) {
         const blueConfirmed = !!gameData.blueConfirmed;
         const redConfirmed = !!gameData.redConfirmed;
 
-        // BAN フェーズ: 両者確定で PIC1
-        if (currentPhase === 'ban' && blueConfirmed && redConfirmed && banpicState.phase === 'ban') {
-            if (amHost) {
+        // BAN フェーズ: 両者確定で PIC1（ホストのみが遷移を書き込む）
+        if (currentPhase === 'ban' && blueConfirmed && redConfirmed) {
+            if (amHost && lastPhase === 'ban') {
+                lastPhase = 'pic1'; // 重複書き込み防止
                 gameRef.update({ phase: 'pic1', phaseIndex: 1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
             }
         }
@@ -4846,25 +4858,30 @@ function startOnlineMode(meta, roomId) {
         // PIC フェーズの進行（ホストのみが書き込み）
         if (String(currentPhase).startsWith('pic')) {
             const picNum = parseInt(String(currentPhase).replace('pic',''));
-            const isBluePhase = ['1','4','5'].includes(String(picNum));
+            const isBluePhase = [1,4,5].includes(picNum);
             const phaseConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
 
-            if (phaseConfirmed && amHost && banpicState.phase === currentPhase) {
+            if (phaseConfirmed && amHost && lastPhase === currentPhase) {
                 if (picNum < 6) {
+                    lastPhase = `pic${picNum+1}`;
                     gameRef.update({ phase: `pic${picNum+1}`, phaseIndex: picNum+1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
                 } else {
+                    lastPhase = 'done';
                     gameRef.update({ phase: 'done', phaseIndex: 7 }).catch(e => console.warn(e));
                 }
             }
         }
 
-        // ローカルのフェーズを同期
+        // ローカルのフェーズをDBと同期（常にDBの値を信頼）
         if (gameData.phase && gameData.phase !== banpicState.phase) {
+            console.log('Phase changed from', banpicState.phase, 'to', gameData.phase);
             banpicState.phase = gameData.phase;
             banpicState.phaseIndex = gameData.phaseIndex || banpicState.phaseIndex;
+            lastPhase = gameData.phase;
             banpicState.selectedCharacters = [];
 
             if (gameData.phase === 'done') {
+                stopPhaseTimer();
                 showBanpicResult();
             } else {
                 stopPhaseTimer();
