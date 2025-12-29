@@ -142,6 +142,44 @@ object-fit: cover;
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* マッププレビュー演出 */
+.map-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: mapPreviewFadeIn 0.5s ease-out;
+}
+@keyframes mapPreviewFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.map-preview-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.map-preview-image {
+    max-width: 80%;
+    max-height: 60vh;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+    animation: mapImageZoom 0.5s ease-out;
+}
+@keyframes mapImageZoom {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 /* モードバナー（ヘッダー左上） */
 .header-left {
     display: flex;
@@ -595,8 +633,8 @@ margin-bottom: 1rem;
 
 .form-group label {
 display: block;
-margin-bottom: 0.5rem;
-font-size: 0.9rem;
+margin-bottom: 0.4rem;
+font-size: 0.85rem;
 color: var(--text-muted);
 }
 
@@ -634,6 +672,209 @@ margin-top: 1.5rem;
 
 .form-actions .btn {
 flex: 1;
+}
+
+/* モード・マップ画像グリッド選択 */
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+}
+.mode-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--card-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.mode-grid-item:hover {
+    background: rgba(74, 144, 217, 0.15);
+}
+.mode-grid-item.selected {
+    border-color: var(--primary-color);
+    background: rgba(74, 144, 217, 0.25);
+}
+.mode-grid-item img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+.mode-grid-item .mode-label {
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.map-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.map-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.4rem;
+    background: var(--card-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.map-grid-item:hover {
+    background: rgba(74, 144, 217, 0.15);
+}
+.map-grid-item.selected {
+    border-color: var(--secondary-color);
+    background: rgba(46, 204, 113, 0.2);
+}
+.map-grid-item img {
+    width: 100%;
+    max-width: 90px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.2);
+}
+.map-grid-item .map-label {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+    text-align: center;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+/* 横長画面（タブレット・PC）対応 */
+@media (min-width: 768px) {
+    .modal {
+        max-width: 700px;
+        max-height: 95vh;
+    }
+    
+    #create-room-modal .modal {
+        max-width: 850px;
+        max-height: 95vh;
+        padding: 1.2rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #create-room-modal .modal-header {
+        margin-bottom: 1rem;
+        flex-shrink: 0;
+    }
+    
+    #create-room-modal form {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #create-room-modal .modal-body {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    #create-room-modal .settings-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    #create-room-modal .selection-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        min-height: 0;
+    }
+    
+    #create-room-modal .form-group-mode {
+        flex-shrink: 0;
+    }
+    
+    #create-room-modal .form-group-map {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    
+    #create-room-modal .form-group-map .map-grid {
+        flex: 1;
+        min-height: 0;
+    }
+    
+    #create-room-modal .form-group {
+        margin-bottom: 0;
+    }
+    
+    #create-room-modal .form-actions {
+        margin-top: 1rem;
+        flex-shrink: 0;
+        grid-column: 1 / -1;
+    }
+    
+    .mode-grid {
+        overflow: visible;
+        max-height: none;
+    }
+    
+    .map-grid {
+        overflow-y: auto;
+        max-height: 100%;
+    }
+    
+    .mode-grid-item,
+    .map-grid-item {
+        padding: 0.35rem;
+    }
+    
+    .mode-grid-item img {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .map-grid-item img {
+        max-width: 100%;
+        height: 55px;
+    }
+}
+
+@media (min-width: 1024px) {
+    #create-room-modal .modal {
+        max-width: 950px;
+    }
+    
+    #create-room-modal .modal-body {
+        grid-template-columns: 300px 1fr;
+    }
+    
+    .mode-grid-item img {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .map-grid-item img {
+        height: 60px;
+    }
 }
 
 /* 待機画面 */
@@ -3118,28 +3359,18 @@ font-size: 1.2rem;
 <button class="modal-close" id="close-create-modal">&times;</button>
 </div>
 <form id="create-room-form">
+<div class="modal-body">
+<div class="settings-column">
 <div class="form-group">
 <label>ルーム名</label>
 <input type="text" id="room-name-input" placeholder="ルーム1" maxlength="20">
 </div>
 <div class="form-group">
-<!-- 名前入力は不要のため削除 -->
-</div>
-<div class="form-group">
-<label>モード</label>
-<select id="room-mode-select" required>
-<option value="eme" selected>エメラルドハント</option>
-<option value="bounty">賞金稼ぎ</option>
-<option value="soccer">ブロストライカー</option>
-<option value="hotzone">ホットゾーン</option>
-<option value="heist">強奪</option>
-<option value="knockout">ノックアウト</option>
-</select>
-</div>
-<div class="form-group">
-<label>マップ</label>
-<select id="room-map-select" required>
-<option value="">選択してください</option>
+<label>制限時間（BAN/PIC）</label>
+<select id="room-timer-select" required>
+<option value="20" selected>20秒</option>
+<option value="30">30秒</option>
+<option value="40">40秒</option>
 </select>
 </div>
 <div class="form-group">
@@ -3153,6 +3384,24 @@ font-size: 1.2rem;
 <div class="form-group">
 <label>パスワード（任意）</label>
 <input type="password" id="room-password-input" placeholder="なしの場合は空欄">
+</div>
+</div>
+<div class="selection-column">
+<div class="form-group form-group-mode">
+<label>モード</label>
+<input type="hidden" id="room-mode-select" value="eme">
+<div class="mode-grid" id="mode-grid">
+<!-- モードアイコンがJSで挿入される -->
+</div>
+</div>
+<div class="form-group form-group-map">
+<label>マップ</label>
+<input type="hidden" id="room-map-select" value="">
+<div class="map-grid" id="map-grid">
+<!-- マップ画像がJSで挿入される -->
+</div>
+</div>
+</div>
 </div>
 <div class="form-actions">
 <button type="button" class="btn btn-secondary" id="cancel-create-room">キャンセル</button>
@@ -3282,10 +3531,10 @@ async function loadImageData() {
         // キャラクターデータを読み込み
         BRAWLERS = IMAGE_DATA.brawlers || [];
         
-        // 初期表示は現在のモード選択に合わせる
-        const modeEl = document.getElementById('room-mode-select');
-        const initialMode = (modeEl && modeEl.value) ? modeEl.value : 'eme';
-        populateMapSelect(initialMode);
+        // モードグリッドとマップグリッドを生成
+        populateModeGrid();
+        const initialMode = document.getElementById('room-mode-select')?.value || 'eme';
+        populateMapGrid(initialMode);
     } catch (error) {
         console.error('画像データの読み込みエラー:', error);
         IMAGE_DATA = { modes: {}, maps: [], brawlers: [] };
@@ -3293,38 +3542,80 @@ async function loadImageData() {
     }
 }
 
-// room-mode-select が変更されたら map セレクトを再描画
-const modeSelectEl = document.getElementById('room-mode-select');
-if (modeSelectEl) {
-    modeSelectEl.addEventListener('change', (e) => {
-        const modeKey = e.target.value;
-        populateMapSelect(modeKey);
+// モードグリッドを生成 (3×2)
+function populateModeGrid() {
+    const modeGrid = document.getElementById('mode-grid');
+    const modeInput = document.getElementById('room-mode-select');
+    if (!modeGrid || !IMAGE_DATA || !IMAGE_DATA.modes) return;
+    
+    modeGrid.innerHTML = '';
+    const modes = Object.values(IMAGE_DATA.modes);
+    
+    modes.forEach((mode, idx) => {
+        const item = document.createElement('div');
+        item.className = 'mode-grid-item' + (idx === 0 ? ' selected' : '');
+        item.dataset.mode = mode.id;
+        item.innerHTML = `
+            <img src="image/${mode.logo}" alt="${mode.label}">
+            <span class="mode-label">${mode.label}</span>
+        `;
+        item.addEventListener('click', () => {
+            modeGrid.querySelectorAll('.mode-grid-item').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            modeInput.value = mode.id;
+            populateMapGrid(mode.id);
+        });
+        modeGrid.appendChild(item);
     });
+    
+    // 初期値を設定
+    if (modes.length > 0) {
+        modeInput.value = modes[0].id;
+    }
 }
 
-function populateMapSelect(modeKey) {
-    const mapSelect = document.getElementById('room-map-select');
-    if (!mapSelect || !IMAGE_DATA) return;
-
-    mapSelect.innerHTML = '<option value="">選択してください</option>';
-
-    // 判定: image data にモード情報が入っているか
+// マップグリッドを生成 (3×n)
+function populateMapGrid(modeKey) {
+    const mapGrid = document.getElementById('map-grid');
+    const mapInput = document.getElementById('room-map-select');
+    if (!mapGrid || !IMAGE_DATA) return;
+    
+    mapGrid.innerHTML = '';
+    
+    // モードに対応するマップをフィルタ
     const hasModeInfo = IMAGE_DATA.maps.some(m => Array.isArray(m.modes) && m.modes.length > 0);
-
     let mapsToShow = IMAGE_DATA.maps;
     if (modeKey && hasModeInfo) {
         mapsToShow = IMAGE_DATA.maps.filter(m => Array.isArray(m.modes) && m.modes.includes(modeKey));
-        // フィルタで空になったらフォールバックで全表示
         if (mapsToShow.length === 0) mapsToShow = IMAGE_DATA.maps;
     }
-
-    mapsToShow.forEach(map => {
-        const option = document.createElement('option');
-        option.value = map.id;
-        option.textContent = map.name;
-        option.dataset.image = map.image;
-        mapSelect.appendChild(option);
+    
+    mapsToShow.forEach((map, idx) => {
+        const item = document.createElement('div');
+        item.className = 'map-grid-item' + (idx === 0 ? ' selected' : '');
+        item.dataset.mapId = map.id;
+        item.dataset.mapImage = map.image;
+        item.innerHTML = `
+            <img src="image/${map.image}" alt="${map.name}">
+            <span class="map-label">${map.name}</span>
+        `;
+        item.addEventListener('click', () => {
+            mapGrid.querySelectorAll('.map-grid-item').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            mapInput.value = map.id;
+        });
+        mapGrid.appendChild(item);
     });
+    
+    // 初期値を設定
+    if (mapsToShow.length > 0) {
+        mapInput.value = mapsToShow[0].id;
+    }
+}
+
+// 古いセレクト用（互換性のため残す）
+function populateMapSelect(modeKey) {
+    populateMapGrid(modeKey);
 }
 
 // ========================================
@@ -3712,6 +4003,7 @@ const password = document.getElementById('room-password-input').value;
 const modeKey = document.getElementById('room-mode-select').value;
 const mapId = document.getElementById('room-map-select').value;
 const firstMove = document.getElementById('room-first-move-select').value;
+const timerDuration = parseInt(document.getElementById('room-timer-select').value, 10) || 20;
 
 // マップデータを安全に取得（IMAGE_DATAがまだ読込中の可能性を考慮）
 let mapData = null;
@@ -3754,7 +4046,9 @@ state: 'open',
 createdAt: firebase.database.ServerValue.TIMESTAMP,
 mode: modeKey,
 mapName: mapName,
-firstMove: firstMove
+mapImage: mapImage,
+firstMove: firstMove,
+timerDuration: timerDuration
 }
 });
 
@@ -4864,7 +5158,7 @@ function startPhaseTimer() {
         return;
     }
     
-    banpicState.timer = 20;
+    banpicState.timer = banpicState.timerDuration || 20;
     updatePhaseDisplay();
     
     banpicState.timerInterval = setInterval(() => {
@@ -5218,6 +5512,7 @@ function startTestMode(modeKey, mapName, firstMove) {
         phase: 'ban',
         phaseIndex: 0,
         timer: 20,
+        timerDuration: 20,
         timerInterval: null,
         selectedCharacters: [],
         blueBans: [],
@@ -5340,12 +5635,14 @@ function startOnlineMode(meta, roomId) {
     const myIsBlue = amHost ? resolvedIsBlue : !resolvedIsBlue;
 
     // 状態リセット（オンラインプレイ）
+    const gameDuration = meta.timerDuration || 20;
     banpicState = {
         isTestMode: false,
         isBlueTeam: myIsBlue,
         phase: 'ban',
         phaseIndex: 0,
-        timer: 20,
+        timer: gameDuration,
+        timerDuration: gameDuration,
         timerInterval: null,
         selectedCharacters: [],
         blueBans: [],
@@ -5639,11 +5936,43 @@ function showCoinToss(winnerName) {
         `;
         document.body.appendChild(overlay);
         
-        // 2.5秒後に削除
+        // 2.5秒後にコイン結果表示→マップ画像を4秒表示
+        setTimeout(() => {
+            overlay.remove();
+            showMapPreview().then(resolve);
+        }, 2500);
+    });
+}
+
+// コイントス後にマップ画像を4秒表示
+function showMapPreview() {
+    return new Promise(resolve => {
+        const mapName = banpicState.map || '';
+        let mapImage = '';
+        
+        if (IMAGE_DATA && IMAGE_DATA.maps) {
+            const mapData = IMAGE_DATA.maps.find(m => m.name === mapName);
+            if (mapData) mapImage = mapData.image;
+        }
+        
+        if (!mapImage) {
+            resolve();
+            return;
+        }
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'map-preview-overlay';
+        overlay.innerHTML = `
+            <div class="map-preview-title">🗺️ ${mapName}</div>
+            <img src="image/${mapImage}" class="map-preview-image" alt="${mapName}">
+        `;
+        document.body.appendChild(overlay);
+        
+        // 4秒後に削除
         setTimeout(() => {
             overlay.remove();
             resolve();
-        }, 2500);
+        }, 4000);
     });
 }
 
