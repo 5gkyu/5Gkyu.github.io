@@ -2017,17 +2017,16 @@ font-size: 1.2rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex: 1;
 }
 
 .player-info-display.left {
     justify-content: flex-start;
-    text-align: left;
+    margin-right: auto;
 }
 
 .player-info-display.right {
     justify-content: flex-end;
-    text-align: right;
+    margin-left: auto;
     flex-direction: row-reverse;
 }
 
@@ -4075,8 +4074,20 @@ function renderCharacterGrid() {
 function selectCharacter(charId) {
     const phase = banpicState.phase;
     
+    // 既に確定済みの場合は選択できない
+    if (banpicState.confirmed) {
+        console.log('Already confirmed, cannot select');
+        return;
+    }
+    
     // BOTのターンなら選択できない（BANは同時なので除外）
     if (banpicState.isTestMode && phase.startsWith('pic') && !isPlayerTurn()) {
+        return;
+    }
+    
+    // オンラインモードで相手のターンなら選択できない
+    if (!banpicState.isTestMode && banpicState.roomId && phase.startsWith('pic') && !isPlayerTurn()) {
+        console.log('Not your turn');
         return;
     }
     
@@ -4373,25 +4384,23 @@ function closeMapModal() {
 }
 
 // 自分のターンかどうかを判定
-// PICK順: 先攻A→後攻B,B→先攻A,A→後攻B
-// プレイヤーのターン判定（先攻後攻を考慮）
-// ホスト先攻(isBlueTeam=true): 1,4,5=青 / 2,3,6=赤
-// ゲスト先攻(isBlueTeam=false): 1,4,5=赤 / 2,3,6=青
+// PICK順: 先攻→後攻→先攻→先攻→後攻→後攻
+// PIC 1,3,4 = 先攻チームのターン
+// PIC 2,5,6 = 後攻チームのターン
 function isPlayerTurn() {
     const phase = banpicState.phase;
     const isBlue = banpicState.isBlueTeam;
     
     if (phase === 'ban') return true;  // BANは同時なので常に自分のターン
     
-    // 先攻がPIC1,4,5 / 後攻がPIC2,3,6
-    const firstMoveTurns = ['pic1', 'pic4', 'pic5'];
-    const secondMoveTurns = ['pic2', 'pic3', 'pic6'];
+    // 先攻がPIC1,3,4 / 後攻がPIC2,5,6
+    const firstMoveTurns = ['pic1', 'pic3', 'pic4'];
+    const secondMoveTurns = ['pic2', 'pic5', 'pic6'];
     
+    // isBlue = true ならプレイヤーは先攻チーム
     if (isBlue) {
-        // ホスト先攻: プレイヤー=青=先攻
         return firstMoveTurns.includes(phase);
     } else {
-        // ゲスト先攻: プレイヤー=赤=先攻（よってプレイヤーのターンは後攻ターン）
         return secondMoveTurns.includes(phase);
     }
 }
@@ -4519,7 +4528,8 @@ function confirmSelection() {
             }
 
             const picNum = parseInt(phase.replace('pic', ''));
-            const isBluePhase = [1,4,5].includes(picNum);
+            // PIC 1,3,4 = 先攻(blue)のターン / PIC 2,5,6 = 後攻(red)のターン
+            const isBluePhase = [1,3,4].includes(picNum);
 
             // 自分のターンのみ確定を許す
             if ((isBlue && isBluePhase) || (!isBlue && !isBluePhase)) {
@@ -4929,9 +4939,10 @@ function startOnlineMode(meta, roomId) {
         }
 
         // PIC フェーズの進行（ホストのみが書き込み）
+        // PIC 1,3,4 = 先攻(blue)のターン / PIC 2,5,6 = 後攻(red)のターン
         if (String(currentPhase).startsWith('pic')) {
             const picNum = parseInt(String(currentPhase).replace('pic',''));
-            const isBluePhase = [1,4,5].includes(picNum);
+            const isBluePhase = [1,3,4].includes(picNum);
             const phaseConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
 
             if (phaseConfirmed && amHost && lastPhase === currentPhase) {
@@ -5015,22 +5026,14 @@ function startOnlineMode(meta, roomId) {
     startPhaseTimer();
 }
 
-// ピック順ラベル更新（先攻後攻に応じて変更）
+// ピック順ラベル更新（固定: 左=1,3,4 / 右=2,5,6）
 function updatePickOrderLabels() {
-    // 左から右への表示順を正しく設定します
-    // ホスト先攻(isBlueTeam=true): 全体 = 1,4,5,6,3,2  -> 青(左)=1,4,5 / 赤(右)=6,3,2
-    // ゲスト先攻(isBlueTeam=false): 全体 = 2,3,6,5,4,1 -> 青(左)=2,3,6 / 赤(右)=5,4,1
     const blueSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
     const redSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
     
-    let blueOrder, redOrder;
-    if (banpicState.isBlueTeam) {
-        blueOrder = [1, 4, 5];
-        redOrder = [6, 3, 2];
-    } else {
-        blueOrder = [2, 3, 6];
-        redOrder = [5, 4, 1];
-    }
+    // 常に固定: 左側(青)=1,3,4 / 右側(赤)=2,5,6
+    const blueOrder = [1, 3, 4];
+    const redOrder = [2, 5, 6];
     
     blueSlots.forEach((slot, i) => {
         let badge = slot.querySelector('.pick-order');
