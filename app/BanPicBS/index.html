@@ -4928,18 +4928,24 @@ function startOnlineMode(meta, roomId) {
     }
 
     // ゲーム状態の監視
-    let lastPhase = 'ban';
+    // 前回のフェーズを追跡（フェーズ変更検出用）
+    let previousPhase = null;
+    
     gameRef.on('value', (snapshot) => {
         const gameData = snapshot.val();
         if (!gameData) return;
-        console.log('Game state updated:', gameData);
+        console.log('Game state updated:', JSON.stringify(gameData));
 
-        const currentPhase = gameData.phase;
+        const dbPhase = gameData.phase || 'ban';
+        const dbPhaseIndex = gameData.phaseIndex || 0;
         const blueConfirmed = !!gameData.blueConfirmed;
         const redConfirmed = !!gameData.redConfirmed;
 
-        // BANフェーズ中は相手のBANを相手が確定するまで表示しない
-        if (currentPhase === 'ban') {
+        // =====================================
+        // 1. BAN/PICK データの同期
+        // =====================================
+        if (dbPhase === 'ban') {
+            // BANフェーズ中は相手のBANを両者確定まで隠す
             if (myIsBlue) {
                 banpicState.blueBans = gameData.blueBans || [];
                 banpicState.redBans = (blueConfirmed && redConfirmed) ? (gameData.redBans || []) : [];
@@ -4948,74 +4954,93 @@ function startOnlineMode(meta, roomId) {
                 banpicState.blueBans = (blueConfirmed && redConfirmed) ? (gameData.blueBans || []) : [];
             }
         } else {
-            // PIC以降は全て表示
+            // PIC以降は全BANを表示
             banpicState.blueBans = gameData.blueBans || [];
             banpicState.redBans = gameData.redBans || [];
         }
 
         banpicState.bluePicks = gameData.bluePicks || [];
         banpicState.redPicks = gameData.redPicks || [];
+        banpicState.allBannedIds = [...new Set([...(banpicState.blueBans || []), ...(banpicState.redBans || [])])];
 
-        const allBans = new Set([...(banpicState.blueBans || []), ...(banpicState.redBans || [])]);
-        banpicState.allBannedIds = [...allBans];
-
-        // BAN フェーズ完了判定（一度完了したら再度実行しない）
-        if (currentPhase === 'ban' && blueConfirmed && redConfirmed && !banpicState.banPhaseComplete) {
-            banpicState.banPhaseComplete = true;
-            if (amHost && lastPhase === 'ban') {
-                lastPhase = 'pic1';
-                gameRef.update({ phase: 'pic1', phaseIndex: 1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
+        // =====================================
+        // 2. フェーズ遷移の判定（ホストのみ実行）
+        // =====================================
+        if (amHost) {
+            // BAN → PIC1: 両者確定したら遷移
+            if (dbPhase === 'ban' && blueConfirmed && redConfirmed) {
+                console.log('Host: BAN complete, transitioning to PIC1');
+                gameRef.update({
+                    phase: 'pic1',
+                    phaseIndex: 1,
+                    blueConfirmed: false,
+                    redConfirmed: false
+                }).catch(e => console.warn('Phase transition failed:', e));
+                return; // 次の更新で処理される
             }
-        }
 
-        // PIC フェーズの進行（ホストのみが書き込み）
-        // PIC 1,3,4 = 先攻(blue)のターン / PIC 2,5,6 = 後攻(red)のターン
-        if (String(currentPhase).startsWith('pic')) {
-            const picNum = parseInt(String(currentPhase).replace('pic',''));
-            const isBluePhase = [1,3,4].includes(picNum);
-            const phaseConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
+            // PIC進行: 該当チームが確定したら次へ
+            if (dbPhase.startsWith('pic')) {
+                const picNum = parseInt(dbPhase.replace('pic', ''));
+                const isBluePhase = [1, 3, 4].includes(picNum);
+                const turnConfirmed = isBluePhase ? blueConfirmed : redConfirmed;
 
-            if (phaseConfirmed && amHost && lastPhase === currentPhase) {
-                if (picNum < 6) {
-                    lastPhase = `pic${picNum+1}`;
-                    gameRef.update({ phase: `pic${picNum+1}`, phaseIndex: picNum+1, blueConfirmed: false, redConfirmed: false }).catch(e => console.warn(e));
-                } else {
-                    lastPhase = 'done';
-                    gameRef.update({ phase: 'done', phaseIndex: 7 }).catch(e => console.warn(e));
+                if (turnConfirmed) {
+                    if (picNum < 6) {
+                        console.log(`Host: PIC${picNum} complete, transitioning to PIC${picNum + 1}`);
+                        gameRef.update({
+                            phase: `pic${picNum + 1}`,
+                            phaseIndex: picNum + 1,
+                            blueConfirmed: false,
+                            redConfirmed: false
+                        }).catch(e => console.warn('Phase transition failed:', e));
+                    } else {
+                        console.log('Host: All PICs complete, transitioning to done');
+                        gameRef.update({
+                            phase: 'done',
+                            phaseIndex: 7
+                        }).catch(e => console.warn('Phase transition failed:', e));
+                    }
+                    return; // 次の更新で処理される
                 }
             }
         }
 
-        // ローカルのフェーズをDBと同期（常にDBの値を信頼）
-        const phaseChanged = gameData.phase && gameData.phase !== banpicState.phase;
-        
-        // フェーズを常にDBの値に更新
-        if (gameData.phase) {
-            banpicState.phase = gameData.phase;
-            banpicState.phaseIndex = gameData.phaseIndex || banpicState.phaseIndex;
-            lastPhase = gameData.phase;
-        }
-        
-        // 自分の確定状態をDBと同期（相手の確定状態ではなく自分の）
-        const myConfirmedInDB = myIsBlue ? blueConfirmed : redConfirmed;
-        banpicState.confirmed = myConfirmedInDB;
-        
-        // フェーズが変わった場合の追加処理
-        if (phaseChanged) {
-            console.log('Phase changed from', banpicState.phase, 'to', gameData.phase);
-            banpicState.selectedCharacters = [];
-            // フェーズ変更時は確定フラグをリセット（DB側でfalseになっているはず）
-            banpicState.confirmed = false;
+        // =====================================
+        // 3. ローカル状態をDBと同期
+        // =====================================
+        const phaseChanged = (previousPhase !== null && previousPhase !== dbPhase);
+        previousPhase = dbPhase;
 
-            if (gameData.phase === 'done') {
+        // フェーズを更新
+        banpicState.phase = dbPhase;
+        banpicState.phaseIndex = dbPhaseIndex;
+
+        // 自分の確定状態をDBから取得
+        const myConfirmedInDB = myIsBlue ? blueConfirmed : redConfirmed;
+        
+        // フェーズが変わった場合
+        if (phaseChanged) {
+            console.log('Phase changed to:', dbPhase);
+            banpicState.selectedCharacters = [];
+            banpicState.confirmed = false;
+            banpicState.banPhaseComplete = (dbPhase !== 'ban');
+
+            if (dbPhase === 'done') {
                 stopPhaseTimer();
                 showBanpicResult();
             } else {
                 stopPhaseTimer();
                 startPhaseTimer();
             }
+        } else {
+            // フェーズ変更なしの場合、DBの確定状態を反映
+            banpicState.confirmed = myConfirmedInDB;
         }
 
+        // =====================================
+        // 4. UI更新
+        // =====================================
         renderCharacterGrid();
         updateSlotPreview();
         updatePickOrderLabels();
