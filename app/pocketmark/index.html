@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>公開リンク集（閲覧専用）</title>
-   <style href="style.css"></style>
+  <link rel="stylesheet" href="style.css">
   <style>
     /* When add/edit modal is open, hide header and top UI to focus on modal */
     body.modal-add-open header.card,
@@ -18,10 +18,16 @@
   </style>
 </head>
 <body>
+  <div id="loadingOverlay" aria-hidden="true">
+    <div class="loader">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loader-text">読み込み中…</div>
+    </div>
+  </div>
   <div class="wrap">
     <header class="card" role="banner">
       <div class="top-row">
-        <div class="search" aria-hidden="false" style="flex:1;min-width:0;margin:0 12px;">
+        <div class="search" aria-hidden="false" style="flex:1;min-width:0;margin:0;">
           <input id="q" placeholder="検索" autocomplete="off" />
           <div class="icon">🔎</div>
         </div>
@@ -49,9 +55,8 @@
             </select>
             <!-- Sort select -->
             <select id="sortSelect">
-              <option value="kana">🔤 あいうえお順↑</option>
-              <option value="kana-desc">🔤 あいうえお順↓</option>
-              <option value="name">🔠 ABC順</option>
+              <option value="alpha_en_asc">名前順（昇順）</option>
+              <option value="alpha_en_desc">名前順（降順）</option>
               <option value="date-new">📅 新しい順</option>
               <option value="date-old">📅 古い順</option>
             </select>
@@ -169,6 +174,16 @@
         <p id="loggedInEmail" style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px;"></p>
         <button id="signOutBtn2" class="small-btn" style="width:100%;background:#e74c3c;color:#fff;border-color:#e74c3c;">ログアウト</button>
       </div>
+      <!-- Appearance: Dark mode toggle -->
+      <div style="margin-top:12px;">
+        <div class="form-row" style="margin-bottom:6px">
+          <label style="font-weight:700">外観</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="darkModeToggle" />
+            <label for="darkModeToggle" style="margin:0;">ダークモードを有効にする</label>
+          </div>
+        </div>
+      </div>
       <div style="display:flex;gap:8px;justify-content:center;margin-top:20px;">
         <!-- OGP プロキシ設定 UI は非表示（デフォルトで Worker を利用） -->
         <button id="closeUserSettingsModal" class="small-btn">閉じる</button>
@@ -222,10 +237,11 @@
 <div id="cookieBanner" role="region" aria-label="クッキーの利用について" hidden>
   <div class="msg">当サイトは正常な動作のためクッキーを使用します。続行することで同意したものとみなします。</div>
   <div class="actions">
-    <button class="cookie-btn cookie-more" id="cookieMore">詳細</button>
     <button class="cookie-btn cookie-accept" id="cookieAccept">同意する</button>
   </div>
 </div>
+
+<!-- テスト用コードは削除済み -->
 
 <script>
 (function(){
@@ -240,13 +256,11 @@
       banner.hidden = false;
       banner.style.display = '';
       acceptBtn && acceptBtn.focus();
-      console.log('cookieBanner shown');
     }
     function hideBanner(){
       if(!banner) return;
       try{ banner.hidden = true; }catch(e){}
       try{ banner.style.display = 'none'; }catch(e){}
-      console.log('cookieBanner hidden');
     }
 
     function hasConsent(){
@@ -263,21 +277,20 @@
       acceptBtn.addEventListener('click', onAccept);
       acceptBtn.onclick = onAccept;
     }
-    if(moreBtn){
-      moreBtn.addEventListener('click', ()=>{ window.open('#','_blank','noopener'); });
-      moreBtn.onclick = ()=>{ window.open('#','_blank','noopener'); };
-    }
 
     function onAccept(e){
-      console.log('cookie accept clicked', e);
-      setConsent();
-      hideBanner();
+      // persist consent in localStorage only (cookie writing may be blocked by browser/privacy settings)
+      try{ setConsent(); }catch(e){}
+      try{ hideBanner(); }catch(e){}
+      try{ if(banner && banner.parentNode){ banner.parentNode.removeChild(banner); } }catch(e){}
     }
 
     document.addEventListener('keydown', (e)=>{ if((e.key==='Escape' || e.key==='Esc') && banner && !banner.hidden){ setConsent(); hideBanner(); } });
   }catch(e){ console.warn('cookie banner init error', e); }
 })();
 </script>
+
+<!-- テスト用コードは削除されました -->
 
 </body>
 </html>
