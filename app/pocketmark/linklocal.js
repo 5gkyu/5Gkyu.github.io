@@ -53,7 +53,9 @@ function cleanTitle(t){
 const VIEW_MODE_KEY = 'bookmark_view_mode_v1'; // localStorage キー
 const SORT_KEY = 'bookmark_sort_v1';
 // フォルダ機能は廃止されたため、関連する localStorage キーと定数は削除
-const state = { q:'', tags: new Set(), sort:'kana', editMode: false, viewMode: 'medium', selectedIds: new Set() };
+const state = { q:'', tags: new Set(), sort:'alpha_en_asc', editMode: false, viewMode: 'medium', selectedIds: new Set(), noTagFilter: false };
+// in-memory bookmark storage (initialized empty; populated from remote or user actions)
+let DATA = [];
 const el = {
   q: document.getElementById('q'),
   list: document.getElementById('list'),
@@ -160,12 +162,20 @@ function renderTags(){
   try{
     if(el.chipContainer){
       el.chipContainer.innerHTML = '';
+      // タグなし チップ
+      const noTagCount = (DATA || []).filter(d=> !(d.tags && d.tags.length)).length;
+      const noTagChip = document.createElement('button');
+      noTagChip.className = 'chip' + (state.noTagFilter ? ' active' : '');
+      noTagChip.textContent = `タグなし (${noTagCount})`;
+      noTagChip.addEventListener('click', ()=>{ state.noTagFilter = !state.noTagFilter; renderTags(); renderList(); });
+      el.chipContainer.appendChild(noTagChip);
+
       all.slice(0,showN).forEach(t=>{
         const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
         const chip = document.createElement('button');
         chip.className = 'chip' + (state.tags.has(t) ? ' active' : '');
         chip.textContent = `${t} (${count})`;
-        chip.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderTags(); renderList(); });
+        chip.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); state.noTagFilter = false; renderTags(); renderList(); });
         el.chipContainer.appendChild(chip);
       });
     }
@@ -178,12 +188,20 @@ function renderModalTags(all){
   try{
     if(!el.modalTags) return;
     el.modalTags.innerHTML = '';
+    // タグなし ボタンを先頭に追加
+    const noTagCount = (DATA || []).filter(d=> !(d.tags && d.tags.length)).length;
+    const noTagBtn = document.createElement('button');
+    noTagBtn.className = 'chip' + (state.noTagFilter ? ' active' : '');
+    noTagBtn.textContent = `タグなし (${noTagCount})`;
+    noTagBtn.addEventListener('click', ()=>{ state.noTagFilter = !state.noTagFilter; renderModalTags(all); renderTags(); renderList(); });
+    el.modalTags.appendChild(noTagBtn);
+
     all.forEach(t=>{
       const count = DATA.filter(d=> (d.tags||[]).includes(t)).length;
       const cb = document.createElement('button');
       cb.className = 'chip' + (state.tags.has(t) ? ' active' : '');
       cb.textContent = `${t} (${count})`;
-      cb.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); renderModalTags(all); renderTags(); renderList(); });
+      cb.addEventListener('click', ()=>{ if(state.tags.has(t)) state.tags.delete(t); else state.tags.add(t); state.noTagFilter = false; renderModalTags(all); renderTags(); renderList(); });
       el.modalTags.appendChild(cb);
     });
   }catch(e){ console.warn('renderModalTags error', e); }
@@ -196,18 +214,32 @@ function filterAndSort(){
     const inName = normalizeForSearch(item.title).includes(qn);
     const inUrl = normalizeForSearch(item.url).includes(qn);
     const inDesc = normalizeForSearch(item.desc||'').includes(qn);
-    const tagsMatch = Array.from(state.tags).every(t=>(item.tags||[]).includes(t));
+    const tagsMatch = state.noTagFilter ? (!(item.tags && item.tags.length)) : Array.from(state.tags).every(t=>(item.tags||[]).includes(t));
     return (qn === '' || inName || inUrl || inDesc) && tagsMatch;
   });
 
   // フォルダ機能は廃止されたため、ここでのフィルタは行いません。
 
-  if(state.sort === 'kana' || state.sort === 'kana-desc'){
-    const coll = new Intl.Collator('ja');
-    arr.sort((a,b)=>coll.compare(toHiragana(a.title), toHiragana(b.title)));
-    if(state.sort === 'kana-desc') arr.reverse();
-  } else if(state.sort === 'name'){
-    arr.sort((a,b)=>a.title.localeCompare(b.title,'en'));
+  if(state.sort === 'alpha_en_asc' || state.sort === 'alpha_en_desc'){
+    // English-first then Japanese ordering.
+    function makeAlphaEnJaKey(s){
+      const t = (s||'').toString().trim();
+      // presence of ASCII letter/digit -> treat as English group
+      const hasLatin = /[A-Za-z0-9]/.test(t);
+      if(hasLatin){
+        return '0' + t.toLowerCase();
+      }
+      // fallback: use hiragana-normalized key
+      return '1' + toHiragana(t);
+    }
+    arr.sort((a,b)=>{
+      const ka = makeAlphaEnJaKey(a.title || '');
+      const kb = makeAlphaEnJaKey(b.title || '');
+      if(ka < kb) return -1;
+      if(ka > kb) return 1;
+      return 0;
+    });
+    if(state.sort === 'alpha_en_desc') arr.reverse();
   } else if(state.sort === 'date-new'){
     arr.sort((a,b)=> (b.created_at || 0) - (a.created_at || 0));
   } else if(state.sort === 'date-old'){
@@ -487,7 +519,7 @@ if(el.viewSizeSelect){
 
 // Sort select
 if(el.sortSelect){
-  el.sortSelect.value = state.sort || 'kana';
+  el.sortSelect.value = state.sort || 'alpha_en_asc';
   el.sortSelect.addEventListener('change', (e)=>{
     state.sort = e.target.value;
     saveSort();
@@ -776,14 +808,30 @@ function adjustWrapForHeader(){
   const wrap = document.querySelector('.wrap');
   if(hdr && wrap){
     const h = hdr.offsetHeight || 0;
-    // align content directly under header; minimize extra gap
-    wrap.style.paddingTop = (h) + 'px';
-    // expose header height as CSS variable so sticky elements can align exactly
-    try{ document.documentElement.style.setProperty('--hdr-h', h + 'px'); }catch(e){}
+    // align content directly under header; remove header internal bottom padding/gap
+    try{
+      const cs = window.getComputedStyle(hdr);
+      const pb = parseFloat(cs.getPropertyValue('padding-bottom')) || 0;
+      const rowGap = parseFloat(cs.getPropertyValue('row-gap')) || parseFloat(cs.getPropertyValue('gap')) || 0;
+      // subtract internal bottom padding and row gap so content sits flush beneath visible header
+      const topPad = Math.max(0, h - pb - rowGap);
+      wrap.style.paddingTop = topPad + 'px';
+      // expose adjusted header height as CSS variable so sticky elements can align exactly
+      document.documentElement.style.setProperty('--hdr-h', topPad + 'px');
+    }catch(e){
+      wrap.style.paddingTop = (h) + 'px';
+      try{ document.documentElement.style.setProperty('--hdr-h', h + 'px'); }catch(e){}
+    }
   }
 }
 adjustWrapForHeader();
 window.addEventListener('resize', adjustWrapForHeader);
+
+// Hide loading overlay if present (page initialization complete)
+try{
+  const lo = document.getElementById('loadingOverlay');
+  if(lo){ lo.style.display = 'none'; }
+}catch(e){}
 
 const headerEl = document.querySelector('header.card');
 // Hamburger menu removed - view size and sort now inline with count
@@ -1043,6 +1091,12 @@ function openUserSettingsModal(){
     const v = localStorage.getItem('ogp_proxy') || '';
     const inp = document.getElementById('ogpProxyInput');
     if(inp) inp.value = v;
+    // sync dark mode toggle state when opening modal
+    try{
+      const dm = localStorage.getItem('dark_mode') === '1';
+      const chk = document.getElementById('darkModeToggle');
+      if(chk) chk.checked = dm;
+    }catch(e){}
   }catch(e){}
 }
 function closeUserSettingsModalFn(){
@@ -1051,6 +1105,25 @@ function closeUserSettingsModalFn(){
 if(userInfoBtn) userInfoBtn.addEventListener('click', openUserSettingsModal);
 if(closeUserSettingsModal) closeUserSettingsModal.addEventListener('click', closeUserSettingsModalFn);
 if(userSettingsModal) userSettingsModal.addEventListener('click', (e)=>{ if(e.target === userSettingsModal) closeUserSettingsModalFn(); });
+
+// Dark mode handling
+function applyDarkMode(enabled){
+  try{
+    if(enabled) document.documentElement.classList.add('dark-mode'); else document.documentElement.classList.remove('dark-mode');
+    localStorage.setItem('dark_mode', enabled ? '1' : '0');
+  }catch(e){ console.warn('applyDarkMode error', e); }
+}
+
+// Bind toggle if present
+try{
+  const dmToggle = document.getElementById('darkModeToggle');
+  if(dmToggle){
+    dmToggle.addEventListener('change', (e)=>{ applyDarkMode(!!e.target.checked); });
+  }
+  // Apply persisted preference on script load
+  const saved = localStorage.getItem('dark_mode') === '1';
+  applyDarkMode(saved);
+}catch(e){ /* ignore */ }
 
 // ログインセクション表示切替
 function updateModalLoginSection(){
@@ -1393,8 +1466,19 @@ if (window.firebase) {
     console.log('User displayName:', user.displayName);
     
     try{
-      firebaseUid = user.uid;
-      startSyncForUser(user.uid);
+        // If this user is not the owner, immediately sign them out (keep UI visible)
+        if(user.uid !== OWNER_UID){
+          console.warn('Non-owner attempted login, signing out:', user.uid);
+          try{ alert('このサイトはオーナーのみログイン可能です。'); }catch(e){}
+          try{ await firebase.auth().signOut(); }catch(e){ console.warn('signOut after non-owner login failed', e); }
+          // ensure UI reflects guest state and load public data
+          try{ updateAuthUI(null); updateEditPermissions(null); }catch(e){}
+          startSyncForUser(null);
+          return;
+        }
+
+        firebaseUid = user.uid;
+        startSyncForUser(user.uid);
       
       // リダイレクト後ならメッセージ表示（wasRedirectingは既にクリア済みなので別の方法で判定）
       // onAuthStateChangedは複数回発火するので、初回のみ通知
