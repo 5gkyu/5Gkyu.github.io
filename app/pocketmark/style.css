@@ -12,6 +12,116 @@
   --row-h:72px;
 }
 
+/* Dark mode variables applied when html has .dark-mode */
+html.dark-mode{
+  --bg: #07181a;
+  --card: #071e1f;
+  --accent-1: #17c3c6;
+  --accent-2: #5fbfc0;
+  --text: #e6fbfb;
+  --muted: #9fb5b7;
+}
+
+/* Dark-mode specific background overlay and text tweaks */
+html.dark-mode body{
+  /* darken the bright background image with a semi-opaque gradient to reduce highlight contrast */
+  background-image: linear-gradient(rgba(2,12,14,0.68), rgba(2,12,14,0.68)), url('https://5gkyu.github.io/app/pocketmark/backimage.png');
+  background-blend-mode: overlay;
+  background-color: var(--bg);
+}
+
+/* improve description contrast in dark mode */
+html.dark-mode .desc{ color: rgba(230,251,251,0.92); }
+html.dark-mode .tag{ background: rgba(255,255,255,0.06); color: var(--text); border:1px solid rgba(255,255,255,0.04); }
+
+/* slightly dim header background highlights on dark mode */
+html.dark-mode header.card{ background: linear-gradient(180deg, var(--card), rgba(7,30,31,0.9)); }
+
+/* Dark-mode: make link cards solid and clearly separated from background */
+html.dark-mode .row{
+  /* Make cards slightly brighter than page background for strong separation */
+  background: #0e3232; /* slightly brighter solid card */
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 6px 18px rgba(2,8,10,0.55);
+}
+html.dark-mode .row:hover{
+  box-shadow: 0 10px 30px rgba(2,8,10,0.65);
+}
+/* Reduce card inner gradient/shine for open button and other elements */
+html.dark-mode .open-btn{ box-shadow: none; }
+/* Make icon-wrap use a subdued solid background in dark mode */
+html.dark-mode .icon-wrap{ background: rgba(23,195,198,0.12); color: var(--text); }
+html.dark-mode .icon-wrap img{ filter: none; }
+
+/* Dark-mode: controls (selects, buttons, chip area, count row) */
+html.dark-mode select,
+html.dark-mode button,
+html.dark-mode input[type="url"],
+html.dark-mode input,
+html.dark-mode textarea{
+  background: #0b2a2a;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Make native dropdown/options dark where possible */
+html.dark-mode select option,
+html.dark-mode option{
+  background: #051616; /* dark option background */
+  color: var(--text);
+}
+/* Ensure opened select box itself looks dark on focus/active */
+html.dark-mode select:focus,
+html.dark-mode select:active{
+  background: #051616;
+  color: var(--text);
+}
+/* IE/Edge expand icon contrast */
+html.dark-mode select::-ms-expand{ filter: invert(1) brightness(1.2); }
+/* WebKit safari/chrome: try to improve option text color */
+html.dark-mode select::-webkit-color-swatch { color: var(--text); }
+
+html.dark-mode .chip,
+html.dark-mode .tag,
+html.dark-mode .more-btn,
+html.dark-mode .small-btn{
+  /* Make control chips/tags darker than cards to avoid blending when overlapping */
+  background: rgba(0,0,0,0.45);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+html.dark-mode #count .count-row{
+  /* Make count/action row darker than cards so it remains distinct when scrolled */
+  background: rgba(0,0,0,0.5);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Search input and placeholder contrast */
+html.dark-mode .search input{ background:#062525; color:var(--text); border:1px solid rgba(255,255,255,0.06); }
+html.dark-mode .search input::placeholder{ color: rgba(230,251,251,0.6); }
+
+/* Make selector/controls lines darker than cards */
+html.dark-mode .selector,
+html.dark-mode .top-row,
+html.dark-mode .top-buttons,
+html.dark-mode .tagbar,
+html.dark-mode .chip-container{
+  background: rgba(0,0,0,0.48);
+}
+
+/* Ensure header controls and selector are visible */
+html.dark-mode .selector select{ background:#0b2a2a; color:var(--text); border:1px solid rgba(255,255,255,0.06); }
+html.dark-mode .selector button{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04); }
+
+/* Modal panels contrast in dark mode */
+html.dark-mode .modal .panel{ background: #0c2c2c; color: var(--text); border:1px solid rgba(255,255,255,0.04); }
+
+/* make tags grid clearer */
+html.dark-mode .tags{ color: var(--text); }
+
+
 html,body{height:100%;width:100%;margin:0;font-family:Inter, "Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
 /* Background image served from GitHub Pages */
 body{background-image: url('https://5gkyu.github.io/app/pocketmark/backimage.png');background-attachment:fixed;background-size:cover;background-position:center;min-height:100vh}
@@ -200,7 +310,7 @@ body.edit-mode .row .open-btn{display:none}
 .top-row .user-info-text{display:none}
 .top-row .user-mini-avatar{width:36px;height:36px}
 #authRight{margin-left:auto;flex-shrink:0}
-.top-row .search{flex:1;min-width:0;margin:0 12px}
+.top-row .search{flex:1;min-width:0;margin:0}
 
 
 
@@ -336,3 +446,26 @@ body.modal-add-open { overflow: hidden; }
   #cookieBanner .msg{font-size:15px;font-weight:700;color:#fff}
   #cookieBanner .cookie-accept{width:110px}
 }
+
+/* Loading overlay */
+#loadingOverlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: var(--bg-overlay, rgba(0,0,0,0.6));
+  color: var(--text);
+  z-index:2200;
+}
+.loader{display:flex;flex-direction:column;align-items:center;gap:12px}
+.spinner{
+  width:56px;height:56px;border-radius:50%;
+  border:6px solid rgba(255,255,255,0.12);
+  border-top-color: var(--accent, #00d1c1);
+  animation: spinner 1s linear infinite;
+}
+.loader-text{font-size:16px;color:var(--text);opacity:0.95}
+@keyframes spinner{to{transform:rotate(360deg)}}
+
+/* Hide overlay when JS sets display:none (no extra class needed) */
