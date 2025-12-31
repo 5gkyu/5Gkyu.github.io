@@ -4,6 +4,33 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KyuLink</title>
+  <meta name="description" content="きゅーがよく使うリンクまとめ" />
+  
+  <!-- Favicon: use local image files (favicon.ico, apple-touch-icon, android-chrome) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Theme color (初音ミク色) -->
+  <meta name="theme-color" content="#39C5D6" />
+  <meta name="msapplication-TileColor" content="#39C5D6" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourwebsite.com/" />
+  <meta property="og:title" content="KyuLink" />
+  <meta property="og:description" content="きゅーがよく使うリンクまとめ" />
+  <meta property="og:image" content="https://yourwebsite.com/og-image.png" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://yourwebsite.com/" />
+  <meta property="twitter:title" content="KyuLink - リンク管理アプリ" />
+  <meta property="twitter:description" content="きゅーがよく使うリンクまとめ" />
+  <meta property="twitter:image" content="https://yourwebsite.com/og-image.png" />
+  
   <link rel="stylesheet" href="style.css">
   <style>
     /* When add/edit modal is open, hide header and top UI to focus on modal */
@@ -86,6 +113,8 @@
   
   <button class="fab" id="openAdd" title="ブックマークを追加">＋</button>
 
+  <!-- (削除) 旧・編集モードフローティングボタンは廃止 -->
+
   <!-- modal for adding a bookmark -->
   <div class="modal" id="addModal" role="dialog" aria-modal="true">
     <div class="panel" role="document" aria-labelledby="addTitle">
@@ -112,6 +141,8 @@
         <label>説明（任意）</label>
         <textarea id="addDesc" rows="2" placeholder="サイトの説明"></textarea>
       </div>
+
+      <!-- フォルダ機能を廃止しました -->
 
       <div class="form-row">
         <label>タグ（カンマ区切り、任意）</label>
@@ -300,4 +331,3 @@
 
 </body>
 </html>
-
