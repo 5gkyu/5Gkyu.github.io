@@ -479,4 +479,3 @@ body.modal-settings-open #count {
 @keyframes spinner{to{transform:rotate(360deg)}}
 
 /* Hide overlay when JS sets display:none (no extra class needed) */
-
