@@ -492,8 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if(!isTouch) return;
       document.documentElement.classList.add('no-scroll-mobile');
       document.body.classList.add('no-scroll-mobile');
-      function preventTouch(e){ e.preventDefault(); }
-      document.addEventListener('touchmove', preventTouch, { passive:false });
+      // NOTE: touchmove の preventDefault はピンチズームの復帰を阻害するため無効化
     }catch(e){ console.warn('enableMobileNoScroll failed', e); }
   }
   if(document.readyState === 'complete' || document.readyState === 'interactive') enableMobileNoScroll(); else document.addEventListener('DOMContentLoaded', enableMobileNoScroll);
