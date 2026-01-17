@@ -6,6 +6,8 @@
   <title>X検索補助ツール</title>
   <style>
 :root{ --bg:#f6fbfb; --card:#ffffff; --card-rgb:255,255,255; --accent-1:#0fb8bf; --accent-2:#8fe3dd; --text:#073a46; --muted:#57727a; --input-bg:#ffffff; --input-border:rgba(6,50,58,0.08); --shadow:0 10px 30px rgba(2,18,22,0.06); --radius:12px; --collapse-header-bg:#f3f3f3; --collapse-content-bg:#fafafa; --collapse-border:rgba(6,50,58,0.06); --miku-headset-red-1:#ff2d55; --miku-headset-red-2:#ff6b7a; --bottom-bar-height:64px; --footer-height:56px; }
+/* ダークモード（削除されました） */
+/* Awakeテーマ（ピンク） */
 html.theme-kohane{ --bg:#ffdada; --card:#ffffff; --accent-1:#ff6b8a; --accent-2:#ff9eb0; --text:#5c3a3a; --muted:#8a6565; --input-bg:#fff8f5; --collapse-header-bg:#fff0ed; --collapse-content-bg:#fff8f5; }
 html,body{
   min-height:100vh;
@@ -24,7 +26,7 @@ html,body{
 html.no-scroll-mobile, body.no-scroll-mobile, .no-scroll-mobile{
   overflow: hidden !important;
   height: 100% !important;
-  touch-action: none !important;
+  touch-action: auto !important;
   -webkit-overflow-scrolling: auto !important;
   overscroll-behavior: none !important;
 }
@@ -186,6 +188,11 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{
   -webkit-text-fill-color: var(--text) !important;
 }
 textarea{min-height:88px;resize:vertical}
+
+/* モバイルで入力フォーカス時に自動拡大されるのを防ぐ */
+@media (max-width: 600px){
+  input[type=text], select, textarea, .preset-row input{ font-size:16px; }
+}
 .secondary{background:#ffffff;border:1px solid rgba(6,50,58,0.08);padding:10px 12px;border-radius:10px;color:var(--text);font-weight:700;cursor:pointer}
 /* Make glossary/history action buttons match the large menu buttons */
 .menu-actions .secondary{
