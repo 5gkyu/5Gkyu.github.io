@@ -14,9 +14,214 @@ function splitTrim(s){ return s? String(s).trim().split(/\s+/).filter(x=>x):[] }
 function isNumeric(s){ return String(s).trim()!=='' && /^[0-9]+$/.test(String(s).trim()) }
 function collapseSpaces(str){ return String(str||'').split(/\s+/).filter(x=>x && x.length>0).join(' ') }
 
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildQueryAnalysis(query){
+  var q = String(query || '').trim();
+  if (!q) return '<div>クエリが空です。</div>';
+
+  function tokenize(input){
+    return (String(input || '').match(/"[^"]+"|\(|\)|\S+/g) || []).filter(Boolean);
+  }
+
+  function splitByTopLevelOr(input){
+    var tokens = tokenize(input);
+    var groups = [];
+    var current = [];
+    var depth = 0;
+    tokens.forEach(function(t){
+      if (t === '(') { depth++; current.push(t); return; }
+      if (t === ')') { depth = Math.max(0, depth - 1); current.push(t); return; }
+      if (t === 'OR' && depth === 0) {
+        groups.push(current.join(' ').trim());
+        current = [];
+        return;
+      }
+      current.push(t);
+    });
+    if (current.length) groups.push(current.join(' ').trim());
+    return groups.filter(function(g){ return g; });
+  }
+
+  function extractInfo(input){
+    var phrases = [];
+    var m;
+    var phraseRegex = /"([^"]+)"/g;
+    while ((m = phraseRegex.exec(input)) !== null) phrases.push(m[1]);
+
+    var from = [], to = [], mentions = [], hashtags = [], langs = [];
+    var filtersInclude = [], filtersExclude = [];
+    var urlsInclude = [], urlsExclude = [];
+    var mins = [];
+    var since = null, until = null;
+    var excludeWords = [];
+    var keywords = [];
+
+    var tokens = tokenize(input);
+    tokens.forEach(function(t){
+      if (t === 'OR') return;
+      if (t === '(' || t === ')') return;
+      if (t.startsWith('"') && t.endsWith('"')) return;
+
+      var lower = t.toLowerCase();
+      var neg = lower.startsWith('-');
+      var raw = neg ? t.slice(1) : t;
+      var rawLower = raw.toLowerCase();
+
+      if (rawLower.startsWith('from:')) { from.push(raw.slice(5)); return; }
+      if (rawLower.startsWith('to:')) { to.push(raw.slice(3)); return; }
+      if (rawLower.startsWith('lang:')) { langs.push(raw.slice(5)); return; }
+      if (rawLower.startsWith('since:')) { since = raw.slice(6); return; }
+      if (rawLower.startsWith('until:')) { until = raw.slice(6); return; }
+      if (rawLower.startsWith('min_faves:') || rawLower.startsWith('min_retweets:') || rawLower.startsWith('min_replies:')) { mins.push({ raw: raw, neg: neg }); return; }
+      if (rawLower.startsWith('filter:')) { var f = raw.slice(7); if (neg) filtersExclude.push(f); else filtersInclude.push(f); return; }
+      if (rawLower.startsWith('url:')) { var u = raw.slice(4); if (neg) urlsExclude.push(u); else urlsInclude.push(u); return; }
+      if (raw.startsWith('@') && raw.length > 1) { mentions.push(raw.slice(1)); return; }
+      if (raw.startsWith('#') && raw.length > 1) { hashtags.push(raw.slice(1)); return; }
+      if (neg && raw && raw.indexOf(':') === -1) { excludeWords.push(raw); return; }
+      keywords.push(raw);
+    });
+
+    return {
+      phrases: phrases,
+      keywords: keywords,
+      excludeWords: excludeWords,
+      from: from,
+      to: to,
+      mentions: mentions,
+      hashtags: hashtags,
+      langs: langs,
+      since: since,
+      until: until,
+      mins: mins,
+      filtersInclude: filtersInclude,
+      filtersExclude: filtersExclude,
+      urlsInclude: urlsInclude,
+      urlsExclude: urlsExclude
+    };
+  }
+
+  var info = extractInfo(q);
+
+  function joinList(arr){ return arr.join(' / '); }
+  function describeFilters(list){
+    return list.map(function(f){
+      var key = f.toLowerCase();
+      if (key === 'media') return '画像・動画のみ';
+      if (key === 'images') return '画像のみ';
+      if (key === 'videos') return '動画のみ';
+      if (key === 'links') return 'リンクを含む';
+      if (key === 'replies') return 'リプライのみ';
+      if (key === 'quote') return '引用のみ';
+      if (key === 'verified') return '認証済みのみ';
+      if (key === 'follows') return 'フォロー中のみ';
+      return f + ' を条件に追加';
+    }).join(' / ');
+  }
+  function describeExcludeFilters(list){
+    return list.map(function(f){
+      var key = f.toLowerCase();
+      if (key === 'media') return '画像・動画を除く';
+      if (key === 'images') return '画像を除く';
+      if (key === 'videos') return '動画を除く';
+      if (key === 'links') return 'リンクを除く';
+      if (key === 'replies') return 'リプライを除く';
+      if (key === 'quote') return '引用を除く';
+      if (key === 'verified') return '認証済みを除く';
+      return f + ' を除く';
+    }).join(' / ');
+  }
+  function describeMin(item){
+    var raw = item.raw || '';
+    var neg = !!item.neg;
+    var parts = raw.split(':');
+    var key = (parts[0] || '').toLowerCase();
+    var val = parts[1] || '';
+    var label = key === 'min_faves' ? 'いいね' : (key === 'min_retweets' ? 'リツイート' : 'リプライ');
+    if (!val) return label + '条件';
+    return label + (neg ? (' ' + val + ' 以下') : (' ' + val + ' 以上'));
+  }
+
+  var lines = [];
+  if (info.phrases.length) lines.push('フレーズ完全一致: ' + joinList(info.phrases) + ' を含む');
+  if (info.keywords.length) lines.push('キーワード: ' + joinList(info.keywords) + ' を含む');
+  if (info.excludeWords.length) lines.push('除外ワード: ' + joinList(info.excludeWords) + ' を除く');
+  if (info.from.length) lines.push('投稿者指定: ' + joinList(info.from) + ' の投稿のみ');
+  if (info.to.length) lines.push('返信先指定: ' + joinList(info.to) + ' 宛ての返信のみ');
+  if (info.mentions.length) lines.push('メンション: @' + joinList(info.mentions) + ' を含む');
+  if (info.hashtags.length) lines.push('ハッシュタグ: #' + joinList(info.hashtags) + ' を含む');
+  if (info.langs.length) lines.push('言語指定: ' + joinList(info.langs) + ' の投稿');
+  if (info.since || info.until) lines.push('期間: ' + (info.since ? ('since:' + info.since) : '') + (info.since && info.until ? ' 〜 ' : '') + (info.until ? ('until:' + info.until) : ''));
+  if (info.mins.length) lines.push('エンゲージ条件: ' + joinList(info.mins.map(describeMin)));
+  if (info.filtersInclude.length) lines.push('フィルター: ' + describeFilters(info.filtersInclude));
+  if (info.filtersExclude.length) lines.push('除外フィルター: ' + describeExcludeFilters(info.filtersExclude));
+  if (info.urlsInclude.length) lines.push('URL含む: ' + joinList(info.urlsInclude) + ' を含む');
+  if (info.urlsExclude.length) lines.push('URL除外: ' + joinList(info.urlsExclude) + ' を除く');
+
+  var orGroups = splitByTopLevelOr(q);
+  if (orGroups.length > 1) {
+    lines.push('OR 条件: 以下のいずれかに一致');
+  }
+
+  if (lines.length === 0) lines.push('条件が読み取れませんでした。クエリの形式を確認してください。');
+
+  var html = '<div><b>検索結果の傾向</b></div><ul>';
+  lines.forEach(function(line){ html += '<li>' + escapeHtml(line) + '</li>'; });
+  html += '</ul>';
+  if (orGroups.length > 1) {
+    html += '<div style="margin-top:6px"><b>OR 条件の詳細</b></div><ul>';
+    orGroups.forEach(function(g, idx){
+      var gi = extractInfo(g);
+      var parts = [];
+      if (gi.phrases.length) parts.push('フレーズ完全一致: ' + joinList(gi.phrases) + ' を含む');
+      if (gi.keywords.length) parts.push('キーワード: ' + joinList(gi.keywords) + ' を含む');
+      if (gi.excludeWords.length) parts.push('除外ワード: ' + joinList(gi.excludeWords) + ' を除く');
+      if (gi.from.length) parts.push('投稿者指定: ' + joinList(gi.from) + ' の投稿のみ');
+      if (gi.to.length) parts.push('返信先指定: ' + joinList(gi.to) + ' 宛ての返信のみ');
+      if (gi.mentions.length) parts.push('メンション: @' + joinList(gi.mentions) + ' を含む');
+      if (gi.hashtags.length) parts.push('ハッシュタグ: #' + joinList(gi.hashtags) + ' を含む');
+      if (gi.langs.length) parts.push('言語指定: ' + joinList(gi.langs) + ' の投稿');
+      if (gi.mins.length) parts.push('エンゲージ条件: ' + joinList(gi.mins.map(describeMin)));
+      if (gi.filtersInclude.length) parts.push('フィルター: ' + describeFilters(gi.filtersInclude));
+      if (gi.filtersExclude.length) parts.push('除外フィルター: ' + describeExcludeFilters(gi.filtersExclude));
+      if (gi.urlsInclude.length) parts.push('URL含む: ' + joinList(gi.urlsInclude) + ' を含む');
+      if (gi.urlsExclude.length) parts.push('URL除外: ' + joinList(gi.urlsExclude) + ' を除く');
+      if (gi.since || gi.until) parts.push('期間: ' + (gi.since ? ('since:' + gi.since) : '') + (gi.since && gi.until ? ' 〜 ' : '') + (gi.until ? ('until:' + gi.until) : ''));
+      var detail = parts.length ? parts.join(' / ') : '条件なし';
+      html += '<li>ORグループ' + (idx + 1) + ': ' + escapeHtml(detail) + '</li>';
+    });
+    html += '</ul>';
+  }
+  return html;
+}
+
 let scheduleSaveState = function(){};
 let userEditedQuery = false;
 let manualQueryOverride = null;
+
+function syncTriToggleUI(){
+  try{
+    document.querySelectorAll('.tri-toggle').forEach(function(toggle){
+      var filter = toggle.dataset.filter;
+      var onlyEl = document.getElementById('only_' + filter);
+      var excludeEl = document.getElementById('exclude_' + filter);
+      var state = 'none';
+      if (onlyEl && onlyEl.checked) state = 'only';
+      else if (excludeEl && excludeEl.checked) state = 'exclude';
+      toggle.querySelectorAll('button').forEach(function(btn){
+        btn.classList.remove('active-none','active-only','active-exclude');
+        if (btn.dataset.val === state) btn.classList.add('active-' + state);
+      });
+    });
+  } catch(e){ console.warn('syncTriToggleUI failed', e); }
+}
 
 // element map (max fields removed)
 const E = {
@@ -141,6 +346,7 @@ bindExclusive(document.getElementById('only_media'), document.getElementById('ex
 bindExclusive(document.getElementById('only_images'), document.getElementById('exclude_images'));
 bindExclusive(document.getElementById('only_videos'), document.getElementById('exclude_videos'));
 bindExclusive(document.getElementById('only_verified'), document.getElementById('exclude_verified'));
+bindExclusive(document.getElementById('only_following'), document.getElementById('exclude_following'));
 // --- 以下は x.html のインラインスクリプトを統合したもの ---
 document.addEventListener('DOMContentLoaded', function() {
   // プリセット機能
@@ -201,8 +407,14 @@ document.addEventListener('DOMContentLoaded', function() {
           if (!confirm('検索条件をこの履歴で上書きしますか？')) return;
           Object.keys(item.data).forEach(function(key) {
             var el = document.getElementById(key);
-            if (el) el.value = item.data[key];
+            if (el) {
+              if (el.type === 'checkbox') el.checked = !!item.data[key];
+              else el.value = item.data[key];
+            }
           });
+          userEditedQuery = false;
+          manualQueryOverride = null;
+          syncTriToggleUI();
           if (typeof updatePreview === 'function') updatePreview();
           document.getElementById('modal_history').classList.remove('active');
         }
@@ -230,9 +442,9 @@ document.addEventListener('DOMContentLoaded', function() {
       var query = (userEditedQuery && manualQueryOverride && manualQueryOverride.trim()) ? manualQueryOverride : buildQuery();
       if (query && query.trim()) {
         var formData = {};
-        document.querySelectorAll('input[id^="q_"], select[id^="q_"]').forEach(function(el) {
-          formData[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
-        });
+          document.querySelectorAll('input[id^="q_"], select[id^="q_"], textarea[id^="q_"], input[id^="only_"], input[id^="exclude_"]').forEach(function(el) {
+            formData[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
+          });
         addHistory(query, formData);
         try {
           var url = buildSearchURL ? buildSearchURL(query) : ('https://x.com/search?q=' + encodeURIComponent(query));
@@ -339,16 +551,34 @@ document.addEventListener('DOMContentLoaded', function() {
   var modalQueryText = document.getElementById('modal_query_text');
   var topQueryDisplay = document.getElementById('top_query_display');
   if (topQueryDisplay && modalQuery && modalQueryText) {
+    var modalQueryAnalysis = document.getElementById('modal_query_analysis');
+    var saveModalQuery = function(){
+      var text = modalQueryText.value || '';
+      var top = document.getElementById('top_query_display');
+      if (top) {
+        var trimmed = text.trim();
+        top.textContent = trimmed || '（検索クエリがここに表示されます）';
+        userEditedQuery = !!trimmed;
+        manualQueryOverride = userEditedQuery ? trimmed : null;
+        scheduleSaveState();
+      }
+    };
+    var updateModalQueryAnalysis = function(){
+      if (!modalQueryAnalysis) return;
+      var text = modalQueryText.value || '';
+      modalQueryAnalysis.innerHTML = buildQueryAnalysis(text);
+    };
     topQueryDisplay.style.cursor = 'pointer';
     topQueryDisplay.addEventListener('click', function() {
       var q = topQueryDisplay.textContent || '';
       if (q.trim() && q !== '（検索クエリがここに表示されます）') {
         modalQueryText.value = q.trim();
+        updateModalQueryAnalysis();
         modalQuery.classList.add('active');
       }
     });
     var closeQuery = document.getElementById('close_query');
-    if (closeQuery) closeQuery.addEventListener('click', function() { modalQuery.classList.remove('active'); });
+    if (closeQuery) closeQuery.addEventListener('click', function() { saveModalQuery(); modalQuery.classList.remove('active'); });
     // モーダル内のコピーボタン
     var modalQueryCopy = document.getElementById('modal_query_copy');
     if (modalQueryCopy) {
@@ -359,21 +589,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     }
-    var modalQuerySave = document.getElementById('modal_query_save');
-    if (modalQuerySave) {
-      modalQuerySave.addEventListener('click', function() {
-        var text = modalQueryText.value || '';
-        var top = document.getElementById('top_query_display');
-        if (top) {
-          var trimmed = text.trim();
-          top.textContent = trimmed || '（検索クエリがここに表示されます）';
-          userEditedQuery = !!trimmed;
-          manualQueryOverride = userEditedQuery ? trimmed : null;
-          scheduleSaveState();
-        }
-        modalQuery.classList.remove('active');
+    // 保存ボタンは UI から削除されたため、個別のクリックハンドラは不要です。
+
+    if (modalQueryText) {
+      modalQueryText.addEventListener('input', function(){
+        updateModalQueryAnalysis();
       });
     }
+
+    modalQuery.addEventListener('click', function(e){
+      if (e.target === modalQuery) {
+        saveModalQuery();
+        modalQuery.classList.remove('active');
+      }
+    });
+
+      // 全選択ボタン（主にモバイル向け）
+      var modalQuerySelect = document.getElementById('modal_query_select_all');
+      if (modalQuerySelect) {
+        modalQuerySelect.addEventListener('click', function() {
+          try {
+            if (modalQueryText) {
+              modalQueryText.focus();
+              modalQueryText.select();
+              try { modalQueryText.setSelectionRange(0, modalQueryText.value.length); } catch(e){}
+            }
+          } catch(e) { console.warn('select all failed', e); }
+        });
+      }
   }
 
   // エンゲージボタン
@@ -484,6 +727,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Note: delegated fallback removed to avoid duplicate confirmations.
+
 // モバイルでのスクロールを全体的に禁止する（タッチスクロール防止）
 (function(){
   function enableMobileNoScroll(){
@@ -531,7 +776,7 @@ function buildQuery() {
   if (toEl && toEl.value.trim()) parts.push('to:' + toEl.value.trim());
   if (atSearchEl && atSearchEl.value.trim()) {
     var atv = atSearchEl.value.trim();
-    if (atv.indexOf('@') !== 0) atv = atv; // no change, user may include @ or not
+    if (atv.indexOf('@') !== 0) atv = '@' + atv;
     parts.push(atv);
   }
 
@@ -539,9 +784,11 @@ function buildQuery() {
   var onlyVerified = document.getElementById('only_verified');
   var excludeVerified = document.getElementById('exclude_verified');
   var onlyFollowing = document.getElementById('only_following');
+  var excludeFollowing = document.getElementById('exclude_following');
   if (onlyVerified && onlyVerified.checked) parts.push('filter:verified');
   if (excludeVerified && excludeVerified.checked) parts.push('-filter:verified');
   if (onlyFollowing && onlyFollowing.checked) parts.push('filter:follows');
+  if (excludeFollowing && excludeFollowing.checked) parts.push('-filter:follows');
 
   // engagement filters
   var onlyReplies = document.getElementById('only_replies');
@@ -699,6 +946,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('input[type="checkbox"]').forEach(function(ch){ ch.addEventListener('change', function(){ userEditedQuery = false; manualQueryOverride = null; updatePreview(); }); });
   // initial restore and preview
   restoreState();
+  syncTriToggleUI();
   updatePreview();
 });
 
@@ -718,12 +966,12 @@ document.addEventListener('DOMContentLoaded', function(){
 
 // Reset all inputs to defaults
 function resetAllInputs() {
-  document.querySelectorAll('input[id^="q_"], select[id^="q_"]').forEach(function(el){
-    // preserve theme selection: do not reset the theme select element
+  // Reset inputs/selects/textareas that start with q_, and tri-toggle hidden checkboxes (only_/exclude_)
+  var sel = 'input[id^="q_"], select[id^="q_"], textarea[id^="q_"], input[id^="only_"], input[id^="exclude_"]';
+  document.querySelectorAll(sel).forEach(function(el){
     if (el.id === 'q_theme_select') return;
     if (el.type === 'checkbox') el.checked = false;
     else el.value = '';
-    // trigger input event
     try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
     try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
   });
