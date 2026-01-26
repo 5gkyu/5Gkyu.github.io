@@ -72,11 +72,14 @@ function openInBrowser(url){
   }
 }
 
-function buildAppTargets(query, webUrl){
+function buildAppTargets(query, webUrl, opts){
   var encoded = encodeURIComponent(query || '');
   var twitterScheme = 'twitter://search?query=' + encoded;
   var xScheme = 'x://search?query=' + encoded;
-  var intentUrl = 'intent://search?query=' + encoded + '#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+  var includeFallback = !!(opts && opts.includeFallback);
+  var intentUrl = 'intent://search?query=' + encoded + '#Intent;scheme=twitter;package=com.twitter.android;'
+    + (includeFallback ? ('S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';') : '')
+    + 'end';
   return { schemes: [twitterScheme, xScheme], intentUrl: intentUrl };
 }
 
@@ -85,7 +88,7 @@ function tryOpenSchemes(schemes, webUrl){
   var opened = false;
   function attempt(){
     if (index >= schemes.length) {
-      if (!opened) openInBrowser(webUrl);
+      if (!opened && webUrl) openInBrowser(webUrl);
       return;
     }
     var scheme = schemes[index++];
@@ -102,7 +105,7 @@ function tryOpenSchemes(schemes, webUrl){
 function openAppOrFallback(query, webUrl){
   var device = getDeviceInfo();
   if (!device.isMobile) return openInBrowser(webUrl);
-  var targets = buildAppTargets(query, webUrl);
+  var targets = buildAppTargets(query, webUrl, { includeFallback: true });
   if (device.isAndroid && device.isChrome && targets.intentUrl) {
     var timer = null;
     var opened = false;
@@ -116,11 +119,23 @@ function openAppOrFallback(query, webUrl){
   tryOpenSchemes(targets.schemes, webUrl);
 }
 
+function openAppOnly(query, webUrl){
+  if (!confirm('xを開きますか？')) return;
+  var device = getDeviceInfo();
+  if (!device.isMobile) return;
+  var targets = buildAppTargets(query, webUrl, { includeFallback: false });
+  if (device.isAndroid && device.isChrome && targets.intentUrl) {
+    try { window.location.href = targets.intentUrl; } catch(e) { /* ignore */ }
+    return;
+  }
+  tryOpenSchemes(targets.schemes, null);
+}
+
 function openSearchWithPreference(query){
   var url = buildSearchURL ? buildSearchURL(query) : ('https://x.com/search?q=' + encodeURIComponent(query));
   var mode = getOpenMode();
   if (mode === 'browser') return openInBrowser(url);
-  if (mode === 'app') return openAppOrFallback(query, url);
+  if (mode === 'app') return openAppOnly(query, url);
   var device = getDeviceInfo();
   if (device.isMobile) return openAppOrFallback(query, url);
   return openInBrowser(url);
