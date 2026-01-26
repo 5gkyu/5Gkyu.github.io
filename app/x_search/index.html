@@ -236,6 +236,9 @@ textarea{min-height:88px;resize:vertical}
 .menu-actions .secondary .label{ font-size:14px; font-weight:700; color:var(--text); text-align:center; }
 .menu-actions .secondary .sublabel{ font-size:11px; color:var(--muted); margin-top:2px; text-align:center; }
 .hint{font-size:12px;color:#6a8690;margin-top:6px}
+.open-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.open-mode-option{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;cursor:pointer;user-select:none}
+.open-mode-option input{accent-color:var(--accent-1)}
 .small{font-size:13px;padding:8px 10px;border-radius:8px}
 /* アカウントタイプのチェックボックス余白をスマホで詰める */
 .account-type-row {
@@ -1148,6 +1151,16 @@ html.theme-kohane body{ background-image: linear-gradient(rgba(255,235,235,0.8),
               <button id="tab_media" class="tab" role="tab" aria-selected="false" tabindex="-1">メディア</button>
             </div>
             <div class="hint" style="color:var(--muted)">「話題」タブは無能なので基本は「最新」タブを使ってください。</div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label class="muted-small" style="display:block;margin-bottom:6px;color:var(--text)">🔗 開く方法</label>
+            <div class="open-mode-row" role="radiogroup" aria-label="開く方法">
+              <label class="open-mode-option"><input type="radio" name="open_mode" id="open_mode_auto" value="auto"> 自動（端末に合わせる）</label>
+              <label class="open-mode-option"><input type="radio" name="open_mode" id="open_mode_app" value="app"> アプリで開く</label>
+              <label class="open-mode-option"><input type="radio" name="open_mode" id="open_mode_browser" value="browser"> ブラウザで開く</label>
+            </div>
+            <div class="hint" style="color:var(--muted)">モバイルはアプリ優先、PCはブラウザが推奨です。未インストール時は自動でブラウザに戻します。</div>
           </div>
         </div>
       </div>

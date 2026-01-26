@@ -8,6 +8,9 @@ const ICON_EXPANDED = 'image/close.png';
 const ICON_COLLAPSED = 'image/open.png';
 const STORAGE_KEY = 'xsearch_state_v3';
 const SAVE_DEBOUNCE_MS = 200;
+const OPEN_PREF_KEY = 'x_open_pref_v1';
+const DEFAULT_OPEN_MODE = 'auto';
+const OPEN_APP_TIMEOUT_MS = 1200;
 
 function debounce(fn, ms){ let t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); } }
 function splitTrim(s){ return s? String(s).trim().split(/\s+/).filter(x=>x):[] }
@@ -21,6 +24,106 @@ function escapeHtml(str){
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function getStoredOpenMode(){
+  try {
+    var v = localStorage.getItem(OPEN_PREF_KEY);
+    if (v === 'auto' || v === 'app' || v === 'browser') return v;
+  } catch(e) {}
+  return DEFAULT_OPEN_MODE;
+}
+
+function getOpenMode(){
+  try {
+    var selected = document.querySelector('input[name="open_mode"]:checked');
+    if (selected && selected.value) return selected.value;
+  } catch(e) {}
+  return getStoredOpenMode();
+}
+
+function setOpenMode(mode, opts){
+  var v = (mode === 'app' || mode === 'browser' || mode === 'auto') ? mode : DEFAULT_OPEN_MODE;
+  if (!opts || !opts.skipSave) {
+    try { localStorage.setItem(OPEN_PREF_KEY, v); } catch(e) {}
+  }
+  try {
+    var el = document.getElementById('open_mode_' + v);
+    if (el) el.checked = true;
+  } catch(e) {}
+}
+
+function getDeviceInfo(){
+  var ua = navigator.userAgent || '';
+  var uaData = navigator.userAgentData || null;
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isMobile = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(ua) || (uaData && uaData.mobile === true);
+  var isChrome = /Chrome|CriOS/i.test(ua) && !/Edg|OPR|SamsungBrowser/i.test(ua);
+  return { isAndroid: isAndroid, isIOS: isIOS, isMobile: isMobile, isChrome: isChrome };
+}
+
+function openInBrowser(url){
+  try {
+    var w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
+  } catch(e) {
+    window.location.href = url;
+  }
+}
+
+function buildAppTargets(query, webUrl){
+  var encoded = encodeURIComponent(query || '');
+  var twitterScheme = 'twitter://search?query=' + encoded;
+  var xScheme = 'x://search?query=' + encoded;
+  var intentUrl = 'intent://search?query=' + encoded + '#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+  return { schemes: [twitterScheme, xScheme], intentUrl: intentUrl };
+}
+
+function tryOpenSchemes(schemes, webUrl){
+  var index = 0;
+  var opened = false;
+  function attempt(){
+    if (index >= schemes.length) {
+      if (!opened) openInBrowser(webUrl);
+      return;
+    }
+    var scheme = schemes[index++];
+    var timer = null;
+    function cleanup(){ if (timer) clearTimeout(timer); document.removeEventListener('visibilitychange', onVis); }
+    function onVis(){ if (document.hidden) { opened = true; cleanup(); } }
+    document.addEventListener('visibilitychange', onVis);
+    try { window.location.href = scheme; } catch(e) { /* ignore */ }
+    timer = setTimeout(function(){ cleanup(); if (!opened) attempt(); }, OPEN_APP_TIMEOUT_MS);
+  }
+  attempt();
+}
+
+function openAppOrFallback(query, webUrl){
+  var device = getDeviceInfo();
+  if (!device.isMobile) return openInBrowser(webUrl);
+  var targets = buildAppTargets(query, webUrl);
+  if (device.isAndroid && device.isChrome && targets.intentUrl) {
+    var timer = null;
+    var opened = false;
+    function cleanup(){ if (timer) clearTimeout(timer); document.removeEventListener('visibilitychange', onVis); }
+    function onVis(){ if (document.hidden) { opened = true; cleanup(); } }
+    document.addEventListener('visibilitychange', onVis);
+    try { window.location.href = targets.intentUrl; } catch(e) { /* ignore */ }
+    timer = setTimeout(function(){ cleanup(); if (!opened) openInBrowser(webUrl); }, OPEN_APP_TIMEOUT_MS);
+    return;
+  }
+  tryOpenSchemes(targets.schemes, webUrl);
+}
+
+function openSearchWithPreference(query){
+  var url = buildSearchURL ? buildSearchURL(query) : ('https://x.com/search?q=' + encodeURIComponent(query));
+  var mode = getOpenMode();
+  if (mode === 'browser') return openInBrowser(url);
+  if (mode === 'app') return openAppOrFallback(query, url);
+  var device = getDeviceInfo();
+  if (device.isMobile) return openAppOrFallback(query, url);
+  return openInBrowser(url);
 }
 
 function buildQueryAnalysis(query){
@@ -447,8 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         addHistory(query, formData);
         try {
-          var url = buildSearchURL ? buildSearchURL(query) : ('https://x.com/search?q=' + encodeURIComponent(query));
-          window.open(url, '_blank');
+          openSearchWithPreference(query);
         } catch(e) { console.warn('open search failed', e); }
       } else {
         alert('検索クエリが空です');
@@ -961,6 +1063,17 @@ document.addEventListener('DOMContentLoaded', function(){
       updatePreview();
     });
     tab.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tab.click(); } });
+  });
+});
+
+// bind open-mode preference (auto/app/browser)
+document.addEventListener('DOMContentLoaded', function(){
+  var radios = document.querySelectorAll('input[name="open_mode"]');
+  if (!radios || radios.length === 0) return;
+  var saved = getStoredOpenMode();
+  setOpenMode(saved, { skipSave: true });
+  radios.forEach(function(r){
+    r.addEventListener('change', function(){ if (r.checked) setOpenMode(r.value); });
   });
 });
 
