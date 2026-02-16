@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Intentリンク作成</title>
+  <style>
+    :root{ --bg:#f6fbfb; --card:#fff; --text:#073a46; --muted:#57727a; --accent:#0fb8bf; }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{max-width:920px;margin:18px auto;padding:16px;box-sizing:border-box}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(2,12,20,0.06);border:1px solid rgba(6,50,58,0.04)}
+    h1{margin:0 0 8px 0;font-size:20px}
+    p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    label{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
+    textarea{width:100%;min-height:240px;padding:12px;border-radius:10px;border:1px solid rgba(6,50,58,0.06);box-sizing:border-box;font-size:16px;resize:vertical;color:var(--text)}
+    input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(6,50,58,0.06);box-sizing:border-box;font-size:15px;color:var(--text)}
+    .count{float:right;font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .btn{background:var(--accent);color:white;padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    .btn.alt{background:#2f6fa6}
+    .btn.reset{background:#64748b}
+    .hint{margin-top:10px;font-size:12px;color:var(--muted)}
+    .link-out{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffd;border:1px dashed rgba(6,50,58,0.06);word-break:break-all;font-size:13px}
+    @media(max-width:480px){
+      .wrap{margin:10px;padding:12px}
+      textarea{min-height:300px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Intentリンク作成</h1>
+      <p>入力テキストを自動でURLエンコードして、Xのintentリンクを作成します。文字数カウントは無料版相当として280文字を基準表示します。</p>
+
+      <label for="tweet_text">投稿テキスト <span class="count" id="char_count">0 / 280</span></label>
+      <textarea id="tweet_text" placeholder="ここに投稿文を入力"></textarea>
+
+      <label for="extra_url">添付URL（任意）</label>
+      <input id="extra_url" type="text" placeholder="https://example.com" />
+      <div class="hint">入力すると投稿テキストの末尾に改行で連結され、まとめてエンコードされます（空欄なら追加しません）。</div>
+
+      <div class="row">
+        <button id="copy_btn" class="btn" type="button">リンクをコピー</button>
+        <button id="open_btn" class="btn alt" type="button">新しいタブで開く</button>
+        <button id="reset_btn" class="btn reset" type="button">リセット（すべて削除）</button>
+      </div>
+
+      <div class="hint">絵文字・記号・改行・日本語を含めてエンコード対応しています（UTF-8 + encodeURIComponent）。</div>
+      <div class="hint">生成形式: https://x.com/intent/tweet?text=...</div>
+      <div class="link-out" id="out_link" aria-live="polite">生成されたリンクがここに表示されます。</div>
+    </div>
+  </div>
+
+  <script>
+    const textEl = document.getElementById('tweet_text');
+    const extraUrlEl = document.getElementById('extra_url');
+    const charCountEl = document.getElementById('char_count');
+    const outLinkEl = document.getElementById('out_link');
+    const copyBtn = document.getElementById('copy_btn');
+    const openBtn = document.getElementById('open_btn');
+    const resetBtn = document.getElementById('reset_btn');
+    const LIMIT = 280;
+
+    function buildIntentUrl(){
+      const text = textEl.value || '';
+      const extraUrl = (extraUrlEl.value || '').trim();
+      charCountEl.textContent = text.length + ' / ' + LIMIT;
+
+      const merged = extraUrl ? text + '\n' + extraUrl : text;
+      const encoded = encodeURIComponent(merged);
+      const intentUrl = 'https://x.com/intent/tweet?text=' + encoded;
+      outLinkEl.textContent = intentUrl;
+      return intentUrl;
+    }
+
+    textEl.addEventListener('input', buildIntentUrl);
+    extraUrlEl.addEventListener('input', buildIntentUrl);
+
+    copyBtn.addEventListener('click', async ()=>{
+      const intentUrl = buildIntentUrl();
+      try{
+        await navigator.clipboard.writeText(intentUrl);
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'コピーしました';
+        setTimeout(()=>{ copyBtn.textContent = original; }, 1200);
+      }catch(err){
+        alert('コピーに失敗しました。手動でリンクをコピーしてください。');
+      }
+    });
+
+    openBtn.addEventListener('click', ()=>{
+      const intentUrl = buildIntentUrl();
+      window.open(intentUrl, '_blank', 'noopener,noreferrer');
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      textEl.value = '';
+      extraUrlEl.value = '';
+      buildIntentUrl();
+      textEl.focus();
+    });
+
+    buildIntentUrl();
+  </script>
+</body>
+</html>
