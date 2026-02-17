@@ -4,6 +4,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Intentリンク作成</title>
+  <meta name="description" content="テキストを自動エンコードしてXのintent/tweetリンクを作成します。絵文字や日本語、改行にも対応。" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="canonical" href="https://5gkyu.github.io/app/intent/intent.html" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Intentリンク作成" />
+  <meta property="og:description" content="テキストを自動エンコードしてXのintent/tweetリンクを作成します。絵文字や日本語、改行にも対応。" />
+  <meta property="og:image" content="/ogp.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://5gkyu.github.io/app/intent/intent.html" />
+  <meta property="og:site_name" content="Intentリンク作成" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Intentリンク作成" />
+  <meta name="twitter:description" content="テキストを自動エンコードしてXのintent/tweetリンクを作成します。" />
+  <meta name="twitter:image" content="/ogp.png" />
+  <meta name="theme-color" content="#f6fbfb" />
   <style>
     :root{ --bg:#f6fbfb; --card:#fff; --text:#073a46; --muted:#57727a; --accent:#0fb8bf; }
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
@@ -42,7 +59,7 @@
 
       <div class="row">
         <button id="copy_btn" class="btn" type="button">リンクをコピー</button>
-        <button id="open_btn" class="btn alt" type="button">新しいタブで開く</button>
+        <button id="open_btn" class="btn alt" type="button">新しいタブで開いてテスト</button>
         <button id="reset_btn" class="btn reset" type="button">リセット（すべて削除）</button>
       </div>
 
@@ -61,11 +78,15 @@
     const openBtn = document.getElementById('open_btn');
     const resetBtn = document.getElementById('reset_btn');
     const LIMIT = 280;
+    const STORAGE_KEY_TEXT = 'intent_app_tweet_text';
+    const STORAGE_KEY_URL = 'intent_app_extra_url';
 
     function buildIntentUrl(){
       const text = textEl.value || '';
       const extraUrl = (extraUrlEl.value || '').trim();
       charCountEl.textContent = text.length + ' / ' + LIMIT;
+      localStorage.setItem(STORAGE_KEY_TEXT, text);
+      localStorage.setItem(STORAGE_KEY_URL, extraUrl);
 
       const merged = extraUrl ? text + '\n' + extraUrl : text;
       const encoded = encodeURIComponent(merged);
@@ -97,9 +118,20 @@
     resetBtn.addEventListener('click', ()=>{
       textEl.value = '';
       extraUrlEl.value = '';
+      localStorage.removeItem(STORAGE_KEY_TEXT);
+      localStorage.removeItem(STORAGE_KEY_URL);
       buildIntentUrl();
       textEl.focus();
     });
+
+    const savedText = localStorage.getItem(STORAGE_KEY_TEXT);
+    if (savedText !== null){
+      textEl.value = savedText;
+    }
+    const savedUrl = localStorage.getItem(STORAGE_KEY_URL);
+    if (savedUrl !== null){
+      extraUrlEl.value = savedUrl;
+    }
 
     buildIntentUrl();
   </script>
