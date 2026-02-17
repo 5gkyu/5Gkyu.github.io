@@ -23,12 +23,13 @@
     .hint{margin-top:10px;font-size:12px;color:var(--muted)}
     .howto{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffd;border:1px solid rgba(6,50,58,0.08);font-size:13px;line-height:1.6}
     .howto ol{margin:6px 0 0 18px;padding:0}
-    .guide-images{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .guide-images img{width:100%;height:auto;border-radius:8px;border:1px solid rgba(6,50,58,0.08);background:#fff}
+    .example{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffd;border:1px solid rgba(6,50,58,0.08)}
+    .example img{width:100%;height:auto;border-radius:8px;border:1px solid rgba(6,50,58,0.08);background:#fff;margin-top:8px}
+    .step-figure{margin-top:8px}
+    .step-figure img{width:100%;height:auto;border-radius:8px;border:1px solid rgba(6,50,58,0.08);background:#fff}
     @media(max-width:480px){
       .wrap{margin:10px;padding:12px}
       textarea{min-height:220px}
-      .guide-images{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -38,22 +39,13 @@
       <h1>DMボタン作成</h1>
       <p>相手の数値IDを自分で確認したうえで、DM作成ボタン（compose URL）を生成します。</p>
 
-      <label for="recipient_id">相手の数値ID</label>
-      <input id="recipient_id" type="text" inputmode="numeric" placeholder="例: 123456789012345678" />
-
-      <div class="howto">
-        <b>IDを取得する方法（自分で確認）</b>
-        <ol>
-          <li>DM画面を開いたときのURLからIDを確認できます。IDはハイフン（-）でつながって表示され、基本的に前半が自分のDM IDです。</li>
-          <li>Xの設定で、DMの受信設定を「全員」など公開側にしておく必要があります（メッセージリクエストを許可）。</li>
-          <li>取得した数値IDが対象アカウントのものか、プロフィール名・アイコン・ユーザー名を見て再確認します。</li>
-        </ol>
-        <div class="guide-images" aria-label="説明画像">
-          <img src="./image/dmrei.png" alt="DM画面URLのID確認例" />
-          <img src="./image/setting.png" alt="DM設定で全体公開を有効化する例" />
-        </div>
-        <div class="hint" style="margin-top:8px">このページでは安全のため、確認チェックを入れないとDMリンクを作成できません。</div>
+      <div class="example">
+        <b>このようなDMボタン（リンク）を作れます</b>
+        <img src="./image/dmrei.png" alt="完成したDMボタンの例" />
       </div>
+
+      <label for="recipient_id">自分のDM ID（数値）</label>
+      <input id="recipient_id" type="text" inputmode="numeric" placeholder="例: 自分のDM ID（数値）" />
 
       <label for="dm_text">DM本文（任意）</label>
       <textarea id="dm_text" placeholder="事前入力する本文"></textarea>
@@ -72,6 +64,22 @@
 
       <div class="hint">生成形式: https://x.com/messages/compose?recipient_id=...&text=...</div>
       <div class="link-out" id="out_link" aria-live="polite">生成されたリンクがここに表示されます。</div>
+
+      <div class="howto">
+        <b>IDを取得する方法（最下部ガイド）</b>
+        <ol>
+          <li>
+            DMを開いているときのURLからIDを確認できます。IDはハイフン（-）でつながっており、基本的に前半が自分のDM IDです。
+            <div class="step-figure"><img src="./image/buttonrei.png" alt="DMを開いている時のURL例" /></div>
+          </li>
+          <li>
+            Xの設定で、DMの受信設定を「全員」にする必要があります（メッセージリクエストを許可）。
+            <div class="step-figure"><img src="./image/setting.png" alt="DM受信設定を全員にする画面" /></div>
+          </li>
+        </ol>
+        <div class="hint" style="margin-top:8px">このページでは安全のため、確認チェックを入れないとDMリンクを作成できません。</div>
+        <div class="hint" style="margin-top:6px;color:#a03030"><b>※本機能の利用は自己責任でお願いします。</b></div>
+      </div>
     </div>
   </div>
 
