@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>DMボタン作成</title>
+  <style>
+    :root{ --bg:#f6fbfb; --card:#fff; --text:#073a46; --muted:#57727a; --accent:#0fb8bf; }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{max-width:920px;margin:18px auto;padding:16px;box-sizing:border-box}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(2,12,20,0.06);border:1px solid rgba(6,50,58,0.04)}
+    h1{margin:0 0 8px 0;font-size:20px}
+    p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    label{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
+    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(6,50,58,0.06);box-sizing:border-box;font-size:15px;color:var(--text)}
+    textarea{min-height:180px;resize:vertical}
+    .check{margin-top:12px;padding:10px;border-radius:8px;background:#fff7ed;border:1px solid rgba(245,158,11,0.25);font-size:13px}
+    .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .btn{background:var(--accent);color:white;padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    .btn.alt{background:#2f6fa6}
+    .btn:disabled{opacity:0.45;cursor:not-allowed}
+    .link-out{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffd;border:1px dashed rgba(6,50,58,0.06);word-break:break-all;font-size:13px}
+    .hint{margin-top:10px;font-size:12px;color:var(--muted)}
+    .howto{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffd;border:1px solid rgba(6,50,58,0.08);font-size:13px;line-height:1.6}
+    .howto ol{margin:6px 0 0 18px;padding:0}
+    .guide-images{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .guide-images img{width:100%;height:auto;border-radius:8px;border:1px solid rgba(6,50,58,0.08);background:#fff}
+    @media(max-width:480px){
+      .wrap{margin:10px;padding:12px}
+      textarea{min-height:220px}
+      .guide-images{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>DMボタン作成</h1>
+      <p>相手の数値IDを自分で確認したうえで、DM作成ボタン（compose URL）を生成します。</p>
+
+      <label for="recipient_id">相手の数値ID</label>
+      <input id="recipient_id" type="text" inputmode="numeric" placeholder="例: 123456789012345678" />
+
+      <div class="howto">
+        <b>IDを取得する方法（自分で確認）</b>
+        <ol>
+          <li>DM画面を開いたときのURLからIDを確認できます。IDはハイフン（-）でつながって表示され、基本的に前半が自分のDM IDです。</li>
+          <li>Xの設定で、DMの受信設定を「全員」など公開側にしておく必要があります（メッセージリクエストを許可）。</li>
+          <li>取得した数値IDが対象アカウントのものか、プロフィール名・アイコン・ユーザー名を見て再確認します。</li>
+        </ol>
+        <div class="guide-images" aria-label="説明画像">
+          <img src="./image/dmrei.png" alt="DM画面URLのID確認例" />
+          <img src="./image/setting.png" alt="DM設定で全体公開を有効化する例" />
+        </div>
+        <div class="hint" style="margin-top:8px">このページでは安全のため、確認チェックを入れないとDMリンクを作成できません。</div>
+      </div>
+
+      <label for="dm_text">DM本文（任意）</label>
+      <textarea id="dm_text" placeholder="事前入力する本文"></textarea>
+
+      <div class="check">
+        <label style="margin:0;color:var(--text)">
+          <input id="confirm_id" type="checkbox" />
+          数値IDは自分で確認済みです（誤送信防止のため）
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="make_btn" class="btn" type="button" disabled>DMリンクを生成</button>
+        <button id="open_btn" class="btn alt" type="button" disabled>新しいタブで開く</button>
+      </div>
+
+      <div class="hint">生成形式: https://x.com/messages/compose?recipient_id=...&text=...</div>
+      <div class="link-out" id="out_link" aria-live="polite">生成されたリンクがここに表示されます。</div>
+    </div>
+  </div>
+
+  <script>
+    const recipientIdEl = document.getElementById('recipient_id');
+    const dmTextEl = document.getElementById('dm_text');
+    const confirmIdEl = document.getElementById('confirm_id');
+    const makeBtn = document.getElementById('make_btn');
+    const openBtn = document.getElementById('open_btn');
+    const outLinkEl = document.getElementById('out_link');
+
+    function isValidRecipientId(v){
+      return /^\d{5,}$/.test((v || '').trim());
+    }
+
+    function buildDmUrl(){
+      const recipientId = recipientIdEl.value.trim();
+      const dmText = dmTextEl.value || '';
+      const encodedText = encodeURIComponent(dmText);
+      let url = 'https://x.com/messages/compose?recipient_id=' + encodeURIComponent(recipientId);
+      if (dmText){ url += '&text=' + encodedText; }
+      outLinkEl.textContent = url;
+      return url;
+    }
+
+    function refreshState(){
+      const enabled = confirmIdEl.checked && isValidRecipientId(recipientIdEl.value);
+      makeBtn.disabled = !enabled;
+      openBtn.disabled = !enabled;
+      if (enabled){
+        buildDmUrl();
+      } else {
+        outLinkEl.textContent = '数値IDを入力し、確認チェックを入れるとリンクが生成されます。';
+      }
+    }
+
+    recipientIdEl.addEventListener('input', refreshState);
+    dmTextEl.addEventListener('input', ()=>{
+      if (!makeBtn.disabled){ buildDmUrl(); }
+    });
+    confirmIdEl.addEventListener('change', refreshState);
+
+    makeBtn.addEventListener('click', async ()=>{
+      const url = buildDmUrl();
+      try{
+        await navigator.clipboard.writeText(url);
+        const original = makeBtn.textContent;
+        makeBtn.textContent = 'コピーしました';
+        setTimeout(()=>{ makeBtn.textContent = original; }, 1200);
+      }catch(err){
+        alert('コピーに失敗しました。手動でリンクをコピーしてください。');
+      }
+    });
+
+    openBtn.addEventListener('click', ()=>{
+      const url = buildDmUrl();
+      window.open(url, '_blank', 'noopener,noreferrer');
+    });
+
+    refreshState();
+  </script>
+</body>
+</html>
