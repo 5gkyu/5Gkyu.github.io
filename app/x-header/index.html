@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Xヘッダー画像メーカー</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+     <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
 <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
@@ -22,12 +22,18 @@
 <meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
 <meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
     <style>
+        /* ダブルタップによる拡大を禁止し、ボタン等の操作性を向上 */
+        html, body {
+            touch-action: manipulation; 
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
             font-family: var(--font-main, sans-serif);
             margin: 0;
             padding: 0;
             background-color: #FBF6EA; /* クリームアイボリー */
-            color: #6A564A; /* ウォームブラウン */
+            color: #6A564A; /* ウォームブラウン[cite: 1] */
             text-align: center;
         }
 
@@ -43,9 +49,6 @@
             box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1);
         }
 
-        h1 { font-size: 1.4rem; margin-bottom: 20px; }
-
-        /* 操作エリア */
         .controls {
             margin-bottom: 25px;
             display: flex;
@@ -59,81 +62,68 @@
             border-radius: 9999px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
             border: none;
             font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            user-select: none;
         }
 
         .upload-btn { background-color: #1da1f2; color: white; }
         .reset-btn { background-color: #EEAFA1; color: white; } /* ピーチ[cite: 1] */
-        input[type="file"] { display: none; }
 
-        /* サムネイルリスト */
         #sortContainer {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             justify-content: center;
             margin: 20px 0;
-            min-height: 100px;
+            min-height: 50px;
         }
 
         .thumb-item {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             border-radius: 12px;
             position: relative;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s;
             background: #f0f0f0;
+            border: 3px solid transparent;
         }
 
-        .thumb-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 9px;
-        }
+        .thumb-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+        .thumb-item.selected { border-color: #9AB08F; transform: scale(1.05); } /* セージ[cite: 1] */
 
-        /* 選択状態（入れ替え待機） */
-        .thumb-item.selected {
-            border-color: #9AB08F; /* セージグリーン[cite: 1] */
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        /* 削除ボタン (×) */
         .delete-btn {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -8px;
+            right: -8px;
             width: 24px;
             height: 24px;
             background-color: #6A564A;
             color: white;
             border-radius: 50%;
-            border: 2px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
-            cursor: pointer;
-            z-index: 10;
-            visibility: hidden; /* タップ/ホバー時のみ表示 */
+            border: 2px solid white;
         }
-        .thumb-item:hover .delete-btn,
-        .thumb-item.selected .delete-btn { visibility: visible; }
 
-        canvas {
+        /* プレビューエリア */
+        .preview-area {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        canvas { display: none; } /* 計算用のため非表示 */
+
+        #resultImage {
             width: 100%;
             height: auto;
             border-radius: 8px;
-            background: #FBF6EA;
             border: 1px solid #e1e8ed;
+            display: none; /* 画像が生成されるまで非表示 */
         }
 
         .download-btn {
@@ -145,18 +135,18 @@
             border-radius: 9999px;
             text-decoration: none;
             font-weight: bold;
+            border: none;
         }
 
         .caution-box {
             margin-top: 30px;
             text-align: left;
-            background: rgba(146, 181, 188, 0.08); /* ダスティブルー薄め[cite: 1] */
+            background: rgba(146, 181, 188, 0.08); /* ダスティブルー[cite: 1] */
             padding: 20px;
             border-radius: 12px;
             font-size: 0.85rem;
             border-left: 4px solid #92B5BC;
         }
-        .caution-box ul { padding-left: 20px; margin: 5px 0 0; }
     </style>
 </head>
 <body>
@@ -172,24 +162,25 @@
                     <span>📷 写真を追加</span>
                     <input type="file" id="imageInput" accept="image/*" multiple>
                 </label>
-                <button id="resetBtn" class="btn reset-btn">🗑️ 全リセット</button>
+                <button id="resetBtn" class="btn reset-btn">🗑️ リセット</button>
             </div>
-
-            <p id="message" style="font-size: 0.8rem; height: 1.2rem;">画像を2枚以上選んでください</p>
 
             <div id="sortContainer"></div>
 
-            <canvas id="previewCanvas" width="1500" height="500"></canvas>
+            <div class="preview-area">
+                <canvas id="previewCanvas" width="1500" height="500"></canvas>
+                <!-- iPad用にCanvasではなくimgタグで結果を表示 -->
+                <img id="resultImage" alt="生成されたヘッダー">
+            </div>
             
-            <a id="downloadBtn" class="download-btn" download="x_header.png">画像を保存する</a>
+            <button id="saveBtn" class="btn download-btn">画像を保存・展開</button>
 
             <div class="caution-box">
-                <h2>💡 使い方と注意点</h2>
+                <h2>💡 iPad/iPhoneでの保存方法</h2>
                 <ul>
-                    <li><strong>入れ替え:</strong> 画像をタップして選択し、別の画像をタップすると場所が入れ替わります。</li>
-                    <li><strong>削除:</strong> 画像の右上にある「×」ボタンで個別に削除できます。</li>
-                    <li><strong>アスペクト比:</strong> X推奨の <strong>3:1 (1500x500px)</strong> で作成されます。画像は中央基準で自動トリミングされます。</li>
-                    <li><strong>配置のコツ:</strong> 左下はプロフィールアイコンで隠れるため、大事な要素は右側や中央に寄せましょう。</li>
+                    <li><strong>保存ボタン:</strong> ボタンを押すと画像が全画面で開きます。そこから保存してください。</li>
+                    <li><strong>長押し保存:</strong> 上のプレビュー画像を<strong>長押し</strong>して「"写真"に保存」を選択するのが最も確実です。</li>
+                    <li><strong>拡大防止:</strong> 画面のダブルタップによる強制拡大を無効化しています。</li>
                 </ul>
             </div>
         </div>
@@ -204,33 +195,22 @@
         const imageInput = document.getElementById('imageInput');
         const sortContainer = document.getElementById('sortContainer');
         const canvas = document.getElementById('previewCanvas');
+        const resultImage = document.getElementById('resultImage');
         const ctx = canvas.getContext('2d');
-        const downloadBtn = document.getElementById('downloadBtn');
+        const saveBtn = document.getElementById('saveBtn');
         const resetBtn = document.getElementById('resetBtn');
-        const messageEl = document.getElementById('message');
 
-        let imageObjects = []; // { id: number, img: Image }
+        let imageObjects = [];
         let selectedId = null;
 
-        // 初期描画
-        function clearCanvas() {
-            ctx.fillStyle = '#FBF6EA';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.font = '24px sans-serif';
-            ctx.fillStyle = '#92B5BC';
-            ctx.textAlign = 'center';
-            ctx.fillText('画像をアップロードしてください', canvas.width / 2, canvas.height / 2);
-        }
-        clearCanvas();
-
-        // リセット機能
+        // リセット
         resetBtn.addEventListener('click', () => {
-            if(confirm("すべての画像を消去してリセットしますか？")) {
+            if(confirm("リセットしますか？")) {
                 imageObjects = [];
                 selectedId = null;
                 renderUI();
-                updateCanvas();
-                messageEl.textContent = "リセットしました";
+                resultImage.style.display = 'none';
+                saveBtn.style.display = 'none';
             }
         });
 
@@ -243,7 +223,7 @@
             }
             renderUI();
             updateCanvas();
-            imageInput.value = ""; // 同じファイルを再度選べるように
+            imageInput.value = "";
         });
 
         function loadImage(file) {
@@ -254,48 +234,35 @@
             });
         }
 
-        // サムネイルと入れ替え・削除ロジック
         function renderUI() {
             sortContainer.innerHTML = '';
             imageObjects.forEach((obj) => {
                 const div = document.createElement('div');
                 div.className = `thumb-item ${selectedId === obj.id ? 'selected' : ''}`;
-                
                 const img = document.createElement('img');
                 img.src = obj.img.src;
                 div.appendChild(img);
 
-                // 削除ボタン
                 const delBtn = document.createElement('div');
                 delBtn.className = 'delete-btn';
                 delBtn.innerHTML = '×';
-                delBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteImage(obj.id);
-                };
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteImage(obj.id); };
                 div.appendChild(delBtn);
 
-                // タップで入れ替え選択
-                div.onclick = () => handleSelect(obj.id);
-
+                div.onclick = () => {
+                    if (selectedId === null) { selectedId = obj.id; }
+                    else if (selectedId === obj.id) { selectedId = null; }
+                    else {
+                        const idx1 = imageObjects.findIndex(o => o.id === selectedId);
+                        const idx2 = imageObjects.findIndex(o => o.id === obj.id);
+                        [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
+                        selectedId = null;
+                        updateCanvas();
+                    }
+                    renderUI();
+                };
                 sortContainer.appendChild(div);
             });
-        }
-
-        function handleSelect(id) {
-            if (selectedId === null) {
-                selectedId = id;
-            } else if (selectedId === id) {
-                selectedId = null; // キャンセル
-            } else {
-                // 入れ替え実行
-                const idx1 = imageObjects.findIndex(o => o.id === selectedId);
-                const idx2 = imageObjects.findIndex(o => o.id === id);
-                [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
-                selectedId = null;
-                updateCanvas();
-            }
-            renderUI();
         }
 
         function deleteImage(id) {
@@ -306,12 +273,7 @@
         }
 
         function updateCanvas() {
-            if (imageObjects.length === 0) {
-                clearCanvas();
-                downloadBtn.style.display = 'none';
-                return;
-            }
-
+            if (imageObjects.length < 1) return;
             const count = imageObjects.length;
             const w = canvas.width / count;
             const h = canvas.height;
@@ -326,15 +288,23 @@
                 ctx.drawImage(img, sx, sy, sw, sh, i * w, 0, w, h);
             });
 
+            // Canvasの内容をimgタグに反映（iPadでの長押し保存用）
+            resultImage.src = canvas.toDataURL('image/png');
+            resultImage.style.display = 'block';
+            
             if (count >= 2) {
-                downloadBtn.href = canvas.toDataURL('image/png');
-                downloadBtn.style.display = 'inline-block';
-                messageEl.textContent = `${count}枚の画像を並べました。`;
-            } else {
-                messageEl.textContent = "あと1枚以上追加してください。";
-                downloadBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-flex';
             }
         }
+
+        // 保存ボタンの動作をiPadに最適化
+        saveBtn.addEventListener('click', () => {
+            const dataUrl = canvas.toDataURL('image/png');
+            // 新しいウィンドウ（タブ）で画像を開く
+            const newWindow = window.open();
+            newWindow.document.write(`<img src="${dataUrl}" style="width:100%;">`);
+            newWindow.document.write('<p style="text-align:center; font-family:sans-serif;">画像を長押しして保存してください</p>');
+        });
     </script>
 </body>
 </html>
