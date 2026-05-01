@@ -4,9 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xヘッダー画像メーカー</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+<link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+<meta property="og:title" content="Halcyon">
+<meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+<meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+<meta property="og:url" content="https://5gkyu.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="5gkyu">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@5gkyu">
+<meta name="twitter:title" content="Halcyon">
+<meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
+<meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
     <style>
         body {
-            font-family: var(--font-main, -apple-system, BlinkMacSystemFont, sans-serif);
+            font-family: var(--font-main, sans-serif);
             margin: 0;
             padding: 0;
             background-color: #FBF6EA; /* クリームアイボリー */
@@ -14,115 +31,132 @@
             text-align: center;
         }
 
-        main {
-            padding-top: 100px;
-            padding-bottom: 80px;
-        }
+        main { padding-top: 100px; padding-bottom: 80px; }
 
         .container {
             max-width: 900px;
             width: 92%;
             margin: 0 auto;
             background: #fff;
-            padding: 40px 20px;
+            padding: 30px 15px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1);
         }
 
-        h1 { font-size: 1.6rem; margin-bottom: 20px; }
+        h1 { font-size: 1.4rem; margin-bottom: 20px; }
 
-        /* アップロードエリア */
-        .upload-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px dashed #9AB08F; /* セージグリーン[cite: 1] */
-            border-radius: 12px;
-            background: rgba(154, 176, 143, 0.05);
-        }
-
-        .upload-btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background-color: #1da1f2;
-            color: white;
-            border-radius: 9999px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        .upload-btn:hover { transform: scale(1.05); }
-        input[type="file"] { display: none; }
-
-        /* 並び替えエリア */
-        #sortContainer {
+        /* 操作エリア */
+        .controls {
+            margin-bottom: 25px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .upload-btn { background-color: #1da1f2; color: white; }
+        .reset-btn { background-color: #EEAFA1; color: white; } /* ピーチ[cite: 1] */
+        input[type="file"] { display: none; }
+
+        /* サムネイルリスト */
+        #sortContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             justify-content: center;
             margin: 20px 0;
             min-height: 100px;
         }
 
         .thumb-item {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: grab;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
             position: relative;
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-            background: #eee;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            background: #f0f0f0;
         }
-        .thumb-item:active { cursor: grabbing; }
+
         .thumb-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        .thumb-item.dragging {
-            opacity: 0.5;
-            border: 2px solid #EEAFA1; /* ピーチ[cite: 1] */
+            border-radius: 9px;
         }
 
-        /* プレビューとダウンロード */
+        /* 選択状態（入れ替え待機） */
+        .thumb-item.selected {
+            border-color: #9AB08F; /* セージグリーン[cite: 1] */
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 削除ボタン (×) */
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 24px;
+            height: 24px;
+            background-color: #6A564A;
+            color: white;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
+            visibility: hidden; /* タップ/ホバー時のみ表示 */
+        }
+        .thumb-item:hover .delete-btn,
+        .thumb-item.selected .delete-btn { visibility: visible; }
+
         canvas {
             width: 100%;
             height: auto;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-top: 20px;
+            background: #FBF6EA;
+            border: 1px solid #e1e8ed;
         }
 
         .download-btn {
             display: none;
             margin-top: 25px;
-            padding: 14px 40px;
-            background-color: #9AB08F; /* セージグリーン[cite: 1] */
+            padding: 15px 40px;
+            background-color: #9AB08F; /* セージ[cite: 1] */
             color: white;
             border-radius: 9999px;
             text-decoration: none;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(154, 176, 143, 0.3);
         }
 
-        /* 注意書きセクション */
         .caution-box {
-            margin-top: 40px;
+            margin-top: 30px;
             text-align: left;
-            background: #F8F9FA;
+            background: rgba(146, 181, 188, 0.08); /* ダスティブルー薄め[cite: 1] */
             padding: 20px;
             border-radius: 12px;
-            font-size: 0.88rem;
-            line-height: 1.6;
-            border-left: 5px solid #92B5BC; /* ダスティブルー[cite: 1] */
+            font-size: 0.85rem;
+            border-left: 4px solid #92B5BC;
         }
-        .caution-box h2 {
-            font-size: 1rem;
-            margin-top: 0;
-            color: #92B5BC;
-        }
-        .caution-box ul { padding-left: 20px; margin-bottom: 0; }
+        .caution-box ul { padding-left: 20px; margin: 5px 0 0; }
     </style>
 </head>
 <body>
@@ -133,35 +167,35 @@
         <div class="container fluffy-entry">
             <h1>Xヘッダー画像メーカー</h1>
             
-            <div class="upload-section">
-                <p>画像を2〜10枚選んでください（並び替え可能）</p>
-                <label class="upload-btn">
-                    写真を選択
+            <div class="controls">
+                <label class="btn upload-btn">
+                    <span>📷 写真を追加</span>
                     <input type="file" id="imageInput" accept="image/*" multiple>
                 </label>
-                <div id="sortContainer"></div>
-                <p id="message" style="font-size: 0.8rem;"></p>
+                <button id="resetBtn" class="btn reset-btn">🗑️ 全リセット</button>
             </div>
+
+            <p id="message" style="font-size: 0.8rem; height: 1.2rem;">画像を2枚以上選んでください</p>
+
+            <div id="sortContainer"></div>
 
             <canvas id="previewCanvas" width="1500" height="500"></canvas>
             
             <a id="downloadBtn" class="download-btn" download="x_header.png">画像を保存する</a>
 
-            <!-- 注意書きエリア -->
             <div class="caution-box">
-                <h2>💡 作成時のポイントと注意点</h2>
+                <h2>💡 使い方と注意点</h2>
                 <ul>
-                    <li><strong>推奨サイズ:</strong> Xのヘッダーは <strong>1500 × 500 px</strong> (アスペクト比 <strong>3:1</strong>) です。このツールは自動でこのサイズに出力します。</li>
-                    <li><strong>自動トリミング:</strong> 画像を並べる際、比率が異なる画像は中央を基準に自動で<strong>「塗りつぶし（カバー）」</strong>されます。重要な被写体が端にある場合はご注意ください。</li>
-                    <li><strong>アイコンの被り:</strong> Xのプロフィール画面では、左下にプロフィールアイコンが重なります。<strong>左下付近には重要な情報を置かない</strong>のがコツです。</li>
-                    <li><strong>上下の切り取られ:</strong> デバイスやブラウザのサイズにより、上下が数ピクセル程度カットされて表示されることがあります。</li>
-                    <li><strong>並び替え:</strong> アップロードしたサムネイルをドラッグして動かすと、即座にプレビューに反映されます。</li>
+                    <li><strong>入れ替え:</strong> 画像をタップして選択し、別の画像をタップすると場所が入れ替わります。</li>
+                    <li><strong>削除:</strong> 画像の右上にある「×」ボタンで個別に削除できます。</li>
+                    <li><strong>アスペクト比:</strong> X推奨の <strong>3:1 (1500x500px)</strong> で作成されます。画像は中央基準で自動トリミングされます。</li>
+                    <li><strong>配置のコツ:</strong> 左下はプロフィールアイコンで隠れるため、大事な要素は右側や中央に寄せましょう。</li>
                 </ul>
             </div>
         </div>
     </main>
 
-    <site-footer copy="5Gkyu Design"></site-footer>
+    <site-footer copy="5Gkyu Apps"></site-footer>
 
     <script src="https://5gkyu.github.io/components/components.js"></script>
     <script src="https://5gkyu.github.io/components/loading.js"></script>
@@ -172,31 +206,44 @@
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
         const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
         const messageEl = document.getElementById('message');
 
-        let imageObjects = []; // { file, img, id }
+        let imageObjects = []; // { id: number, img: Image }
+        let selectedId = null;
 
-        // 初期表示
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 初期描画
+        function clearCanvas() {
+            ctx.fillStyle = '#FBF6EA';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '24px sans-serif';
+            ctx.fillStyle = '#92B5BC';
+            ctx.textAlign = 'center';
+            ctx.fillText('画像をアップロードしてください', canvas.width / 2, canvas.height / 2);
+        }
+        clearCanvas();
+
+        // リセット機能
+        resetBtn.addEventListener('click', () => {
+            if(confirm("すべての画像を消去してリセットしますか？")) {
+                imageObjects = [];
+                selectedId = null;
+                renderUI();
+                updateCanvas();
+                messageEl.textContent = "リセットしました";
+            }
+        });
 
         imageInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            if (files.length < 2 || files.length > 10) {
-                alert("画像は2枚から10枚の間で選択してください。");
-                return;
+            for (const file of files) {
+                if (imageObjects.length >= 10) break;
+                const img = await loadImage(file);
+                imageObjects.push({ id: Date.now() + Math.random(), img: img });
             }
-
-            imageObjects = [];
-            sortContainer.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const img = await loadImage(files[i]);
-                const obj = { id: i, img: img };
-                imageObjects.push(obj);
-                createThumbnail(obj);
-            }
+            renderUI();
             updateCanvas();
+            imageInput.value = ""; // 同じファイルを再度選べるように
         });
 
         function loadImage(file) {
@@ -207,67 +254,63 @@
             });
         }
 
-        // サムネイル作成とドラッグイベント
-        function createThumbnail(obj) {
-            const div = document.createElement('div');
-            div.className = 'thumb-item';
-            div.draggable = true;
-            div.dataset.id = obj.id;
-            
-            const img = document.createElement('img');
-            img.src = obj.img.src;
-            div.appendChild(img);
+        // サムネイルと入れ替え・削除ロジック
+        function renderUI() {
+            sortContainer.innerHTML = '';
+            imageObjects.forEach((obj) => {
+                const div = document.createElement('div');
+                div.className = `thumb-item ${selectedId === obj.id ? 'selected' : ''}`;
+                
+                const img = document.createElement('img');
+                img.src = obj.img.src;
+                div.appendChild(img);
 
-            div.addEventListener('dragstart', () => div.classList.add('dragging'));
-            div.addEventListener('dragend', () => {
-                div.classList.remove('dragging');
-                reorderImages();
+                // 削除ボタン
+                const delBtn = document.createElement('div');
+                delBtn.className = 'delete-btn';
+                delBtn.innerHTML = '×';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteImage(obj.id);
+                };
+                div.appendChild(delBtn);
+
+                // タップで入れ替え選択
+                div.onclick = () => handleSelect(obj.id);
+
+                sortContainer.appendChild(div);
             });
-
-            sortContainer.appendChild(div);
         }
 
-        // ドラッグオーバー処理
-        sortContainer.addEventListener('dragover', e => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(sortContainer, e.clientX);
-            const dragging = document.querySelector('.dragging');
-            if (afterElement == null) {
-                sortContainer.appendChild(dragging);
+        function handleSelect(id) {
+            if (selectedId === null) {
+                selectedId = id;
+            } else if (selectedId === id) {
+                selectedId = null; // キャンセル
             } else {
-                sortContainer.insertBefore(dragging, afterElement);
+                // 入れ替え実行
+                const idx1 = imageObjects.findIndex(o => o.id === selectedId);
+                const idx2 = imageObjects.findIndex(o => o.id === id);
+                [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
+                selectedId = null;
+                updateCanvas();
             }
-        });
-
-        function getDragAfterElement(container, x) {
-            const draggableElements = [...container.querySelectorAll('.thumb-item:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = x - box.left - box.width / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
+            renderUI();
         }
 
-        // DOMの並び順に基づいて配列を更新
-        function reorderImages() {
-            const currentOrder = [...sortContainer.querySelectorAll('.thumb-item')]
-                .map(div => parseInt(div.dataset.id));
-            
-            const newImageObjects = currentOrder.map(id => 
-                imageObjects.find(obj => obj.id === id)
-            );
-            
-            imageObjects = newImageObjects;
+        function deleteImage(id) {
+            imageObjects = imageObjects.filter(o => o.id !== id);
+            if (selectedId === id) selectedId = null;
+            renderUI();
             updateCanvas();
         }
 
-        // キャンバス描画
         function updateCanvas() {
-            if (imageObjects.length === 0) return;
+            if (imageObjects.length === 0) {
+                clearCanvas();
+                downloadBtn.style.display = 'none';
+                return;
+            }
 
             const count = imageObjects.length;
             const w = canvas.width / count;
@@ -280,13 +323,17 @@
                 const sh = h / scale;
                 const sx = (img.width - sw) / 2;
                 const sy = (img.height - sh) / 2;
-
                 ctx.drawImage(img, sx, sy, sw, sh, i * w, 0, w, h);
             });
 
-            downloadBtn.href = canvas.toDataURL('image/png');
-            downloadBtn.style.display = 'inline-block';
-            messageEl.textContent = `${count}枚の画像を結合しました。ドラッグで順序を入れ替えられます。`;
+            if (count >= 2) {
+                downloadBtn.href = canvas.toDataURL('image/png');
+                downloadBtn.style.display = 'inline-block';
+                messageEl.textContent = `${count}枚の画像を並べました。`;
+            } else {
+                messageEl.textContent = "あと1枚以上追加してください。";
+                downloadBtn.style.display = 'none';
+            }
         }
     </script>
 </body>
