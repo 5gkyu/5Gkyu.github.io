@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xヘッダー画像メーカー</title>
+    <style>
+        body {
+            font-family: var(--font-main, -apple-system, BlinkMacSystemFont, sans-serif);
+            margin: 0;
+            padding: 0;
+            background-color: #FBF6EA; /* クリームアイボリー */
+            color: #6A564A; /* ウォームブラウン */
+            text-align: center;
+        }
+
+        main {
+            padding-top: 100px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 92%;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1);
+        }
+
+        h1 { font-size: 1.6rem; margin-bottom: 20px; }
+
+        /* アップロードエリア */
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #9AB08F; /* セージグリーン[cite: 1] */
+            border-radius: 12px;
+            background: rgba(154, 176, 143, 0.05);
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #1da1f2;
+            color: white;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .upload-btn:hover { transform: scale(1.05); }
+        input[type="file"] { display: none; }
+
+        /* 並び替えエリア */
+        #sortContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 100px;
+        }
+
+        .thumb-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: grab;
+            position: relative;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+            background: #eee;
+        }
+        .thumb-item:active { cursor: grabbing; }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumb-item.dragging {
+            opacity: 0.5;
+            border: 2px solid #EEAFA1; /* ピーチ[cite: 1] */
+        }
+
+        /* プレビューとダウンロード */
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            display: none;
+            margin-top: 25px;
+            padding: 14px 40px;
+            background-color: #9AB08F; /* セージグリーン[cite: 1] */
+            color: white;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(154, 176, 143, 0.3);
+        }
+
+        /* 注意書きセクション */
+        .caution-box {
+            margin-top: 40px;
+            text-align: left;
+            background: #F8F9FA;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            border-left: 5px solid #92B5BC; /* ダスティブルー[cite: 1] */
+        }
+        .caution-box h2 {
+            font-size: 1rem;
+            margin-top: 0;
+            color: #92B5BC;
+        }
+        .caution-box ul { padding-left: 20px; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+    <site-header site-name="Header Maker"></site-header>
+
+    <main>
+        <div class="container fluffy-entry">
+            <h1>Xヘッダー画像メーカー</h1>
+            
+            <div class="upload-section">
+                <p>画像を2〜10枚選んでください（並び替え可能）</p>
+                <label class="upload-btn">
+                    写真を選択
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                </label>
+                <div id="sortContainer"></div>
+                <p id="message" style="font-size: 0.8rem;"></p>
+            </div>
+
+            <canvas id="previewCanvas" width="1500" height="500"></canvas>
+            
+            <a id="downloadBtn" class="download-btn" download="x_header.png">画像を保存する</a>
+
+            <!-- 注意書きエリア -->
+            <div class="caution-box">
+                <h2>💡 作成時のポイントと注意点</h2>
+                <ul>
+                    <li><strong>推奨サイズ:</strong> Xのヘッダーは <strong>1500 × 500 px</strong> (アスペクト比 <strong>3:1</strong>) です。このツールは自動でこのサイズに出力します。</li>
+                    <li><strong>自動トリミング:</strong> 画像を並べる際、比率が異なる画像は中央を基準に自動で<strong>「塗りつぶし（カバー）」</strong>されます。重要な被写体が端にある場合はご注意ください。</li>
+                    <li><strong>アイコンの被り:</strong> Xのプロフィール画面では、左下にプロフィールアイコンが重なります。<strong>左下付近には重要な情報を置かない</strong>のがコツです。</li>
+                    <li><strong>上下の切り取られ:</strong> デバイスやブラウザのサイズにより、上下が数ピクセル程度カットされて表示されることがあります。</li>
+                    <li><strong>並び替え:</strong> アップロードしたサムネイルをドラッグして動かすと、即座にプレビューに反映されます。</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <site-footer copy="5Gkyu Design"></site-footer>
+
+    <script src="https://5gkyu.github.io/components/components.js"></script>
+    <script src="https://5gkyu.github.io/components/loading.js"></script>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const sortContainer = document.getElementById('sortContainer');
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const messageEl = document.getElementById('message');
+
+        let imageObjects = []; // { file, img, id }
+
+        // 初期表示
+        ctx.fillStyle = '#eee';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        imageInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length < 2 || files.length > 10) {
+                alert("画像は2枚から10枚の間で選択してください。");
+                return;
+            }
+
+            imageObjects = [];
+            sortContainer.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const img = await loadImage(files[i]);
+                const obj = { id: i, img: img };
+                imageObjects.push(obj);
+                createThumbnail(obj);
+            }
+            updateCanvas();
+        });
+
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // サムネイル作成とドラッグイベント
+        function createThumbnail(obj) {
+            const div = document.createElement('div');
+            div.className = 'thumb-item';
+            div.draggable = true;
+            div.dataset.id = obj.id;
+            
+            const img = document.createElement('img');
+            img.src = obj.img.src;
+            div.appendChild(img);
+
+            div.addEventListener('dragstart', () => div.classList.add('dragging'));
+            div.addEventListener('dragend', () => {
+                div.classList.remove('dragging');
+                reorderImages();
+            });
+
+            sortContainer.appendChild(div);
+        }
+
+        // ドラッグオーバー処理
+        sortContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sortContainer, e.clientX);
+            const dragging = document.querySelector('.dragging');
+            if (afterElement == null) {
+                sortContainer.appendChild(dragging);
+            } else {
+                sortContainer.insertBefore(dragging, afterElement);
+            }
+        });
+
+        function getDragAfterElement(container, x) {
+            const draggableElements = [...container.querySelectorAll('.thumb-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = x - box.left - box.width / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // DOMの並び順に基づいて配列を更新
+        function reorderImages() {
+            const currentOrder = [...sortContainer.querySelectorAll('.thumb-item')]
+                .map(div => parseInt(div.dataset.id));
+            
+            const newImageObjects = currentOrder.map(id => 
+                imageObjects.find(obj => obj.id === id)
+            );
+            
+            imageObjects = newImageObjects;
+            updateCanvas();
+        }
+
+        // キャンバス描画
+        function updateCanvas() {
+            if (imageObjects.length === 0) return;
+
+            const count = imageObjects.length;
+            const w = canvas.width / count;
+            const h = canvas.height;
+
+            imageObjects.forEach((obj, i) => {
+                const img = obj.img;
+                const scale = Math.max(w / img.width, h / img.height);
+                const sw = w / scale;
+                const sh = h / scale;
+                const sx = (img.width - sw) / 2;
+                const sy = (img.height - sh) / 2;
+
+                ctx.drawImage(img, sx, sy, sw, sh, i * w, 0, w, h);
+            });
+
+            downloadBtn.href = canvas.toDataURL('image/png');
+            downloadBtn.style.display = 'inline-block';
+            messageEl.textContent = `${count}枚の画像を結合しました。ドラッグで順序を入れ替えられます。`;
+        }
+    </script>
+</body>
+</html>
