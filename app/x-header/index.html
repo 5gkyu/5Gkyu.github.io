@@ -41,7 +41,7 @@
             font-family: var(--font-main, "Zen Maru Gothic", sans-serif);
             margin: 0;
             padding: 0;
-            background-color: #FBF6EA; /* クリームアイボリー [cite: 13] */
+            background-color: #FBF6EA; /* クリームアイボリー */
             color: #6A564A;
             text-align: center;
         }
@@ -49,14 +49,46 @@
         main { padding-top: 100px; padding-bottom: 80px; }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px; /* 2カラム用に少し幅を広げる */
             width: 92%;
             margin: 0 auto;
             background: #fff;
-            padding: 30px 15px;
+            padding: 30px 20px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1);
             margin-bottom: 20px;
+        }
+
+        /* --- 2カラムレイアウト --- */
+        .two-column-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: stretch;
+        }
+
+        .left-col {
+            flex: 1.5; /* プレビューエリアを少し広めに */
+            min-width: 0;
+        }
+
+        .right-col {
+            flex: 1;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* PC・タブレット(768px以上)のときのみ横並び */
+        @media (min-width: 768px) {
+            .two-column-layout {
+                flex-direction: row;
+                text-align: left; /* PCの時は左揃えの方が見やすい */
+            }
+            .controls { justify-content: flex-start; }
+            #sortContainer { justify-content: flex-start; }
         }
 
         /* --- 設定パネル --- */
@@ -64,11 +96,11 @@
             background: #FBF6EA;
             border-radius: 16px;
             padding: 20px;
-            margin: 20px 0;
             text-align: left;
-            display: grid;
-            gap: 15px;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            height: fit-content;
         }
 
         .setting-group {
@@ -91,20 +123,22 @@
             color: #6A564A;
             background: #fff;
             font-size: 0.9rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .custom-inputs {
-            display: none; /* デフォルトは非表示 */
+            display: none;
             gap: 10px;
             align-items: center;
             margin-top: 5px;
         }
         .custom-inputs.active { display: flex; }
-        .custom-inputs input { width: 80px; }
+        .custom-inputs input { width: 100%; }
 
         /* --- コントロール＆ボタン --- */
         .controls {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
@@ -120,23 +154,24 @@
             font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             user-select: none;
             transition: opacity 0.2s;
         }
         .btn:hover { opacity: 0.8; }
 
-        .upload-btn { background-color: #9AB08F; color: white; } /* セージに変更 */
-        .reset-btn { background-color: #EEAFA1; color: white; } /* ピーチ */
+        .upload-btn { background-color: #9AB08F; color: white; }
+        .reset-btn { background-color: #EEAFA1; color: white; }
         .download-btn {
-            display: none;
-            margin-top: 25px;
+            display: none; /* 初期非表示 */
             padding: 15px 40px;
-            background-color: #92B5BC; /* ダスティブルー */
+            background-color: #92B5BC;
             color: white;
             border-radius: 9999px;
             font-weight: bold;
             border: none;
+            width: 100%; /* サイドバーに合わせて幅いっぱい */
         }
 
         /* --- ソート＆サムネイル --- */
@@ -145,13 +180,13 @@
             flex-wrap: wrap;
             gap: 15px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
             min-height: 50px;
         }
 
         .thumb-item {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 12px;
             position: relative;
             background: #f0f0f0;
@@ -166,24 +201,42 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             background-color: #6A564A;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             border: 2px solid white;
         }
 
         /* --- プレビューエリア --- */
         .preview-area {
-            margin-top: 20px;
             position: relative;
+            width: 100%;
+            background: #faf8f5;
+            border-radius: 12px;
+            border: 1px dashed #dcdcdc;
+            padding: 10px;
+            box-sizing: border-box;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        canvas { display: none; } /* 描画用（非表示） */
+        
+        .preview-area::before {
+            content: "プレビュー";
+            position: absolute;
+            color: #ccc;
+            font-weight: bold;
+            z-index: 0;
+        }
+
+        canvas { display: none; }
         #resultImage {
             width: 100%;
             max-width: 100%;
@@ -191,6 +244,9 @@
             border-radius: 8px;
             border: 1px solid #e1e8ed;
             display: none;
+            z-index: 1;
+            position: relative;
+            background-color: #FBF6EA; /* 透過部分がある場合に白浮きしないように */
         }
 
         .caution-box {
@@ -212,69 +268,80 @@
         <div class="container fluffy-entry">
             <h1>Halcyon Collage Maker</h1>
             
-            <div class="settings-panel fluffy-entry delay-1">
-                <div class="setting-group">
-                    <label>📐 サイズ</label>
-                    <select id="sizePreset">
-                        <option value="1500,500">X(Twitter) ヘッダー (1500x500)</option>
-                        <option value="2560,1440">YouTube アート (2560x1440)</option>
-                        <option value="1080,1920">Instagram ストーリーズ (1080x1920)</option>
-                        <option value="1080,1080">スクエア / 正方形 (1080x1080)</option>
-                        <option value="custom">カスタム指定...</option>
-                    </select>
-                    <div class="custom-inputs" id="customSizeInputs">
-                        <input type="number" id="customW" value="1200"> x <input type="number" id="customH" value="800">
+            <div class="two-column-layout">
+                <div class="left-col fluffy-entry delay-1">
+                    <div class="controls">
+                        <label class="btn upload-btn">
+                            <span>📷 写真を追加</span>
+                            <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
+                        </label>
+                        <button id="resetBtn" class="btn reset-btn">🗑️ リセット</button>
+                    </div>
+
+                    <div id="sortContainer"></div>
+
+                    <div class="preview-area">
+                        <canvas id="previewCanvas"></canvas>
+                        <img id="resultImage" alt="生成された画像">
                     </div>
                 </div>
+                
+                <div class="right-col fluffy-entry delay-2">
+                    <div class="settings-panel">
+                        <div class="setting-group">
+                            <label>📐 サイズ</label>
+                            <select id="sizePreset">
+                                <option value="1500,500">X(Twitter) ヘッダー (1500x500)</option>
+                                <option value="2560,1440">YouTube アート (2560x1440)</option>
+                                <option value="1080,1920">Instagram ストーリーズ (1080x1920)</option>
+                                <option value="1080,1080">スクエア / 正方形 (1080x1080)</option>
+                                <option value="custom">カスタム指定...</option>
+                            </select>
+                            <div class="custom-inputs" id="customSizeInputs">
+                                <input type="number" id="customW" value="1200" placeholder="幅">
+                                <span>x</span>
+                                <input type="number" id="customH" value="800" placeholder="高さ">
+                            </div>
+                        </div>
 
-                <div class="setting-group">
-                    <label>🔲 レイアウト</label>
-                    <select id="layoutPreset">
-                        <option value="1,auto">横並び（枚数に合わせて自動）</option>
-                        <option value="auto,1">縦並び（枚数に合わせて自動）</option>
-                        <option value="2,2">2x2 グリッド</option>
-                        <option value="3,3">3x3 グリッド</option>
-                        <option value="custom">カスタム行列指定...</option>
-                    </select>
-                    <div class="custom-inputs" id="customGridInputs">
-                        <input type="number" id="customRows" value="2" min="1"> 行 x <input type="number" id="customCols" value="2" min="1"> 列
+                        <div class="setting-group">
+                            <label>🔲 レイアウト</label>
+                            <select id="layoutPreset">
+                                <option value="1,auto">横並び（枚数に合わせて自動）</option>
+                                <option value="auto,1">縦並び（枚数に合わせて自動）</option>
+                                <option value="2,2">2x2 グリッド</option>
+                                <option value="3,3">3x3 グリッド</option>
+                                <option value="custom">カスタム行列指定...</option>
+                            </select>
+                            <div class="custom-inputs" id="customGridInputs">
+                                <input type="number" id="customRows" value="2" min="1" placeholder="行">
+                                <span>行 x</span>
+                                <input type="number" id="customCols" value="2" min="1" placeholder="列">
+                                <span>列</span>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label>🖼️ 画像の配置方法</label>
+                            <select id="fitMode">
+                                <option value="cover">中央で切り抜き (Cover)</option>
+                                <option value="contain">全体を表示 (Contain)</option>
+                                <option value="fill">枠に合わせて引き伸ばす (Fill)</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-
-                <div class="setting-group">
-                    <label>🖼️ 画像の配置方法</label>
-                    <select id="fitMode">
-                        <option value="cover">中央で切り抜き (Cover)</option>
-                        <option value="contain">全体を表示 (Contain)</option>
-                        <option value="fill">枠に合わせて引き伸ばす (Fill)</option>
-                    </select>
+                    
+                    <button id="saveBtn" class="btn download-btn">画像を保存・展開</button>
                 </div>
             </div>
-            
-            <div class="controls fluffy-entry delay-1">
-                <label class="btn upload-btn">
-                    <span>📷 写真を追加</span>
-                    <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
-                </label>
-                <button id="resetBtn" class="btn reset-btn">🗑️ リセット</button>
-            </div>
-
-            <div id="sortContainer" class="fluffy-entry delay-1"></div>
-
-            <div class="preview-area fluffy-entry delay-2">
-                <canvas id="previewCanvas"></canvas>
-                <img id="resultImage" alt="生成された画像">
-            </div>
-            
-            <button id="saveBtn" class="btn download-btn">画像を保存・展開</button>
         </div>
 
         <div class="container caution-box fluffy-entry delay-3">
             <h2>💡 アプリの使い方</h2>
             <ul>
-                <li><strong>設定の反映:</strong> サイズやレイアウトを変更すると、リアルタイムでプレビューが更新されます。</li>
+                <li><strong>設定の即時反映:</strong> カスタムサイズや行列数をキーボードで入力すると、リアルタイムでプレビューが更新されます。</li>
                 <li><strong>画像の入れ替え:</strong> 小さいサムネイルを2つ順番にタップすると、場所を入れ替えることができます。</li>
-                <li><strong>保存方法:</strong> プレビュー画像を<strong>長押し</strong>して「"写真"に保存」を選択してください。</li>
+                <li><strong>保存方法:</strong> スマートフォンの場合はプレビュー画像を<strong>長押し</strong>して「写真に保存」を選択、PCの場合は保存ボタンをご利用ください。</li>
             </ul>
         </div>
     </main>
@@ -285,7 +352,6 @@
     <script src="https://5gkyu.github.io/components/loading.js"></script>
 
     <script>
-        // DOM要素の取得
         const imageInput = document.getElementById('imageInput');
         const sortContainer = document.getElementById('sortContainer');
         const canvas = document.getElementById('previewCanvas');
@@ -294,7 +360,6 @@
         const saveBtn = document.getElementById('saveBtn');
         const resetBtn = document.getElementById('resetBtn');
 
-        // 設定用DOM要素
         const sizePreset = document.getElementById('sizePreset');
         const layoutPreset = document.getElementById('layoutPreset');
         const fitMode = document.getElementById('fitMode');
@@ -308,13 +373,19 @@
         let imageObjects = [];
         let selectedId = null;
 
-        // イベントリスナー群
-        [sizePreset, layoutPreset, fitMode, customW, customH, customRows, customCols].forEach(el => {
+        // セレクトボックスの変更時は custom 入力欄の出し分けと再描画（changeイベント）
+        [sizePreset, layoutPreset, fitMode].forEach(el => {
             el.addEventListener('change', () => {
-                // カスタム入力欄の表示/非表示の切り替え
                 customSizeInputs.classList.toggle('active', sizePreset.value === 'custom');
                 customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
-                updateCanvas(); // 設定が変わったら再描画
+                updateCanvas();
+            });
+        });
+
+        // カスタム数値の入力時は即座に再描画（inputイベント）
+        [customW, customH, customRows, customCols].forEach(el => {
+            el.addEventListener('input', () => {
+                updateCanvas();
             });
         });
 
@@ -383,12 +454,15 @@
             if (selectedId === id) selectedId = null;
             renderUI();
             updateCanvas();
+            if(imageObjects.length === 0) {
+                resultImage.style.display = 'none';
+                saveBtn.style.display = 'none';
+            }
         }
 
         function updateCanvas() {
             if (imageObjects.length < 1) return;
 
-            // 1. キャンバスサイズの決定
             let cw, ch;
             if (sizePreset.value === 'custom') {
                 cw = parseInt(customW.value) || 1000;
@@ -399,11 +473,9 @@
             canvas.width = cw;
             canvas.height = ch;
 
-            // 背景色をHalcyonカラーで塗りつぶす（Contain時の余白用）
             ctx.fillStyle = "#FBF6EA";
             ctx.fillRect(0, 0, cw, ch);
 
-            // 2. グリッド（行列）の計算
             let rows, cols;
             if (layoutPreset.value === '1,auto') {
                 rows = 1; cols = imageObjects.length;
@@ -420,9 +492,8 @@
             const cellH = ch / rows;
             const mode = fitMode.value;
 
-            // 3. 画像の描画処理
             imageObjects.forEach((obj, i) => {
-                if (i >= rows * cols) return; // 指定グリッド枠数を超える画像はスキップ
+                if (i >= rows * cols) return;
                 
                 const r = Math.floor(i / cols);
                 const c = i % cols;
@@ -431,13 +502,12 @@
                 const img = obj.img;
 
                 if (mode === 'fill') {
-                    // 枠に合わせて引き伸ばす
                     ctx.drawImage(img, dx, dy, cellW, cellH);
                 } else {
                     let scale;
                     if (mode === 'cover') {
                         scale = Math.max(cellW / img.width, cellH / img.height);
-                    } else { // contain
+                    } else {
                         scale = Math.min(cellW / img.width, cellH / img.height);
                     }
                     
@@ -447,7 +517,6 @@
                     const sy = (img.height - sh) / 2;
                     
                     ctx.save();
-                    // 枠外にはみ出さないようクリッピング
                     ctx.beginPath();
                     ctx.rect(dx, dy, cellW, cellH);
                     ctx.clip();
@@ -456,12 +525,11 @@
                 }
             });
 
-            // 4. 結果をimgタグに反映
             resultImage.src = canvas.toDataURL('image/png');
             resultImage.style.display = 'block';
             
             if (imageObjects.length >= 1) {
-                saveBtn.style.display = 'inline-flex';
+                saveBtn.style.display = 'block'; // サイドバーの幅に合わせるため
             }
         }
 
@@ -469,7 +537,7 @@
             const dataUrl = canvas.toDataURL('image/png');
             const newWindow = window.open();
             newWindow.document.write(`<img src="${dataUrl}" style="width:100%;">`);
-            newWindow.document.write('<p style="text-align:center; font-family:sans-serif; margin-top:20px; color:#6A564A;">画像を長押しして保存してください</p>');
+            newWindow.document.write('<p style="text-align:center; font-family:sans-serif; margin-top:20px; color:#6A564A;">画像を長押し、または右クリックして保存してください</p>');
         });
     </script>
 </body>
