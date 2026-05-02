@@ -3,37 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xヘッダー画像メーカー</title>
-     <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
-<link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+    <title>Halcyon 画像コラージュメーカー</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+    <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
 
-<meta property="og:title" content="Halcyon">
-<meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
-<meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
-<meta property="og:url" content="https://5gkyu.github.io/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="5gkyu">
+    <meta property="og:title" content="Halcyon Collage Maker">
+    <meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:url" content="https://5gkyu.github.io/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="5gkyu">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@5gkyu">
-<meta name="twitter:title" content="Halcyon">
-<meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
-<meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@5gkyu">
+    <meta name="twitter:title" content="Halcyon Collage Maker">
+    <meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
+    <meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
     <style>
-        /* ダブルタップによる拡大を禁止し、ボタン等の操作性を向上 */
+        /* Halcyon Architecture: アニメーションクラスのフォールバック定義 */
+        @keyframes fluffyEntry {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .fluffy-entry { animation: fluffyEntry 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.15s; }
+        .delay-2 { animation-delay: 0.35s; }
+        .delay-3 { animation-delay: 0.55s; }
+
         html, body {
             touch-action: manipulation; 
             -webkit-text-size-adjust: 100%;
         }
 
         body {
-            font-family: var(--font-main, sans-serif);
+            font-family: var(--font-main, "Zen Maru Gothic", sans-serif);
             margin: 0;
             padding: 0;
-            background-color: #FBF6EA; /* クリームアイボリー */
-            color: #6A564A; /* ウォームブラウン[cite: 1] */
+            background-color: #FBF6EA; /* クリームアイボリー [cite: 13] */
+            color: #6A564A;
             text-align: center;
         }
 
@@ -47,8 +56,53 @@
             padding: 30px 15px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1);
+            margin-bottom: 20px;
         }
 
+        /* --- 設定パネル --- */
+        .settings-panel {
+            background: #FBF6EA;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #9AB08F; /* セージグリーン */
+        }
+
+        select, input[type="number"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dcdcdc;
+            font-family: inherit;
+            color: #6A564A;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        .custom-inputs {
+            display: none; /* デフォルトは非表示 */
+            gap: 10px;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .custom-inputs.active { display: flex; }
+        .custom-inputs input { width: 80px; }
+
+        /* --- コントロール＆ボタン --- */
         .controls {
             margin-bottom: 25px;
             display: flex;
@@ -68,11 +122,24 @@
             align-items: center;
             gap: 5px;
             user-select: none;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.8; }
+
+        .upload-btn { background-color: #9AB08F; color: white; } /* セージに変更 */
+        .reset-btn { background-color: #EEAFA1; color: white; } /* ピーチ */
+        .download-btn {
+            display: none;
+            margin-top: 25px;
+            padding: 15px 40px;
+            background-color: #92B5BC; /* ダスティブルー */
+            color: white;
+            border-radius: 9999px;
+            font-weight: bold;
+            border: none;
         }
 
-        .upload-btn { background-color: #1da1f2; color: white; }
-        .reset-btn { background-color: #EEAFA1; color: white; } /* ピーチ[cite: 1] */
-
+        /* --- ソート＆サムネイル --- */
         #sortContainer {
             display: flex;
             flex-wrap: wrap;
@@ -89,10 +156,11 @@
             position: relative;
             background: #f0f0f0;
             border: 3px solid transparent;
+            cursor: pointer;
         }
 
         .thumb-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
-        .thumb-item.selected { border-color: #9AB08F; transform: scale(1.05); } /* セージ[cite: 1] */
+        .thumb-item.selected { border-color: #EEAFA1; transform: scale(1.05); }
 
         .delete-btn {
             position: absolute;
@@ -110,38 +178,25 @@
             border: 2px solid white;
         }
 
-        /* プレビューエリア */
+        /* --- プレビューエリア --- */
         .preview-area {
             margin-top: 20px;
             position: relative;
         }
-
-        canvas { display: none; } /* 計算用のため非表示 */
-
+        canvas { display: none; } /* 描画用（非表示） */
         #resultImage {
             width: 100%;
+            max-width: 100%;
             height: auto;
             border-radius: 8px;
             border: 1px solid #e1e8ed;
-            display: none; /* 画像が生成されるまで非表示 */
-        }
-
-        .download-btn {
             display: none;
-            margin-top: 25px;
-            padding: 15px 40px;
-            background-color: #9AB08F; /* セージ[cite: 1] */
-            color: white;
-            border-radius: 9999px;
-            text-decoration: none;
-            font-weight: bold;
-            border: none;
         }
 
         .caution-box {
             margin-top: 30px;
             text-align: left;
-            background: rgba(146, 181, 188, 0.08); /* ダスティブルー[cite: 1] */
+            background: rgba(146, 181, 188, 0.08);
             padding: 20px;
             border-radius: 12px;
             font-size: 0.85rem;
@@ -151,38 +206,76 @@
 </head>
 <body>
 
-    <site-header site-name="Header Maker"></site-header>
+    <site-header site-name="Collage Maker"></site-header>
 
     <main>
         <div class="container fluffy-entry">
-            <h1>Xヘッダー画像メーカー</h1>
+            <h1>Halcyon Collage Maker</h1>
             
-            <div class="controls">
+            <div class="settings-panel fluffy-entry delay-1">
+                <div class="setting-group">
+                    <label>📐 サイズ</label>
+                    <select id="sizePreset">
+                        <option value="1500,500">X(Twitter) ヘッダー (1500x500)</option>
+                        <option value="2560,1440">YouTube アート (2560x1440)</option>
+                        <option value="1080,1920">Instagram ストーリーズ (1080x1920)</option>
+                        <option value="1080,1080">スクエア / 正方形 (1080x1080)</option>
+                        <option value="custom">カスタム指定...</option>
+                    </select>
+                    <div class="custom-inputs" id="customSizeInputs">
+                        <input type="number" id="customW" value="1200"> x <input type="number" id="customH" value="800">
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>🔲 レイアウト</label>
+                    <select id="layoutPreset">
+                        <option value="1,auto">横並び（枚数に合わせて自動）</option>
+                        <option value="auto,1">縦並び（枚数に合わせて自動）</option>
+                        <option value="2,2">2x2 グリッド</option>
+                        <option value="3,3">3x3 グリッド</option>
+                        <option value="custom">カスタム行列指定...</option>
+                    </select>
+                    <div class="custom-inputs" id="customGridInputs">
+                        <input type="number" id="customRows" value="2" min="1"> 行 x <input type="number" id="customCols" value="2" min="1"> 列
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>🖼️ 画像の配置方法</label>
+                    <select id="fitMode">
+                        <option value="cover">中央で切り抜き (Cover)</option>
+                        <option value="contain">全体を表示 (Contain)</option>
+                        <option value="fill">枠に合わせて引き伸ばす (Fill)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="controls fluffy-entry delay-1">
                 <label class="btn upload-btn">
                     <span>📷 写真を追加</span>
-                    <input type="file" id="imageInput" accept="image/*" multiple>
+                    <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
                 </label>
                 <button id="resetBtn" class="btn reset-btn">🗑️ リセット</button>
             </div>
 
-            <div id="sortContainer"></div>
+            <div id="sortContainer" class="fluffy-entry delay-1"></div>
 
-            <div class="preview-area">
-                <canvas id="previewCanvas" width="1500" height="500"></canvas>
-                <!-- iPad用にCanvasではなくimgタグで結果を表示 -->
-                <img id="resultImage" alt="生成されたヘッダー">
+            <div class="preview-area fluffy-entry delay-2">
+                <canvas id="previewCanvas"></canvas>
+                <img id="resultImage" alt="生成された画像">
             </div>
             
             <button id="saveBtn" class="btn download-btn">画像を保存・展開</button>
+        </div>
 
-            <div class="caution-box">
-                <h2>💡 iPad/iPhoneでの保存方法</h2>
-                <ul>
-                    <li><strong>保存ボタン:</strong> ボタンを押すと画像が全画面で開きます。そこから保存してください。</li>
-                    <li><strong>長押し保存:</strong> 上のプレビュー画像を<strong>長押し</strong>して「"写真"に保存」を選択するのが最も確実です。</li>
-                    <li><strong>拡大防止:</strong> 画面のダブルタップによる強制拡大を無効化しています。</li>
-                </ul>
-            </div>
+        <div class="container caution-box fluffy-entry delay-3">
+            <h2>💡 アプリの使い方</h2>
+            <ul>
+                <li><strong>設定の反映:</strong> サイズやレイアウトを変更すると、リアルタイムでプレビューが更新されます。</li>
+                <li><strong>画像の入れ替え:</strong> 小さいサムネイルを2つ順番にタップすると、場所を入れ替えることができます。</li>
+                <li><strong>保存方法:</strong> プレビュー画像を<strong>長押し</strong>して「"写真"に保存」を選択してください。</li>
+            </ul>
         </div>
     </main>
 
@@ -192,6 +285,7 @@
     <script src="https://5gkyu.github.io/components/loading.js"></script>
 
     <script>
+        // DOM要素の取得
         const imageInput = document.getElementById('imageInput');
         const sortContainer = document.getElementById('sortContainer');
         const canvas = document.getElementById('previewCanvas');
@@ -200,10 +294,30 @@
         const saveBtn = document.getElementById('saveBtn');
         const resetBtn = document.getElementById('resetBtn');
 
+        // 設定用DOM要素
+        const sizePreset = document.getElementById('sizePreset');
+        const layoutPreset = document.getElementById('layoutPreset');
+        const fitMode = document.getElementById('fitMode');
+        const customSizeInputs = document.getElementById('customSizeInputs');
+        const customGridInputs = document.getElementById('customGridInputs');
+        const customW = document.getElementById('customW');
+        const customH = document.getElementById('customH');
+        const customRows = document.getElementById('customRows');
+        const customCols = document.getElementById('customCols');
+
         let imageObjects = [];
         let selectedId = null;
 
-        // リセット
+        // イベントリスナー群
+        [sizePreset, layoutPreset, fitMode, customW, customH, customRows, customCols].forEach(el => {
+            el.addEventListener('change', () => {
+                // カスタム入力欄の表示/非表示の切り替え
+                customSizeInputs.classList.toggle('active', sizePreset.value === 'custom');
+                customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
+                updateCanvas(); // 設定が変わったら再描画
+            });
+        });
+
         resetBtn.addEventListener('click', () => {
             if(confirm("リセットしますか？")) {
                 imageObjects = [];
@@ -217,7 +331,6 @@
         imageInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             for (const file of files) {
-                if (imageObjects.length >= 10) break;
                 const img = await loadImage(file);
                 imageObjects.push({ id: Date.now() + Math.random(), img: img });
             }
@@ -274,36 +387,89 @@
 
         function updateCanvas() {
             if (imageObjects.length < 1) return;
-            const count = imageObjects.length;
-            const w = canvas.width / count;
-            const h = canvas.height;
 
+            // 1. キャンバスサイズの決定
+            let cw, ch;
+            if (sizePreset.value === 'custom') {
+                cw = parseInt(customW.value) || 1000;
+                ch = parseInt(customH.value) || 1000;
+            } else {
+                [cw, ch] = sizePreset.value.split(',').map(Number);
+            }
+            canvas.width = cw;
+            canvas.height = ch;
+
+            // 背景色をHalcyonカラーで塗りつぶす（Contain時の余白用）
+            ctx.fillStyle = "#FBF6EA";
+            ctx.fillRect(0, 0, cw, ch);
+
+            // 2. グリッド（行列）の計算
+            let rows, cols;
+            if (layoutPreset.value === '1,auto') {
+                rows = 1; cols = imageObjects.length;
+            } else if (layoutPreset.value === 'auto,1') {
+                rows = imageObjects.length; cols = 1;
+            } else if (layoutPreset.value === 'custom') {
+                rows = Math.max(1, parseInt(customRows.value) || 1);
+                cols = Math.max(1, parseInt(customCols.value) || 1);
+            } else {
+                [rows, cols] = layoutPreset.value.split(',').map(Number);
+            }
+
+            const cellW = cw / cols;
+            const cellH = ch / rows;
+            const mode = fitMode.value;
+
+            // 3. 画像の描画処理
             imageObjects.forEach((obj, i) => {
+                if (i >= rows * cols) return; // 指定グリッド枠数を超える画像はスキップ
+                
+                const r = Math.floor(i / cols);
+                const c = i % cols;
+                const dx = c * cellW;
+                const dy = r * cellH;
                 const img = obj.img;
-                const scale = Math.max(w / img.width, h / img.height);
-                const sw = w / scale;
-                const sh = h / scale;
-                const sx = (img.width - sw) / 2;
-                const sy = (img.height - sh) / 2;
-                ctx.drawImage(img, sx, sy, sw, sh, i * w, 0, w, h);
+
+                if (mode === 'fill') {
+                    // 枠に合わせて引き伸ばす
+                    ctx.drawImage(img, dx, dy, cellW, cellH);
+                } else {
+                    let scale;
+                    if (mode === 'cover') {
+                        scale = Math.max(cellW / img.width, cellH / img.height);
+                    } else { // contain
+                        scale = Math.min(cellW / img.width, cellH / img.height);
+                    }
+                    
+                    const sw = cellW / scale;
+                    const sh = cellH / scale;
+                    const sx = (img.width - sw) / 2;
+                    const sy = (img.height - sh) / 2;
+                    
+                    ctx.save();
+                    // 枠外にはみ出さないようクリッピング
+                    ctx.beginPath();
+                    ctx.rect(dx, dy, cellW, cellH);
+                    ctx.clip();
+                    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, cellW, cellH);
+                    ctx.restore();
+                }
             });
 
-            // Canvasの内容をimgタグに反映（iPadでの長押し保存用）
+            // 4. 結果をimgタグに反映
             resultImage.src = canvas.toDataURL('image/png');
             resultImage.style.display = 'block';
             
-            if (count >= 2) {
+            if (imageObjects.length >= 1) {
                 saveBtn.style.display = 'inline-flex';
             }
         }
 
-        // 保存ボタンの動作をiPadに最適化
         saveBtn.addEventListener('click', () => {
             const dataUrl = canvas.toDataURL('image/png');
-            // 新しいウィンドウ（タブ）で画像を開く
             const newWindow = window.open();
             newWindow.document.write(`<img src="${dataUrl}" style="width:100%;">`);
-            newWindow.document.write('<p style="text-align:center; font-family:sans-serif;">画像を長押しして保存してください</p>');
+            newWindow.document.write('<p style="text-align:center; font-family:sans-serif; margin-top:20px; color:#6A564A;">画像を長押しして保存してください</p>');
         });
     </script>
 </body>
