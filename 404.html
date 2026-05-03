@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lost in the void?</title>
-<meta name="description" content="A quiet blank space where a page used to be. It seems the fragment you are looking for has drifted away." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Yomogi&display=swap" rel="stylesheet">
-<link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
-<link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost in the void?</title>
+    <meta name="description" content="A quiet blank space where a page used to be. It seems the fragment you are looking for has drifted away." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Yomogi&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+    <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+    
+    <link rel="preload" href="https://5gkyu.github.io/icon/404list.png" as="image">
 
-<meta property="og:title" content="Halcyon">
-<meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
-<meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
-<meta property="og:url" content="https://5gkyu.github.io/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="5gkyu">
+    <meta property="og:title" content="Halcyon">
+    <meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:url" content="https://5gkyu.github.io/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="5gkyu">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@5gkyu">
-<meta name="twitter:title" content="Halcyon">
-<meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
-<meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
     <style>
         /* グローバルスタイル */
         :root {
-            --bg-color: #FDF2E4;           /* 背景のクリーム色 */
-            --text-color: #555c4d;         /* 文字の濃いオリーブグリーン */
-            --accent-green: #acc693;        /* ベレー帽のグリーン */
-            --hover-green: #92b069;         /* ホバー時の濃いグリーン */
-            --accent-peach: #c97a5a;        /* 飾りのピーチカラー (コントラスト確保) */
-            --button-text: #ffffff;          /* ボタン内の文字色 */
+            --bg-color: #FDF2E4;
+            --text-color: #555c4d;
+            --accent-green: #acc693;
+            --hover-green: #92b069;
+            --accent-peach: #c97a5a;
+            --button-text: #ffffff;
             --font-family: 'Caveat', 'Yomogi', cursive;
         }
 
@@ -41,6 +38,14 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            background-color: var(--bg-color);
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         body {
@@ -54,6 +59,26 @@
             min-height: 100vh;
             padding: 20px;
             text-align: center;
+
+            /* --- フェードイン（登場）用の初期状態 --- */
+            opacity: 0;
+            transform: translateY(10px);
+            /* loading.js の世界観に合わせて 0.5s ease-in-out で統一 */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        /* 読み込み完了時に付与されるクラス */
+        body.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- フェードアウト時に付与されるクラス --- 
+           loading.jsと完全に同じ挙動（opacityのみ変化、誤クリック防止） */
+        body.hl-page-fade-out {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.5s ease-in-out !important;
         }
 
         /* コンテナ */
@@ -63,21 +88,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            z-index: 20;
         }
 
         /* 画像スタイル */
         .error-image {
-            max-width: 80%; /* スマホ時は少し小さく */
+            max-width: 80%;
             height: auto;
             border-radius: 20px;
             margin-bottom: 30px;
             object-fit: cover;
-            transform: translateX(2%); /* キャラクターの視覚的中心を補正 */
+            transform: translateX(2%);
+            pointer-events: none;
+            -webkit-user-drag: none;
         }
 
         /* テキストエリア */
         .text-group h1 {
-            font-size: 5rem; /* 手書きフォントは少し大きめに */
+            font-size: 5rem;
             color: var(--hover-green);
             margin-bottom: 10px;
             font-weight: 700;
@@ -110,13 +139,13 @@
             padding: 15px 30px;
             text-decoration: none;
             font-weight: bold;
-            border-radius: 50px; /* 丸いボタン */
+            border-radius: 50px;
             transition: all 0.3s ease;
             font-size: 1rem;
             border: 2px solid transparent;
+            cursor: pointer;
         }
 
-        /* メインボタン (グリーン) */
         .btn-primary {
             background-color: var(--accent-green);
             color: var(--button-text);
@@ -129,7 +158,6 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
-        /* サブボタン (ピーチの枠線) */
         .btn-secondary {
             border-color: var(--accent-peach);
             color: var(--accent-peach);
@@ -150,64 +178,29 @@
             z-index: 10;
         }
 
-        /* --- レスポンシブ (PC/タブレット) --- */
+        /* --- レスポンシブ --- */
         @media (min-width: 601px) {
-            body {
-                overflow: hidden;
-            }
-            .container {
-                max-width: 640px;
-            }
+            body { overflow: hidden; }
+            .container { max-width: 640px; }
             .error-image {
                 max-width: 100%;
                 max-height: 36vh;
                 margin-bottom: 16px;
                 transform: translateX(2%);
             }
-            .text-group h1 {
-                font-size: 3.8rem;
-                margin-bottom: 4px;
-            }
-            .text-group h2 {
-                font-size: 1.6rem;
-                margin-bottom: 10px;
-            }
-            .text-group p {
-                font-size: 1.1rem;
-                margin-bottom: 16px;
-                line-height: 1.5;
-            }
-            .btn {
-                padding: 10px 22px;
-                font-size: 0.95rem;
-            }
+            .text-group h1 { font-size: 3.8rem; margin-bottom: 4px; }
+            .text-group h2 { font-size: 1.6rem; margin-bottom: 10px; }
+            .text-group p { font-size: 1.1rem; margin-bottom: 16px; line-height: 1.5; }
+            .btn { padding: 10px 22px; font-size: 0.95rem; }
         }
 
-        /* 縦幅の狭い画面向けに全体を自動縮小 (1画面に収める) */
         @media (max-height: 700px) {
-            body {
-                overflow: hidden;
-            }
-            .error-image {
-                max-height: 30vh;
-                margin-bottom: 2vh;
-            }
-            .text-group h1 {
-                font-size: clamp(2.5rem, 8vh, 3.8rem);
-                margin-bottom: 0;
-            }
-            .text-group h2 {
-                font-size: clamp(1.2rem, 4vh, 1.6rem);
-                margin-bottom: 1vh;
-            }
-            .text-group p {
-                font-size: clamp(0.9rem, 3vh, 1.1rem);
-                margin-bottom: 3vh;
-            }
-            .btn {
-                padding: 8px 18px;
-                font-size: 0.9rem;
-            }
+            body { overflow: hidden; }
+            .error-image { max-height: 30vh; margin-bottom: 2vh; }
+            .text-group h1 { font-size: clamp(2.5rem, 8vh, 3.8rem); margin-bottom: 0; }
+            .text-group h2 { font-size: clamp(1.2rem, 4vh, 1.6rem); margin-bottom: 1vh; }
+            .text-group p { font-size: clamp(0.9rem, 3vh, 1.1rem); margin-bottom: 3vh; }
+            .btn { padding: 8px 18px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -216,7 +209,7 @@
     <canvas id="petals-canvas"></canvas>
 
     <div class="container">
-        <img src="https://5gkyu.github.io/icon/404list.png" alt="申し訳ありません、ページが見つかりません" class="error-image">
+        <img src="https://5gkyu.github.io/icon/404list.png" alt="ページが見つかりません" class="error-image">
 
         <div class="text-group">
             <h1>404</h1>
@@ -230,17 +223,54 @@
         </div>
 
         <div class="button-group">
-            <a href="https://5gkyu.github.io/KyuLink/" class="btn btn-primary">Return Home</a>
+            <a href="https://5gkyu.github.io/home/" class="btn btn-primary">Return Home</a>
             <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
         </div>
     </div>
 
     <script>
+    // --- ページ読み込み時のフェードイン処理 ---
+    window.addEventListener('load', () => {
+        document.body.classList.add('loaded');
+    });
+
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+
+    // --- 自動フェードアウト処理 (loading.js と同じロジック) ---
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a');
+        if (!anchor) return;
+
+        const href = anchor.getAttribute('href');
+        const target = anchor.getAttribute('target');
+
+        // Go Back ボタン用（javascript:history.back() は特別に許可する）
+        const isHistoryBack = href === 'javascript:history.back()';
+        const isJavascript = href && href.startsWith('javascript:');
+
+        if (href && !href.startsWith('#') && target !== '_blank' && (!isJavascript || isHistoryBack)) {
+            e.preventDefault(); // デフォルトの遷移をキャンセル
+            
+            // フェードアウト用のクラスを付与
+            document.body.classList.add('hl-page-fade-out');
+
+            // 0.5秒後に遷移を実行
+            setTimeout(() => {
+                if (isHistoryBack) {
+                    history.back();
+                } else {
+                    window.location.href = anchor.href;
+                }
+            }, 500); 
+        }
+    });
+
+    // --- パーティクルアニメーション処理 ---
     (function() {
         const canvas = document.getElementById('petals-canvas');
         const ctx = canvas.getContext('2d');
 
-        /* 落下物の定義: 葉っぱ2種 + 花びら2種 */
         const SHAPES = [
             { type: 'leaf',  color: '#acc693', size: 10 },
             { type: 'leaf',  color: '#c8dba8', size:  8 },
@@ -250,7 +280,6 @@
 
         function rand(min, max) { return Math.random() * (max - min) + min; }
 
-        /* 下部に最初から静止している積もりパーティクル */
         const groundPile = [];
         function initGroundPile() {
             groundPile.length = 0;
@@ -268,16 +297,14 @@
             }
         }
 
-        /* キャンバスサイズ設定 */
         function resize() {
             canvas.width  = window.innerWidth;
             canvas.height = window.innerHeight;
-            initGroundPile(); /* リサイズ時に下部の積もりを再配置 */
+            initGroundPile();
         }
         window.addEventListener('resize', resize);
         resize();
 
-        /* 落下パーティクル */
         const COUNT = 18;
         const particles = [];
 
@@ -289,12 +316,12 @@
                 size:  rand(s.size * 0.8, s.size * 1.4),
                 color: s.color,
                 type:  s.type,
-                speed: rand(0.6, 1.6),        /* 落下速度 */
-                drift: rand(-0.4, 0.4),       /* 横流れ */
-                angle: rand(0, Math.PI * 2),  /* 初期角度 */
-                spin:  rand(-0.02, 0.02),     /* 回転速度 */
-                sway:  rand(0.3, 0.8),        /* 揺れ幅 */
-                swaySpeed: rand(0.01, 0.025), /* 揺れ周期 */
+                speed: rand(0.6, 1.6),
+                drift: rand(-0.4, 0.4),
+                angle: rand(0, Math.PI * 2),
+                spin:  rand(-0.02, 0.02),
+                sway:  rand(0.3, 0.8),
+                swaySpeed: rand(0.01, 0.025),
                 swayOffset: rand(0, Math.PI * 2),
                 opacity: rand(0.55, 0.85),
             };
@@ -310,7 +337,6 @@
             ctx.bezierCurveTo( size * 0.8, -size * 0.5,  size * 0.8,  size * 0.5, 0,  size);
             ctx.bezierCurveTo(-size * 0.8,  size * 0.5, -size * 0.8, -size * 0.5, 0, -size);
             ctx.fill();
-            /* 葉脈 */
             ctx.beginPath();
             ctx.moveTo(0, -size * 0.9);
             ctx.lineTo(0,  size * 0.9);
@@ -328,7 +354,6 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            /* 下部の積もり層を先に描画 */
             groundPile.forEach(p => {
                 ctx.save();
                 ctx.translate(p.x, p.y);
@@ -343,17 +368,14 @@
             const now = performance.now() * 0.001;
 
             particles.forEach(p => {
-                /* 位置更新 */
                 p.y     += p.speed;
                 p.x     += p.drift + Math.sin(now * p.swaySpeed * 60 + p.swayOffset) * p.sway;
                 p.angle += p.spin;
 
-                /* 画面外に出たらリセット */
                 if (p.y > canvas.height + 20) {
                     Object.assign(p, createParticle(true));
                 }
 
-                /* 描画 */
                 ctx.save();
                 ctx.translate(p.x, p.y);
                 ctx.rotate(p.angle);
