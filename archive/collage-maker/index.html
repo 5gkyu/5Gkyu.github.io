@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollageMaker | 画像コラージュ - 5Gkyu</title>
+    
+    <meta name="description" content="複数の画像を一枚に美しく織り上げる画像コラージュツール「CollageMaker」。タップで簡単に入れ替えでき、SNSヘッダーやOGPサイズへのリサイズも自動で行えます。">
+    <link rel="canonical" href="https://5gkyu.github.io/archive/app/CollageMaker/">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+    <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+    
+    <meta property="og:title" content="CollageMaker | 画像コラージュ - 5Gkyu">
+    <meta property="og:description" content="複数の画像を一枚に美しく織り上げる画像コラージュツール。">
+    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:url" content="https://5gkyu.github.io/archive/app/CollageMaker/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="5Gkyu">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- JS読み込み前の画面隠蔽（チラつき防止） -->
+    <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+    <style>
+        :root {
+            --clr-cream:       #FBF6EA;
+            --clr-sage:        #9AB08F;
+            --clr-peach:       #EEAFA1;
+            --clr-dusty-blue:  #92B5BC;
+            --clr-brown:       #6A564A;
+        }
+
+        /* ============================================================
+           CollageMaker 専用スタイル
+        ============================================================ */
+        * { box-sizing: border-box; max-width: 100%; }
+
+        .hl-input, .hl-select {
+            padding: 0.8rem 1rem; border-radius: 8px; border: 1.5px solid rgba(106, 86, 74, 0.15); font-family: var(--font-main); color: var(--clr-brown); background: #fff; font-size: 0.9rem; width: 100%; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hl-input:focus, .hl-select:focus { border-color: var(--clr-sage); box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2); }
+        
+        .settings-panel { display: flex; flex-direction: column; gap: 1.2rem; }
+        .setting-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .setting-group label { font-size: 0.85rem; font-weight: 700; color: var(--clr-sage); }
+        
+        .custom-inputs { display: none; gap: 8px; align-items: center; margin-top: 0.2rem; flex-wrap: wrap; }
+        .custom-inputs.active { display: flex; }
+        .custom-inputs input { flex: 1; min-width: 60px; }
+        .custom-inputs span { color: var(--clr-brown); font-weight: 700; white-space: nowrap; }
+
+        /* プレビューエリア */
+        .preview-area {
+            position: relative; width: 100%; background: rgba(255, 255, 255, 0.5); border-radius: 20px; border: 2px dashed rgba(106, 86, 74, 0.2); padding: 1.5rem; box-sizing: border-box; min-height: 350px; display: flex; align-items: center; justify-content: center;
+        }
+        .preview-area::before { content: "画像をアップロードすると表示されます"; position: absolute; color: var(--clr-brown); opacity: 0.4; font-weight: 700; font-size: 0.9rem; z-index: 0; pointer-events: none; transition: opacity 0.3s; }
+        .preview-area.has-image::before { opacity: 0; }
+        
+        canvas { display: none; }
+
+        #imageWrapper { position: relative; width: 100%; display: none; z-index: 1; }
+        
+        #resultImage { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(106, 86, 74, 0.1); display: block; background-color: var(--clr-cream); cursor: pointer; transition: filter 0.2s ease;}
+        #resultImage:hover { filter: brightness(0.95); }
+
+        .canvas-delete-btn {
+            position: absolute; width: 32px; height: 32px; background-color: var(--clr-brown); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 10;
+            transform: translate(-50%, -50%); transition: transform 0.2s ease, background-color 0.2s ease; display: none;
+        }
+        .canvas-delete-btn:hover { transform: translate(-50%, -50%) scale(1.15); background-color: var(--clr-peach); }
+
+        /* サイドバー追従用のラッパー */
+        .sidebar-sticky {
+            position: sticky;
+            top: 90px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: max-content;
+        }
+        .sidebar-sticky .hl-sidebar-block { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+    <site-header site-name="CollageMaker"></site-header>
+
+    <hl-layout cols="2" class="fluffy-entry delay-1">
+        
+        <!-- ==========================================
+             左側：メインエディタ
+        =========================================== -->
+        <div class="hl-layout-main">
+            <!-- ★ パンくずリストを追加 (Archive > App > CollageMaker) -->
+            <hl-breadcrumb 
+                level1-name="Archive" level1-url="/archive/" 
+                level2-name="App" level2-url="/archive/app/" 
+                current="CollageMaker">
+            </hl-breadcrumb>
+
+            <page-title>CollageMaker</page-title>
+            <div class="hl-content-text" style="margin-bottom: 1.5rem;">
+                複数の画像を一枚に織り上げて、美しいコラージュを作成します。
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: flex-start;">
+                <div style="display: flex; flex-direction: column;">
+                    <hl-button id="uploadBtn" icon="📷">写真を追加</hl-button>
+                    <div style="font-size: 0.75rem; color: var(--clr-brown); opacity: 0.7; margin-top: 0.5rem; padding-left: 0.5rem; font-weight: 700;">
+                        対応: JPG, PNG, WebP, GIF, SVG, BMP
+                    </div>
+                </div>
+                <input type="file" id="imageInput" accept="image/jpeg, image/png, image/webp, image/gif, image/svg+xml, image/bmp" multiple style="display:none;">
+                <hl-button id="resetBtn" variant="secondary" icon="🗑️">すべてリセット</hl-button>
+            </div>
+
+            <hl-tabs>
+                <!-- タブ1: プレビュー -->
+                <div class="hl-tab-panel" data-label="プレビュー表示">
+                    <div class="hl-content-text" style="font-size: 0.8rem; font-weight: 700; color: var(--clr-peach); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        💡 プレビュー上の画像をタップして、削除や入れ替えができます
+                    </div>
+                    <div class="preview-area" id="previewArea">
+                        <canvas id="previewCanvas"></canvas>
+                        <div id="imageWrapper">
+                            <img id="resultImage" alt="生成された画像">
+                            <div id="canvasDeleteBtn" class="canvas-delete-btn" title="画像を削除">✕</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- タブ2: 使い方 -->
+                <div class="hl-tab-panel" data-label="使い方">
+                    <hl-step>
+                        <hl-step-item num="1" title="画像を追加する">
+                            上部の「写真を追加」ボタンを押し、コラージュしたい画像を選びます。JPGやPNGだけでなく、WebPやSVGにも対応しています。
+                        </hl-step-item>
+                        <hl-step-item num="2" title="レイアウトの調整">
+                            右側のサイドメニューから、サイズや自動生成されたレイアウト候補を選択し、お好みの形に調整してください。
+                        </hl-step-item>
+                        <hl-step-item num="3" title="画像の並び替え・削除">
+                            プレビュー上の画像を<strong>タップ</strong>すると選択され、右上に「削除ボタン」が現れます。別の画像をタップすると、位置を入れ替えることができます。
+                        </hl-step-item>
+                        <hl-step-item num="4" title="保存して完成">
+                            保存形式（PNG/JPEG/WebP）を選び、「画像を保存」ボタンを押すと、自動的にファイルがダウンロードされます。
+                        </hl-step-item>
+                    </hl-step>
+                </div>
+            </hl-tabs>
+        </div>
+        
+        <!-- ==========================================
+             右側：サイドバー設定
+        =========================================== -->
+        <aside class="hl-layout-sidebar">
+            <div class="sidebar-sticky">
+
+                <hl-sidebar-box title="コラージュ設定" icon="⚙️">
+                    <div class="settings-panel">
+                        
+                        <div class="setting-group">
+                            <label>📐 サイズ</label>
+                            <select id="sizePreset" class="hl-select">
+                                <option value="1200,630">OGP画像 (1200x630)</option>
+                                <option value="1280,670">note 見出し画像 (1280x670)</option>
+                                <option value="1500,500">X(Twitter) ヘッダー (1500x500)</option>
+                                <option value="1080,1080">Instagram スクエア (1080x1080)</option>
+                                <option value="1080,1920">Instagram ストーリーズ (1080x1920)</option>
+                                <option value="1920,1080">フルHD / YouTubeサムネ (1920x1080)</option>
+                                <option value="custom">カスタム指定...</option>
+                            </select>
+                            <div class="custom-inputs" id="customSizeInputs">
+                                <input type="number" id="customW" class="hl-input" value="1200" placeholder="幅">
+                                <span>x</span>
+                                <input type="number" id="customH" class="hl-input" value="630" placeholder="高さ">
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label>🔲 レイアウト (自動計算)</label>
+                            <select id="layoutPreset" class="hl-select">
+                                <option value="1,1">画像を追加してください</option>
+                                <option value="custom">カスタム行列指定...</option>
+                            </select>
+                            <div class="custom-inputs" id="customGridInputs">
+                                <input type="number" id="customRows" class="hl-input" value="2" min="1" placeholder="行">
+                                <span>行 x</span>
+                                <input type="number" id="customCols" class="hl-input" value="2" min="1" placeholder="列">
+                                <span>列</span>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label>🖼️ 画像の配置方法</label>
+                            <select id="fitMode" class="hl-select">
+                                <option value="cover">中央で切り抜き (Cover)</option>
+                                <option value="contain">全体を表示 (Contain)</option>
+                                <option value="fill">枠に合わせて引き伸ばす (Fill)</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-group" style="margin-top: 0.5rem;">
+                            <label>💾 保存フォーマット</label>
+                            <select id="exportFormat" class="hl-select">
+                                <option value="image/png">PNG (.png) - 高画質</option>
+                                <option value="image/jpeg">JPEG (.jpg) - 軽量</option>
+                                <option value="image/webp">WebP (.webp) - 次世代</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </hl-sidebar-box>
+
+                <div id="saveBtnContainer" style="display: none;">
+                    <hl-button id="saveBtn" icon="📥" block>画像を保存</hl-button>
+                </div>
+                
+                <hl-profile></hl-profile>
+            </div>
+        </aside>
+    </hl-layout>
+
+    <site-footer copy="5Gkyu Apps"></site-footer>
+    <script src="/components/components.js"></script>
+
+    <!-- アプリケーションロジック -->
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const imageInput = document.getElementById('imageInput');
+        const resetBtn = document.getElementById('resetBtn');
+        const previewArea = document.getElementById('previewArea');
+        const imageWrapper = document.getElementById('imageWrapper');
+        const canvas = document.getElementById('previewCanvas');
+        const resultImage = document.getElementById('resultImage');
+        const canvasDeleteBtn = document.getElementById('canvasDeleteBtn');
+        const ctx = canvas.getContext('2d');
+        
+        const saveBtnContainer = document.getElementById('saveBtnContainer');
+        const saveBtn = document.getElementById('saveBtn');
+
+        const sizePreset = document.getElementById('sizePreset');
+        const layoutPreset = document.getElementById('layoutPreset');
+        const fitMode = document.getElementById('fitMode');
+        const exportFormat = document.getElementById('exportFormat');
+        const customSizeInputs = document.getElementById('customSizeInputs');
+        const customGridInputs = document.getElementById('customGridInputs');
+        const customW = document.getElementById('customW');
+        const customH = document.getElementById('customH');
+        const customRows = document.getElementById('customRows');
+        const customCols = document.getElementById('customCols');
+
+        let imageObjects = [];
+        let selectedId = null;
+        let currentDrawRows = 1;
+        let currentDrawCols = 1;
+
+        function updateLayoutOptions(count) {
+            const currentVal = layoutPreset.value;
+            layoutPreset.innerHTML = '';
+
+            if (count === 0) {
+                layoutPreset.innerHTML = `<option value="1,1">画像を追加してください</option><option value="custom">カスタム行列指定...</option>`;
+                return;
+            }
+
+            let optionsHtml = '';
+            for (let i = 1; i <= count; i++) {
+                if (count % i === 0) {
+                    const r = i;
+                    const c = count / i;
+                    let label = `${r}x${c} グリッド`;
+                    if (r === 1) label = `横並び (${c}枚)`;
+                    if (c === 1) label = `縦並び (${r}枚)`;
+                    optionsHtml += `<option value="${r},${c}">${label}</option>`;
+                }
+            }
+            optionsHtml += `<option value="custom">カスタム行列指定...</option>`;
+            layoutPreset.innerHTML = optionsHtml;
+
+            const optsArray = Array.from(layoutPreset.options);
+            const found = optsArray.some(opt => opt.value === currentVal);
+            
+            if (found) {
+                layoutPreset.value = currentVal;
+            } else {
+                const validOpts = optsArray.filter(opt => opt.value !== 'custom');
+                const middleIdx = Math.floor((validOpts.length - 1) / 2);
+                layoutPreset.value = validOpts[middleIdx].value;
+            }
+            customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
+        }
+
+        updateLayoutOptions(0);
+
+        uploadBtn.addEventListener('click', () => imageInput.click());
+
+        [sizePreset, layoutPreset, fitMode].forEach(el => {
+            el.addEventListener('change', () => {
+                customSizeInputs.classList.toggle('active', sizePreset.value === 'custom');
+                customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
+                updateCanvas();
+            });
+        });
+
+        [customW, customH, customRows, customCols].forEach(el => {
+            el.addEventListener('input', () => updateCanvas());
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if(confirm("すべての画像をクリアしますか？")) {
+                imageObjects = [];
+                selectedId = null;
+                updateLayoutOptions(0);
+                updateCanvas();
+                imageWrapper.style.display = 'none';
+                previewArea.classList.remove('has-image');
+                saveBtnContainer.style.display = 'none';
+                if(window.HlToast) HlToast.show('🗑️ リセットしました');
+            }
+        });
+
+        imageInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            for (const file of files) {
+                const img = await loadImage(file);
+                imageObjects.push({ id: Date.now() + Math.random(), img: img });
+            }
+            updateLayoutOptions(imageObjects.length);
+            updateCanvas();
+            imageInput.value = "";
+            if(window.HlToast) HlToast.show('📸 画像を追加しました');
+            
+            const tabsBtns = document.querySelectorAll('.hl-tabs-btn');
+            if (tabsBtns[0]) tabsBtns[0].click();
+        });
+
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        resultImage.addEventListener('click', (e) => {
+            if (imageObjects.length === 0) return;
+            
+            const rect = resultImage.getBoundingClientRect();
+            const px = (e.clientX - rect.left) / rect.width;
+            const py = (e.clientY - rect.top) / rect.height;
+            
+            const c = Math.floor(px * currentDrawCols);
+            const r = Math.floor(py * currentDrawRows);
+            const idx = r * currentDrawCols + c;
+
+            if (idx < imageObjects.length) {
+                const targetId = imageObjects[idx].id;
+                
+                if (selectedId === null) { 
+                    selectedId = targetId; 
+                } else if (selectedId === targetId) { 
+                    selectedId = null; 
+                } else {
+                    const idx1 = imageObjects.findIndex(o => o.id === selectedId);
+                    const idx2 = imageObjects.findIndex(o => o.id === targetId);
+                    [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
+                    selectedId = null;
+                }
+                updateCanvas();
+            }
+        });
+
+        canvasDeleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedId) {
+                imageObjects = imageObjects.filter(o => o.id !== selectedId);
+                selectedId = null;
+                updateLayoutOptions(imageObjects.length);
+                updateCanvas();
+                if(imageObjects.length === 0) {
+                    imageWrapper.style.display = 'none';
+                    previewArea.classList.remove('has-image');
+                    saveBtnContainer.style.display = 'none';
+                }
+            }
+        });
+
+        function updateCanvas() {
+            if (imageObjects.length < 1) return;
+
+            let cw, ch;
+            if (sizePreset.value === 'custom') {
+                cw = parseInt(customW.value) || 1200;
+                ch = parseInt(customH.value) || 630;
+            } else {
+                [cw, ch] = sizePreset.value.split(',').map(Number);
+            }
+            canvas.width = cw;
+            canvas.height = ch;
+
+            ctx.fillStyle = "#FBF6EA";
+            ctx.fillRect(0, 0, cw, ch);
+
+            if (layoutPreset.value === 'custom') {
+                currentDrawRows = Math.max(1, parseInt(customRows.value) || 1);
+                currentDrawCols = Math.max(1, parseInt(customCols.value) || 1);
+            } else {
+                [currentDrawRows, currentDrawCols] = layoutPreset.value.split(',').map(Number);
+            }
+
+            const cellW = cw / currentDrawCols;
+            const cellH = ch / currentDrawRows;
+            const mode = fitMode.value;
+
+            imageObjects.forEach((obj, i) => {
+                if (i >= currentDrawRows * currentDrawCols) return;
+                
+                const r = Math.floor(i / currentDrawCols);
+                const c = i % currentDrawCols;
+                const dx = c * cellW;
+                const dy = r * cellH;
+                const img = obj.img;
+
+                if (mode === 'fill') {
+                    ctx.drawImage(img, dx, dy, cellW, cellH);
+                } else {
+                    let scale;
+                    if (mode === 'cover') {
+                        scale = Math.max(cellW / img.width, cellH / img.height);
+                    } else {
+                        scale = Math.min(cellW / img.width, cellH / img.height);
+                    }
+                    
+                    const sw = cellW / scale;
+                    const sh = cellH / scale;
+                    const sx = (img.width - sw) / 2;
+                    const sy = (img.height - sh) / 2;
+                    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(dx, dy, cellW, cellH);
+                    ctx.clip();
+                    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, cellW, cellH);
+                    ctx.restore();
+                }
+
+                if (obj.id === selectedId) {
+                    ctx.save();
+                    ctx.strokeStyle = "#EEAFA1";
+                    ctx.lineWidth = Math.max(4, Math.min(cw, ch) * 0.015);
+                    ctx.strokeRect(dx, dy, cellW, cellH);
+                    ctx.fillStyle = "rgba(238, 175, 161, 0.25)";
+                    ctx.fillRect(dx, dy, cellW, cellH);
+                    ctx.restore();
+                }
+            });
+
+            resultImage.src = canvas.toDataURL('image/png', 0.5);
+            imageWrapper.style.display = 'block';
+            previewArea.classList.add('has-image');
+            
+            if (selectedId !== null) {
+                const idx = imageObjects.findIndex(o => o.id === selectedId);
+                if (idx !== -1) {
+                    const r = Math.floor(idx / currentDrawCols);
+                    const c = idx % currentDrawCols;
+                    const leftPercent = ((c + 1) / currentDrawCols) * 100;
+                    const topPercent = (r / currentDrawRows) * 100;
+                    
+                    canvasDeleteBtn.style.left = `${leftPercent}%`;
+                    canvasDeleteBtn.style.top = `${topPercent}%`;
+                    canvasDeleteBtn.style.display = 'flex';
+                } else {
+                    canvasDeleteBtn.style.display = 'none';
+                }
+            } else {
+                canvasDeleteBtn.style.display = 'none';
+            }
+            
+            if (imageObjects.length >= 1) {
+                saveBtnContainer.style.display = 'block';
+            }
+        }
+
+        let downloadCount = 1;
+        let lastDownloadDate = "";
+
+        // ★ 保存時のファイル名の接頭辞を「collagemaker_」に変更
+        function getFormattedFileName(ext) {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const currentDate = `${yyyy}${mm}${dd}`;
+
+            if (lastDownloadDate !== currentDate) {
+                downloadCount = 1;
+                lastDownloadDate = currentDate;
+            }
+
+            const sequence = String(downloadCount).padStart(3, '0');
+            downloadCount++;
+
+            return `collagemaker_${currentDate}_${sequence}.${ext}`;
+        }
+
+        saveBtn.addEventListener('click', () => {
+            const prevSelectedId = selectedId;
+            selectedId = null; 
+            updateCanvas(); 
+            
+            const format = exportFormat.value;
+            let ext = format.split('/')[1];
+            if (ext === 'jpeg') ext = 'jpg';
+
+            const dataUrl = canvas.toDataURL(format, 0.9);
+            
+            const filename = getFormattedFileName(ext);
+
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            if(window.HlToast) HlToast.show(`📥 ${filename} を保存しました`);
+
+            selectedId = prevSelectedId;
+            updateCanvas();
+        });
+    </script>
+</body>
+</html>
