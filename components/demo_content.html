@@ -1,0 +1,537 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — コンテンツ | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Halcyon のコンテンツ系コンポーネント集。カード・チャット UI・引用・ステップ・カルーセルなど、記事・シナリオページで活躍するパーツのデモ。">
+  <link rel="canonical" href="https://5gkyu.github.io/components/demo_content.html">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Gallery — コンテンツ | Halcyon - 5Gkyu">
+  <meta property="og:description" content="Halcyon のコンテンツ系コンポーネント集。カード・チャット UI・引用・ステップなどのデモ。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/components/demo_content.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .demo-block {
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(154, 176, 143, 0.2);
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="コンテンツ"></hl-breadcrumb>
+      <page-title>コンテンツ</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 2rem;">
+        <p>記事・ブログ・シナリオなど<strong>コンテンツを表示するためのコンポーネント</strong>をまとめたページです。</p>
+        <p style="margin-top:0.5em;">
+          コンポーネント一覧は <a href="/archive/app/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════
+           Cards
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-cards">Cards</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>カード</strong>は、サムネイル画像・タイトル・説明文をひとまとめにしたUI部品です。
+          記事一覧・作品紹介・商品リストなど「似た情報を並べて見せる」場面に最適です。
+          <code>image</code>・<code>tag</code>・<code>href</code> 属性を省略すれば軽量版になります。
+        </p>
+
+        <div class="grid-2col" style="margin-bottom: 1.5rem;">
+          <hl-card title="画像付きカード" tag="Article" image="https://5gkyu.github.io/icon/ogp.png" href="#">
+            サムネイル画像とカテゴリタグ付きの標準的なカードレイアウトです。
+          </hl-card>
+          <hl-card title="シンプルカード" href="#">
+            画像・タグを省略した軽量カードです。ホバーで浮き上がります。
+          </hl-card>
+        </div>
+
+        <hl-accordion title="コードを見る">
+          <hl-code lang="html">
+&lt;hl-card
+  title="画像付きカード"
+  tag="Article"
+  image="https://5gkyu.github.io/icon/ogp.png"
+  href="#"&gt;
+  サムネイル画像とカテゴリタグ付きの標準的なカードレイアウトです。
+&lt;/hl-card&gt;
+
+&lt;hl-card title="シンプルカード" href="#"&gt;
+  画像・タグを省略した軽量カードです。ホバーで浮き上がります。
+&lt;/hl-card&gt;</hl-code>
+        </hl-accordion>
+      </section>
+
+      <!-- ══════════════════════════════
+           Chat UI
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-chat">Chat UI</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          LINEやDiscordのようなチャット形式でセリフを表示するUIです。
+          キャラクターが複数登場するシナリオ・SSS・小説など、「会話形式で内容を伝える」ページに最適です。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="基本">
+            <div class="demo-block">
+              <hl-chat char="A" align="left">左寄せのメッセージです。キャラA（Akari）が話しています。</hl-chat>
+              <hl-chat char="B" align="right">右寄せのメッセージです。<code>align="right"</code> で右寄せになります。</hl-chat>
+              <hl-chat char="C" align="left"><code>char</code> 属性でアイコンとバブルの色が切り替わります。</hl-chat>
+              <hl-chat char="D" align="right">画像がない場合はアルファベットにフォールバックします。</hl-chat>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- char: A〜F またはキャラクター名 / align: left または right --&gt;
+&lt;hl-chat char="A" align="left"&gt;左寄せのメッセージです。&lt;/hl-chat&gt;
+&lt;hl-chat char="B" align="right"&gt;右寄せのメッセージです。&lt;/hl-chat&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="キャラクター一覧">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                <code>char</code> 属性に <strong>A〜Fのアルファベット</strong>を指定すると、内部でキャラクター名に変換されます。
+                アイコン画像は <code>hl-char/{キャラクター名}.png</code> から自動取得されます。
+              </p>
+              <hl-table>
+                <table>
+                  <thead>
+                    <tr><th>char属性</th><th>キャラクター名</th><th>バブル色</th><th>アイコンパス</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>A</code></td><td>Akari</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#E36A8C;display:inline-block;"></span>Rose</span></td><td><code>hl-char/Akari.png</code></td></tr>
+                    <tr><td><code>B</code></td><td>Becky</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#9FC9D6;display:inline-block;"></span>Sky Blue</span></td><td><code>hl-char/Becky.png</code></td></tr>
+                    <tr><td><code>C</code></td><td>Charlotte</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#B794DA;display:inline-block;"></span>Lavender</span></td><td><code>hl-char/Charlotte.png</code></td></tr>
+                    <tr><td><code>D</code></td><td>Dulcie</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#F4956A;display:inline-block;"></span>Coral</span></td><td><code>hl-char/Dulcie.png</code></td></tr>
+                    <tr><td><code>E</code></td><td>Esme</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#F3C46F;display:inline-block;"></span>Amber</span></td><td><code>hl-char/Esme.png</code></td></tr>
+                    <tr><td><code>F</code></td><td>Fuka</td><td><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:12px;border-radius:50%;background:#A9C47D;display:inline-block;"></span>Mint</span></td><td><code>hl-char/Fuka.png</code></td></tr>
+                  </tbody>
+                </table>
+              </hl-table>
+              <hl-alert style="margin-top:1rem;">
+                A〜F以外の文字列（例: <code>char="Akari"</code>）を直接指定することもできます。
+                その場合は <code>hl-char/{char属性の値}.png</code> が直接参照されます。
+              </hl-alert>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="会話サンプル">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.5rem;">複数キャラクターの会話の例です。</p>
+              <hl-chat char="A" align="left">キャラA：おはよう！今日の天気は？</hl-chat>
+              <hl-chat char="B" align="right">キャラB：小雨が降りそうだよ。</hl-chat>
+              <hl-chat char="C" align="left">キャラC：じゃあ傘を持って帰るね。</hl-chat>
+              <hl-chat char="A" align="left">キャラA：また明日ね！</hl-chat>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-chat char="A" align="left"&gt;キャラA：おはよう！今日の天気は？&lt;/hl-chat&gt;
+&lt;hl-chat char="B" align="right"&gt;キャラB：小雨が降りそうだよ。&lt;/hl-chat&gt;
+&lt;hl-chat char="C" align="left"&gt;キャラC：じゃあ傘を持って帰るね。&lt;/hl-chat&gt;
+&lt;hl-chat char="A" align="left"&gt;キャラA：また明日ね！&lt;/hl-chat&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="人数の目安">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                記事の文字数に合わせて登場人物の人数を調整すると、読み心地のよい会話が生まれます。
+              </p>
+              <hl-table>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="white-space:nowrap;">記事の長さ</th>
+                      <th style="white-space:nowrap;">適切な人数</th>
+                      <th>ポイント</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>短め</strong><br><small style="opacity:0.65;">〜6,000字</small></td>
+                      <td style="text-align:center;font-weight:700;">2〜3人</td>
+                      <td>サクッと読ませるコラムなので、登場人物が多すぎると読者の視点がブレます。1ペアの会話で走り切るか、最後に1人が締める程度がスッキリします。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>中程度</strong><br><small style="opacity:0.65;">6,000〜11,000字</small></td>
+                      <td style="text-align:center;font-weight:700;">3〜4人</td>
+                      <td>最も自由度の高い黄金比です。導入でA×B、中盤でCが加わり、最後にEが締めるなど、記事の進行に合わせてメンバーを入れ替えると心地よいリズムとグループの立体感が生まれます。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>長め</strong><br><small style="opacity:0.65;">11,000字以上</small></td>
+                      <td style="text-align:center;font-weight:700;">4〜5人</td>
+                      <td>章ごとに「内向的な2人」「外向的な3人」とシーンを切り替えることで、長文でも読者を飽きさせません。ごちゃまぜの組み合わせでもかまいません。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </hl-table>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="画像なしフォールバック">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                アイコン画像が存在しないキャラクターは、<code>char</code> 属性の値がアイコン内にテキスト表示されます。
+              </p>
+              <hl-chat char="X" align="left">画像なしのキャラクター。「X」と表示されます。</hl-chat>
+              <hl-chat char="Z" align="right">画像ファイルのみ用意すれば OK。画像を用意しなくても使えます。</hl-chat>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="直接パス指定">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                <code>src</code> 属性に画像URLやパスを直接指定できます。<code>char</code> 属性はバブルの色のみに使われます。
+                画像は中央を基準にトリミングされます（object-fit: cover）。
+              </p>
+              <hl-chat src="https://5gkyu.github.io/icon/hl-char/Fuka.png" char="F" align="left">src属性で画像パスを直接指定しています。</hl-chat>
+              <hl-chat src="https://5gkyu.github.io/icon/hl-char/Dulcie.png" char="D" align="right">外部URLや自サイトの任意のパスを指定できます。</hl-chat>
+              <hl-chat src="https://5gkyu.github.io/icon/Fuka_icon.png" char="A" align="left">正方形でない画像も中央切り抜きで表示されます。</hl-chat>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- src属性で直接画像パスを指定（ローカルパス・外部URLどちらも可） --&gt;
+&lt;hl-chat src="/images/chara.png" char="A" align="left"&gt;メッセージ&lt;/hl-chat&gt;
+&lt;hl-chat src="https://example.com/avatar.png" char="B" align="right"&gt;メッセージ&lt;/hl-chat&gt;
+
+&lt;!-- char属性はバブルの色のみを担当（A〜F）。src未指定なら画像URLも決まる --&gt;
+&lt;!-- 画像は中央切り抜き（object-fit: cover / object-position: center）--&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Code & Step
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-content">Code & Step</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          記事・ドキュメント的なページで活躍するパーツです。
+          <strong>hl-code</strong>はコードを色付きで整形・コピーボタン付きで表示、
+          <strong>hl-step</strong>は手順・フローを視覚的な番号付きステップで表現します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-code">
+            <div class="demo-block">
+              <hl-code lang="javascript">
+function helloHalcyon() {
+  console.log("Where the world falls silent.");
+}
+              </hl-code>
+              <hl-code lang="html">
+&lt;hl-layout cols="2"&gt;
+  &lt;div class="hl-layout-main"&gt;...&lt;/div&gt;
+  &lt;aside class="hl-layout-sidebar"&gt;...&lt;/aside&gt;
+&lt;/hl-layout&gt;
+              </hl-code>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-code lang="javascript"&gt;
+function helloHalcyon() {
+  console.log("Where the world falls silent.");
+}
+&lt;/hl-code&gt;
+
+&lt;hl-code lang="html"&gt;
+&amp;lt;hl-layout cols="2"&amp;gt;
+  &amp;lt;div class="hl-layout-main"&amp;gt;...&amp;lt;/div&amp;gt;
+&amp;lt;/hl-layout&amp;gt;
+&lt;/hl-code&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-step">
+            <div class="demo-block">
+              <hl-step>
+                <hl-step-item num="1" title="事前準備">
+                  VS Codeを開き、components.js をプロジェクトに配置します。
+                </hl-step-item>
+                <hl-step-item num="2" title="スクリプトを読み込む">
+                  HTMLの <code>&lt;/body&gt;</code> 直前に <code>&lt;script src="components/components.js"&gt;&lt;/script&gt;</code> を追加します。
+                </hl-step-item>
+                <hl-step-item num="3" title="完成！">
+                  カスタム要素（<code>&lt;hl-button&gt;</code> など）をHTMLに書くだけでデザインが適用されます。
+                </hl-step-item>
+              </hl-step>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-step&gt;
+  &lt;hl-step-item num="1" title="事前準備"&gt;
+    VS Codeを開き、components.js をプロジェクトに配置します。
+  &lt;/hl-step-item&gt;
+  &lt;hl-step-item num="2" title="スクリプトを読み込む"&gt;
+    HTMLの &amp;lt;/body&amp;gt; 直前に &amp;lt;script src="components/components.js"&amp;gt;&amp;lt;/script&amp;gt; を追加します。
+  &lt;/hl-step-item&gt;
+  &lt;hl-step-item num="3" title="完成！"&gt;
+    カスタム要素をHTMLに書くだけでデザインが適用されます。
+  &lt;/hl-step-item&gt;
+&lt;/hl-step&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Article Components
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-article">Article Components</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          ブログ記事やノート（Note）などで活躍するコンポーネントです。
+          <strong>引用（Quote）</strong>は外部ソースや重要なテキストを美しく装飾し、
+          <strong>シェア（Share）</strong>はSNS等への共有ボタンを配置します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-quote">
+            <div class="demo-block">
+              <hl-quote source="Halcyon Design System" href="https://5gkyu.github.io/">
+                Where the world falls silent, we found our own halcyon days.<br>
+                静かな世界で、私たちは穏やかな日々を見つけた。
+              </hl-quote>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-quote source="Halcyon Design System" href="https://5gkyu.github.io/"&gt;
+  Where the world falls silent, we found our own halcyon days.&lt;br&gt;
+  静かな世界で、私たちは穏やかな日々を見つけた。
+&lt;/hl-quote&gt;
+
+&lt;!-- href属性を省略するとリンクなしのプレーンな引用元表示になります --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-share">
+            <div class="demo-block">
+              <hl-share text="このページを共有する"></hl-share>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-share text="このページを共有する"&gt;&lt;/hl-share&gt;
+
+&lt;!-- X（Twitter）へのシェア機能と、現在のページのURLをクリップボードにコピーする機能が実装されています --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Carousel
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-carousel">Carousel</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>カルーセル</strong>は画像やコンテンツを横方向にスライドして切り替えるUIです。
+          前後ボタンとドットインジケーターが自動生成されます。
+          スワイプ操作にも対応しています。
+        </p>
+
+        <hl-alert type="warning" style="margin-bottom:1.5rem;">
+          <strong>「カルーセル」はWeb業界では長年「非推奨」のトレンド</strong>
+          — ユーザーは2枚目以降のスライドをほぼ見ないというデータが多くあります。
+          コンテンツが大事な場合は<strong>カードグリッド</strong>や<strong>リスト表示</strong>の方が開示率が高まりやすいです。
+        </hl-alert>
+
+        <div class="demo-block">
+          <hl-carousel id="demo-carousel">
+            <div class="hl-carousel-slide">
+              <div style="aspect-ratio:16/7;background:linear-gradient(135deg,rgba(154,176,143,0.3),rgba(146,181,188,0.3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--clr-brown);">
+                Slide 1
+              </div>
+            </div>
+            <div class="hl-carousel-slide">
+              <div style="aspect-ratio:16/7;background:linear-gradient(135deg,rgba(238,175,161,0.3),rgba(247,196,111,0.3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--clr-brown);">
+                Slide 2
+              </div>
+            </div>
+            <div class="hl-carousel-slide">
+              <div style="aspect-ratio:16/7;background:linear-gradient(135deg,rgba(183,148,218,0.3),rgba(227,106,140,0.3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--clr-brown);">
+                Slide 3
+              </div>
+            </div>
+          </hl-carousel>
+
+          <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+            <hl-code lang="html">
+&lt;hl-carousel&gt;
+  &lt;div class="hl-carousel-slide"&gt;
+    &lt;img src="image1.jpg" alt="スライド1" style="width:100%;border-radius:12px;"&gt;
+  &lt;/div&gt;
+  &lt;div class="hl-carousel-slide"&gt;
+    &lt;img src="image2.jpg" alt="スライド2" style="width:100%;border-radius:12px;"&gt;
+  &lt;/div&gt;
+&lt;/hl-carousel&gt;
+
+&lt;!-- 前後ボタン・ドットインジケーターは自動生成されます --&gt;
+&lt;!-- スワイプ（タッチ・マウスドラッグ）にも対応しています --&gt;</hl-code>
+          </hl-accordion>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           Sidebar Components
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-sidebar">Sidebar Components</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>サイドバー</strong>はページの右列に表示する補助情報エリアです。
+          ここに並べるパーツ（プロフィール・目次）は、
+          このページの<strong>右側サイドバーで実際に動作しています</strong>。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-sidebar-box">
+            <div class="demo-block">
+              <hl-sidebar-box title="カスタムボックス">
+                <p class="hl-content-text">
+                  <code>title</code> と <code>icon</code> 属性で見出しをカスタマイズできます。中には自由にコンテンツを配置できます。
+                </p>
+              </hl-sidebar-box>
+              <hl-sidebar-box title="タグ一覧">
+                <div class="hl-tags-wrapper">
+                  <a href="#" class="hl-badge">デザイン</a>
+                  <a href="#" class="hl-badge">Webツール</a>
+                  <a href="#" class="hl-badge">ゲーム</a>
+                </div>
+              </hl-sidebar-box>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-sidebar-box title="カスタムボックス"&gt;
+  &lt;p class="hl-content-text"&gt;
+    title と icon 属性で見出しをカスタマイズできます。
+  &lt;/p&gt;
+&lt;/hl-sidebar-box&gt;
+
+&lt;hl-sidebar-box title="タグ一覧"&gt;
+  &lt;div class="hl-tags-wrapper"&gt;
+    &lt;a href="#" class="hl-badge"&gt;デザイン&lt;/a&gt;
+    &lt;a href="#" class="hl-badge"&gt;Webツール&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/hl-sidebar-box&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-profile">
+            <div class="demo-block">
+              <hl-profile></hl-profile>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- サイドバーに配置するだけ（内容はcomponents.jsに固定） --&gt;
+&lt;hl-profile&gt;&lt;/hl-profile&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-toc">
+            <div class="demo-block hl-content-text">
+              <p>ページ内の <code>&lt;section-heading&gt;</code> を自動収集して目次を生成します。<br>
+              スクロール位置に応じて現在地がハイライトされます。<br>
+              右側のサイドバーで動作を確認できます。</p>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- サイドバーに置くだけで section-heading を自動収集 --&gt;
+&lt;aside class="hl-layout-sidebar"&gt;
+  &lt;hl-toc&gt;&lt;/hl-toc&gt;
+&lt;/aside&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Navigation
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-nav">Navigation</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>hl-breadcrumb</strong> はページのメインコンテンツ内、<code>&lt;page-title&gt;</code> の直前に配置します。
+          上位ページへの途中リンクを自動生成し、現在ページ名を最後に表示します。
+        </p>
+        <div class="demo-block">
+          <hl-breadcrumb current="このページ名"></hl-breadcrumb>
+          <hl-accordion title="コードを見る">
+            <hl-code lang="html">
+&lt;!-- page-title の直前に配置 --&gt;
+&lt;div class="hl-layout-main"&gt;
+  &lt;hl-breadcrumb current="このページ名"&gt;&lt;/hl-breadcrumb&gt;
+  &lt;page-title&gt;ページタイトル&lt;/page-title&gt;
+  ...
+&lt;/div&gt;</hl-code>
+          </hl-accordion>
+        </div>
+      </section>
+
+    </div><!-- /hl-layout-main -->
+
+    <!-- ─── 右：サイドバー ─── -->
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+          <li><a href="./demo_ui.html" class="hl-link">UI コンポーネント</a></li>
+          <li style="font-weight:700;color:var(--clr-brown);">コンテンツ（現在）</li>
+          <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
+          <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
+        </ul>
+      </hl-sidebar-box>
+      <hl-toc></hl-toc>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="./components.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,568 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — UI コンポーネント | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Halcyon の UI コンポーネント集。ボタン・アコーディオン・モーダル・ドロワー・タブ・トースト・アバターなど、インタラクティブな要素のデモとコード。">
+  <link rel="canonical" href="https://5gkyu.github.io/components/demo_ui.html">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Gallery — UI コンポーネント | Halcyon - 5Gkyu">
+  <meta property="og:description" content="Halcyon の UI コンポーネント集。ボタン・モーダル・タブ・アバターなどのデモ。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/components/demo_ui.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .demo-block {
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(154, 176, 143, 0.2);
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .typo-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; color: #EEAFA1; text-transform: uppercase; margin-bottom: 0.3rem; display: block; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="UI コンポーネント"></hl-breadcrumb>
+      <page-title>UI コンポーネント</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 2rem;">
+        <p>ページで使う<strong>基本的なUI部品</strong>をまとめたページです。ボタン・アラート・アコーディオン・タブ・モーダルなどを扱います。</p>
+        <p style="margin-top:0.5em;">
+          コンポーネント一覧は <a href="/archive/app/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════
+           Basic UI
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-basic">Basic UI</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          ページで最もよく使う基本パーツです。
+          <strong>ボタン（button）</strong>はクリック操作を受け付け、
+          <strong>アラート（alert）</strong>は注意・お知らせを目立たせ、
+          <strong>バッジ（badge）</strong>はカテゴリやタグを小さく表示します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-button">
+            <div class="demo-block">
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <hl-button>Primary</hl-button>
+                <hl-button variant="secondary">Secondary</hl-button>
+                <hl-button icon="★">Icon Button</hl-button>
+                <hl-button href="https://5gkyu.github.io/" target="_blank">Link Button</hl-button>
+              </div>
+              <div style="margin-bottom: 1.5rem;">
+                <hl-button block>Block Button (全幅)</hl-button>
+              </div>
+              <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed rgba(106, 86, 74, 0.2);">
+                <p class="typo-label">Loading State（非同期処理）</p>
+                <p class="hl-content-text" style="font-size: 0.8rem; margin-bottom: 1rem;">
+                  <code>loading</code> 属性を付けるとスピナーが表示され、ボタンが押せなくなります。API通信中などにJSで制御します。
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                  <hl-button id="demo-load-btn" onclick="demoLoading(this)">クリックで疑似通信（2秒）</hl-button>
+                  <hl-button variant="secondary" loading>常にローディング</hl-button>
+                </div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-button&gt;Primary&lt;/hl-button&gt;
+&lt;hl-button variant="secondary"&gt;Secondary&lt;/hl-button&gt;
+&lt;hl-button icon="★"&gt;Icon Button&lt;/hl-button&gt;
+&lt;hl-button href="https://5gkyu.github.io/" target="_blank"&gt;Link Button&lt;/hl-button&gt;
+&lt;hl-button block&gt;Block Button (全幅)&lt;/hl-button&gt;
+&lt;hl-button loading&gt;通信中&lt;/hl-button&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-alert">
+            <div class="demo-block">
+              <hl-alert><strong>Info:</strong> 基本的な補足情報やヒントはこちらを使います。（デフォルト）</hl-alert>
+              <hl-alert type="warning"><strong>Warning:</strong> 注意やエラー表示はこちらを使います。</hl-alert>
+              <hl-alert type="success"><strong>Success:</strong> 完了・成功のフィードバックはこちらを使います。</hl-alert>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- type 属性でアイコン・カラーが変わる --&gt;
+&lt;hl-alert&gt;情報・ヒント（info：デフォルト）&lt;/hl-alert&gt;
+&lt;hl-alert type="warning"&gt;注意・警告&lt;/hl-alert&gt;
+&lt;hl-alert type="success"&gt;完了・成功&lt;/hl-alert&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label=".hl-badge">
+            <div class="demo-block">
+              <div class="hl-tags-wrapper" style="margin-bottom: 1.5rem;">
+                <a href="#" class="hl-badge">Webツール</a>
+                <a href="#" class="hl-badge">デザイン</a>
+                <a href="#" class="hl-badge">ゲーム</a>
+                <a href="#" class="hl-badge">ロジックパズル</a>
+                <a href="#" class="hl-badge">イラスト</a>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;div class="hl-tags-wrapper"&gt;
+  &lt;a href="#" class="hl-badge"&gt;Webツール&lt;/a&gt;
+  &lt;a href="#" class="hl-badge"&gt;デザイン&lt;/a&gt;
+  &lt;a href="#" class="hl-badge"&gt;ゲーム&lt;/a&gt;
+&lt;/div&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label=".hl-link">
+            <div class="demo-block hl-content-text">
+              <p>インラインテキストのリンクスタイルです。<code>color: var(--clr-dusty-blue)</code> で表示され、ホバー時に <code>var(--clr-peach)</code> へ変化します。</p>
+              <p style="margin-top: 1rem;">
+                <a href="#" class="hl-link">通常のリンク</a>・
+                <a href="#" class="hl-link" style="font-weight:700;">太字リンク</a>・
+                テキストの中の<a href="#" class="hl-link">インラインリンク</a>として使います。
+              </p>
+              <hl-accordion title="コードを見る" style="margin-top:1rem;">
+                <hl-code lang="html">
+&lt;!-- クラスを付けるだけ --&gt;
+&lt;a href="/about/" class="hl-link"&gt;アバウトページ&lt;/a&gt;
+
+&lt;!-- 文中に埋め込む例 --&gt;
+&lt;p class="hl-content-text"&gt;
+  詳しくは&lt;a href="#" class="hl-link"&gt;こちら&lt;/a&gt;をご覧ください。
+&lt;/p&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Interactive
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-interactive">Interactive</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          クリックすることでページが変化するUI部品です。
+          <strong>アコーディオン</strong>は長いコンテンツを折りたたんでスッキリ見せ、
+          <strong>タブ</strong>は複数の内容を切り替えて表示するときに使います。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-accordion">
+            <div class="demo-block">
+              <hl-accordion title="アコーディオンその1">
+                クリックで開閉するコンテンツです。FAQ・コード表示などに使います。
+              </hl-accordion>
+              <hl-accordion title="アコーディオンその2">
+                複数並べても独立して開閉できます。
+              </hl-accordion>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-accordion title="アコーディオンその1"&gt;
+  クリックで開閉するコンテンツです。FAQ・コード表示などに使います。
+&lt;/hl-accordion&gt;
+&lt;hl-accordion title="アコーディオンその2"&gt;
+  複数並べても独立して開閉できます。
+&lt;/hl-accordion&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-tabs">
+            <div class="demo-block hl-content-text">
+              <p>このコンポーネント自体が <code>hl-tabs</code> のデモです。<br>
+              子要素の <code>.hl-tab-panel</code> に <code>data-label</code> を指定するとタブが自動生成されます。</p>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-tabs&gt;
+  &lt;div class="hl-tab-panel" data-label="タブA"&gt;
+    内容A
+  &lt;/div&gt;
+  &lt;div class="hl-tab-panel" data-label="タブB"&gt;
+    内容B
+  &lt;/div&gt;
+&lt;/hl-tabs&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Overlays
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-overlays">Overlays</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          ページの上に重ねて表示するUIパーツです。
+          <strong>トースト</strong>は短時間表示されるポップアップ通知、
+          <strong>モーダル</strong>は確認ダイアログや詳細情報の表示に使います。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="HlToast (通知)">
+            <div class="demo-block hl-content-text">
+              <p>画面右下から現れる一時的な通知です。JSの <code>HlToast.show()</code> で呼び出します。</p>
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                <hl-button onclick="HlToast.show('保存しました')">成功を通知</hl-button>
+                <hl-button variant="secondary" onclick="HlToast.show('エラーです', 'warning')">警告を通知</hl-button>
+              </div>
+              <hl-accordion title="コードを見る" style="margin-top: 1.5rem;">
+                <hl-code lang="html">
+&lt;hl-button onclick="HlToast.show('保存しました')"&gt;成功を通知&lt;/hl-button&gt;
+&lt;hl-button variant="secondary" onclick="HlToast.show('エラーです', 'warning')"&gt;警告を通知&lt;/hl-button&gt;
+</hl-code>
+                <hl-code lang="javascript">
+/* JS API */
+HlToast.show('保存しました');
+HlToast.show('エラーです', 'warning');</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-modal (ダイアログ)">
+            <div class="demo-block hl-content-text">
+              <p>画面中央に浮かび上がるダイアログです。</p>
+              <hl-button onclick="document.getElementById('demo-modal').open()">モーダルを開く</hl-button>
+              <hl-accordion title="コードを見る" style="margin-top: 1.5rem;">
+                <hl-code lang="html">
+&lt;hl-button onclick="document.getElementById('demo-modal').open()"&gt;
+  モーダルを開く
+&lt;/hl-button&gt;
+
+&lt;hl-modal id="demo-modal" title="Halcyon Modal"&gt;
+  &lt;p&gt;これはモーダルダイアログのデモです。オーバーレイクリックまたはボタンで閉じます。&lt;/p&gt;
+  &lt;div style="margin-top: 2rem; text-align: right;"&gt;
+    &lt;hl-button onclick="document.getElementById('demo-modal').close()"&gt;閉じる&lt;/hl-button&gt;
+  &lt;/div&gt;
+&lt;/hl-modal&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+
+        <hl-modal id="demo-modal" title="Halcyon Modal">
+          <p>これはモーダルダイアログのデモです。オーバーレイクリックまたはボタンで閉じます。</p>
+          <div style="margin-top: 2rem; text-align: right;">
+            <hl-button onclick="document.getElementById('demo-modal').close()">閉じる</hl-button>
+          </div>
+        </hl-modal>
+      </section>
+
+      <!-- ══════════════════════════════
+           Interaction
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-interaction">Interaction</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          ホバー・クリックに応じた細かなUI挙動を実現するパーツです。
+          <strong>ツールチップ</strong>はホバー時にヒント文を表示、
+          <strong>ポップオーバー</strong>はクリック時に小さなパネルを表示、
+          <strong>ドロワー</strong>は画面側面からスライドインするサイドパネルです。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-tooltip">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom: 1.5rem;">ホバー（またはフォーカス）でヒントを表示します。</p>
+              <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; padding-top: 0.5rem;">
+                <hl-tooltip tip="5Gkyuの公式サイトを開きます">
+                  <hl-button>公式サイトへ</hl-button>
+                </hl-tooltip>
+                <hl-tooltip tip="必須項目です">
+                  <span class="hl-label__required" style="cursor:default;">必須</span>
+                </hl-tooltip>
+                <hl-tooltip tip="Zen Maru Gothic を使用">
+                  <span class="hl-content-text" style="text-decoration: underline dotted; cursor: help;">フォント情報</span>
+                </hl-tooltip>
+              </div>
+              <hl-accordion title="コードを見る" style="margin-top: 1.5rem;">
+                <hl-code lang="html">
+&lt;!-- 子要素がトリガー、tip属性がツールチップのテキスト --&gt;
+&lt;hl-tooltip tip="5Gkyuの公式サイトを開きます"&gt;
+  &lt;hl-button&gt;公式サイトへ&lt;/hl-button&gt;
+&lt;/hl-tooltip&gt;
+
+&lt;hl-tooltip tip="必須項目です"&gt;
+  &lt;span class="hl-label__required"&gt;必須&lt;/span&gt;
+&lt;/hl-tooltip&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-popover">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom: 1.5rem;">ボタンクリックで吹き出しパネルを表示します。外側クリックで閉じます。</p>
+              <hl-popover label="オプション">
+                <p style="font-weight: 700; margin: 0 0 0.5rem; font-size: 0.85rem;">アクション</p>
+                <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li><a href="#" class="hl-link" style="font-size:0.85rem;">編集する</a></li>
+                  <li><a href="#" class="hl-link" style="font-size:0.85rem;">複製する</a></li>
+                  <li><a href="#" style="color:var(--clr-peach);font-size:0.85rem;text-decoration:none;">削除する</a></li>
+                </ul>
+              </hl-popover>
+              <hl-accordion title="コードを見る" style="margin-top: 1.5rem;">
+                <hl-code lang="html">
+&lt;!-- label属性がトリガーボタンのラベル、子要素がパネル内容 --&gt;
+&lt;hl-popover label="オプション"&gt;
+  &lt;p style="font-weight: 700; margin: 0 0 0.5rem; font-size: 0.85rem;"&gt;アクション&lt;/p&gt;
+  &lt;ul style="margin: 0; padding: 0; list-style: none;"&gt;
+    &lt;li&gt;&lt;a href="#" class="hl-link"&gt;編集する&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#" class="hl-link"&gt;複製する&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/hl-popover&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-drawer">
+            <div class="demo-block hl-content-text">
+              <p style="margin-bottom: 1rem;">右側からスライドインするサイドパネルです。<code>open()</code> / <code>close()</code> で制御します。ESCキーでも閉じられます。</p>
+              <hl-button onclick="document.getElementById('demo-drawer').open()">ドロワーを開く</hl-button>
+              <hl-accordion title="コードを見る" style="margin-top: 1.5rem;">
+                <hl-code lang="html">
+&lt;hl-button onclick="document.getElementById('demo-drawer').open()"&gt;
+  ドロワーを開く
+&lt;/hl-button&gt;
+
+&lt;hl-drawer id="demo-drawer" title="設定"&gt;
+  &lt;p&gt;ドロワーの内容&lt;/p&gt;
+  &lt;hl-toggle name="setting1" label="通知をオンにする" checked&gt;&lt;/hl-toggle&gt;
+&lt;/hl-drawer&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+
+        <hl-drawer id="demo-drawer" title="設定">
+          <p style="margin-bottom: 1.5rem;">ドロワーのデモです。各種設定をここに並べられます。</p>
+          <div class="hl-field">
+            <hl-toggle name="setting1" label="メール通知を受け取る" checked></hl-toggle>
+            <hl-toggle name="setting2" label="プロフィールを公開する" checked></hl-toggle>
+            <hl-toggle name="setting3" label="ダークモード"></hl-toggle>
+          </div>
+          <div style="margin-top: 2rem;">
+            <hl-button block onclick="document.getElementById('demo-drawer').close()">保存して閉じる</hl-button>
+          </div>
+        </hl-drawer>
+      </section>
+
+      <!-- ══════════════════════════════
+           Utility
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-utility">Utility</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          その他の場所で必要な小さな要素です。
+          <strong>ディバイダー</strong>は置くだけで区切り線、
+          <strong>アバター</strong>はユーザーアイコン・画像の丸サムネイル、
+          <strong>チップ</strong>はタグ・ラベル的な小さな要素です。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-divider">
+            <div class="demo-block hl-content-text">
+              <p>デフォルト（ラベルなし）</p>
+              <hl-divider></hl-divider>
+              <p>ラベル付き</p>
+              <hl-divider>OR</hl-divider>
+              <p>破線（dashed）</p>
+              <hl-divider variant="dashed">Section</hl-divider>
+              <p>太線（bold）</p>
+              <hl-divider variant="bold"></hl-divider>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-divider&gt;&lt;/hl-divider&gt;
+&lt;hl-divider&gt;OR&lt;/hl-divider&gt;
+&lt;hl-divider variant="dashed"&gt;Section&lt;/hl-divider&gt;
+&lt;hl-divider variant="bold"&gt;&lt;/hl-divider&gt;
+
+&lt;!-- variant: dashed | bold --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-avatar">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">サイズバリエーション</p>
+              <div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                <hl-avatar label="小" size="sm"></hl-avatar>
+                <hl-avatar label="中" size="md"></hl-avatar>
+                <hl-avatar label="大" size="lg"></hl-avatar>
+                <hl-avatar label="特大" size="xl"></hl-avatar>
+              </div>
+              <p class="hl-content-text" style="margin-bottom:1rem;">画像（直接パス指定） / スクエア / グループ</p>
+              <div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                <hl-avatar src="https://5gkyu.github.io/icon/hl-char/Akari.png" label="Akari" size="md"></hl-avatar>
+                <hl-avatar src="https://5gkyu.github.io/icon/hl-char/Becky.png" label="Becky" size="lg"></hl-avatar>
+                <hl-avatar src="https://5gkyu.github.io/icon/Fuka_icon.png" label="Fuka" size="xl" square></hl-avatar>
+                <hl-avatar label="Sq" size="md" square></hl-avatar>
+                <div class="hl-avatar-group">
+                  <hl-avatar label="A" size="md"></hl-avatar>
+                  <hl-avatar label="B" size="md"></hl-avatar>
+                  <hl-avatar label="C" size="md"></hl-avatar>
+                </div>
+              </div>
+              <hl-alert>
+                <code>src</code> 属性に画像URL・パスを直接指定できます。画像は中央切り抜き（object-fit: cover）で表示されます。
+              </hl-alert>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;!-- テキストアバター --&gt;
+&lt;hl-avatar label="5G" size="md"&gt;&lt;/hl-avatar&gt;
+
+&lt;!-- 画像アバター（src属性に直接パス指定・中央切り抜き）--&gt;
+&lt;hl-avatar src="/images/chara.png" label="名前" size="lg"&gt;&lt;/hl-avatar&gt;
+&lt;hl-avatar src="https://example.com/avatar.png" label="名前" size="md"&gt;&lt;/hl-avatar&gt;
+
+&lt;!-- スクエア --&gt;
+&lt;hl-avatar src="/images/chara.png" label="名前" size="xl" square&gt;&lt;/hl-avatar&gt;
+
+&lt;!-- グループ（親に .hl-avatar-group を付ける） --&gt;
+&lt;div class="hl-avatar-group"&gt;
+  &lt;hl-avatar label="A" size="md"&gt;&lt;/hl-avatar&gt;
+  &lt;hl-avatar label="B" size="md"&gt;&lt;/hl-avatar&gt;
+&lt;/div&gt;
+
+&lt;!-- size: sm | md | lg | xl --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-chip">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">カラーバリエーション</p>
+              <div class="hl-chip-list" style="margin-bottom:1.5rem;">
+                <hl-chip>デフォルト</hl-chip>
+                <hl-chip color="peach">ピーチ</hl-chip>
+                <hl-chip color="blue">ブルー</hl-chip>
+              </div>
+              <p class="hl-content-text" style="margin-bottom:1rem;">削除可能（removable）—クリックで消えます</p>
+              <div class="hl-chip-list" id="chip-demo-list">
+                <hl-chip value="Vue" removable>Vue</hl-chip>
+                <hl-chip value="React" color="blue" removable>React</hl-chip>
+                <hl-chip value="Svelte" color="peach" removable>Svelte</hl-chip>
+                <hl-chip value="Vanilla" removable>Vanilla JS</hl-chip>
+              </div>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;div class="hl-chip-list"&gt;
+  &lt;hl-chip&gt;デフォルト&lt;/hl-chip&gt;
+  &lt;hl-chip color="peach"&gt;ピーチ&lt;/hl-chip&gt;
+  &lt;hl-chip color="blue"&gt;ブルー&lt;/hl-chip&gt;
+&lt;/div&gt;
+
+&lt;!-- removable: ✕ボタンで削除、hl-chip-remove イベント発火 --&gt;
+&lt;hl-chip value="Vue" removable&gt;Vue&lt;/hl-chip&gt;
+
+&lt;!-- color: (none) | peach | blue --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-image">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                スクロールして画面に入った瞬間にふわっと読み込まれる「遅延読み込み（Blur-Up）」画像コンポーネントです。<br>
+                親要素の枠（サイズや角丸）に合わせて綺麗に収まります。ページ初期表示の高速化に貢献します。
+              </p>
+              <div style="max-width: 480px; aspect-ratio: 16/9; border-radius: 16px; box-shadow: 0 10px 25px rgba(106,86,74,0.1); margin-bottom: 1.5rem;">
+                <hl-image
+                  src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80"
+                  alt="美しい自然の風景"
+                ></hl-image>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- 外側にサイズと角丸を決める枠（div等）を作ります --&gt;
+&lt;div style="width: 100%; aspect-ratio: 16/9; border-radius: 16px;"&gt;
+
+  &lt;!-- src: 本画像 / placeholder: 軽量なぼかし画像(省略時は透明) --&gt;
+  &lt;hl-image
+    src="high-res.jpg"
+    placeholder="low-res.jpg"
+    alt="風景"&gt;
+  &lt;/hl-image&gt;
+
+&lt;/div&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+    </div><!-- /hl-layout-main -->
+
+    <!-- ─── 右：サイドバー ─── -->
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+          <li style="font-weight:700;color:var(--clr-brown);">UI コンポーネント（現在）</li>
+          <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
+          <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
+          <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
+        </ul>
+      </hl-sidebar-box>
+      <hl-toc></hl-toc>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="./components.js"></script>
+  <script>
+    // ローディングボタンデモ
+    function demoLoading(btn) {
+      if (btn.hasAttribute('loading')) return;
+      btn.setAttribute('loading', '');
+      setTimeout(() => {
+        btn.removeAttribute('loading');
+        if (window.HlToast) HlToast.show('通信が完了しました');
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
