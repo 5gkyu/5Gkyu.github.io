@@ -1,0 +1,345 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — 動画埋め込み | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="hl-embed コンポーネントと標準 iframe の比較デモ。YouTube・ニコニコ動画への対応や自動URL変換の実際の動作を確認できます。">
+  <link rel="canonical" href="https://5gkyu.github.io/components/demo_embed.html">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Gallery — 動画埋め込み | Halcyon - 5Gkyu">
+  <meta property="og:description" content="hl-embed コンポーネントと標準 iframe の比較デモ。YouTube・ニコニコ動画対応。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/components/demo_embed.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    .demo-section {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(154, 176, 143, 0.2);
+    }
+    .demo-section__label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #EEAFA1;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .demo-section__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #6A564A;
+      margin-bottom: 1.2rem;
+    }
+    /* 標準iframeのレスポンシブ対応CSS（コンポーネントなし版） */
+    .iframe-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 4px 16px rgba(106, 86, 74, 0.12);
+      margin-bottom: 0.6rem;
+    }
+    .iframe-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .iframe-caption {
+      font-size: 0.82rem;
+      color: #6A564A;
+      opacity: 0.65;
+      line-height: 1.6;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 700px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+    .tag-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.15em 0.65em;
+      border-radius: 99px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .tag-standard { background: rgba(146,181,188,0.25); color: #4a7e88; }
+    .tag-component { background: rgba(154,176,143,0.3); color: #5a7b52; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="Embed Demo"></hl-breadcrumb>
+      <page-title>Embed Demo</page-title>
+
+      <p class="hl-content-text" style="margin-bottom: 2.5rem;">
+        動画埋め込みの<strong>標準機能（生iframe）</strong>と<strong>hl-embedコンポーネント</strong>の比較デモです。
+        どちらも同じ動画を表示しますが、コンポーネント版はURL変換・スタイルを自動で処理します。
+      </p>
+
+      <!-- ══════════════════════════
+           YouTube
+      ══════════════════════════ -->
+      <section-heading id="youtube">YouTube</section-heading>
+
+      <div class="compare-grid" style="margin-bottom: 3rem;">
+
+        <!-- 標準 -->
+        <div class="demo-section">
+          <span class="demo-section__label">標準機能</span>
+          <p class="demo-section__title">
+            &lt;iframe&gt; 直書き
+            <span class="tag-badge tag-standard">Standard</span>
+          </p>
+          <!-- 手動でembedURLに変換し、aspect-ratio用のラッパーCSSが必要 -->
+          <div class="iframe-wrap">
+            <iframe
+              src="https://www.youtube.com/embed/4TstQhTJ6zA"
+              allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              loading="lazy"
+              title="YouTube動画">
+            </iframe>
+          </div>
+          <p class="iframe-caption">キャプションは &lt;p&gt; で手書きする</p>
+
+          <hl-accordion title="コードを見る" style="margin-top: 1.2rem;">
+            <hl-code lang="html">
+&lt;!-- 視聴URLを手動でembed URLに変換する必要あり --&gt;
+&lt;!-- https://www.youtube.com/watch?v=4TstQhTJ6zA --&gt;
+&lt;!--              ↓ 手動で変換 --&gt;
+&lt;!-- https://www.youtube.com/embed/4TstQhTJ6zA   --&gt;
+
+&lt;!-- レスポンシブ対応のラッパーCSSも自前で書く --&gt;
+&lt;div style="position:relative; width:100%; aspect-ratio:16/9;
+            border-radius:12px; overflow:hidden; background:#000;"&gt;
+  &lt;iframe
+    src="https://www.youtube.com/embed/4TstQhTJ6zA"
+    style="position:absolute; inset:0; width:100%; height:100%; border:0;"
+    allowfullscreen
+    allow="accelerometer; autoplay; clipboard-write;
+           encrypted-media; gyroscope; picture-in-picture"
+    loading="lazy"
+    title="YouTube動画"&gt;
+  &lt;/iframe&gt;
+&lt;/div&gt;
+&lt;p&gt;キャプションは手書き&lt;/p&gt;</hl-code>
+          </hl-accordion>
+        </div>
+
+        <!-- コンポーネント版 -->
+        <div class="demo-section">
+          <span class="demo-section__label">コンポーネント</span>
+          <p class="demo-section__title">
+            &lt;hl-embed&gt;
+            <span class="tag-badge tag-component">Component</span>
+          </p>
+          <!-- 視聴URLをそのままurl属性に渡すだけ。embed変換・CSSは自動 -->
+          <hl-embed
+            url="https://www.youtube.com/watch?v=4TstQhTJ6zA"
+            caption="キャプションはcaption属性に書くだけ">
+          </hl-embed>
+
+          <hl-accordion title="コードを見る" style="margin-top: 1.2rem;">
+            <hl-code lang="html">
+&lt;!-- 視聴URLをそのまま渡すだけ。embed変換・CSSは自動 --&gt;
+&lt;hl-embed
+  url="https://www.youtube.com/watch?v=4TstQhTJ6zA"
+  caption="キャプションはcaption属性に書くだけ"&gt;
+&lt;/hl-embed&gt;</hl-code>
+          </hl-accordion>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════
+           Niconico
+      ══════════════════════════ -->
+      <section-heading id="niconico">ニコニコ動画</section-heading>
+
+      <div class="compare-grid" style="margin-bottom: 3rem;">
+
+        <!-- 標準 -->
+        <div class="demo-section">
+          <span class="demo-section__label">標準機能</span>
+          <p class="demo-section__title">
+            &lt;iframe&gt; 直書き
+            <span class="tag-badge tag-standard">Standard</span>
+          </p>
+          <div class="iframe-wrap">
+            <iframe
+              src="https://embed.nicovideo.jp/watch/sm17944074"
+              allowfullscreen
+              loading="lazy"
+              title="ニコニコ動画">
+            </iframe>
+          </div>
+          <p class="iframe-caption">キャプションは &lt;p&gt; で手書きする</p>
+
+          <hl-accordion title="コードを見る" style="margin-top: 1.2rem;">
+            <hl-code lang="html">
+&lt;!-- nicovideo.jp/watch/sm... を embed.nicovideo.jp/watch/sm... に手動変換 --&gt;
+&lt;!-- https://www.nicovideo.jp/watch/sm17944074 --&gt;
+&lt;!--         ↓ 手動で変換 --&gt;
+&lt;!-- https://embed.nicovideo.jp/watch/sm17944074 --&gt;
+
+&lt;div style="position:relative; width:100%; aspect-ratio:16/9;
+            border-radius:12px; overflow:hidden; background:#000;"&gt;
+  &lt;iframe
+    src="https://embed.nicovideo.jp/watch/sm17944074"
+    style="position:absolute; inset:0; width:100%; height:100%; border:0;"
+    allowfullscreen
+    loading="lazy"
+    title="ニコニコ動画"&gt;
+  &lt;/iframe&gt;
+&lt;/div&gt;
+&lt;p&gt;キャプションは手書き&lt;/p&gt;</hl-code>
+          </hl-accordion>
+        </div>
+
+        <!-- コンポーネント版 -->
+        <div class="demo-section">
+          <span class="demo-section__label">コンポーネント</span>
+          <p class="demo-section__title">
+            &lt;hl-embed&gt;
+            <span class="tag-badge tag-component">Component</span>
+          </p>
+          <hl-embed
+            url="https://www.nicovideo.jp/watch/sm17944074"
+            caption="キャプションはcaption属性に書くだけ">
+          </hl-embed>
+
+          <hl-accordion title="コードを見る" style="margin-top: 1.2rem;">
+            <hl-code lang="html">
+&lt;!-- 視聴URLをそのまま渡すだけ。embed変換・CSSは自動 --&gt;
+&lt;hl-embed
+  url="https://www.nicovideo.jp/watch/sm17944074"
+  caption="キャプションはcaption属性に書くだけ"&gt;
+&lt;/hl-embed&gt;</hl-code>
+          </hl-accordion>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════
+           embed URL直接指定
+      ══════════════════════════ -->
+      <section-heading id="direct-src">src属性（embed URL直接指定）</section-heading>
+
+      <div class="demo-section" style="margin-bottom: 3rem;">
+        <p class="hl-content-text" style="margin-bottom: 1.2rem;">
+          <code>url</code> 属性の代わりに <code>src</code> 属性でembed URLを直接指定することもできます。
+          対応していないサービス（他サービスの埋め込みコード等）でも使えます。
+        </p>
+        <hl-embed
+          src="https://www.youtube.com/embed/4TstQhTJ6zA"
+          caption="src属性にembed URLを直接指定した例">
+        </hl-embed>
+        <hl-accordion title="コードを見る" style="margin-top: 1rem;">
+          <hl-code lang="html">
+&lt;!-- embed URLを直接指定（URLの自動変換は行われない） --&gt;
+&lt;hl-embed
+  src="https://www.youtube.com/embed/4TstQhTJ6zA"
+  caption="src属性にembed URLを直接指定した例"&gt;
+&lt;/hl-embed&gt;</hl-code>
+        </hl-accordion>
+      </div>
+
+      <!-- ══════════════════════════
+           まとめ
+      ══════════════════════════ -->
+      <section-heading id="summary">まとめ</section-heading>
+
+      <hl-table style="margin-bottom: 2rem;">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>標準 &lt;iframe&gt;</th>
+              <th>hl-embed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>コード量</td>
+              <td>多い（ラッパーCSS＋iframe＋キャプション）</td>
+              <td>1行</td>
+            </tr>
+            <tr>
+              <td>URL変換</td>
+              <td>手動（watch→embed）</td>
+              <td>自動</td>
+            </tr>
+            <tr>
+              <td>レスポンシブ</td>
+              <td>自前でCSSを書く</td>
+              <td>自動（aspect-ratio: 16/9）</td>
+            </tr>
+            <tr>
+              <td>キャプション</td>
+              <td>手書き &lt;p&gt;</td>
+              <td>caption属性</td>
+            </tr>
+            <tr>
+              <td>対応サービス</td>
+              <td>なんでも可</td>
+              <td>YouTube / Niconico（srcで拡張可）</td>
+            </tr>
+          </tbody>
+        </table>
+      </hl-table>
+
+    </div><!-- /hl-layout-main -->
+
+    <!-- サイドバー -->
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+          <li><a href="./demo_ui.html" class="hl-link">UI コンポーネント</a></li>
+          <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
+          <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
+          <li style="font-weight:700;color:var(--clr-brown);">動画埋め込み（現在）</li>
+        </ul>
+      </hl-sidebar-box>
+      <hl-toc></hl-toc>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
+</body>
+</html>

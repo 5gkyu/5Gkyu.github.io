@@ -1,0 +1,501 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — データ・フォーム | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Halcyon のデータ・フォーム系コンポーネント集。テーブル・フォーム・ファイル入力・ページネーションなど、データ表示・入力系要素のデモとコード。">
+  <link rel="canonical" href="https://5gkyu.github.io/components/demo_data.html">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Gallery — データ・フォーム | Halcyon - 5Gkyu">
+  <meta property="og:description" content="Halcyon のデータ・フォーム系コンポーネント集。テーブル・フォーム・ページネーションなどのデモ。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/components/demo_data.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .demo-block {
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(154, 176, 143, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="データ・フォーム"></hl-breadcrumb>
+      <page-title>データ・フォーム</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 2rem;">
+        <p><strong>入力フォーム・データ表示・スライダー・ローディング</strong>などを扱うページです。</p>
+        <p style="margin-top:0.5em;">
+          コンポーネント一覧は <a href="/archive/app/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════
+           Forms
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-forms">Forms</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>フォーム</strong>はユーザーから情報を入力・選択してもらうためのUI部品です。
+          お問い合わせページ・登録フォーム・設定画面などで使います。
+          <code>label</code>・<code>placeholder</code>・<code>required</code>属性をタグに書くだけで、アクセシブルなフォームが完成します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-input">
+            <div class="demo-block">
+              <hl-input name="name" label="お名前" placeholder="例：きゅー" required></hl-input>
+              <hl-input name="email" label="メールアドレス" type="email" placeholder="example@mail.com" hint="公開されることはありません" optional></hl-input>
+              <form><hl-input name="password" label="パスワード" type="password" placeholder="8文字以上" required></hl-input></form>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-input name="name" label="お名前" placeholder="例：きゅー" required&gt;&lt;/hl-input&gt;
+&lt;hl-input name="email" label="メールアドレス" type="email"
+  placeholder="example@mail.com" hint="公開されることはありません" optional&gt;&lt;/hl-input&gt;
+&lt;hl-input name="password" label="パスワード" type="password"
+  placeholder="8文字以上" required&gt;&lt;/hl-input&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-textarea">
+            <div class="demo-block">
+              <hl-textarea name="message" label="お問い合わせ内容" placeholder="ご自由にどうぞ。" hint="10文字以上でご記入ください。" required rows="5"></hl-textarea>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-textarea
+  name="message"
+  label="お問い合わせ内容"
+  placeholder="ご自由にどうぞ。"
+  hint="10文字以上でご記入ください。"
+  required
+  rows="5"&gt;&lt;/hl-textarea&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-select">
+            <div class="demo-block">
+              <hl-select name="category" label="カテゴリ" required>
+                <option value="">選択してください</option>
+                <option value="web">Webツール</option>
+                <option value="game">ゲーム</option>
+                <option value="design">デザイン</option>
+                <option value="other">その他</option>
+              </hl-select>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-select name="category" label="カテゴリ" required&gt;
+  &lt;option value=""&gt;選択してください&lt;/option&gt;
+  &lt;option value="web"&gt;Webツール&lt;/option&gt;
+  &lt;option value="game"&gt;ゲーム&lt;/option&gt;
+  &lt;option value="design"&gt;デザイン&lt;/option&gt;
+&lt;/hl-select&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="checkbox / radio">
+            <div class="demo-block">
+              <div class="hl-field">
+                <span class="hl-label">興味のある分野</span>
+                <div class="hl-check-group">
+                  <hl-checkbox name="interest" value="web" label="Webツール" checked></hl-checkbox>
+                  <hl-checkbox name="interest" value="game" label="ゲーム"></hl-checkbox>
+                  <hl-checkbox name="interest" value="design" label="デザイン"></hl-checkbox>
+                </div>
+              </div>
+              <div class="hl-field" style="margin-top: 1.5rem;">
+                <span class="hl-label">ご連絡方法</span>
+                <div class="hl-check-group">
+                  <hl-radio name="contact" value="email" label="メール" checked></hl-radio>
+                  <hl-radio name="contact" value="twitter" label="X (Twitter)"></hl-radio>
+                  <hl-radio name="contact" value="none" label="不要"></hl-radio>
+                </div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;div class="hl-field"&gt;
+  &lt;span class="hl-label"&gt;興味のある分野&lt;/span&gt;
+  &lt;div class="hl-check-group"&gt;
+    &lt;hl-checkbox name="interest" value="web" label="Webツール" checked&gt;&lt;/hl-checkbox&gt;
+    &lt;hl-checkbox name="interest" value="game" label="ゲーム"&gt;&lt;/hl-checkbox&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="hl-field"&gt;
+  &lt;span class="hl-label"&gt;ご連絡方法&lt;/span&gt;
+  &lt;div class="hl-check-group"&gt;
+    &lt;hl-radio name="contact" value="email" label="メール" checked&gt;&lt;/hl-radio&gt;
+    &lt;hl-radio name="contact" value="twitter" label="X (Twitter)"&gt;&lt;/hl-radio&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-toggle">
+            <div class="demo-block">
+              <div class="hl-field">
+                <hl-toggle name="notify" label="メール通知を受け取る" checked></hl-toggle>
+                <hl-toggle name="darkmode" label="ダークモード（未実装サンプル）"></hl-toggle>
+                <hl-toggle name="public" label="プロフィールを公開する" checked></hl-toggle>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-toggle name="notify" label="メール通知を受け取る" checked&gt;&lt;/hl-toggle&gt;
+&lt;hl-toggle name="darkmode" label="ダークモード"&gt;&lt;/hl-toggle&gt;
+&lt;hl-toggle name="public" label="プロフィールを公開する" checked&gt;&lt;/hl-toggle&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Slider
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-slider">Slider</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          数値を視覚的なトラック上でドラッグして入力する UI です。
+          音量・透明度・価格範囲など、<strong>連続した値を直感的に選ばせたい</strong>場面に使います。
+          マウス・タッチ・キーボード（← → Home End）での操作に対応します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="基本">
+            <div class="demo-block" style="display:flex;flex-direction:column;gap:1.8rem;">
+              <hl-slider label="音量" min="0" max="100" value="60" unit="%"></hl-slider>
+              <hl-slider label="明るさ" min="0" max="100" value="80" step="5" unit="%" ticks="0,25,50,75,100"></hl-slider>
+              <hl-slider label="ズーム倍率" min="1" max="5" step="0.5" value="2" unit="×"></hl-slider>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-slider label="音量" min="0" max="100" value="60" unit="%"&gt;&lt;/hl-slider&gt;
+
+&lt;!-- step・ticks属性で目盛り表示 --&gt;
+&lt;hl-slider label="明るさ" min="0" max="100" value="80" step="5" unit="%" ticks="0,25,50,75,100"&gt;&lt;/hl-slider&gt;
+
+&lt;!-- 小数点ステップ --&gt;
+&lt;hl-slider label="ズーム倍率" min="1" max="5" step="0.5" value="2" unit="×"&gt;&lt;/hl-slider&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="イベント連携">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                スライダーを動かすと <code>hl-slider-change</code> イベントが発火します。
+                <code>e.detail.value</code> で現在値を取得できます。
+              </p>
+              <hl-slider id="demo-slider-event" label="不透明度" min="0" max="100" value="80" unit="%"></hl-slider>
+              <div id="demo-slider-preview"
+                style="margin-top:1.2rem;padding:1.2rem;border-radius:12px;background:var(--clr-sage);
+                       display:flex;align-items:center;justify-content:center;
+                       font-weight:700;color:#fff;font-size:0.9rem;">
+                このボックスの透明度が変わります
+              </div>
+              <p class="hl-content-text" style="margin-top:1rem;" id="demo-slider-log">現在値: 80</p>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;hl-slider id="my-slider" label="不透明度" min="0" max="100" value="80" unit="%"&gt;&lt;/hl-slider&gt;
+
+&lt;script&gt;
+  document.getElementById('my-slider')
+    .addEventListener('hl-slider-change', e =&gt; {
+      console.log('value:', e.detail.value);
+    });
+&lt;/script&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="属性一覧">
+            <div class="demo-block">
+              <hl-table>
+                <table>
+                  <thead>
+                    <tr><th>属性</th><th>型</th><th>デフォルト</th><th>説明</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>min</code></td><td>number</td><td>0</td><td>最小値</td></tr>
+                    <tr><td><code>max</code></td><td>number</td><td>100</td><td>最大値</td></tr>
+                    <tr><td><code>step</code></td><td>number</td><td>1</td><td>刻み値</td></tr>
+                    <tr><td><code>value</code></td><td>number</td><td>min</td><td>初期値・現在値</td></tr>
+                    <tr><td><code>label</code></td><td>string</td><td>—</td><td>ラベル文字列</td></tr>
+                    <tr><td><code>unit</code></td><td>string</td><td>—</td><td>値の後ろに付く単位（例: %、px）</td></tr>
+                    <tr><td><code>ticks</code></td><td>string</td><td>—</td><td>カンマ区切りの目盛りラベル</td></tr>
+                    <tr><td><code>disabled</code></td><td>真偽値</td><td>false</td><td>操作を無効化</td></tr>
+                  </tbody>
+                </table>
+              </hl-table>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Data Display
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-data">Data Display</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          複数のデータを整理・表示するためのパーツです。
+          <strong>テーブル</strong>は行・列で情報を整理、
+          <strong>ページネーション</strong>は大量データをページ分割、
+          <strong>スケルトン</strong>はコンテンツロード中のプレースホルダーを表示します。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-table">
+            <div class="demo-block">
+              <hl-alert type="warning" style="margin-bottom:1.5rem;">
+                <strong>スマホでのテーブルに注意</strong> —
+                列数が多いテーブルはスマホで横に広がりすぎて読みにくくなります。
+                列数が多い場合は「カードUI」「リスト表示」に置き換えるか、<code>overflow-x: auto</code> で横スクロールさせる扱いが一般的です。
+              </hl-alert>
+              <hl-table striped>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>名前</th>
+                      <th>カテゴリ</th>
+                      <th>状態</th>
+                      <th>更新日</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Halcyon UI</td><td>Webツール</td><td><span class="hl-badge">公開中</span></td><td>2025-05-07</td></tr>
+                    <tr><td>ゲームログ vol.3</td><td>ゲーム</td><td><span class="hl-badge" style="background:rgba(146,181,188,0.2);color:var(--clr-dusty-blue);">準備中</span></td><td>2025-04-20</td></tr>
+                    <tr><td>アバターメーカー</td><td>デザイン</td><td><span class="hl-badge">公開中</span></td><td>2025-03-15</td></tr>
+                    <tr><td>音楽プレイリスト</td><td>音楽</td><td><span class="hl-badge" style="background:rgba(238,175,161,0.2);color:var(--clr-peach);">非公開</span></td><td>2025-02-01</td></tr>
+                  </tbody>
+                </table>
+              </hl-table>
+              <hl-accordion title="コードを見る" style="margin-top:1rem;">
+                <hl-code lang="html">
+&lt;hl-table striped&gt;
+  &lt;table&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th&gt;名前&lt;/th&gt;&lt;th&gt;カテゴリ&lt;/th&gt;&lt;th&gt;状態&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;td&gt;Halcyon UI&lt;/td&gt;&lt;td&gt;Webツール&lt;/td&gt;&lt;td&gt;公開中&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/hl-table&gt;
+
+&lt;!-- 属性: striped（縞々） compact（コンパクト） --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-pagination">
+            <div class="demo-block">
+              <hl-pagination id="demo-pagination" total="12" page="3"></hl-pagination>
+              <p class="hl-content-text" style="margin-top:1rem;font-size:0.8rem;opacity:0.6;" id="page-info">現在: 3ページ目 / 12ページ</p>
+              <hl-accordion title="コードを見る" style="margin-top:1rem;">
+                <hl-code lang="html">
+&lt;hl-pagination total="12" page="3"&gt;&lt;/hl-pagination&gt;
+
+&lt;!-- page変更イベントを受け取る例 --&gt;
+&lt;script&gt;
+  document.querySelector('hl-pagination')
+    .addEventListener('hl-page-change', e =&gt; {
+      console.log('ページ:', e.detail.page);
+    });
+&lt;/script&gt;
+
+&lt;!-- 属性: total（総ページ数）, page（現在ページ）, siblings（前後に表示するページ数） --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-skeleton">
+            <div class="demo-block">
+              <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem;">
+                <hl-skeleton type="circle" width="56px" height="56px"></hl-skeleton>
+                <div style="flex:1;display:flex;flex-direction:column;gap:0.4rem;">
+                  <hl-skeleton type="title" width="55%"></hl-skeleton>
+                  <hl-skeleton type="text" lines="2"></hl-skeleton>
+                </div>
+              </div>
+              <hl-skeleton type="card" width="100%" height="160px"></hl-skeleton>
+              <hl-accordion title="コードを見る" style="margin-top:1rem;">
+                <hl-code lang="html">
+&lt;!-- カードのロード前プレースホルダー --&gt;
+&lt;hl-skeleton type="circle" width="56px" height="56px"&gt;&lt;/hl-skeleton&gt;
+&lt;hl-skeleton type="title" width="55%"&gt;&lt;/hl-skeleton&gt;
+&lt;hl-skeleton type="text" lines="3"&gt;&lt;/hl-skeleton&gt;
+&lt;hl-skeleton type="card" height="160px"&gt;&lt;/hl-skeleton&gt;
+
+&lt;!-- type: text | title | circle | rect | card --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Loading Overlay
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-loading">Loading Overlay</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          ページ最初の読み込み時に表示される全画面ローディング演出です。
+          キャラクターが道を歩き、プログレスバーが進捗を表示します。
+          ページ読み込み完了後に自動でフェードアウトします。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="概要">
+            <div class="demo-block hl-content-text">
+              <hl-alert style="margin-bottom:1.5rem;">
+                <strong>このコンポーネントはページ読み込み時に自動起動</strong>するため、通常ページ内デモはできません。
+                ページをリロードするとローディング画面を確認できます。
+              </hl-alert>
+              <p style="margin-bottom:1rem;">ローディング画面は以下のステージで進行します：</p>
+              <hl-step>
+                <hl-step-item num="0" title="登場">キャラクターが頷いて登場。</hl-step-item>
+                <hl-step-item num="1–2" title="歩行">プログレスバーに合わせてキャラクターが道を歩く。マイルストーン（星）が順番に点灯。</hl-step-item>
+                <hl-step-item num="3" title="待機">読み込みが遅れる場合、つま先立ちでじっと待機。</hl-step-item>
+                <hl-step-item num="4" title="完了">キャラクターが手を振り、フェードアウト。</hl-step-item>
+              </hl-step>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="進捗バー">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                <code>.hl-bar-track</code> と <code>.hl-bar-fill</code> で構成されるプログレスバーです。
+                グラデーションが Sage → Dusty Blue → Peach へ変化します。
+              </p>
+              <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;">
+                <div class="hl-bar-wrap" style="width:100%;max-width:none;">
+                  <div class="hl-bar-track" style="width:100%;">
+                    <div class="hl-bar-fill" id="demo-bar" style="width:65%;"></div>
+                  </div>
+                  <span class="hl-bar-pct" id="demo-bar-pct">65%</span>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                  <hl-button onclick="setDemoBar(0)">0%</hl-button>
+                  <hl-button onclick="setDemoBar(35)">35%</hl-button>
+                  <hl-button onclick="setDemoBar(65)">65%</hl-button>
+                  <hl-button onclick="setDemoBar(100)">100%</hl-button>
+                </div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- ローディングオーバーレイのHTMLはcomponents.jsが自動生成します --&gt;
+&lt;!-- JSで進捗を直接操作する場合: --&gt;
+&lt;script&gt;
+  const fill = document.querySelector('.hl-bar-fill');
+  const pct  = document.querySelector('.hl-bar-pct');
+  fill.style.width = '75%';
+  pct.textContent  = '75%';
+&lt;/script&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="キャラクター設定">
+            <div class="demo-block hl-content-text">
+              <p style="margin-bottom:1rem;">ローディングで表示するキャラクターは <code>components.js</code> 内の変数で設定します。</p>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="javascript">
+// components.js 内で設定
+const LOADING_CHAR = 'Akari'; // hl-char/Akari.png を参照
+
+// 画像が存在しない場合は CSS で描いた
+// デフォルトの鳥キャラクター (.css-bird) にフォールバックします</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+    </div><!-- /hl-layout-main -->
+
+    <!-- ─── 右：サイドバー ─── -->
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+          <li><a href="./demo_ui.html" class="hl-link">UI コンポーネント</a></li>
+          <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
+          <li style="font-weight:700;color:var(--clr-brown);">データ・フォーム（現在）</li>
+          <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
+        </ul>
+      </hl-sidebar-box>
+      <hl-toc></hl-toc>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="./components.js"></script>
+  <script>
+    // ページネーションデモ：現在ページ表示更新
+    document.addEventListener('hl-page-change', function(e) {
+      const info = document.getElementById('page-info');
+      if (info) info.textContent = '現在: ' + e.detail.page + 'ページ目 / 12ページ';
+    });
+
+    // 進捗バーデモ
+    function setDemoBar(pct) {
+      const fill = document.getElementById('demo-bar');
+      const label = document.getElementById('demo-bar-pct');
+      if (fill) fill.style.width = pct + '%';
+      if (label) label.textContent = pct + '%';
+    }
+
+    // スライダーデモ：透明度プレビュー連携
+    (function () {
+      const slider  = document.getElementById('demo-slider-event');
+      const preview = document.getElementById('demo-slider-preview');
+      const log     = document.getElementById('demo-slider-log');
+      if (!slider) return;
+      slider.addEventListener('hl-slider-change', function (e) {
+        const v = e.detail.value;
+        if (preview) preview.style.opacity = (v / 100).toFixed(2);
+        if (log)     log.textContent = '現在値: ' + v;
+      });
+    })();
+  </script>
+
+</body>
+</html>

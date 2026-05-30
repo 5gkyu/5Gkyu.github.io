@@ -1,0 +1,778 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — デザイン基礎 | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Halcyon デザインシステムの設計トークン・カラーパレット・レイアウト・タイポグラフィーを解説するリファレンスページ。">
+  <link rel="canonical" href="https://5gkyu.github.io/components/demo_foundation.html">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Gallery — デザイン基礎 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="Halcyon デザインシステムのデザイントークン・カラーパレット・レイアウト・タイポグラフィーリファレンス。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/components/demo_foundation.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── デモページ専用スタイル ── */
+    .demo-block {
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(154, 176, 143, 0.2);
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .code-block {
+      background: #4A3B32;
+      color: #FBF6EA;
+      padding: 1.5rem;
+      border-radius: 12px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    /* ── カラーパレット ── */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .color-swatch {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(106,86,74,0.08);
+      box-shadow: 0 4px 12px rgba(106,86,74,0.06);
+    }
+    .color-swatch__block { height: 72px; }
+    .color-swatch__info { padding: 0.75rem 0.9rem; background: #fff; }
+    .color-swatch__name { font-size: 0.8rem; font-weight: 700; color: #6A564A; display: block; }
+    .color-swatch__var  { font-size: 0.7rem; font-family: 'Courier New', monospace; color: #9AB08F; display: block; margin-top: 0.2rem; }
+    .color-swatch__hex  { font-size: 0.7rem; font-family: 'Courier New', monospace; color: #9AB08F; display: block; }
+
+    /* ── タイポグラフィデモ ── */
+    .typo-demo { padding: 1.5rem; background: rgba(255,255,255,0.5); border-radius: 16px; margin-bottom: 1rem; }
+    .typo-demo h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 700; color: #6A564A; letter-spacing: 0.04em; margin: 0 0 0.2rem; }
+    .typo-demo h2 { font-size: 1.15rem; font-weight: 700; color: #6A564A; margin: 0 0 0.2rem; display: flex; align-items: center; gap: 0.6rem; }
+    .typo-demo h2::before { content: ''; display: inline-block; width: 4px; height: 1.1em; background: #9AB08F; border-radius: 3px; }
+    .typo-demo h3 { font-size: 1rem; font-weight: 700; color: #6A564A; margin: 0 0 0.2rem; }
+    .typo-demo h4 { font-size: 0.9rem; font-weight: 700; color: #9AB08F; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 0.2rem; }
+    .typo-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; color: #EEAFA1; text-transform: uppercase; margin-bottom: 0.3rem; display: block; }
+
+    /* ── アニメデモ ── */
+    .anim-demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .anim-demo-box {
+      background: rgba(255,255,255,0.6);
+      border: 1.5px solid rgba(154,176,143,0.3);
+      border-radius: 16px;
+      padding: 1.2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #6A564A;
+      cursor: pointer;
+    }
+    .anim-demo-box span { display: block; font-size: 0.72rem; font-weight: 400; margin-top: 0.3rem; opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+
+    <!-- ─── 左：メインコンテンツ ─── -->
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="デザイン基礎"></hl-breadcrumb>
+      <page-title>デザイン基礎</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 2rem;">
+        <p>Halcyon デザインシステムの<strong>設計トークン・レイアウト・タイポグラフィ・グローバルスタイル</strong>を解説するページです。</p>
+        <p style="margin-top:0.5em;">
+          コンポーネント一覧は <a href="/archive/app/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════
+           はじめかた
+      ══════════════════════════════ -->
+      <div style="margin-bottom: 3rem;">
+        <section-heading id="sec-howto">はじめかた</section-heading>
+        <hl-step>
+          <hl-step-item num="1" title="スクリプトを読み込む">
+            HTMLの <code>&lt;/body&gt;</code> 直前に1行追加するだけで準備完了です。
+            <hl-code lang="html">
+&lt;script src="components/components.js"&gt;&lt;/script&gt;</hl-code>
+          </hl-step-item>
+          <hl-step-item num="2" title="タグを書く">
+            使いたいコンポーネントのタグをHTMLに書きます。属性で外見や動作をカスタマイズできます。
+            <hl-code lang="html">
+&lt;hl-button&gt;ボタン&lt;/hl-button&gt;
+&lt;hl-alert&gt;お知らせ文&lt;/hl-alert&gt;
+&lt;hl-card title="カードタイトル" href="#"&gt;説明文&lt;/hl-card&gt;</hl-code>
+          </hl-step-item>
+          <hl-step-item num="3" title="完成！">
+            ブラウザで開くとデザインが自動適用されます。各デモページで
+            すべてのコンポーネントの見た目と使い方を確認できます。
+          </hl-step-item>
+        </hl-step>
+      </div>
+
+      <!-- ══════════════════════════════
+           Color Palette
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-colors">Color Palette</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          CSSでは色を<strong>変数（CSS Custom Property）</strong>として管理します。
+          <code>--clr-sage: #9AB08F</code> のように名前をつけておけば、
+          <code>color: var(--clr-sage)</code> と書くだけで使えます。
+          一箇所変えるだけで全体の色が変わるため、デザインの統一・変更が簡単になります。
+        </p>
+
+        <hl-alert style="margin-bottom:1.5rem;">
+          <strong>一般的なWebサイトの配色は「3〜5色」が理想</strong>とされています。
+          それより多いと統一感がなくなり、少ないと単調になりがちです。
+          色にはそれぞれ<strong>役割</strong>があり、用途を決めて使うことがポイントです。
+        </hl-alert>
+
+        <hl-table style="margin-bottom:1.5rem;">
+          <table>
+            <thead>
+              <tr><th>役割</th><th>一般的な呼び方</th><th>このサイトでの色</th><th>用途</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>背景色</td><td>Base / Background</td><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FBF6EA;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>Cream</td><td>ページ全体の地色</td></tr>
+              <tr><td>メインカラー</td><td>Primary</td><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9AB08F;vertical-align:middle;margin-right:4px;"></span>Sage</td><td>ボタン・アクセント・区切り線</td></tr>
+              <tr><td>サブカラー</td><td>Secondary / Accent</td><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EEAFA1;vertical-align:middle;margin-right:4px;"></span>Peach</td><td>ホバー変化・強調</td></tr>
+              <tr><td>情報色</td><td>Informational</td><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#92B5BC;vertical-align:middle;margin-right:4px;"></span>Dusty Blue</td><td>リンク・情報アイコン</td></tr>
+              <tr><td>テキスト色</td><td>Text / Neutral</td><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6A564A;vertical-align:middle;margin-right:4px;"></span>Brown</td><td>見出し・本文テキスト</td></tr>
+            </tbody>
+          </table>
+        </hl-table>
+
+        <p class="hl-content-text" style="margin-bottom:1rem;font-size:0.85rem;opacity:0.7;">
+          ↓ 下段はキャラクター別カラー（チャットUIのバブル色などに使用）
+        </p>
+
+        <div class="color-grid">
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#FBF6EA;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Cream</span>
+              <span class="color-swatch__var">--clr-cream</span>
+              <span class="color-swatch__hex">#FBF6EA</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#9AB08F;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Sage</span>
+              <span class="color-swatch__var">--clr-sage</span>
+              <span class="color-swatch__hex">#9AB08F</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#EEAFA1;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Peach</span>
+              <span class="color-swatch__var">--clr-peach</span>
+              <span class="color-swatch__hex">#EEAFA1</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#92B5BC;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Dusty Blue</span>
+              <span class="color-swatch__var">--clr-dusty-blue</span>
+              <span class="color-swatch__hex">#92B5BC</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#6A564A;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Brown</span>
+              <span class="color-swatch__var">--clr-brown</span>
+              <span class="color-swatch__hex">#6A564A</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#E36A8C;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Rose (A)</span>
+              <span class="color-swatch__var">--clr-char-a</span>
+              <span class="color-swatch__hex">#E36A8C</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#9FC9D6;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Sky Blue (B)</span>
+              <span class="color-swatch__var">--clr-char-b</span>
+              <span class="color-swatch__hex">#9FC9D6</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#B794DA;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Lavender (C)</span>
+              <span class="color-swatch__var">--clr-char-c</span>
+              <span class="color-swatch__hex">#B794DA</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#F4956A;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Coral (D)</span>
+              <span class="color-swatch__var">--clr-char-d</span>
+              <span class="color-swatch__hex">#F4956A</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#F3C46F;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Amber (E)</span>
+              <span class="color-swatch__var">--clr-char-e</span>
+              <span class="color-swatch__hex">#F3C46F</span>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch__block" style="background:#A9C47D;"></div>
+            <div class="color-swatch__info">
+              <span class="color-swatch__name">Mint (F)</span>
+              <span class="color-swatch__var">--clr-char-f</span>
+              <span class="color-swatch__hex">#A9C47D</span>
+            </div>
+          </div>
+        </div>
+
+        <hl-accordion title="コードを見る">
+          <hl-code lang="css">
+/* CSS変数（components.jsで自動注入） */
+:root {
+  --clr-cream:      #FBF6EA;  /* 背景・ベース */
+  --clr-sage:       #9AB08F;  /* メインアクセント */
+  --clr-peach:      #EEAFA1;  /* サブアクセント */
+  --clr-dusty-blue: #92B5BC;  /* リンク・情報 */
+  --clr-brown:      #6A564A;  /* 本文テキスト */
+
+  /* キャラクターカラー */
+  --clr-char-a: #E36A8C;  /* Rose */
+  --clr-char-b: #9FC9D6;  /* Sky Blue */
+  --clr-char-c: #B794DA;  /* Lavender */
+  --clr-char-d: #F4956A;  /* Coral */
+  --clr-char-e: #F3C46F;  /* Amber */
+  --clr-char-f: #A9C47D;  /* Mint */
+}
+
+/* 使用例 */
+color: var(--clr-brown);
+background: var(--clr-sage);
+background: color-mix(in srgb, var(--clr-char-a) 18%, white);</hl-code>
+        </hl-accordion>
+      </section>
+
+      <!-- ══════════════════════════════
+           Layout & Typography
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-layout">Layout & Typography</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>レイアウト</strong>はページ全体の骨格（何カラムにするか、余白など）を決める仕組みです。
+          <strong>タイポグラフィ</strong>は見出し・本文テキストのサイズや太さのルールです。
+          どちらも毎ページ統一することで、読みやすく整ったデザインになります。
+        </p>
+
+        <hl-tabs>
+
+          <!-- タブ1: タイポグラフィ（見出し） -->
+          <div class="hl-tab-panel" data-label="見出し階層">
+            <div class="demo-block">
+
+              <span class="typo-label">H1 — page-title コンポーネント</span>
+              <div class="typo-demo">
+                <h1>ページタイトル</h1>
+                <div style="width:48px;height:3px;background:#9AB08F;border-radius:4px;margin-top:0.3rem;"></div>
+              </div>
+
+              <span class="typo-label">H2 — section-heading コンポーネント</span>
+              <div class="typo-demo">
+                <h2>セクション見出し</h2>
+              </div>
+
+              <span class="typo-label">H3 — 汎用スタイル（.hl-step-title などで使用）</span>
+              <div class="typo-demo">
+                <h3 style="font-size:1.1rem;font-weight:700;color:#6A564A;margin:0;">サブセクション見出し</h3>
+              </div>
+
+              <span class="typo-label">H4 — .hl-sidebar-title / .hl-card などで使用</span>
+              <div class="typo-demo">
+                <h4 style="font-size:0.85rem;font-weight:700;color:#9AB08F;letter-spacing:0.1em;text-transform:uppercase;margin:0;">SIDEBAR TITLE</h4>
+              </div>
+
+              <span class="typo-label">本文 — .hl-content-text</span>
+              <div class="typo-demo">
+                <p class="hl-content-text" style="margin:0;">本文テキストのサンプルです。font-size: 0.9rem / line-height: 1.95 / opacity: 0.82 が適用されます。<a href="#" class="hl-link">インラインリンク</a>はdusty-blueカラーです。</p>
+              </div>
+
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- H1: ページタイトル --&gt;
+&lt;page-title&gt;ページタイトル&lt;/page-title&gt;
+
+&lt;!-- H2: セクション見出し（左バー付き） --&gt;
+&lt;section-heading id="sec-example"&gt;セクション見出し&lt;/section-heading&gt;
+
+&lt;!-- H3: 汎用（inline style またはカスタムCSS） --&gt;
+&lt;h3 style="font-size:1.1rem;font-weight:700;color:var(--clr-brown);"&gt;
+  サブセクション見出し
+&lt;/h3&gt;
+
+&lt;!-- H4: サイドバータイトル相当 --&gt;
+&lt;h4 style="font-size:0.85rem;font-weight:700;color:var(--clr-sage);
+  letter-spacing:0.1em;text-transform:uppercase;"&gt;
+  SIDEBAR TITLE
+&lt;/h4&gt;
+
+&lt;!-- 本文テキスト --&gt;
+&lt;p class="hl-content-text"&gt;本文テキスト&lt;/p&gt;
+&lt;a href="#" class="hl-link"&gt;インラインリンク&lt;/a&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <!-- タブ2: hl-layout -->
+          <div class="hl-tab-panel" data-label="レイアウト">
+            <div class="demo-block hl-content-text">
+              <p><strong>cols="1"</strong> — 最大幅720px・中央寄せ（記事・ポリシーページ向け）<br>
+              <strong>cols="2"</strong> — 最大幅1100px・メインコンテンツ＋サイドバー（このギャラリーが使用中）</p>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- 1カラム --&gt;
+&lt;hl-layout cols="1"&gt;
+  &lt;div class="hl-layout-main"&gt;...&lt;/div&gt;
+&lt;/hl-layout&gt;
+
+&lt;!-- 2カラム --&gt;
+&lt;hl-layout cols="2"&gt;
+  &lt;div class="hl-layout-main"&gt;...&lt;/div&gt;
+  &lt;aside class="hl-layout-sidebar"&gt;...&lt;/aside&gt;
+&lt;/hl-layout&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <!-- タブ3: カラム（列）概念 -->
+          <div class="hl-tab-panel" data-label="カラム（列）">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                Webページでは<strong>コンテンツを横に並べる「カラム（列）」</strong>というレイアウトが多く使われます。
+                CSSの <code>display: grid</code> や <code>display: flex</code> で実現します。<br>
+                このサイトでは <code>hl-layout cols="2"</code> が 本文＋サイドバーの2カラム、
+                <code>cols="1"</code> が1カラムの記事レイアウトです。
+              </p>
+              <p class="typo-label">1カラム — 幅いっぱいに1つの要素</p>
+              <div style="display:grid;grid-template-columns:1fr;gap:0.5rem;margin-bottom:1.2rem;">
+                <div style="background:rgba(154,176,143,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">コンテンツ</div>
+              </div>
+              <p class="typo-label">2カラム — 本文＋サイドバー（このページのレイアウト）</p>
+              <div style="display:grid;grid-template-columns:1fr 220px;gap:0.5rem;margin-bottom:1.2rem;">
+                <div style="background:rgba(154,176,143,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">メインコンテンツ</div>
+                <div style="background:rgba(146,181,188,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">サイドバー</div>
+              </div>
+              <p class="typo-label">3カラム — カード3枚並び</p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1.5rem;">
+                <div style="background:rgba(238,175,161,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">カード1</div>
+                <div style="background:rgba(238,175,161,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">カード2</div>
+                <div style="background:rgba(238,175,161,0.2);border-radius:12px;padding:1rem;text-align:center;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">カード3</div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="css">
+/* CSSでカラムを作る基本 */
+
+/* 1カラム（デフォルト・何もしなくてもこうなる） */
+.container { display: block; }
+
+/* 2カラム（本文 + サイドバー） */
+.layout-2col {
+  display: grid;
+  grid-template-columns: 1fr 280px; /* 本文は伸縮、サイドバー固定幅 */
+  gap: 2rem;
+}
+
+/* 3カラム（カード並び） */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3等分 */
+  gap: 1rem;
+}
+
+/* スマホでは1カラムに戻す */
+@media (max-width: 768px) {
+  .layout-2col,
+  .card-grid { grid-template-columns: 1fr; }
+}</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <!-- タブ4: アニメーション -->
+          <div class="hl-tab-panel" data-label="アニメーション">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom: 1.2rem;">クリックで各ボックスに入場アニメーションを再生します。</p>
+              <div class="anim-demo-grid">
+                <div class="anim-demo-box" onclick="replayAnim(this,'fluffy-entry')">
+                  fluffy-entry
+                  <span>下から浮き上がる</span>
+                </div>
+                <div class="anim-demo-box" onclick="replayAnim(this,'fluffy-entry-down')">
+                  fluffy-entry-down
+                  <span>上から降りてくる</span>
+                </div>
+                <div class="anim-demo-box" onclick="replayAnim(this,'fluffy-entry delay-1')">
+                  + delay-1
+                  <span>0.15s 遅延</span>
+                </div>
+                <div class="anim-demo-box" onclick="replayAnim(this,'fluffy-entry delay-2')">
+                  + delay-2
+                  <span>0.35s 遅延</span>
+                </div>
+                <div class="anim-demo-box" onclick="replayAnim(this,'fluffy-entry delay-3')">
+                  + delay-3
+                  <span>0.55s 遅延</span>
+                </div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;div class="fluffy-entry"&gt;下から浮き上がる&lt;/div&gt;
+&lt;div class="fluffy-entry-down"&gt;上から降りてくる&lt;/div&gt;
+
+&lt;!-- 遅延バリアント --&gt;
+&lt;div class="fluffy-entry delay-1"&gt;0.15s 遅延&lt;/div&gt;
+&lt;div class="fluffy-entry delay-2"&gt;0.35s 遅延&lt;/div&gt;
+&lt;div class="fluffy-entry delay-3"&gt;0.55s 遅延&lt;/div&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Header / Footer
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-header-footer">Header / Footer</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          <strong>ヘッダー</strong>はページ上部のナビゲーションバー、<strong>フッター</strong>はページ下部のリンク・クレジットエリアです。
+          どちらも全ページ共通の部品なので、<strong>components.js に一度定義するだけで全ページに自動適用されます</strong>。
+          このサイトのヘッダー・フッターは実際に上下に表示されています。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="基本構造">
+            <div class="demo-block">
+              <hl-alert style="margin-bottom:1rem;">
+                <strong>site-header</strong> — <code>site-name</code> 属性でページ名を指定。トップに固定されるナビゲーションバーです。
+              </hl-alert>
+              <hl-alert style="margin-bottom:1.5rem;">
+                <strong>site-footer</strong> — <code>copy</code> 属性で著作権表示名を指定。ページ下部に固定されるリンクエリアです。
+              </hl-alert>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- ページ一枚の基本構造 --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ja"&gt;
+&lt;head&gt;...&lt;/head&gt;
+&lt;body&gt;
+  &lt;site-header site-name="ページ名"&gt;&lt;/site-header&gt;
+
+  &lt;hl-layout cols="1"&gt;
+    &lt;div class="hl-layout-main"&gt;
+      &lt;page-title&gt;ページタイトル&lt;/page-title&gt;
+      &lt;!-- 本文コンテンツ --&gt;
+    &lt;/div&gt;
+  &lt;/hl-layout&gt;
+
+  &lt;site-footer copy="Your Name"&gt;&lt;/site-footer&gt;
+  &lt;script src="components/components.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="スマホ専用機能">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.2rem;">
+                画面幅860px以下（スマホ・タブレットサイズ）では、ヘッダーの機能が切り替わります。
+                ヒント：このページをスマホで開くと実際に動作を確認できます。
+              </p>
+              <hl-step>
+                <hl-step-item num="1" title="ハンバーガーメニュー">
+                  PCのテキストナビが消え、ヘッダー右に「ハンバーガーボタン」が表示されます。
+                  ウェーブ形のデザインで、タップするとフルスクリーンのオーバーレイメニューが表示されます。
+                  ESCキーのほか、オーバーレイ上の再タップでも閉じます。
+                </hl-step-item>
+                <hl-step-item num="2" title="目次ボタン（TOC）">
+                  2カラムレイアウト（<code>cols="2"</code>）のページでは、ヘッダー左側に目次アイコンが表示されます。
+                  タップすると画面右から <strong>TOCドロワー</strong>がスライドインし、項目リンクをタップするとスムーズにスクロールして閉じます。
+                </hl-step-item>
+                <hl-step-item num="3" title="ロゴテキストの非表示">
+                  スマホではヘッダーのロゴテキスト（「Halcyon」の文字）が自動で非表示になります。アイコンだけ残り、スペースを節約します。
+                </hl-step-item>
+              </hl-step>
+              <hl-accordion title="CSS メディアクエリの仕組み">
+                <hl-code lang="css">
+/* 861px以上：PCレイアウト */
+@media (min-width: 861px) {
+  .site-header__menu-btn { display: none; }    /* ハンバーガー非表示 */
+  .site-header__toc-btn  { display: none; }    /* 目次ボタン非表示 */
+  hl-toc { display: block; }                   /* サイドバーの目次を表示 */
+}
+
+/* 860px以下：スマホレイアウト */
+@media (max-width: 860px) {
+  .site-header__logo-text { display: none; }   /* ロゴテキストを非表示 */
+  .site-header__menu-btn  { display: flex; }   /* ハンバーガー表示 */
+  hl-toc { display: none !important; }         /* サイドバー目次を非表示 */
+  /* ヘッダーの目次ボタンは .site-header.has-toc 時のみ表示 */
+  .site-header.has-toc .site-header__toc-btn { display: flex; }
+}</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+      <!-- ══════════════════════════════
+           Global Styles
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-global">Global Styles</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          components.js が自動注入するグローバルなスタイル設定です。
+          個々のコンポーネントではなく、<strong>ページ全体の見た目・操作感</strong>に関わる仕組みです。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="スクロールバー">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                ブラウザ標準のスクロールバーをデザインカスタマイズしています。
+                このページ右端のスクロールバーが実際の表示例です。
+              </p>
+              <div style="height:120px;overflow-y:scroll;background:rgba(255,255,255,0.5);border-radius:12px;padding:1rem;border:1px solid rgba(154,176,143,0.2);margin-bottom:1rem;">
+                <p style="font-size:0.85rem;color:var(--clr-brown);line-height:2;">
+                  スクロールバーデモ領域です。<br>縦にスクロールしてみてください。<br>
+                  セージグリーンの半透明なスクロールバーが<br>表示されているはずです。<br>
+                  トラックはクリーム色の背景、<br>サムはセージグリーンで、<br>ホバーすると濃くなります。<br>
+                  余白が広めで上品な見た目です。
+                </p>
+              </div>
+              <hl-accordion title="コードを見る（自動適用・変更不要）">
+                <hl-code lang="css">
+/* components.js が自動注入するスクロールバースタイル */
+::-webkit-scrollbar { width: 14px; }
+::-webkit-scrollbar-track {
+  background: var(--clr-cream);
+  border-left: 1px solid rgba(106, 86, 74, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(154, 176, 143, 0.4);
+  border-radius: 10px;
+  border: 4px solid var(--clr-cream); /* 余白でサムを細く見せる */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(154, 176, 143, 0.7);
+}
+
+/* Firefox 向け（幅のみ制御可能） */
+html { scrollbar-gutter: stable; }</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="テキスト選択">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                テキストをドラッグ選択したときのハイライト色を変更しています。<br>
+                下の文字をドラッグして選択してみてください。
+              </p>
+              <div style="background:rgba(255,255,255,0.6);border-radius:12px;padding:1.2rem;margin-bottom:1rem;font-size:1rem;font-weight:700;color:var(--clr-brown);line-height:2;">
+                この文章をドラッグで選択するとセージグリーンのハイライトになります。<br>
+                Where the world falls silent, we found our own halcyon days.
+              </div>
+              <hl-accordion title="コードを見る（自動適用・変更不要）">
+                <hl-code lang="css">
+/* テキスト選択時のハイライト色 */
+::selection {
+  background: rgba(154, 176, 143, 0.4); /* セージグリーン半透明 */
+  color: var(--clr-brown);
+}
+::-moz-selection { /* Firefox 向け */
+  background: rgba(154, 176, 143, 0.4);
+  color: var(--clr-brown);
+}</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="ドラッグ制御">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                キャラクター画像・アイコンなどをドラッグ（引きずり移動）できないよう制御しています。
+                意図しない画像のDnD（ドラッグアンドドロップ）を防ぐための設定です。
+              </p>
+              <div style="display:flex;gap:2rem;align-items:center;margin-bottom:1.5rem;">
+                <div style="text-align:center;">
+                  <img src="https://5gkyu.github.io/icon/ogp.png" alt="ドラッグ禁止" draggable="false" style="width:80px;height:80px;object-fit:cover;border-radius:12px;-webkit-user-drag:none;user-select:none;" />
+                  <p style="font-size:0.75rem;margin-top:0.5rem;color:var(--clr-brown);opacity:0.6;">draggable="false"<br>ドラッグ不可</p>
+                </div>
+                <div style="text-align:center;">
+                  <img src="https://5gkyu.github.io/icon/ogp.png" alt="ドラッグ可能" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" />
+                  <p style="font-size:0.75rem;margin-top:0.5rem;color:var(--clr-brown);opacity:0.6;">デフォルト<br>ドラッグ可能</p>
+                </div>
+              </div>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- 属性を付けるだけでドラッグ禁止になります --&gt;
+&lt;img src="chara.png" alt="キャラクター" draggable="false"&gt;</hl-code>
+                <hl-code lang="css">
+/* components.js がこのスタイルを自動注入します */
+img[draggable="false"] {
+  -webkit-user-drag: none; /* Safari/Chrome */
+  user-select: none;        /* テキスト選択も禁止 */
+}</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="背景">
+            <div class="demo-block hl-content-text">
+              <p style="margin-bottom:1rem;">
+                <code>body::before</code> と <code>body::after</code> で背景に2層のグラデーションを重ねています。
+                ページ全体に柔らかい奥行き感を与えます。
+              </p>
+              <div style="position:relative;height:100px;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+                <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 10% 10%,rgba(154,176,143,0.25)0%,transparent 40%),radial-gradient(circle at 90% 80%,rgba(238,175,161,0.25)0%,transparent 40%),radial-gradient(circle at 50% 50%,rgba(146,181,188,0.15)0%,transparent 50%);background-color:var(--clr-cream);filter:blur(20px);border-radius:12px;"></div>
+                <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.4)0%,transparent 100%),linear-gradient(to top,rgba(106,86,74,0.1)0%,transparent 60%);border-radius:12px;"></div>
+                <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:100%;font-size:0.85rem;font-weight:700;color:var(--clr-brown);">背景グラデーションのプレビュー</div>
+              </div>
+              <hl-accordion title="コードを見る（自動適用・変更不要）">
+                <hl-code lang="css">
+/* 1層目: ぼかしたカラーライト（左上=Sage、右下=Peach、中央=Blue） */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(154, 176, 143, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(238, 175, 161, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(146, 181, 188, 0.08) 0%, transparent 50%);
+  background-color: var(--clr-cream);
+  filter: blur(40px);
+  opacity: 0.8;
+}
+
+/* 2層目: 上部に白い光、下部にブラウンの影 */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 100%),
+    linear-gradient(to top, rgba(106, 86, 74, 0.12) 0%, transparent 150px);
+  opacity: 0.5;
+}</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="ページ遷移">
+            <div class="demo-block hl-content-text">
+              <p style="margin-bottom:1rem;">
+                内部リンクをクリックすると、ページ全体がフェードアウトしてから遷移します。
+                <code>body.hl-page-fade-out</code> クラスが付くとopacityが0になり、
+                遷移完了後にフェードインします。
+              </p>
+              <hl-alert>
+                ナビゲーションリンク（ヘッダー・フッター）をクリックするとフェード遷移が確認できます。
+              </hl-alert>
+              <hl-accordion title="コードを見る（自動適用・変更不要）">
+                <hl-code lang="css">
+/* body にクラスが付くとフェードアウト */
+body { transition: opacity 500ms ease-in-out; }
+body.hl-page-fade-out { opacity: 0; pointer-events: none; }</hl-code>
+                <hl-code lang="javascript">
+// components.js 内部でリンククリック時に自動適用
+// （明示的に使う場合）
+document.body.classList.add('hl-page-fade-out');
+setTimeout(() => { location.href = '/target/'; }, 500);</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+    </div><!-- /hl-layout-main -->
+
+    <!-- ─── 右：サイドバー ─── -->
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li style="font-weight:700;color:var(--clr-brown);">デザイン基礎（現在）</li>
+          <li><a href="./demo_ui.html" class="hl-link">UI コンポーネント</a></li>
+          <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
+          <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
+          <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
+        </ul>
+      </hl-sidebar-box>
+      <hl-toc></hl-toc>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="./components.js"></script>
+  <script>
+    // アニメーションデモ：クラスを外して再付与することで再生
+    function replayAnim(el, classes) {
+      el.className = 'anim-demo-box';
+      void el.offsetWidth; // reflow
+      el.className = 'anim-demo-box ' + classes;
+    }
+  </script>
+
+</body>
+</html>
