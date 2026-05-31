@@ -3969,11 +3969,11 @@ customElements.define('hl-compare', HlCompare);
 
   // bfcache復元時（ブラウザバック・フォワード）に fade-out クラスと FOUC スタイルをリセット
   window.addEventListener('pageshow', (e) => {
-    if (e.persisted) {
-      document.body.classList.remove('hl-page-fade-out');
-      const foucStyle = document.getElementById('fouc-prevent');
-      if (foucStyle) foucStyle.remove();
-    }
+    // `pageshow` は bfcache 復元時だけでなく通常遷移でも発生します。
+    // 復元後に body が fade-out のまま残るケースがあるため、常に解除しておきます。
+    document.body.classList.remove('hl-page-fade-out');
+    const foucStyle = document.getElementById('fouc-prevent');
+    if (foucStyle) foucStyle.remove();
   });
 
 })();
