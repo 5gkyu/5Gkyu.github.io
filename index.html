@@ -1,0 +1,548 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。">
+  <link rel="canonical" href="https://5gkyu.github.io/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Halcyon - 5Gkyu">
+  <meta property="og:description" content="Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- JS読み込み前の画面隠蔽（チラつき防止） -->
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ヒーロー画像（フルブリード） */
+    .hero-img-section {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      line-height: 0;
+      margin-bottom: 0;
+      padding-top: 64px; /* fixed header height */
+    }
+    .hero-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      min-height: calc(100vh - 64px);
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    /* ------------------------------------------------------------
+       トップページ専用オーバーレイ
+    ------------------------------------------------------------ */
+    .hero-overlay-content {
+      position: absolute;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;   /* 縦中央付近 */
+      align-items: flex-end;     /* PCでは右寄せにして左のキャラクターを見せる */
+      padding: clamp(1rem, 5vw, 4rem);
+      padding-bottom: 8vh;
+      pointer-events: none;
+      gap: 1.5rem;
+      z-index: 10; /* 花びらより背面に配置 */
+    }
+
+    /* タイトルと説明のガラスパネル */
+    .hero-glass-panel {
+      pointer-events: auto;
+      position: relative;
+      background: linear-gradient(135deg,
+        rgba(255, 107, 157, 0.22),
+        rgba(255, 160, 74, 0.2),
+        rgba(255, 220, 80, 0.18),
+        rgba(100, 220, 160, 0.18),
+        rgba(74, 200, 255, 0.2),
+        rgba(167, 139, 250, 0.22)
+      );
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: none;
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
+      transition: transform 0.3s;
+    }
+    /* 虹色グラデーション枚線（常時表示） */
+    .hero-glass-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .hero-glass-title {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.1;
+      text-shadow: 1px 2px 8px rgba(62, 50, 44, 0.65);
+    }
+    
+    .hero-glass-subtitle {
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      opacity: 0.95;
+    }
+
+    .hero-glass-desc {
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+      line-height: 1.8;
+      opacity: 0.95;
+    }
+
+    /* 最終更新日 */
+    .hero-glass-updated {
+      font-size: 0.72rem;
+      opacity: 0.6;
+      text-align: right;
+      letter-spacing: 0.05em;
+      margin-top: auto;
+    }
+
+    /* 詳細ボタン群（ガラスカードスタイル） */
+    .hero-nav {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .hero-nav-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(40, 40, 40, 0.28);
+      border: none;
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+      transition: background 0.25s, transform 0.22s, box-shadow 0.3s;
+      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
+    }
+    /* 虹色グラデーション枚線（常時表示、hoverでアニメ） */
+    .hero-nav-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(90deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
+      background-size: 300% 100%;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0.7;
+      transition: opacity 0.35s;
+      animation: rainbow-shift 3s linear infinite paused;
+    }
+    .hero-nav-card:hover::before {
+      opacity: 1;
+      animation-play-state: running;
+    }
+    @keyframes rainbow-shift {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+    .hero-nav-card:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+    }
+    /* Aboutだけ少しアクセントカラー → 他と統一 */
+    .hero-nav-card.accent {
+      background: rgba(40, 40, 40, 0.28);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .hero-nav-card.accent:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .nav-card-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .nav-card-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    }
+
+    .nav-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 768px) {
+      .hero-overlay-content { 
+        align-items: center; /* 画面中央に配置 */
+        padding: 1rem;
+        padding-bottom: 2vh; 
+      }
+      .hero-glass-panel, .hero-nav {
+        max-width: 100%;
+      }
+      .hero-glass-panel {
+        text-align: center;
+        background: linear-gradient(135deg,
+          rgba(255, 107, 157, 0.35),
+          rgba(255, 160, 74, 0.32),
+          rgba(255, 220, 80, 0.28),
+          rgba(100, 220, 160, 0.28),
+          rgba(74, 200, 255, 0.32),
+          rgba(167, 139, 250, 0.35)
+        );
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-color: rgba(255, 255, 255, 0.35);
+        padding: 2rem 1.5rem;
+        text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+      }
+      .hero-glass-updated { text-align: center; font-size: 0.7rem; opacity: 0.8; }
+      .hero-glass-title { font-size: 3rem; }
+      .hero-glass-subtitle { font-size: 1.15rem; }
+      .nav-card-title { font-size: 1.3rem; }
+      .hero-nav-card {
+        background: rgba(30, 30, 30, 0.38);
+        text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.6);
+      }
+      /* スマホではアイコンを少し小さく */
+      .nav-card-icon {
+        width: 40px; height: 40px;
+      }
+      .nav-card-icon svg {
+        width: 20px; height: 20px;
+      }
+    }
+
+    /* トップページのみフッター上部マージンをリセット */
+    site-footer, .site-footer { 
+      margin-top: 0 !important; 
+      position: relative;
+      z-index: 30; /* 花びらより前面に配置 */
+    }
+
+    /* 落ち葉・花びら Canvas (ヒーロー画像の上に重ねる) */
+    #petals-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20; /* overlay-content(10) より前面、footer(30) より背面 */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <site-header site-name="Entrance"></site-header>
+
+  <!-- ヒーロー画像（フルブリード） -->
+  <section class="hero-img-section" id="hero-section">
+    <img src="https://5gkyu.github.io/icon/helo.png" alt="Halcyon" class="hero-img" draggable="false" oncontextmenu="return false;">
+    
+    <canvas id="petals-canvas"></canvas>
+
+    <div class="hero-overlay-content">
+      <!-- フロストグラスパネル（サイト情報） -->
+      <div class="hero-glass-panel">
+        <div>
+          <h1 class="hero-glass-title">Halcyon</h1>
+          <div class="hero-glass-subtitle">5Gkyu's Space</div>
+        </div>
+        <!-- <p class="hero-glass-desc">
+          「5Gkyu」のホームページです。<br>
+        </p> -->
+        <div class="hero-glass-updated">Last Updated: 2026.05.14</div>
+      </div>
+
+      <!-- 詳細ボタン群（ガラスカードスタイル） -->
+      <nav class="hero-nav" aria-label="ページナビゲーション">
+        
+        <a href="/about/" class="hero-nav-card accent">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,19.93C7.05,19.43 4,16.05 4,12C4,7.95 7.05,4.57 11,4.07V19.93M13,4.07C16.95,4.57 20,7.95 20,12C20,16.05 16.95,19.43 13,19.93V4.07Z" /></svg>
+          </div>
+          <span class="nav-card-title">About</span>
+        </a>
+
+        <a href="/archive/" class="hero-nav-card">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H6V3H8V4H16V3H18V4H20A2,2 0 0,1 22,6V18C22,19.1 21.1,20 20,20M20,18V11H4V18H20M20,9V6H4V9H20M18,16H6V14H18V16M14,13H6V11H14V13Z" /></svg>
+          </div>
+          <span class="nav-card-title">Archive</span>
+        </a>
+
+        <a href="/contact/" class="hero-nav-card">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg>
+          </div>
+          <span class="nav-card-title">Contact</span>
+        </a>
+
+      </nav>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="/components/components.js"></script>
+
+  <!-- 落ち葉・花びらアニメーション (404と同様) -->
+  <script>
+    (function() {
+        const canvas = document.getElementById('petals-canvas');
+        const section = document.getElementById('hero-section');
+        const ctx = canvas.getContext('2d');
+
+        const SHAPES = [
+            { type: 'petal', color: '#ffb3ba', size:  8 }, // Pink
+            { type: 'petal', color: '#ffddf4', size:  6 }, // Light Pink
+            { type: 'petal', color: '#bdecb6', size:  7 }, // Light Green
+            { type: 'petal', color: '#ffdfba', size:  9 }, // Orange/Peach
+            { type: 'petal', color: '#bae1ff', size:  7 }, // Light Blue
+            { type: 'petal', color: '#e0baff', size:  8 }, // Purple
+            { type: 'leaf',  color: '#bae1ff', size:  6 }, // Blue leaf
+            { type: 'leaf',  color: '#ffdfba', size:  8 }, // Yellow/Orange leaf
+            { type: 'leaf',  color: '#ffffff', size:  5 }, // White
+        ];
+
+        function rand(min, max) { return Math.random() * (max - min) + min; }
+
+        function resize() {
+            // ヒーロー画像の表示領域に合わせてCanvasサイズを更新
+            canvas.width  = section.offsetWidth;
+            canvas.height = section.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        
+        // 初回のサイズ計算を確実に行うための処理
+        requestAnimationFrame(() => {
+            resize();
+        });
+
+        // パーティクルの数
+        const COUNT = 45;
+        const COUNT_FG = 8; // 手前の大型・高速パーティクル
+        const particles = [];
+
+        function createParticle(startAtTop) {
+            const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            return {
+                x:          rand(0, window.innerWidth),
+                y:          startAtTop ? rand(-80, -10) : rand(-window.innerHeight, 0),
+                size:       rand(s.size * 0.8, s.size * 1.4),
+                color:      s.color,
+                type:       s.type,
+                speed:      rand(0.6, 1.6),
+                drift:      rand(-0.4, 0.4),
+                angle:      rand(0, Math.PI * 2),
+                spin:       rand(-0.02, 0.02),
+                sway:       rand(0.3, 0.8),
+                swaySpeed:  rand(0.01, 0.025),
+                swayOffset: rand(0, Math.PI * 2),
+                opacity:    rand(0.55, 0.85),
+                isFeather:  false,
+            };
+        }
+
+        // 白い羽パーティクル（手前レイヤー・横移動）
+        function createFeather(startLeft) {
+            const vw = canvas.width  || window.innerWidth;
+            const vh = canvas.height || window.innerHeight;
+            // 0=遠景(小) 〜 1=近景(大) の奥行きスケール
+            const depth = rand(0.2, 1.0);
+            const size  = 10 + depth * 42; // 遠: ~12px, 近: ~52px
+            return {
+                x:           startLeft ? rand(-size * 2, -10) : rand(-vw * 0.95, -10),
+                y:           rand(vh * -0.12, vh * 0.55),
+                size:        size,
+                depth:       depth,
+                type:        'feather',
+                vx:          rand(0.7, 2.0) + depth * rand(1.5, 3.0), // 大きいほど速い
+                vy:          rand(0.05, 0.6) + depth * 0.2,           // 右下方向への初速
+                curve:       rand(0.0005, 0.006) * (0.4 + depth * 0.8), // 弧を描く曲率
+                angle:       rand(-Math.PI * 0.45, Math.PI * 0.35),
+                spin:        (Math.random() < 0.5 ? 1 : -1) * rand(0.004, 0.018),
+                wobble:      rand(0, Math.PI * 2),
+                wobbleSpeed: rand(0.008, 0.022) / (0.5 + depth * 0.5),
+                wobbleAmp:   rand(0.1, 0.5) * (0.3 + depth * 0.8),
+                tiltOffset:  rand(0, Math.PI * 2),
+                tiltSpeed:   rand(0.005, 0.018),
+                tiltAmp:     rand(0.003, 0.014) * (0.5 + depth * 0.6),
+                opacity:     rand(0.3 + depth * 0.25, 0.55 + depth * 0.4),
+                isFeather:   true,
+            };
+        }
+
+        for (let i = 0; i < COUNT; i++) {
+            particles.push(createParticle(false));
+        }
+        for (let i = 0; i < COUNT_FG; i++) {
+            particles.push(createFeather(false));
+        }
+
+        function drawLeaf(ctx, size) {
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.bezierCurveTo( size * 0.8, -size * 0.5,  size * 0.8,  size * 0.5, 0,  size);
+            ctx.bezierCurveTo(-size * 0.8,  size * 0.5, -size * 0.8, -size * 0.5, 0, -size);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(0, -size * 0.9);
+            ctx.lineTo(0,  size * 0.9);
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+        }
+
+        function drawPetal(ctx, size) {
+            ctx.beginPath();
+            ctx.ellipse(0, -size * 0.5, size * 0.55, size, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 白い羽の描画（クイル＋羽枝テクスチャ）
+        function drawFeather(ctx, size) {
+            // Vane（羽の面）
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.bezierCurveTo( size * 0.38, -size * 0.4,  size * 0.42,  size * 0.3,  size * 0.05,  size * 0.95);
+            ctx.lineTo(0, size);
+            ctx.bezierCurveTo(-size * 0.42,  size * 0.3, -size * 0.38, -size * 0.4, 0, -size);
+            ctx.fillStyle = 'rgba(255,255,255,0.42)';
+            ctx.fill();
+            // 羽枝のテクスチャライン
+            const numBarbs = 10;
+            for (let i = 1; i < numBarbs; i++) {
+                const t = i / numBarbs;
+                const qy = -size + t * 1.95 * size;
+                const w  = size * 0.38 * Math.sin(Math.PI * (t * 0.82 + 0.09));
+                ctx.beginPath();
+                ctx.moveTo(-w, qy + w * 0.18);
+                ctx.lineTo( w, qy + w * 0.18);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 0.6;
+                ctx.stroke();
+            }
+            // 中央の羽軸（クイル）
+            ctx.beginPath();
+            ctx.moveTo(0, -size * 0.95);
+            ctx.lineTo(0,  size);
+            ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+            ctx.lineWidth = Math.max(0.8, size * 0.032);
+            ctx.stroke();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const now = performance.now() * 0.001;
+
+            particles.forEach(p => {
+                if (p.isFeather) {
+                    // 羽: 左上→右下カーブ移動＋ふわふわ浮遊
+                    p.vy  += p.curve; // 重力的カーブ（徐々に下向きへ弧を描く）
+                    p.x   += p.vx;
+                    p.y   += p.vy + Math.sin(now * p.wobbleSpeed * 60 + p.wobble) * p.wobbleAmp;
+                    p.angle += p.spin + Math.sin(now * p.tiltSpeed * 60 + p.tiltOffset) * p.tiltAmp;
+
+                    if (p.x > canvas.width + p.size * 2 || p.y > canvas.height + p.size * 2) {
+                        Object.assign(p, createFeather(true));
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.globalAlpha = p.opacity;
+                    drawFeather(ctx, p.size);
+                    ctx.restore();
+                } else {
+                    // 花びら・葉: 落下
+                    p.y     += p.speed;
+                    p.x     += p.drift + Math.sin(now * p.swaySpeed * 60 + p.swayOffset) * p.sway;
+                    p.angle += p.spin;
+
+                    if (p.y > canvas.height + 20) {
+                        Object.assign(p, createParticle(true));
+                        p.x = rand(0, canvas.width);
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.globalAlpha = p.opacity;
+                    ctx.fillStyle   = p.color;
+
+                    if (p.type === 'leaf') drawLeaf(ctx, p.size);
+                    else                   drawPetal(ctx, p.size);
+
+                    ctx.restore();
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    })();
+  </script>
+</body>
+</html>
+
+
