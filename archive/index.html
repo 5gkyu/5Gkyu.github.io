@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="5Gkyuのアーカイブ。Webアプリ・ゲーム・ノート・その他のコンテンツ一覧。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Archive | Halcyon - 5Gkyu">
+  <meta property="og:description" content="5Gkyuのアーカイブ。Webアプリ・ゲーム・ノート・その他のコンテンツ一覧。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    :root {
+      --clr-cream:       #FBF6EA;
+      --clr-sage:        #9AB08F;
+      --clr-peach:       #EEAFA1;
+      --clr-dusty-blue:  #92B5BC;
+      --clr-brown:       #6A564A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* カテゴリカードグリッド */
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 600px) {
+      .archive-grid { grid-template-columns: 1fr; }
+    }
+
+    .archive-category-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 2rem 2rem 1.8rem;
+      background: #fff;
+      border-radius: 24px;
+      border: 1.5px solid rgba(106, 86, 74, 0.08);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 10px 30px -12px rgba(106, 86, 74, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .archive-category-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-light) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .archive-category-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 40px -15px rgba(106, 86, 74, 0.15);
+    }
+    .archive-category-card:hover::before { opacity: 1; }
+
+    .archive-category-card__icon {
+      width: 2.4rem;
+      height: 2.4rem;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .archive-category-card__icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .archive-category-card__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+    }
+    .archive-category-card__desc {
+      font-size: 0.85rem;
+      color: var(--clr-brown);
+      opacity: 0.65;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+    .archive-category-card__arrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--clr-peach);
+      margin-top: 0.4rem;
+    }
+
+    /* カテゴリごとのアクセントカラー */
+    .archive-category-card--app   { --accent: var(--clr-sage);       --accent-light: rgba(154, 176, 143, 0.08); }
+    .archive-category-card--play  { --accent: var(--clr-peach);      --accent-light: rgba(238, 175, 161, 0.08); }
+    .archive-category-card--note  { --accent: var(--clr-dusty-blue); --accent-light: rgba(146, 181, 188, 0.08); }
+    .archive-category-card--other { --accent: #c9a98a;               --accent-light: rgba(201, 169, 138, 0.08); }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Archive"></site-header>
+
+  <!-- 1カラムから2カラムレイアウトに変更 -->
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="Archive"></hl-breadcrumb>
+      <page-title>Archive</page-title>
+
+      <p class="hl-content-text">これまでに作ったものや書いたものをカテゴリ別にまとめています。</p>
+
+      <div class="archive-grid">
+
+        <a href="/archive/app/" class="archive-category-card archive-category-card--app">
+          <div class="archive-category-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M14 4a5 5 0 0 0 6 6l-4.3 4.3-2-2L9.3 16.7a2.1 2.1 0 1 1-3-3l4.4-4.4-2-2L13 3z"></path>
+              <path d="M5.5 18.5h.01"></path>
+            </svg>
+          </div>
+          <div class="archive-category-card__title">App</div>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ミニWebツール</span></div>
+          <p class="archive-category-card__desc">ブラウザで動く軽量Webアプリ・ツール・ブックマークレット類など。</p>
+          <span class="archive-category-card__arrow">一覧を見る →</span>
+        </a>
+
+        <a href="/archive/play/" class="archive-category-card archive-category-card--play">
+          <div class="archive-category-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <rect x="3.5" y="8" width="17" height="10" rx="4"></rect>
+              <path d="M8 13h4M10 11v4M15.5 12.2h.01M17.5 14.2h.01"></path>
+            </svg>
+          </div>
+          <div class="archive-category-card__title">Play</div>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ゲーム</span><span class="hl-badge">攻略</span></div>
+          <p class="archive-category-card__desc">ゲームの攻略ツールやメモ、その他自作ゲーム・パズルなど。</p>
+          <span class="archive-category-card__arrow">一覧を見る →</span>
+        </a>
+
+        <a href="/archive/note/" class="archive-category-card archive-category-card--note">
+          <div class="archive-category-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M7 3.5h7l4 4V20.5H7z"></path>
+              <path d="M14 3.5v4h4M10 12h5M10 15h5"></path>
+            </svg>
+          </div>
+          <div class="archive-category-card__title">Note</div>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">考察</span><span class="hl-badge">コラム</span></div>
+          <p class="archive-category-card__desc">文章メインのコンテンツ類。</p>
+          <span class="archive-category-card__arrow">一覧を見る →</span>
+        </a>
+
+        <a href="/archive/other/" class="archive-category-card archive-category-card--other">
+          <div class="archive-category-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M3.5 8L12 3.5 20.5 8 12 12.5 3.5 8z"></path>
+              <path d="M3.5 8v8L12 20.5 20.5 16V8M12 12.5v8"></path>
+            </svg>
+          </div>
+          <div class="archive-category-card__title">Other</div>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">イラスト</span><span class="hl-badge">雑記</span></div>
+          <p class="archive-category-card__desc">どのカテゴリにも収まらないもの。重いアプリ・デザイン・メモなど。</p>
+          <span class="archive-category-card__arrow">一覧を見る →</span>
+        </a>
+
+      </div>
+
+      <!-- 最新コンテンツのピックアップセクションを追加 -->
+      <hl-divider variant="dashed" style="margin: 3rem 0;"></hl-divider>
+
+      <section-heading>Latest Updates</section-heading>
+      <p class="hl-content-text" style="margin-bottom: 1.5rem;">最近追加・更新されたコンテンツです。</p>
+      
+      <hl-card-grid cols="2">
+        <hl-card
+          title="CollageMaker"
+          tag="App"
+          href="/archive/app/collage-maker/"
+          image="https://5gkyu.github.io/icon/ogp.png">
+          複数の画像を一枚に美しく織り上げる画像コラージュツール。
+        </hl-card>
+        <hl-card
+          title="サイトリニューアルのお知らせ"
+          tag="Note"
+          href="#">
+          Halcyonのデザインシステムを刷新し、より見やすく穏やかな空間に生まれ変わりました。
+        </hl-card>
+      </hl-card-grid>
+
+    </div>
+
+    <!-- 右側にサイドバーを追加 -->
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
+</body>
+</html>
+
+
