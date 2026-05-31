@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画像圧縮ツール | Halcyon - 5Gkyu</title>
+  <meta name="description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化できるツールです。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/image-compression/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="画像圧縮ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化できるツールです。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/image-compression/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .ic-main-card {
+        background: #ffffff;
+        border: 1.5px solid rgba(106, 86, 74, 0.1);
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(106, 86, 74, 0.05);
+    }
+    .ic-setting-row { margin-bottom: 1.2rem; }
+    .ic-compare-container {
+        display: flex; gap: 0.75rem; margin-top: 1rem; margin-bottom: 1.5rem;
+    }
+    .ic-compare-col {
+        flex: 1; min-width: 0; display: flex; flex-direction: column;
+    }
+    .ic-compare-header {
+        font-size: 0.95rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 0.5rem; text-align: center;
+    }
+    .ic-compare-info {
+        font-size: 0.8rem; color: var(--clr-brown); opacity: 0.9; margin-bottom: 0.5rem; line-height: 1.4; background: rgba(255,255,255,0.6); padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(106, 86, 74, 0.1);
+    }
+    .ic-compare-info span { font-weight: 700; color: var(--clr-brown); }
+    .ic-preview-box {
+        background: url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" fill="%23e5e5e5"/><rect x="10" y="10" width="10" height="10" fill="%23e5e5e5"/></svg>') repeat;
+        border-radius: 12px; border: 1px solid rgba(106, 86, 74, 0.15); padding: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-grow: 1; min-height: 150px; position: relative;
+    }
+    .ic-preview-box img, .ic-preview-box canvas {
+        width: 100%; height: 220px; display: block; object-fit: contain;
+    }
+    .ic-settings-grid {
+        display: flex; flex-direction: column; gap: 1.2rem;
+        background: rgba(106, 86, 74, 0.03); padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(106, 86, 74, 0.08); margin-bottom: 1.5rem;
+    }
+    @media (max-width: 600px) {
+        .ic-preview-box img, .ic-preview-box canvas { height: 140px; }
+        .ic-compare-header { font-size: 0.82rem; }
+        .ic-compare-info { font-size: 0.72rem; }
+    }
+    .format-tabs { display: flex; gap: 0.4rem; margin-bottom: 0; border: none; flex-wrap: wrap; }
+    .format-tabs .hl-tabs-btn { flex: 1; min-width: 4rem; text-align: center; border: 1.5px solid rgba(106, 86, 74, 0.15); border-radius: 8px; padding: 0.5rem 0.6rem; font-size: 0.85rem; opacity: 0.6; }
+    .format-tabs .hl-tabs-btn::after { display: none; }
+    .format-tabs .hl-tabs-btn.is-active { background: rgba(154, 176, 143, 0.15); border-color: var(--clr-sage); color: var(--clr-sage); opacity: 1; }
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="画像圧縮ツール"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+      <hl-breadcrumb
+        current="画像圧縮ツール"
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/">
+      </hl-breadcrumb>
+
+      <page-title>画像リサイズ＆圧縮ツール</page-title>
+      <p class="hl-content-text" style="margin-bottom: 2rem;">
+        ブラウザ上で画像を読み込み、指定した横幅やフォーマットでリサイズ・圧縮を行います。データはサーバーに送信されないため安全です。
+      </p>
+
+      <div class="ic-main-card">
+        <div class="ic-setting-row" style="margin-bottom: 0;">
+            <label class="hl-label" style="margin-bottom: 0.7rem;">画像を選択<span class="hl-label__required">必須</span></label>
+            <hl-file-input id="uploadInput" accept="image/*" drop></hl-file-input>
+        </div>
+
+        <div id="previewSection" style="display: none; margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px dashed rgba(106,86,74,0.2);">
+        <div class="ic-compare-container">
+            <div class="ic-compare-col">
+                <div class="ic-compare-header">オリジナル</div>
+                <div class="ic-compare-info" id="originalInfo">情報を計算中...</div>
+                <div class="ic-preview-box">
+                    <img id="originalImg" alt="オリジナル画像">
+                </div>
+            </div>
+            
+            <div class="ic-compare-col">
+                <div class="ic-compare-header">変換後 (プレビュー)</div>
+                <div class="ic-compare-info" id="previewInfo">情報を計算中...</div>
+                <div class="ic-preview-box">
+                    <img id="previewImg" alt="変換後プレビュー">
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ic-settings-grid">
+            <div class="ic-setting-row" style="margin-bottom: 0;">
+                <label class="hl-label" style="margin-bottom: 0.5rem;">保存形式</label>
+                <div class="hl-tabs-nav format-tabs" id="formatTabs">
+                    <button class="hl-tabs-btn is-active" data-value="image/jpeg">JPEG</button>
+                    <button class="hl-tabs-btn" data-value="image/png">PNG</button>
+                    <button class="hl-tabs-btn" data-value="image/webp">WebP</button>
+                </div>
+                <p id="jpegAlphaNote" class="hl-field-hint" style="margin-top: 0.5rem; color: var(--clr-peach);">
+                    ⚠️ JPEGは透明部分（アルファチャンネル）を保存できません。透明箇所は白で塗り潰されます。
+                </p>
+            </div>
+
+            <div class="ic-setting-row" style="margin-bottom: 0;">
+                <hl-slider id="sizeSlider" label="画像サイズ (横幅)" min="10" max="4000" step="10" value="800" unit="px"></hl-slider>
+                <div id="sizeDisplay" class="hl-field-hint" style="margin-top: 0.5rem; text-align: right;">横幅: - px / 縦幅: - px</div>
+            </div>
+
+            <div class="ic-setting-row" id="qualitySettingRow" style="transition: opacity 0.3s; margin-bottom: 0;">
+                <hl-slider id="qualitySlider" label="画質" min="0.1" max="1.0" step="0.05" value="0.8"></hl-slider>
+            </div>
+
+            <div class="ic-setting-row" style="margin-bottom: 0;">
+                <label class="hl-label" style="margin-bottom: 0.5rem;">保存ファイル名</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="text" id="filenameInput" class="hl-input" placeholder="ファイル名（拡張子なし）" style="flex: 1; min-width: 0;">
+                    <span id="filenameExt" style="font-size: 0.85rem; font-weight: 700; color: var(--clr-brown); opacity: 0.6; white-space: nowrap;">.jpg</span>
+                </div>
+            </div>
+        </div>
+        
+        <a id="downloadLink" class="hl-btn hl-btn--primary" style="display: none; text-align: center; text-decoration: none; width: 100%; justify-content: center;">
+            ダウンロード
+        </a>
+      </div>
+      </div>
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <script src="/components/components.js"></script>
+  <script>
+      const uploadInput = document.getElementById('uploadInput');
+      const sizeSlider = document.getElementById('sizeSlider');
+      const sizeDisplay = document.getElementById('sizeDisplay');
+      const formatTabs = document.querySelectorAll('#formatTabs .hl-tabs-btn');
+      const qualitySlider = document.getElementById('qualitySlider');
+      const qualitySettingRow = document.getElementById('qualitySettingRow');
+      const filenameInput = document.getElementById('filenameInput');
+      const filenameExt = document.getElementById('filenameExt');
+      const jpegAlphaNote = document.getElementById('jpegAlphaNote');
+
+      const originalImg = document.getElementById('originalImg');
+      const previewImg = document.getElementById('previewImg');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      const downloadLink = document.getElementById('downloadLink');
+
+      const originalInfo = document.getElementById('originalInfo');
+      const previewInfo = document.getElementById('previewInfo');
+      const previewSection = document.getElementById('previewSection');
+
+      let originalImage = new Image();
+      let originalFile = null;
+      let currentFormat = 'image/jpeg';
+      let updateTimeout = null;
+
+      // 画像が選択されたらメモリ上に読み込む
+      uploadInput.addEventListener('change', function() {
+          const file = uploadInput.files && uploadInput.files[0];
+          if (!file) return;
+          originalFile = file;
+
+          const reader = new FileReader();
+          reader.onload = function(event) {
+              originalImage.onload = function() {
+                  previewSection.style.display = 'block';
+                  
+                  originalImg.src = originalImage.src;
+                  
+                  sizeSlider.setAttribute('max', originalImage.width);
+                  let initialWidth = originalImage.width > 1920 ? 1920 : originalImage.width;
+                  sizeSlider.value = initialWidth;
+                  
+                  const originalKb = (originalFile.size / 1024).toFixed(1);
+                  
+                  let originalFormatName = originalFile.type ? originalFile.type.replace('image/', '').toUpperCase() : '不明';
+                  if (originalFormatName === 'JPEG' || originalFormatName === 'JPG') originalFormatName = 'JPEG';
+                  if (originalFormatName === 'SVG+XML') originalFormatName = 'SVG';
+                  
+                  originalInfo.innerHTML = `
+                      サイズ: <span>${originalImage.width} × ${originalImage.height}</span> px<br>
+                      ファイルサイズ: <span>${originalKb}</span> KB<br>
+                      形式: <span>${originalFormatName}</span>
+                  `;
+
+                  // 元ファイル名（拡張子を除いた部分）をデフォルトの保存名に設定
+                  const baseName = originalFile.name.replace(/\.[^.]+$/, '');
+                  if (!filenameInput.value || filenameInput.dataset.autoSet === 'true') {
+                      filenameInput.value = baseName;
+                      filenameInput.dataset.autoSet = 'true';
+                  }
+                  // 手動入力されたら自動上書きしない
+                  filenameInput.addEventListener('input', () => { filenameInput.dataset.autoSet = 'false'; }, { once: false });
+                  
+                  updatePreview();
+                  if (window.HlToast) {
+                      window.HlToast.show("画像を読み込みました。", 'success', 2000);
+                  }
+              }
+              originalImage.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+      });
+
+      sizeSlider.addEventListener('hl-slider-change', () => updatePreview());
+      qualitySlider.addEventListener('hl-slider-change', () => updatePreview());
+
+      formatTabs.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const targetBtn = e.currentTarget;
+              formatTabs.forEach(b => b.classList.remove('is-active'));
+              targetBtn.classList.add('is-active');
+              currentFormat = targetBtn.dataset.value;
+
+              // 保存形式に応じた拡張子表示とJPEG注記
+              const extMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+              filenameExt.textContent = extMap[currentFormat] || '';
+              jpegAlphaNote.style.display = (currentFormat === 'image/jpeg') ? '' : 'none';
+
+              if (currentFormat === 'image/png') {
+                  qualitySettingRow.style.opacity = '0.4';
+                  qualitySettingRow.style.pointerEvents = 'none';
+              } else {
+                  qualitySettingRow.style.opacity = '1';
+                  qualitySettingRow.style.pointerEvents = 'auto';
+              }
+              
+              updatePreview();
+          });
+      });
+
+      function updatePreview() {
+          if (!originalImage.src) {
+              return;
+          }
+
+          clearTimeout(updateTimeout);
+          updateTimeout = setTimeout(() => {
+              const targetWidth = parseInt(sizeSlider.value, 10);
+              const aspectRatio = originalImage.height / originalImage.width;
+              const targetHeight = Math.round(targetWidth * aspectRatio);
+              
+              sizeDisplay.innerHTML = `横幅: <span>${targetWidth}</span> px / 縦幅: <span>${targetHeight}</span> px`;
+              
+              canvas.width = targetWidth;
+              canvas.height = targetHeight;
+              
+              // JPEG保存時は透過部分が黒くなるのを防ぐため背景を白にする
+              if (currentFormat === 'image/jpeg') {
+                  ctx.fillStyle = '#FFFFFF';
+                  ctx.fillRect(0, 0, targetWidth, targetHeight);
+              } else {
+                  ctx.clearRect(0, 0, targetWidth, targetHeight);
+              }
+              
+              ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+              
+              const quality = parseFloat(qualitySlider.value);
+              
+              canvas.toBlob(function(blob) {
+                  if (!blob) return;
+                  const url = URL.createObjectURL(blob);
+                  downloadLink.href = url;
+                  previewImg.src = url; // 圧縮後の画質をプレビューに反映
+                  
+                  let ext = "jpg";
+                  let formatName = "JPEG";
+                  if(currentFormat === "image/png") { ext = "png"; formatName = "PNG"; }
+                  if(currentFormat === "image/webp") { ext = "webp"; formatName = "WebP"; }
+
+                  const saveName = (filenameInput.value.trim() || 'compressed_image') + '.' + ext;
+                  downloadLink.download = saveName;
+                  downloadLink.style.display = 'flex';
+                  downloadLink.innerHTML = `📥 ダウンロード (${(blob.size / 1024).toFixed(1)} KB)`;
+                  
+                  const previewKb = (blob.size / 1024).toFixed(1);
+                  
+                  let reductionHtml = '';
+                  if (originalFile) {
+                      const reduction = ((1 - blob.size / originalFile.size) * 100).toFixed(1);
+                      if (reduction > 0) {
+                          reductionHtml = `<span style="color:var(--clr-sage);font-weight:700;margin-left:0.5rem;">(${reduction}% 削減 ↓)</span>`;
+                      } else if (reduction < 0) {
+                          reductionHtml = `<span style="color:var(--clr-peach);font-weight:700;margin-left:0.5rem;">(${Math.abs(reduction)}% 増加 ↑)</span>`;
+                      }
+                  }
+                  
+                  previewInfo.innerHTML = `
+                      サイズ: <span>${targetWidth} × ${targetHeight}</span> px<br>
+                      ファイルサイズ: <span style="font-size:1.1em;">${previewKb}</span> KB ${reductionHtml}<br>
+                      形式: <span>${formatName}</span>
+                  `;
+                  
+              }, currentFormat, quality);
+          }, 150);
+      }
+  </script>
+</body>
+</html>

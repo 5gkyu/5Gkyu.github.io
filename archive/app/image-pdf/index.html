@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画像→PDF変換 | Halcyon - 5Gkyu</title>
+  <meta name="description" content="複数の画像を選択して1つのPDFにまとめます。処理はすべてブラウザ内で完結し、データはサーバーに送信されません。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/image-pdf/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="画像→PDF変換 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="複数の画像を選択して1つのPDFにまとめます。処理はすべてブラウザ内で完結し、データはサーバーに送信されません。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/image-pdf/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .ip-main-card {
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.1);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(106, 86, 74, 0.05);
+    }
+
+    /* サムネイルグリッド */
+    .ip-thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+    .ip-thumb-item {
+      position: relative;
+      aspect-ratio: 1;
+    }
+    .ip-thumb-img-wrap {
+      width: 100%; height: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(106, 86, 74, 0.05);
+      border: 1px solid rgba(106, 86, 74, 0.12);
+    }
+    .ip-thumb-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .ip-thumb-remove {
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--clr-brown);
+      color: #fff;
+      font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+      transition: background 0.15s;
+      z-index: 1;
+      line-height: 1;
+    }
+    .ip-thumb-remove:hover { background: var(--clr-peach); }
+
+    /* 選択状態 */
+    .ip-thumb-item { cursor: pointer; }
+    .ip-thumb-item.is-selected .ip-thumb-img-wrap {
+      border: 2.5px solid var(--clr-sage);
+      box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.35);
+    }
+    .ip-thumb-item.is-selected .ip-thumb-num {
+      background: var(--clr-sage);
+    }
+    .ip-thumb-swap-hint {
+      font-size: 0.78rem;
+      color: var(--clr-brown);
+      opacity: 0.55;
+      text-align: center;
+      padding: 0.2rem 0;
+      margin-bottom: 0.8rem;
+    }
+    .ip-thumb-swap-hint.is-selecting {
+      opacity: 1;
+      color: var(--clr-sage);
+      font-weight: 700;
+    }
+
+    .ip-thumb-num {
+      position: absolute;
+      bottom: 5px; left: 5px;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .ip-empty {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: var(--clr-brown);
+      opacity: 0.4;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* 設定エリア */
+    .ip-settings-grid {
+      display: flex; flex-direction: column; gap: 1.2rem;
+      background: rgba(106, 86, 74, 0.03);
+      padding: 1.2rem; border-radius: 16px;
+      border: 1px solid rgba(106, 86, 74, 0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ページサイズタブ */
+    .ip-page-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .ip-page-tabs .hl-tabs-btn {
+      flex: 1; min-width: 5rem; text-align: center;
+      border: 1.5px solid rgba(106, 86, 74, 0.15); border-radius: 8px;
+      padding: 0.5rem 0.6rem; font-size: 0.85rem; opacity: 0.6;
+    }
+    .ip-page-tabs .hl-tabs-btn::after { display: none; }
+    .ip-page-tabs .hl-tabs-btn.is-active {
+      background: rgba(154, 176, 143, 0.15);
+      border-color: var(--clr-sage); color: var(--clr-sage); opacity: 1;
+    }
+
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="画像→PDF変換"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+      <hl-breadcrumb
+        current="画像→PDF変換"
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/">
+      </hl-breadcrumb>
+
+      <page-title>画像→PDF変換</page-title>
+      <p class="hl-content-text" style="margin-bottom: 2rem;">
+        複数の画像を選択して、1つのPDFファイルにまとめます。処理はすべてブラウザ内で行われ、データはサーバーに送信されません。
+      </p>
+
+      <div class="ip-main-card">
+
+        <!-- ファイル選択 -->
+        <div style="margin-bottom: 1.2rem;">
+          <label class="hl-label" style="margin-bottom: 0.7rem;">画像を選択（複数可）<span class="hl-label__required">必須</span></label>
+          <hl-file-input id="imageInput" accept="image/*" multiple drop></hl-file-input>
+        </div>
+
+        <!-- サムネイルグリッド -->
+        <div id="thumbGrid" class="ip-thumb-grid" style="display: none;"></div>
+        <p id="swapHint" class="ip-thumb-swap-hint" style="display: none;">サムネイルをタップして順番を入れ替えられます</p>
+        <div id="emptyNote" class="ip-empty">画像が追加されていません</div>
+        <p id="imageCountNote" class="hl-field-hint" style="margin-bottom: 1rem; display: none;"></p>
+
+        <!-- 設定・変換ボタン (画像が追加されたら表示) -->
+        <div id="settingsSection" style="display: none;">
+          <div class="ip-settings-grid">
+
+            <!-- ページサイズ -->
+            <div>
+              <label class="hl-label" style="margin-bottom: 0.5rem;">ページサイズ</label>
+              <div class="hl-tabs-nav ip-page-tabs" id="pageSizeTabs">
+                <button class="hl-tabs-btn is-active" data-value="image">画像サイズ</button>
+                <button class="hl-tabs-btn" data-value="a4p">A4 縦</button>
+                <button class="hl-tabs-btn" data-value="a4l">A4 横</button>
+              </div>
+              <p class="hl-field-hint" style="margin-top: 0.5rem;" id="pageSizeHint">各ページを画像のピクセル寸法に合わせます。</p>
+            </div>
+
+            <!-- 画質 -->
+            <div>
+              <hl-slider id="qualitySlider" label="JPEG 画質" min="0.5" max="1.0" step="0.05" value="0.92"></hl-slider>
+              <p class="hl-field-hint" style="margin-top: 0.5rem;">高いほど高画質・大容量。透明部分は白で塗り潰されます。</p>
+            </div>
+
+            <!-- ファイル名 -->
+            <div>
+              <label class="hl-label" style="margin-bottom: 0.5rem;">保存ファイル名</label>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="text" id="filenameInput" class="hl-input" placeholder="ファイル名" value="images" style="flex: 1; min-width: 0;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--clr-brown); opacity: 0.6; white-space: nowrap;">.pdf</span>
+              </div>
+            </div>
+
+          </div>
+
+          <hl-button id="generateBtn" icon="📄" block>PDF を生成してダウンロード</hl-button>
+        </div>
+
+      </div>
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <div style="max-width: var(--layout-max, 1100px); margin: 0 auto; padding: 0 1.5rem 1.5rem;">
+    <p style="font-size: 0.78rem; color: var(--clr-brown); opacity: 0.5; border-top: 1px solid rgba(106,86,74,0.1); padding-top: 1rem;">
+      使用ライブラリ:
+      <a href="https://github.com/parallax/jsPDF" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">jsPDF</a>
+      v2.5.1（MIT License）
+    </p>
+  </div>
+
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <!-- jsPDF (CDN) を components.js より先に読み込む -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/components/components.js"></script>
+
+  <script>
+    const imageInput      = document.getElementById('imageInput');
+    const thumbGrid       = document.getElementById('thumbGrid');
+    const emptyNote       = document.getElementById('emptyNote');
+    const imageCountNote  = document.getElementById('imageCountNote');
+    const settingsSection = document.getElementById('settingsSection');
+    const swapHint        = document.getElementById('swapHint');
+    const pageSizeHint    = document.getElementById('pageSizeHint');
+    const qualitySlider   = document.getElementById('qualitySlider');
+    const filenameInput   = document.getElementById('filenameInput');
+    const generateBtn     = document.getElementById('generateBtn');
+
+    const PAGE_HINTS = {
+      image: '各ページを画像のピクセル寸法に合わせます。',
+      a4p:   'A4 縦（210×297 mm）の中央に画像を収めます。',
+      a4l:   'A4 横（297×210 mm）の中央に画像を収めます。',
+    };
+
+    let imageFiles      = [];   // { id, file, objUrl }
+    let currentPageSize = 'image';
+    let nextId          = 0;
+    let selectedId      = null; // 入れ替え用 選択中 id
+
+    /* -------- ファイル追加 -------- */
+    imageInput.addEventListener('change', () => {
+      const files = Array.from(imageInput.files || []);
+      files.forEach(file => {
+        imageFiles.push({ id: nextId++, file, objUrl: URL.createObjectURL(file) });
+      });
+      imageInput.reset();
+      renderThumbs();
+      updateUI();
+    });
+
+    /* -------- サムネイル描画 -------- */
+    function renderThumbs() {
+      thumbGrid.innerHTML = '';
+      imageFiles.forEach(({ id, file, objUrl }, index) => {
+        const item = document.createElement('div');
+        item.className = 'ip-thumb-item' + (id === selectedId ? ' is-selected' : '');
+        item.dataset.id = id;
+        item.innerHTML = `
+          <div class="ip-thumb-img-wrap">
+            <img src="${objUrl}" alt="${escHtml(file.name)}" loading="lazy">
+          </div>
+          <button class="ip-thumb-remove" data-id="${id}" title="削除">✕</button>
+          <span class="ip-thumb-num">${index + 1}</span>
+        `;
+
+        /* 入れ替えタップ */
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.ip-thumb-remove')) return;
+          if (selectedId === null) {
+            /* 1枚目を選択 */
+            selectedId = id;
+            item.classList.add('is-selected');
+            swapHint.textContent = 'もう1つのサムネイルをタップして入れ替え（もう一度タップでキャンセル）';
+            swapHint.classList.add('is-selecting');
+          } else if (selectedId === id) {
+            /* 同じものをタップ → キャンセル */
+            selectedId = null;
+            item.classList.remove('is-selected');
+            swapHint.textContent = 'サムネイルをタップして順番を入れ替えられます';
+            swapHint.classList.remove('is-selecting');
+          } else {
+            /* 2枚目をタップ → 入れ替え */
+            const idx1 = imageFiles.findIndex(f => f.id === selectedId);
+            const idx2 = imageFiles.findIndex(f => f.id === id);
+            if (idx1 !== -1 && idx2 !== -1) {
+              [imageFiles[idx1], imageFiles[idx2]] = [imageFiles[idx2], imageFiles[idx1]];
+            }
+            selectedId = null;
+            swapHint.textContent = 'サムネイルをタップして順番を入れ替えられます';
+            swapHint.classList.remove('is-selecting');
+            renderThumbs();
+            updateUI();
+          }
+        });
+
+        /* 削除ボタン */
+        item.querySelector('.ip-thumb-remove').addEventListener('click', () => {
+          const targetId = id;
+          const idx = imageFiles.findIndex(f => f.id === targetId);
+          if (idx !== -1) {
+            URL.revokeObjectURL(imageFiles[idx].objUrl);
+            imageFiles.splice(idx, 1);
+          }
+          if (selectedId === targetId) {
+            selectedId = null;
+            swapHint.textContent = 'サムネイルをタップして順番を入れ替えられます';
+            swapHint.classList.remove('is-selecting');
+          }
+          renderThumbs();
+          updateUI();
+        });
+
+        thumbGrid.appendChild(item);
+      });
+    }
+
+    /* -------- UI 状態更新 -------- */
+    function updateUI() {
+      const count = imageFiles.length;
+      thumbGrid.style.display       = count > 0 ? '' : 'none';
+      swapHint.style.display        = count > 1 ? '' : 'none';
+      emptyNote.style.display       = count > 0 ? 'none' : '';
+      settingsSection.style.display = count > 0 ? '' : 'none';
+      imageCountNote.style.display  = count > 0 ? '' : 'none';
+      if (count > 0) imageCountNote.textContent = `${count} 枚 選択中`;
+    }
+
+    /* -------- ページサイズタブ -------- */
+    document.querySelectorAll('#pageSizeTabs .hl-tabs-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#pageSizeTabs .hl-tabs-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        currentPageSize = btn.dataset.value;
+        pageSizeHint.textContent = PAGE_HINTS[currentPageSize] || '';
+      });
+    });
+
+    /* -------- PDF 生成ボタン -------- */
+    generateBtn.addEventListener('click', async () => {
+      if (!imageFiles.length) return;
+      generateBtn.setAttribute('loading', '');
+      try {
+        const quality  = parseFloat(qualitySlider.value);
+        const filename = (filenameInput.value.trim() || 'images') + '.pdf';
+        await buildAndSavePDF(imageFiles, currentPageSize, quality, filename);
+        if (window.HlToast) HlToast.show('✅ PDF を生成しました', 'success', 3000);
+      } catch (err) {
+        console.error(err);
+        if (window.HlToast) HlToast.show('❌ エラー: ' + err.message, 'error', 5000);
+      } finally {
+        generateBtn.removeAttribute('loading');
+      }
+    });
+
+    /* -------- PDF 構築 -------- */
+    async function buildAndSavePDF(files, pageSizeMode, quality, filename) {
+      if (!window.jspdf) throw new Error('jsPDF が読み込まれていません。ネットワーク接続を確認してください。');
+      const { jsPDF } = window.jspdf;
+
+      const MM_PER_PX = 25.4 / 96;  // 96 dpi → mm 換算
+      const A4_SHORT  = 210;         // mm (短辺)
+      const A4_LONG   = 297;         // mm (長辺)
+
+      /* 全画像を Canvas 経由で JPEG データ URL に変換 */
+      const imgDataList = await Promise.all(
+        files.map(({ file, objUrl }) =>
+          new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              const c   = document.createElement('canvas');
+              c.width   = img.naturalWidth;
+              c.height  = img.naturalHeight;
+              const ctx = c.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, c.width, c.height);
+              ctx.drawImage(img, 0, 0);
+              resolve({
+                dataUrl: c.toDataURL('image/jpeg', quality),
+                w: img.naturalWidth,
+                h: img.naturalHeight,
+              });
+            };
+            img.onerror = () => reject(new Error(`画像の読み込みに失敗: ${file.name}`));
+            img.src = objUrl;
+          })
+        )
+      );
+
+      let pdf = null;
+
+      imgDataList.forEach(({ dataUrl, w, h }, i) => {
+        let pageW, pageH, imgX, imgY, imgW, imgH;
+
+        if (pageSizeMode === 'image') {
+          /* 各ページを画像ピクセルサイズに合わせる */
+          pageW = w * MM_PER_PX;
+          pageH = h * MM_PER_PX;
+          imgX = 0; imgY = 0; imgW = pageW; imgH = pageH;
+        } else {
+          /* A4 縦 / 横 に Contain 配置 */
+          const landscape = pageSizeMode === 'a4l';
+          pageW = landscape ? A4_LONG  : A4_SHORT;
+          pageH = landscape ? A4_SHORT : A4_LONG;
+          const aspect    = w / h;
+          const boxAspect = pageW / pageH;
+          if (aspect > boxAspect) {
+            imgW = pageW; imgH = pageW / aspect;
+          } else {
+            imgH = pageH; imgW = pageH * aspect;
+          }
+          imgX = (pageW - imgW) / 2;
+          imgY = (pageH - imgH) / 2;
+        }
+
+        if (i === 0) {
+          pdf = new jsPDF({ unit: 'mm', format: [pageW, pageH] });
+        } else {
+          pdf.addPage([pageW, pageH]);
+        }
+        pdf.addImage(dataUrl, 'JPEG', imgX, imgY, imgW, imgH);
+      });
+
+      pdf.save(filename);
+    }
+
+    /* -------- ユーティリティ -------- */
+    function escHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

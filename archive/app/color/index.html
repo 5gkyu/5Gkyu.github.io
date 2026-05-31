@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カラー名検索 | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="1500色以上のデータベースから、指定したカラーコード（HEX）に最も近い色の名前（日本語名・英語名）を探し出し、相性のいい配色（補色・類似色など）を提案するツールです。Webデザインやイラスト制作に。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/color/">
+
+  <meta property="og:title" content="カラー名検索 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="1500色以上のデータから、指定したカラーコードに最も近い色の名前（日本語・英語）を検索し、おすすめの配色を提案します。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/color/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+</style>
+
+  <script src="/components/components.js" defer></script>
+
+  <style>
+    /* アプリ固有の追加スタイル */
+    .color-picker-wrap {
+      flex-shrink: 0;
+      margin-bottom: 1.2rem;
+    }
+    input[type="color"] {
+      width: 48px;
+      height: 48px;
+      border: 2px solid rgba(106, 86, 74, 0.18);
+      border-radius: 12px;
+      cursor: pointer;
+      background: none;
+      padding: 2px;
+      transition: border-color 0.25s ease;
+    }
+    input[type="color"]:focus {
+      border-color: var(--clr-sage);
+      outline: none;
+    }
+    
+    /* 横並び比較用のスタイル */
+    .color-comparison {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap; /* Overflow fix */
+      margin-bottom: 2rem;
+      margin-top: 1rem;
+    }
+    .color-box-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      min-width: 120px; /* Overflow fix */
+    }
+    .color-box {
+      width: 100%;
+      height: 110px;
+      border-radius: 16px;
+      border: 1px solid rgba(106, 86, 74, 0.1);
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+      transition: background-color 0.5s ease;
+    }
+    .color-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .color-label span {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      font-weight: normal;
+      font-family: monospace;
+    }
+
+    /* Palette containers overflow fix */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: 8px;
+    }
+  
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+
+  <site-header site-name="カラー名検索"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+      <hl-breadcrumb current="カラー名検索" level1-name="Archive" level1-url="/archive/" level2-name="App" level2-url="/archive/app/"></hl-breadcrumb>
+    
+    <page-title>カラー名検索</page-title>
+    
+    <div class="hl-content-text" style="margin-bottom: 2rem;">
+      カラーコード（HEX）を入力するか、パレットから色を選ぶと、1500色のデータベースの中から最も近い色の「日本語名」を検索します。<br>
+      <small style="opacity: 0.8; display: block; margin-top: 10px;">※ 本サイトの配色データは <a href="https://chir.ag/projects/ntc/" target="_blank" rel="noopener">ntc.js</a> を意訳・改変して使用しています。(Creative Commons License: Attribution 2.5)</small>
+    </div>
+
+    <div class="hl-sidebar-block" style="background: #fff;">
+      <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex-grow: 1; min-width: 200px;">
+          <hl-input name="hex" label="カラーコード (HEX)" placeholder="#FF5733" value="#FF5733"></hl-input>
+        </div>
+        <div class="color-picker-wrap">
+          <input type="color" id="color-picker" value="#FF5733" aria-label="色を選択">
+        </div>
+      </div>
+      
+      <hl-button id="search-btn" variant="primary" block icon="🔍 ">一番近い色を探す</hl-button>
+    </div>
+
+    <div id="result-area" class="hl-sidebar-block" style="display: none; background: #fff; margin-top: 2.5rem; animation: hl-float-up 0.5s ease forwards;">
+      
+      <section-heading>検索結果</section-heading>
+
+      <div class="color-comparison">
+        <div class="color-box-wrap">
+          <div id="orig-color-box" class="color-box"></div>
+          <div class="color-label">入力した色<br><span id="orig-color-hex">-</span></div>
+        </div>
+        <div class="color-box-wrap">
+          <div id="res-color-box" class="color-box"></div>
+          <div class="color-label">見つかった近似色<br><span id="res-color-hex">-</span></div>
+        </div>
+      </div>
+      
+      <hl-divider></hl-divider>
+      
+      <table class="hl-table hl-table--striped">
+        <tbody>
+          <tr>
+            <th style="width: 30%;">日本語名</th>
+            <td id="res-ja" style="font-weight: 700; color: var(--clr-sage); font-size: 1.15rem;">-</td>
+          </tr>
+          <tr>
+            <th>英語名</th>
+            <td id="res-en">-</td>
+          </tr>
+          <tr>
+            <th>RGB</th>
+            <td id="res-rgb" style="font-family: monospace; font-size: 0.95rem;">-</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hl-divider></hl-divider>
+
+      <section-heading style="margin-top:2rem;">相性のいい色（おすすめ配色）</section-heading>
+      <div class="hl-content-text" style="font-size: 0.9rem; margin-bottom:1rem;">
+        見つかった近似色をベースに、Webサイトやキャラクターデザインなどで使える配色を用意しました。
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">モノクロマティック（同系色のグラデーション）</div>
+        <div id="palette-mono" class="palette-grid"></div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">補色（ダイナミックなアクセント）</div>
+        <div id="palette-comp" class="palette-grid"></div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">分裂補色（しなやかなコントラスト）</div>
+        <div id="palette-split" class="palette-grid"></div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">類似色（まとまりのある自然な調和）</div>
+        <div id="palette-anal" class="palette-grid"></div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">トライアド（バランスの取れた華やかさ）</div>
+        <div id="palette-tri" class="palette-grid"></div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-weight: bold; font-size: 0.95rem; color: var(--clr-brown); margin-bottom: 0.5rem;">テトラード（4色のカラフルな配色）</div>
+        <div id="palette-tetra" class="palette-grid"></div>
+      </div>
+
+    </div>
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+  <site-footer copy="5GKyu"></site-footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const hexInput = document.getElementById('hl-hex'); 
+      const colorPicker = document.getElementById('color-picker');
+      const searchBtn = document.getElementById('search-btn');
+      const resultArea = document.getElementById('result-area');
+      
+      let colorList = [];
+
+      try {
+        const response = await fetch('color.json');
+        if (!response.ok) throw new Error('Network error');
+        colorList = await response.json();
+      } catch (error) {
+        console.error('Error loading color.json:', error);
+        if (window.HlToast) {
+          window.HlToast.show('color.jsonの読み込みに失敗しました。サーバー上で実行してください。', 'warning', 5000);
+        }
+      }
+
+      // input element wait for custom element load
+      setTimeout(() => {
+        const actualInput = document.querySelector('hl-input[name="hex"]');
+        if(actualInput) {
+            actualInput.addEventListener('input', (e) => {
+                let val = e.target.value.trim();
+                if (val.match(/^#[0-9A-Fa-f]{6}$/)) {
+                  colorPicker.value = val;
+                }
+            });
+        }
+      }, 500);
+
+      colorPicker.addEventListener('input', (e) => {
+        const realInput = document.getElementById('hl-hex');
+        if(realInput) {
+            realInput.value = e.target.value.toUpperCase();
+        }
+      });
+
+      searchBtn.addEventListener('click', () => {
+        if (colorList.length === 0) {
+          if (window.HlToast) HlToast.show('カラーデータがまだ読み込まれていません。', 'warning');
+          return;
+        }
+        
+        const realInput = document.getElementById('hl-hex');
+        let hexVal = realInput ? realInput.value.trim() : colorPicker.value;
+        if (!hexVal.startsWith('#')) hexVal = '#' + hexVal;
+        
+        if (!hexVal.match(/^#[0-9A-Fa-f]{3,6}$/)) {
+          if (window.HlToast) HlToast.show('正しいカラーコード（例: #FF0000）を入力してください。', 'warning');
+          return;
+        }
+
+        searchBtn.setAttribute('loading', 'true');
+        
+        setTimeout(() => {
+          const closest = findClosestColor(hexVal, colorList);
+          displayResult(hexVal, closest);
+          
+          searchBtn.removeAttribute('loading');
+          if (window.HlToast) HlToast.show('近似色が見つかりました！', 'success');
+        }, 400);
+      });
+
+      function hexToRgb(hex) {
+        hex = hex.replace(/^#/, '');
+        if (hex.length === 3) {
+          hex = hex[0]+hex[0] + hex[1]+hex[1] + hex[2]+hex[2];
+        }
+        return {
+          r: parseInt(hex.substring(0, 2), 16),
+          g: parseInt(hex.substring(2, 4), 16),
+          b: parseInt(hex.substring(4, 6), 16)
+        };
+      }
+
+      function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+          h = s = 0; 
+        } else {
+          let d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return [h * 360, s * 100, l * 100];
+      }
+
+      function hslToHex(h, s, l) {
+        l /= 100;
+        const a = s * Math.min(l, 1 - l) / 100;
+        const f = n => {
+          const k = (n + h / 30) % 12;
+          const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+          return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+      }
+
+      function renderPalette(containerId, hexArr) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        hexArr.forEach(hex => {
+          const div = document.createElement('div');
+          div.style.minHeight = "110px";
+          div.style.borderRadius = "8px";
+          div.style.backgroundColor = hex;
+          div.style.display = "flex";
+          div.style.flexDirection = "column";
+          div.style.alignItems = "center";
+          div.style.justifyContent = "center";
+          div.style.padding = "6px";
+          div.style.textAlign = "center";
+          div.style.cursor = "pointer";
+          div.title = "クリックでコピー";
+          
+          const rgb = hexToRgb(hex);
+          const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+          div.style.color = brightness > 125 ? "rgba(0,0,0,0.85)" : "#ffffff";
+          div.style.textShadow = brightness > 125 ? "none" : "0 1px 3px rgba(0,0,0,0.7)";
+
+          const closest = findClosestColor(hex, colorList);
+          
+          div.innerHTML = `
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 2px;">${hex.toUpperCase()}</div>
+            <div style="font-size: 0.65rem; font-family: monospace; margin-bottom: 4px; opacity: 0.9;">${rgb.r}, ${rgb.g}, ${rgb.b}</div>
+            <div style="font-size: 0.75rem; font-weight: bold; margin-bottom: 2px;">${closest[2]}</div>
+            <div style="font-size: 0.65rem; opacity: 0.8; word-break: break-word;">${closest[1]}</div>
+          `;
+
+          div.addEventListener('click', () => {
+            navigator.clipboard.writeText(hex.toUpperCase()).then(() => {
+              if (window.HlToast) HlToast.show(hex.toUpperCase() + ' をコピーしました！', 'success', 2000);
+            });
+          });
+
+          container.appendChild(div);
+        });
+      }
+
+      function findClosestColor(inputHex, list) {
+        const targetRgb = hexToRgb(inputHex);
+        let minDistance = Infinity;
+        let closest = null;
+
+        for (let i = 0; i < list.length; i++) {
+          const c = list[i];
+          const distance = Math.pow(targetRgb.r - c[3], 2) + 
+                           Math.pow(targetRgb.g - c[4], 2) + 
+                           Math.pow(targetRgb.b - c[5], 2);
+                           
+          if (distance < minDistance) {
+            minDistance = distance;
+            closest = c;
+          }
+        }
+        return closest;
+      }
+
+      function displayResult(inputHex, colorData) {
+        const origHex = inputHex.toUpperCase();
+        const resHex = '#' + colorData[0].toUpperCase();
+        
+        document.getElementById('orig-color-box').style.backgroundColor = origHex;
+        document.getElementById('orig-color-hex').textContent = origHex;
+
+        document.getElementById('res-color-box').style.backgroundColor = resHex;
+        document.getElementById('res-color-hex').textContent = resHex;
+        
+        document.getElementById('res-ja').textContent = colorData[2];
+        document.getElementById('res-en').textContent = colorData[1];
+        document.getElementById('res-rgb').textContent = `${colorData[3]}, ${colorData[4]}, ${colorData[5]}`;
+        
+        const rgb = hexToRgb(resHex);
+        const [h, s, l] = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+        // 8 colors monochromatic
+        const monos = [-35, -25, -15, -5, 5, 15, 25, 35].map(i => hslToHex(h, s, Math.max(5, Math.min(95, l + i))));
+        renderPalette('palette-mono', monos);
+
+        // 8 colors complementary
+        const compH = (h + 180) % 360;
+        const comps = [-15, -5, 5, 15].map(i => hslToHex(h, s, Math.max(5, Math.min(95, l + i)))).concat(
+            [-15, -5, 5, 15].map(i => hslToHex(compH, s, Math.max(5, Math.min(95, l + i))))
+        );
+        renderPalette('palette-comp', comps);
+
+        // Split Complementary 8
+        const split1H = (h + 150) % 360;
+        const split2H = (h + 210) % 360;
+        const splits = [
+            hslToHex(h, s, l), hslToHex(h, s, Math.min(95, l+15)), hslToHex(h, s, Math.max(5, l-15)),
+            hslToHex(split1H, s, l), hslToHex(split1H, s, Math.min(95, l+15)),
+            hslToHex(split2H, s, l), hslToHex(split2H, s, Math.min(95, l+15)), hslToHex(split2H, s, Math.max(5, l-15))
+        ];
+        renderPalette('palette-split', splits);
+
+        // Analogous 8 colors
+        const anals = [-60, -45, -30, -15, 0, 15, 30, 45].map(deg => hslToHex((h + deg + 360) % 360, s, l));
+        renderPalette('palette-anal', anals);
+
+        // Triadic 8
+        const tri1H = (h + 120) % 360;
+        const tri2H = (h + 240) % 360;
+        const trias = [
+            hslToHex(h, s, l), hslToHex(h, s, Math.max(5, l-15)),
+            hslToHex(tri1H, s, l), hslToHex(tri1H, s, Math.max(5, l-15)), hslToHex(tri1H, s, Math.min(95, l+15)),
+            hslToHex(tri2H, s, l), hslToHex(tri2H, s, Math.max(5, l-15)), hslToHex(tri2H, s, Math.min(95, l+15))
+        ];
+        renderPalette('palette-tri', trias);
+
+        // Tetradic 8
+        const tetra1H = (h + 90) % 360;
+        const tetra2H = (h + 180) % 360;
+        const tetra3H = (h + 270) % 360;
+        const tetras = [
+            hslToHex(h, s, l), hslToHex(h, s, Math.min(95, l+15)),
+            hslToHex(tetra1H, s, l), hslToHex(tetra1H, s, Math.min(95, l+15)),
+            hslToHex(tetra2H, s, l), hslToHex(tetra2H, s, Math.min(95, l+15)),
+            hslToHex(tetra3H, s, l), hslToHex(tetra3H, s, Math.min(95, l+15))
+        ];
+        renderPalette('palette-tetra', tetras);
+
+        resultArea.style.display = 'block';
+        setTimeout(() => {
+          resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
+      
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
