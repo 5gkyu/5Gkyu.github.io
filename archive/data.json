@@ -1,0 +1,242 @@
+{
+  "app": {
+    "sections": [
+      {
+        "id": "image-tools",
+        "heading": "🖼️ 画像ツール",
+        "cols": 3,
+        "items": [
+          {
+            "title": "画像コラージュ作成",
+            "tag": "画像ツール",
+            "href": "/archive/app/collage-maker/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "複数の画像を一枚に織り上げるコラージュ作成ツール。"
+          },
+          {
+            "title": "画像圧縮ツール",
+            "tag": "画像ツール",
+            "href": "/archive/app/image-compression/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ブラウザ上で画像をリサイズ・圧縮し軽量化。JPEG / PNG / WebP の3形式に対応。データはサーバーに送信されません。"
+          },
+          {
+            "title": "画像→PDF変換",
+            "tag": "画像ツール",
+            "href": "/archive/app/image-pdf/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "複数の画像を選択して1つのPDFにまとめます。JPEG・PNG・WebP対応。データはサーバーに送信されません。"
+          }
+        ]
+      },
+      {
+        "id": "dev-tools",
+        "heading": "🔧 開発ツール",
+        "cols": 3,
+        "items": [
+          {
+            "title": "Xplore",
+            "tag": "開発ツール",
+            "href": "https://5gkyu.github.io/Xplore/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "会話や思考を探索的にたどれる Web ツール。"
+          },
+          {
+            "title": "リダイレクトページ作成",
+            "tag": "開発ツール",
+            "href": "/archive/app/redirect-gen/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "URLを入力するだけでリダイレクトページHTMLを自動生成。シームレス・ボタン・カウントダウンの3タイプに対応。"
+          },
+          {
+            "title": "カラー名検索",
+            "tag": "開発ツール",
+            "href": "/archive/app/color/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "カラーコードに近い色の「日本語名」を検索。Webデザインやイラスト制作に。"
+          }
+        ]
+      },
+      {
+        "id": "x-tools",
+        "heading": "𝕏 X ツール",
+        "cols": 3,
+        "items": [
+          {
+            "title": "X Intentリンク作成",
+            "tag": "Xツール",
+            "href": "/archive/app/x/intent/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "事前入力テキストのIntentリンクを作成します。Xの重み付き文字数（日本語・URL）表示に対応。"
+          },
+          {
+            "title": "X DMリンク作成",
+            "tag": "Xツール",
+            "href": "/archive/app/x/dm/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "相手の数値IDを指定して、XのDM作成リンクを生成します。"
+          }
+        ]
+      }
+    ]
+  },
+  "note": {
+    "sections": [
+      {
+        "id": "consideration",
+        "heading": "🔍 考察",
+        "cols": 3,
+        "items": [
+          {
+            "title": "色に名前をつけるということ",
+            "href": "/archive/note/color-and-design/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。"
+          },
+          {
+            "title": "ヤマアラシのジレンマ",
+            "href": "/archive/note/hedgehog-dilemma/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "近づくと傷つけ合い、遠ざかると寂しい。ショーペンハウアーの寓話を手がかりに、人間関係における距離感の本質を考察します。"
+          },
+          {
+            "title": "言葉よりも雄弁に",
+            "href": "/archive/note/nonverbal/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "沈黙・表情・距離・触れ方——。人は言葉を使う以前から、体全体で伝え合っている。ノンバーバル・コミュニケーションの科学と、その意外な奥深さを考察します。"
+          },
+          {
+            "title": "画面の向こうのあなたへ ── 第四の壁と繋がりの魔法",
+            "href": "/archive/note/fourth-wall/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "舞台と客席を隔てる見えない壁「第四の壁」。フィクションを守るこの壁を、時にキャラクターは越えて語りかけてくる。その瞬間なぜ心が動くのかを考察します。"
+          }
+        ]
+      },
+      {
+        "id": "guide",
+        "heading": "📖 ガイド",
+        "cols": 3,
+        "items": [
+          {
+            "title": "Webタイポグラフィ入門",
+            "href": "/archive/note/typography/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説するガイド。"
+          },
+          {
+            "title": "ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド",
+            "href": "/archive/note/browser/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1990年の誕生から現代まで。ブラウザの歴史・レンダリングエンジンの仕組み・Chrome／Firefox／Safari／Edgeなど現役ブラウザを網羅した解説ガイド。"
+          }
+        ]
+      },
+      {
+        "id": "column",
+        "heading": "✍️ コラム",
+        "cols": 3,
+        "items": [
+          {
+            "title": "雨の日に窓の外を見るのが好きな理由",
+            "href": "/archive/note/rain-and-cozy/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "なぜ人は、安全な部屋の中から嵐や雨を見るのが好きなのか。「守られた空間（シェルター）」から外界を見ることで得られる根源的な安心感についてのコラム。"
+          }
+        ]
+      }
+    ]
+  },
+  "play": {
+    "sections": [
+      {
+        "id": "brawl-stars",
+        "heading": "🎯 Brawl Stars",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ブロスタ キャラクター評価",
+            "tag": "ブロスタ",
+            "href": "/archive/play/Brawl/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+          }
+        ]
+      },
+      {
+        "id": "other-games",
+        "heading": "🎮 その他",
+        "cols": 3,
+        "items": [
+          {
+            "title": "Coming Soon",
+            "tag": "ゲーム",
+            "href": "#",
+            "description": "準備中です。"
+          }
+        ]
+      }
+    ]
+  },
+  "other": {
+    "sections": [
+      
+      {
+        "id": "browser-tools",
+        "heading": "🔖 ブラウザツール",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ブックマークレット集",
+            "tag": "ブラウザツール",
+            "href": "/archive/other/booklet/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "タイトル・URLコピーやYouTubeツールなど、ブラウザのブックマークに登録してワンタップで実行できる便利な小さなJavaScriptスクリプト集。"
+          }
+        ]
+      },
+      {
+        "id": "components-gallery",
+        "heading": "📦 コンポーネントデモ",
+        "cols": 3,
+        "items": [
+          {
+            "title": "デザイン基礎",
+            "tag": "コンポーネント",
+            "href": "/components/demo_foundation.html",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "デザイントークン・カラーパレット・レイアウト・タイポグラフィーのリファレンス。"
+          },
+          {
+            "title": "UI コンポーネント",
+            "tag": "コンポーネント",
+            "href": "/components/demo_ui.html",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ボタン・モーダル・タブ・アバターなどの UIパーツデモ。"
+          },
+          {
+            "title": "コンテンツコンポーネント",
+            "tag": "コンポーネント",
+            "href": "/components/demo_content.html",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "カード・チャットUI・引用・ステップ・カルーセルなどのコンテンツパーツデモ。"
+          },
+          {
+            "title": "データ・フォーム",
+            "tag": "コンポーネント",
+            "href": "/components/demo_data.html",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "テーブル・フォーム・ページネーションなどのデータ系パーツデモ。"
+          },
+          {
+            "title": "動画埋め込み",
+            "tag": "コンポーネント",
+            "href": "/components/demo_embed.html",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "YouTube・ニコニコ対応の hl-embed コンポーネントと iframe 比較デモ。"
+          }
+        ]
+      }
+    ]
+  }
+}
