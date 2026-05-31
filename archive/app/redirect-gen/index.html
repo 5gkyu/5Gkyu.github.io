@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リダイレクトページ作成 | Halcyon - 5Gkyu</title>
+    <meta name="description" content="転送先URLを入れるだけで、自動リダイレクト用のHTMLを生成できるツールです。">
+    <link rel="canonical" href="https://5gkyu.github.io/archive/app/redirect-gen/">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+    <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+    <meta property="og:title" content="リダイレクトページ作成 | Halcyon - 5Gkyu">
+    <meta property="og:description" content="指定したURLへ自動転送するHTMLファイルを簡単に生成できます。">
+    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:url" content="https://5gkyu.github.io/archive/app/redirect-gen/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Halcyon">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+</style>
+
+    <style>
+        .rg-main-card {
+            background: #ffffff;
+            border: 1.5px solid rgba(106, 86, 74, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(106, 86, 74, 0.05);
+        }
+
+        .rg-input-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .rg-url-input {
+            flex: 1;
+            min-width: 200px;
+            font-size: 1.05rem;
+            padding: 0.8rem 1rem;
+        }
+
+        .rg-code-wrapper {
+            background: #382f2a;
+            border-radius: 12px;
+            margin: 1rem 0;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(106, 86, 74, 0.15);
+        }
+
+        .rg-code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .rg-code-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--clr-sage);
+            letter-spacing: 0.05em;
+        }
+
+        .rg-code-pre {
+            margin: 0;
+            padding: 1.2rem;
+            overflow: auto;
+            max-height: 350px;
+        }
+
+        .rg-code-content {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--clr-cream);
+            white-space: pre;
+        }
+
+        .is-empty {
+            color: rgba(251, 246, 234, 0.35) !important;
+            font-style: italic;
+        }
+
+        .rg-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .rg-sec-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(154, 176, 143, 0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--clr-brown);
+        }
+
+        .rg-sec-input {
+            width: 68px;
+            text-align: center;
+            padding: 0.35rem;
+        }
+
+        .sidebar-sticky {
+            position: sticky;
+            top: 100px;
+        }
+
+        @media (max-width: 860px) {
+            .rg-input-row {
+                flex-direction: column;
+            }
+
+            .rg-url-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <site-header site-name="リダイレクトページ作成"></site-header>
+
+    <hl-layout cols="2" class="fluffy-entry delay-1">
+        <div class="hl-layout-main">
+            <hl-breadcrumb current="リダイレクトページ作成" level1-name="Archive" level1-url="/archive/" level2-name="App" level2-url="/archive/app/"></hl-breadcrumb>
+
+            <page-title>リダイレクトページ作成</page-title>
+            <p class="hl-content-text" style="margin-bottom: 2rem;">
+                転送先URLを入力するだけで、自動リダイレクト用HTMLを3パターン生成できます。
+                「即時転送」「ボタン転送」「カウントダウン転送」から用途に合わせて選んでください。
+            </p>
+
+            <div class="rg-main-card">
+                <label class="hl-label" style="margin-bottom: 0.6rem;">転送先URL<span class="hl-label__required">必須</span></label>
+                <div class="rg-input-row">
+                    <input type="url" id="targetUrl" class="hl-input rg-url-input" placeholder="https://example.com" autocomplete="off">
+                    <hl-button id="pasteBtn" variant="secondary" icon="📋">貼り付け</hl-button>
+                </div>
+                <hl-button id="genBtn" block icon="⚙️">HTMLを生成</hl-button>
+            </div>
+
+            <div id="outputArea">
+                <hl-tabs>
+                    <div class="hl-tab-panel" data-label="⚡ シームレス">
+                        <p class="hl-content-text" style="margin-bottom: 0;">ページを開くとほぼ即時に自動転送します。古い端末でも動作しやすい最小構成です。</p>
+                        <div class="rg-code-wrapper">
+                            <div class="rg-code-header">
+                                <span class="rg-code-title">HTML (SEAMLESS)</span>
+                                <hl-button class="copy-btn" data-target="code-1" variant="secondary" style="font-size:0.7rem; padding:0.2rem 0.6rem;">Copy</hl-button>
+                            </div>
+                            <pre class="rg-code-pre"><code id="code-1" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
+                        </div>
+                        <div class="rg-actions">
+                            <hl-button class="dl-btn" data-target="code-1" icon="⬇️">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-1" variant="secondary" icon="👁️">プレビュー</hl-button>
+                        </div>
+                    </div>
+
+                    <div class="hl-tab-panel" data-label="🖱️ ボタン">
+                        <p class="hl-content-text" style="margin-bottom: 0;">自動転送せず、ユーザーがボタンを押したときに移動する案内ページを生成します。</p>
+                        <div class="rg-code-wrapper">
+                            <div class="rg-code-header">
+                                <span class="rg-code-title">HTML (BUTTON)</span>
+                                <hl-button class="copy-btn" data-target="code-2" variant="secondary" style="font-size:0.7rem; padding:0.2rem 0.6rem;">Copy</hl-button>
+                            </div>
+                            <pre class="rg-code-pre"><code id="code-2" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
+                        </div>
+                        <div class="rg-actions">
+                            <hl-button class="dl-btn" data-target="code-2" icon="⬇️">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-2" variant="secondary" icon="👁️">プレビュー</hl-button>
+                        </div>
+                    </div>
+
+                    <div class="hl-tab-panel" data-label="⏱️ 待機付き">
+                        <div class="rg-sec-wrap">
+                            <input type="number" id="waitSec" class="hl-input rg-sec-input" value="5" min="1" max="60"> 秒後に自動で転送します
+                        </div>
+                        <div class="rg-code-wrapper">
+                            <div class="rg-code-header">
+                                <span class="rg-code-title">HTML (COUNTDOWN)</span>
+                                <hl-button class="copy-btn" data-target="code-3" variant="secondary" style="font-size:0.7rem; padding:0.2rem 0.6rem;">Copy</hl-button>
+                            </div>
+                            <pre class="rg-code-pre"><code id="code-3" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
+                        </div>
+                        <div class="rg-actions">
+                            <hl-button class="dl-btn" data-target="code-3" icon="⬇️">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-3" variant="secondary" icon="👁️">プレビュー</hl-button>
+                        </div>
+                    </div>
+                </hl-tabs>
+            </div>
+        </div>
+
+        <aside class="hl-layout-sidebar">
+            <div class="sidebar-sticky" style="position: sticky; top: 100px;">
+                <hl-profile></hl-profile>
+                <hl-toc></hl-toc>
+            </div>
+        </aside>
+    </hl-layout>
+
+    <site-footer copy="5Gkyu Apps"></site-footer>
+
+    <script src="../../../components/components.js"></script>
+    <script src="./redirect-gen.js"></script>
+</body>
+</html>
+
+
+

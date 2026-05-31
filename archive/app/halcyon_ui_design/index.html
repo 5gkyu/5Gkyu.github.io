@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Component Gallery | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Halcyon デザインシステムのコンポーネント一覧。Web Components ベースのカスタム要素でページを簡単に構築できます。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/halcyon_ui_design/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Component Gallery | Halcyon - 5Gkyu">
+  <meta property="og:description" content="Halcyon デザインシステムのコンポーネント一覧。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/halcyon_ui_design/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <!-- ======================================================
+       GALLERY INDEX PAGE
+       このファイルはコンポーネントギャラリーの目次ページです。
+       各セクションの詳細は以下のファイルに分割されています：
+         - /components/demo_foundation.html : デザイン基礎（色・レイアウト・タイポグラフィ）
+         - /components/demo_ui.html         : UI コンポーネント（ボタン・アラート・モーダルなど）
+         - /components/demo_content.html    : コンテンツ（Chat・カード・記事系など）
+         - /components/demo_data.html       : データ・フォーム（フォーム・テーブル・スライダーなど）
+         - /components/demo_embed.html      : 動画埋め込み（YouTube・Niconico）
+  ====================================================== -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── インデックスページ専用スタイル ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .gallery-card {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(154, 176, 143, 0.2);
+      border-radius: 20px;
+      padding: 1.6rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .gallery-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(106, 86, 74, 0.1);
+    }
+    .gallery-card__title { font-size: 1rem; font-weight: 700; color: #6A564A; }
+    .gallery-card__desc  { font-size: 0.8rem; color: #6A564A; opacity: 0.65; line-height: 1.7; }
+    .gallery-card__tags  { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+    .gallery-tag {
+      font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.55rem;
+      border-radius: 100px; background: rgba(154, 176, 143, 0.15);
+      color: #9AB08F; letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Gallery"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/"
+        current="Component Gallery">
+      </hl-breadcrumb>
+      <page-title>Component Gallery</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 2rem;">
+        <p>このページは <strong>Halcyon デザインシステム</strong> のコンポーネント（Webパーツ）一覧の目次です。</p>
+        <p style="margin-top:0.6em;">
+          <strong>Webパーツ（コンポーネント）とは</strong>、ページを構成する「部品」のことです。
+          ボタン・カード・ナビゲーションバーなど、繰り返し使うUIを1つのタグにまとめたもので、
+          HTMLに書くだけで見た目と動きが自動的に適用されます。
+        </p>
+      </div>
+
+      <!-- ── はじめかた ── -->
+      <section-heading id="sec-howto">はじめかた</section-heading>
+      <div style="margin-bottom: 2.5rem;">
+        <hl-step>
+          <hl-step-item num="1" title="スクリプトを読み込む">
+            HTMLの <code>&lt;/body&gt;</code> 直前に1行追加するだけで準備完了です。
+            <hl-code lang="html">
+&lt;script src="components/components.js"&gt;&lt;/script&gt;</hl-code>
+          </hl-step-item>
+          <hl-step-item num="2" title="タグを書く">
+            使いたいコンポーネントのタグをHTMLに書きます。属性で外見や動作をカスタマイズできます。
+            <hl-code lang="html">
+&lt;hl-button&gt;ボタン&lt;/hl-button&gt;
+&lt;hl-alert&gt;お知らせ文&lt;/hl-alert&gt;
+&lt;hl-card title="カードタイトル" href="#"&gt;説明文&lt;/hl-card&gt;</hl-code>
+          </hl-step-item>
+          <hl-step-item num="3" title="完成！">
+            ブラウザで開くとデザインが自動適用されます。下記の各ページで
+            すべてのコンポーネントの見た目と使い方を確認できます。
+          </hl-step-item>
+        </hl-step>
+      </div>
+
+      <!-- ── ギャラリー一覧 ── -->
+      <section-heading id="sec-gallery">ギャラリー一覧</section-heading>
+      <div class="gallery-grid" style="margin-top: 1rem;">
+
+        <a href="/components/demo_foundation.html" class="gallery-card">
+          <span class="gallery-card__title">デザイン基礎</span>
+          <span class="gallery-card__desc">カラーパレット・レイアウト・タイポグラフィ・ヘッダー・フッター・グローバルスタイルなどの土台となる設計を解説します。</span>
+          <div class="gallery-card__tags">
+            <span class="gallery-tag">Color Palette</span>
+            <span class="gallery-tag">Layout</span>
+            <span class="gallery-tag">Typography</span>
+            <span class="gallery-tag">Header/Footer</span>
+            <span class="gallery-tag">Animation</span>
+          </div>
+        </a>
+
+        <a href="/components/demo_ui.html" class="gallery-card">
+          <span class="gallery-card__title">UI コンポーネント</span>
+          <span class="gallery-card__desc">ページで最もよく使う基本的なUI部品。ボタン・アラート・バッジ・アコーディオン・タブ・モーダル・ツールチップなど。</span>
+          <div class="gallery-card__tags">
+            <span class="gallery-tag">hl-button</span>
+            <span class="gallery-tag">hl-alert</span>
+            <span class="gallery-tag">hl-tabs</span>
+            <span class="gallery-tag">hl-modal</span>
+            <span class="gallery-tag">hl-tooltip</span>
+            <span class="gallery-tag">hl-chip</span>
+          </div>
+        </a>
+
+        <a href="/components/demo_content.html" class="gallery-card">
+          <span class="gallery-card__title">コンテンツ</span>
+          <span class="gallery-card__desc">記事・シナリオ・ブログなどで使うコンポーネント。チャットUI・コードブロック・カード・カルーセル・引用・サイドバーなど。</span>
+          <div class="gallery-card__tags">
+            <span class="gallery-tag">hl-chat</span>
+            <span class="gallery-tag">hl-code</span>
+            <span class="gallery-tag">hl-card</span>
+            <span class="gallery-tag">hl-carousel</span>
+            <span class="gallery-tag">hl-quote</span>
+            <span class="gallery-tag">hl-toc</span>
+          </div>
+        </a>
+
+        <a href="/components/demo_data.html" class="gallery-card">
+          <span class="gallery-card__title">データ・フォーム</span>
+          <span class="gallery-card__desc">フォーム入力・データ表示・スライダー・ローディング演出など。ユーザーから情報を受け取ったり、一覧データを整理・表示します。</span>
+          <div class="gallery-card__tags">
+            <span class="gallery-tag">hl-input</span>
+            <span class="gallery-tag">hl-select</span>
+            <span class="gallery-tag">hl-table</span>
+            <span class="gallery-tag">hl-slider</span>
+            <span class="gallery-tag">hl-skeleton</span>
+            <span class="gallery-tag">Loading</span>
+          </div>
+        </a>
+
+        <a href="/components/demo_embed.html" class="gallery-card">
+          <span class="gallery-card__title">動画埋め込み</span>
+          <span class="gallery-card__desc">YouTube・Niconico の動画を記事に埋め込むためのコンポーネント。URLを指定するだけでレスポンシブな16:9プレーヤーになります。</span>
+          <div class="gallery-card__tags">
+            <span class="gallery-tag">hl-embed</span>
+            <span class="gallery-tag">YouTube</span>
+            <span class="gallery-tag">Niconico</span>
+            <span class="gallery-tag">responsive</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- ── コンポーネント早見表 ── -->
+      <section-heading id="sec-ref">コンポーネント早見表</section-heading>
+      <hl-table style="margin-top:1rem;">
+        <table>
+          <thead>
+            <tr><th>タグ / クラス</th><th>ジャンル</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>site-header</code></td><td>基礎</td><td>ページ上部固定ナビゲーション</td></tr>
+            <tr><td><code>site-footer</code></td><td>基礎</td><td>ページ下部リンク・クレジット</td></tr>
+            <tr><td><code>page-title</code></td><td>基礎</td><td>H1 ページタイトル（下線付き）</td></tr>
+            <tr><td><code>section-heading</code></td><td>基礎</td><td>H2 セクション見出し（左バー付き）</td></tr>
+            <tr><td><code>hl-layout</code></td><td>基礎</td><td>1・2カラムレイアウトコンテナ</td></tr>
+            <tr><td><code>hl-button</code></td><td>UI</td><td>ボタン（Primary / Secondary / Loading）</td></tr>
+            <tr><td><code>hl-alert</code></td><td>UI</td><td>お知らせ・警告・成功メッセージ</td></tr>
+            <tr><td><code>.hl-badge</code></td><td>UI</td><td>カテゴリタグ・バッジ</td></tr>
+            <tr><td><code>.hl-link</code></td><td>UI</td><td>インラインリンクスタイル</td></tr>
+            <tr><td><code>hl-accordion</code></td><td>UI</td><td>クリックで開閉する折りたたみ</td></tr>
+            <tr><td><code>hl-tabs</code></td><td>UI</td><td>タブ切り替えUI</td></tr>
+            <tr><td><code>hl-modal</code></td><td>UI</td><td>モーダルダイアログ</td></tr>
+            <tr><td><code>hl-tooltip</code></td><td>UI</td><td>ホバーでヒント表示</td></tr>
+            <tr><td><code>hl-popover</code></td><td>UI</td><td>クリックで吹き出しパネル</td></tr>
+            <tr><td><code>hl-drawer</code></td><td>UI</td><td>サイドからスライドインするパネル</td></tr>
+            <tr><td><code>hl-divider</code></td><td>UI</td><td>区切り線（ラベル・破線・太線）</td></tr>
+            <tr><td><code>hl-avatar</code></td><td>UI</td><td>ユーザーアイコン・丸サムネイル</td></tr>
+            <tr><td><code>hl-chip</code></td><td>UI</td><td>小さなタグ・ラベル要素</td></tr>
+            <tr><td><code>hl-image</code></td><td>UI</td><td>遅延読み込み（Blur-Up）画像</td></tr>
+            <tr><td><code>hl-card</code></td><td>コンテンツ</td><td>サムネイル付き記事・作品カード</td></tr>
+            <tr><td><code>hl-chat</code></td><td>コンテンツ</td><td>チャット形式のセリフUI</td></tr>
+            <tr><td><code>hl-code</code></td><td>コンテンツ</td><td>シンタックスハイライト付きコードブロック</td></tr>
+            <tr><td><code>hl-step / hl-step-item</code></td><td>コンテンツ</td><td>番号付き手順ステップ</td></tr>
+            <tr><td><code>hl-carousel</code></td><td>コンテンツ</td><td>スライドカルーセル</td></tr>
+            <tr><td><code>hl-quote</code></td><td>コンテンツ</td><td>引用ブロック（出典リンク付き）</td></tr>
+            <tr><td><code>hl-share</code></td><td>コンテンツ</td><td>SNSシェア・URLコピーボタン</td></tr>
+            <tr><td><code>hl-toc</code></td><td>コンテンツ</td><td>目次（section-headingから自動生成）</td></tr>
+            <tr><td><code>hl-profile</code></td><td>コンテンツ</td><td>サイドバー用プロフィールボックス</td></tr>
+            <tr><td><code>hl-breadcrumb</code></td><td>コンテンツ</td><td>パンくずリスト</td></tr>
+            <tr><td><code>hl-sidebar-box</code></td><td>コンテンツ</td><td>サイドバーカスタムボックス</td></tr>
+            <tr><td><code>hl-input</code></td><td>フォーム</td><td>テキスト入力フィールド</td></tr>
+            <tr><td><code>hl-textarea</code></td><td>フォーム</td><td>複数行テキスト入力</td></tr>
+            <tr><td><code>hl-select</code></td><td>フォーム</td><td>ドロップダウン選択</td></tr>
+            <tr><td><code>hl-checkbox / hl-radio</code></td><td>フォーム</td><td>チェックボックス・ラジオボタン</td></tr>
+            <tr><td><code>hl-toggle</code></td><td>フォーム</td><td>トグルスイッチ</td></tr>
+            <tr><td><code>hl-table</code></td><td>データ</td><td>テーブル（縞々・コンパクト対応）</td></tr>
+            <tr><td><code>hl-pagination</code></td><td>データ</td><td>ページネーション</td></tr>
+            <tr><td><code>hl-skeleton</code></td><td>データ</td><td>ローディングプレースホルダー</td></tr>
+            <tr><td><code>hl-slider</code></td><td>データ</td><td>スライダー入力</td></tr>
+            <tr><td><code>hl-embed</code></td><td>メディア</td><td>動画埋め込み（YouTube / Niconico）</td></tr>
+            <tr><td><code>hl-figure</code></td><td>メディア</td><td>キャプション付き画像ブロック</td></tr>
+          </tbody>
+        </table>
+      </hl-table>
+
+    </div>
+
+    <!-- ─── 右：サイドバー ─── -->
+    <div class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+
+      <hl-sidebar-box title="ギャラリー">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <li style="font-weight:700;color:var(--clr-brown);">インデックス（現在）</li>
+          <li><a href="/components/demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+          <li><a href="/components/demo_ui.html" class="hl-link">UI コンポーネント</a></li>
+          <li><a href="/components/demo_content.html" class="hl-link">コンテンツ</a></li>
+          <li><a href="/components/demo_data.html" class="hl-link">データ・フォーム</a></li>
+          <li><a href="/components/demo_embed.html" class="hl-link">動画埋め込み</a></li>
+        </ul>
+      </hl-sidebar-box>
+
+      <hl-toc></hl-toc>
+    </div>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="../../../components/components.js"></script>
+
+</body>
+</html>

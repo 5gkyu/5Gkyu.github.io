@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X Intentリンク作成 | Halcyon - 5Gkyu</title>
+  <meta name="description" content="テキストを自動エンコードしてXのintent/tweetリンクを作成します。絵文字や日本語、改行にも対応。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/x/intent/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="X Intentリンク作成 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="テキストを自動エンコードしてXのintent/tweetリンクを作成します。絵文字や日本語、改行にも対応。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/x/intent/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    .xi-count-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+    .xi-count {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      opacity: 0.55;
+    }
+    .xi-count.over {
+      color: var(--clr-peach);
+      opacity: 1;
+    }
+    .xi-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      border: 1.5px solid rgba(106, 86, 74, 0.15);
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--clr-brown);
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .xi-textarea:focus {
+      border-color: var(--clr-sage);
+      box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
+    }
+    .xi-output {
+      margin-top: 1.2rem;
+      padding: 1rem 1.2rem;
+      background: rgba(154, 176, 143, 0.07);
+      border: 1.5px dashed rgba(154, 176, 143, 0.45);
+      border-radius: 12px;
+      word-break: break-all;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--clr-brown);
+      min-height: 2.8rem;
+    }
+    .xi-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.2rem;
+    }
+    .xi-hint {
+      font-size: 0.8rem;
+      color: var(--clr-brown);
+      opacity: 0.6;
+      line-height: 1.55;
+      margin-top: 0.5rem;
+    }
+    .xi-embed { margin: 1rem 0 1.5rem; }
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="X Intentリンク作成"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+      <hl-breadcrumb
+        current="X Intentリンク作成"
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/">
+      </hl-breadcrumb>
+
+      <page-title>X Intentリンク作成</page-title>
+      <p class="hl-content-text" style="margin-bottom: 1.2rem;">
+        押すと事前に用意したテキストが自動入力される「Intentリンク」を作成します。<br>
+        生成されたリンクをXのポストに貼り付けると、カード型のリンクになりクリックした人が文章を入力済みの状態でポスト画面を開けます。<br>
+        企業のキャンペーンや、イベントの告知、アンケートなどで活用されている機能です。
+      </p>
+
+      <section-heading id="actual-example">実物例</section-heading>
+      <div class="xi-embed">
+        <blockquote class="twitter-tweet"><p lang="zxx" dir="ltr"><a href="https://t.co/i3A6yOURIl">https://t.co/i3A6yOURIl</a></p>&mdash; 9月 (@jkqueenkyu) <a href="https://twitter.com/jkqueenkyu/status/2024354492976919032?ref_src=twsrc%5Etfw">February 19, 2026</a></blockquote>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <p class="xi-hint" style="margin-top: 1rem;">
+          上記は、以下のリンクをそのままXにポストしたものです。<br>
+          <code>https://x.com/intent/tweet?text=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%E3%80%82</code>
+        </p>
+      </div>
+
+      <p class="hl-content-text" style="margin-bottom: 2rem;">
+        入力テキストは自動でURLエンコード（UTF-8 + encodeURIComponent）されます。絵文字・日本語・改行にも対応。文字数はXの重み付き仕様（日本語は2文字相当、URLは固定長）で280上限に合わせて表示します。
+      </p>
+
+      <section-heading id="app-main">アプリ本体（リンク生成）</section-heading>
+
+      <div class="hl-sidebar-block" style="background: #fff; margin-bottom: 1.5rem;">
+        <div class="xi-count-row">
+          <label class="hl-label" for="tweet_text" style="margin: 0;">投稿テキスト</label>
+          <span class="xi-count" id="char_count">0 / 280（X換算）</span>
+        </div>
+        <textarea id="tweet_text" class="xi-textarea" placeholder="ここに投稿文を入力"></textarea>
+
+        <label class="hl-label" for="extra_url" style="margin-top: 1.2rem; margin-bottom: 0.5rem;">添付URL（任意）</label>
+        <input type="url" id="extra_url" class="hl-input" placeholder="https://example.com" autocomplete="off">
+        <p class="xi-hint">入力すると投稿テキストの末尾に改行で連結されます（空欄なら追加しません）。</p>
+      </div>
+
+      <div class="xi-actions">
+        <hl-button id="copy_btn" icon="📋">リンクをコピー</hl-button>
+        <hl-button id="open_btn" variant="secondary" icon="↗">新しいタブで開いてテスト</hl-button>
+        <hl-button id="reset_btn" variant="secondary" icon="🔄">リセット（すべて削除）</hl-button>
+      </div>
+
+      <p class="xi-hint">絵文字・記号・改行・日本語を含めてエンコード対応しています（UTF-8 + encodeURIComponent）。</p>
+      <p class="xi-hint">生成形式: https://x.com/intent/tweet?text=...</p>
+      <div class="xi-output" id="out_link" aria-live="polite">生成されたリンクがここに表示されます。</div>
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <script src="../../../../components/components.js"></script>
+  <script>
+    (function () {
+      const textEl = document.getElementById('tweet_text');
+      const extraUrlEl = document.getElementById('extra_url');
+      const charCountEl = document.getElementById('char_count');
+      const outLinkEl = document.getElementById('out_link');
+      const copyBtn = document.getElementById('copy_btn');
+      const openBtn = document.getElementById('open_btn');
+      const resetBtn = document.getElementById('reset_btn');
+      const LIMIT = 280;
+      const SHORT_URL_LENGTH = 23;
+      const URL_RE = /https?:\/\/[^\s]+/gi;
+      const STORAGE_KEY_TEXT = 'intent_app_tweet_text';
+      const STORAGE_KEY_URL = 'intent_app_extra_url';
+
+      function getXCharWeight(ch) {
+        const codePoint = ch.codePointAt(0);
+        if ((codePoint >= 0x0000 && codePoint <= 0x10FF) ||
+            (codePoint >= 0x2000 && codePoint <= 0x200D) ||
+            (codePoint >= 0x2010 && codePoint <= 0x201F) ||
+            (codePoint >= 0x2032 && codePoint <= 0x2037)) {
+          return 1;
+        }
+        return 2;
+      }
+
+      function getWeightedLength(text) {
+        let total = 0;
+        for (const ch of text) {
+          total += getXCharWeight(ch);
+        }
+        return total;
+      }
+
+      function getTweetLengthByXRules(text) {
+        let total = 0;
+        let lastIndex = 0;
+        URL_RE.lastIndex = 0;
+
+        for (const match of text.matchAll(URL_RE)) {
+          const index = match.index || 0;
+          total += getWeightedLength(text.slice(lastIndex, index));
+          total += SHORT_URL_LENGTH;
+          lastIndex = index + match[0].length;
+        }
+
+        total += getWeightedLength(text.slice(lastIndex));
+        return total;
+      }
+
+      function buildIntentUrl() {
+        const text = textEl.value || '';
+        const extraUrl = (extraUrlEl.value || '').trim();
+        const merged = extraUrl ? text + '\n' + extraUrl : text;
+        const count = getTweetLengthByXRules(merged);
+        charCountEl.textContent = count + ' / ' + LIMIT + '（X換算）';
+        charCountEl.classList.toggle('over', count > LIMIT);
+        localStorage.setItem(STORAGE_KEY_TEXT, text);
+        localStorage.setItem(STORAGE_KEY_URL, extraUrl);
+        const intentUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent(merged);
+        outLinkEl.textContent = intentUrl;
+        return intentUrl;
+      }
+
+      textEl.addEventListener('input', buildIntentUrl);
+      extraUrlEl.addEventListener('input', buildIntentUrl);
+
+      copyBtn.addEventListener('click', async function () {
+        const url = buildIntentUrl();
+        try {
+          await navigator.clipboard.writeText(url);
+          if (window.HlToast) { window.HlToast.show('リンクをコピーしました'); }
+        } catch (err) {
+          if (window.HlToast) { window.HlToast.show('コピーに失敗しました', 'warning'); }
+        }
+      });
+
+      openBtn.addEventListener('click', function () {
+        const url = buildIntentUrl();
+        window.open(url, '_blank', 'noopener,noreferrer');
+      });
+
+      resetBtn.addEventListener('click', function () {
+        textEl.value = '';
+        extraUrlEl.value = '';
+        localStorage.removeItem(STORAGE_KEY_TEXT);
+        localStorage.removeItem(STORAGE_KEY_URL);
+        buildIntentUrl();
+        textEl.focus();
+        if (window.HlToast) { window.HlToast.show('リセットしました'); }
+      });
+
+      const savedText = localStorage.getItem(STORAGE_KEY_TEXT);
+      if (savedText !== null) { textEl.value = savedText; }
+      const savedUrl = localStorage.getItem(STORAGE_KEY_URL);
+      if (savedUrl !== null) { extraUrlEl.value = savedUrl; }
+
+      buildIntentUrl();
+    })();
+  </script>
+</body>
+</html>
