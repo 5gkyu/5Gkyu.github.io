@@ -62,6 +62,12 @@
       z-index: 10; /* 花びらより背面に配置 */
     }
 
+    @media (max-width: 860px) {
+      .hero-img-section { padding-top: 56px; }
+      .hero-img { min-height: calc(100vh - 56px); }
+      .hero-overlay-content { top: 56px; }
+    }
+
     /* タイトルと説明のガラスパネル */
     .hero-glass-panel {
       pointer-events: auto;
@@ -314,11 +320,11 @@
       <!-- 詳細ボタン群（ガラスカードスタイル） -->
       <nav class="hero-nav" aria-label="ページナビゲーション">
         
-        <a href="/about/" class="hero-nav-card accent">
+        <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="hero-nav-card accent" target="_blank" rel="noopener noreferrer">
           <div class="nav-card-icon">
             <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,19.93C7.05,19.43 4,16.05 4,12C4,7.95 7.05,4.57 11,4.07V19.93M13,4.07C16.95,4.57 20,7.95 20,12C20,16.05 16.95,19.43 13,19.93V4.07Z" /></svg>
           </div>
-          <span class="nav-card-title">About</span>
+          <span class="nav-card-title">Links</span>
         </a>
 
         <a href="/archive/" class="hero-nav-card">
