@@ -293,7 +293,19 @@ function trapFocus(element) {
     }
     
     .site-footer__grid { max-width: 1100px; margin: 0 auto; display: grid; gap: 1.5rem 2rem; grid-template-columns: 1fr 1fr 1fr 1fr; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(251,246,234,0.12); }
-    @media (max-width: 860px) { .site-footer__grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 860px) {
+      .site-footer__grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          'site me'
+          'archive credits';
+        align-items: start;
+      }
+      .site-footer__grid > .site-footer__col--site { grid-area: site; }
+      .site-footer__grid > .site-footer__col--archive { grid-area: archive; }
+      .site-footer__grid > .site-footer__col--me { grid-area: me; }
+      .site-footer__grid > .site-footer__col--credits { grid-area: credits; }
+    }
     @media (max-width: 420px) { .site-footer__body { padding-left: 1rem; padding-right: 1rem; } .site-footer__col-link { font-size: 0.74rem; letter-spacing: 0.01em; } }
     .site-footer__col-heading { font-size: 0.72rem; font-weight: 700; color: rgba(251,246,234,0.45); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.6rem; }
     .site-footer__col-heading img { flex-shrink: 0; }
@@ -438,10 +450,22 @@ function trapFocus(element) {
     .hl-code-wrapper { background: #382F2A; border-radius: 12px; margin-bottom: 2rem; overflow: hidden; box-shadow: 0 8px 20px rgba(106, 86, 74, 0.15); }
     .hl-code-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 0.6rem 1rem; }
     .hl-code-lang { font-size: 0.75rem; font-weight: 700; color: var(--clr-sage); letter-spacing: 0.05em; text-transform: uppercase; }
+    .hl-code-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .hl-code-expand { background: transparent; border: 1px solid rgba(154, 176, 143, 0.4); color: var(--clr-cream); border-radius: 4px; font-size: 0.75rem; padding: 0.3rem 0.8rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; }
+    .hl-code-expand:hover { background: rgba(154, 176, 143, 0.2); border-color: var(--clr-sage); }
     .hl-code-copy { background: transparent; border: 1px solid rgba(154, 176, 143, 0.4); color: var(--clr-cream); border-radius: 4px; font-size: 0.75rem; padding: 0.3rem 0.8rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; }
     .hl-code-copy:hover { background: rgba(154, 176, 143, 0.2); border-color: var(--clr-sage); }
     .hl-code-pre { margin: 0; padding: 1.2rem; overflow-x: auto; }
     .hl-code-content { font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; line-height: 1.6; color: var(--clr-cream); white-space: pre; }
+    .hl-code-modal-content { max-width: min(1000px, 94vw); padding: 1.3rem; background: #2f2824; color: var(--clr-cream); }
+    .hl-code-modal-content .hl-modal-close { color: var(--clr-cream); background: rgba(255,255,255,0.08); }
+    .hl-code-modal-content .hl-modal-close:hover { background: rgba(255,255,255,0.16); color: var(--clr-cream); }
+    .hl-code-modal-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.8rem; padding-right: 2.4rem; }
+    .hl-code-modal-title { color: var(--clr-sage); margin-bottom: 0; }
+    .hl-code-modal-copy { background: transparent; border: 1px solid rgba(154, 176, 143, 0.4); color: var(--clr-cream); border-radius: 4px; font-size: 0.75rem; padding: 0.3rem 0.8rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; }
+    .hl-code-modal-copy:hover { background: rgba(154, 176, 143, 0.2); border-color: var(--clr-sage); }
+    .hl-code-modal-pre { margin: 0; border-radius: 12px; border: 1px solid rgba(154, 176, 143, 0.35); background: #221d1a; max-height: min(72vh, 920px); overflow: auto; }
+    .hl-code-modal-code { display: block; padding: 1.2rem; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; line-height: 1.6; color: var(--clr-cream); white-space: pre; }
 
     .hl-step-container { margin-bottom: 2rem; display: flex; flex-direction: column; }
     .hl-step-item { display: flex; gap: 1.2rem; position: relative; }
@@ -1576,6 +1600,7 @@ class SiteHeader extends HTMLElement {
         .site-header__nav-list { display: flex; align-items: center; gap: 2rem; margin: 0; padding: 0; list-style: none; }
         .site-header__dropdown { position: relative; }
         .site-header__dropdown-menu { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px); background: #fff; border: 1.5px solid rgba(106, 86, 74, 0.08); border-radius: 12px; padding: 0.8rem 0; min-width: 140px; box-shadow: 0 10px 25px rgba(106, 86, 74, 0.1); opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; z-index: 300; pointer-events: none; }
+        .site-header__nav-label { position: relative; color: var(--clr-cream); font-family: var(--font-main); font-size: 0.9rem; font-weight: 500; padding-bottom: 3px; }
         .site-header__dropdown-link { display: block; padding: 0.6rem 1.5rem; color: var(--clr-brown); font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: background 0.2s ease, color 0.2s ease; }
         .site-header__dropdown-link:hover { background: rgba(154, 176, 143, 0.15); color: var(--clr-sage); }
 
@@ -1588,15 +1613,27 @@ class SiteHeader extends HTMLElement {
         }
 
         @media (max-width: 860px) {
+  .site-header__inner {
+    height: 56px;
+    padding: 0 1rem;
+  }
+
   /* サイト名のテキストとバッジを非表示にする */
   .site-header__logo-text {
     display: none;
   }
 .site-header__logo-area {
-    margin-left: 0.8rem;
+  margin-left: 1.2rem;
+  }
+  .site-header__logo-icon img {
+    width: 29px;
+    height: 29px;
+  }
+  .site-header__site-name {
+    display: none;
   }
           .site-header__menu-btn { 
-            display: flex; justify-content: center; align-items: center; width: 44px; height: 44px; 
+            display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; 
             border: none; background: transparent; cursor: pointer; padding: 0; position: relative; 
             z-index: 250;
           }
@@ -1619,21 +1656,74 @@ class SiteHeader extends HTMLElement {
           }
           .site-header__nav.is-open { opacity: 1; visibility: visible; }
 
-          .site-header__nav-list { flex-direction: column; gap: 2.5rem; padding: 0; width: 100%; }
+          .site-header__nav-list { flex-direction: column; gap: 2.1rem; padding: 0; width: 100%; }
           .site-header__nav-list > li { width: 100%; text-align: center; }
+          .site-header__nav-label {
+            display: none;
+            padding: 0.5rem;
+            width: auto;
+            font-size: 1.34rem;
+            color: #6A564A;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            line-height: 1.15;
+          }
           .site-header__nav-link, .site-header__contact { 
             display: inline-block; padding: 0.5rem; width: auto; font-size: 1.4rem; color: #6A564A; font-weight: bold; background: transparent; border: none;
           }
           .site-header__nav-link::after { display: none; }
 
-          .site-header__dropdown-menu { position: static; transform: none; opacity: 1; visibility: visible; pointer-events: auto; background: transparent; box-shadow: none; border: none; padding: 1rem 0 0 0; display: none; flex-direction: column; z-index: auto; }
-          .site-header__dropdown.is-expanded .site-header__dropdown-menu { display: flex; gap: 1rem; }
-          .site-header__dropdown-link { padding: 0.5rem; color: #9AB08F; font-size: 1.1rem; }
+          .site-header__dropdown {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+          }
+          .site-header__dropdown-menu {
+            position: static;
+            transform: none;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            padding: 0.3rem 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            z-index: auto;
+            align-items: center;
+          }
+          .site-header__dropdown-link {
+            padding: 0.2rem 0.4rem;
+            color: #9AB08F;
+            font-size: 1.06rem;
+            line-height: 1.3;
+          }
+          .site-header__dropdown-link--parent {
+            color: #6A564A;
+            font-size: 1.26rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+          }
+          .site-header__dropdown-link--child {
+            padding-left: 1.1rem;
+            position: relative;
+          }
+          .site-header__dropdown-link--child::before {
+            content: '└';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: rgba(106, 86, 74, 0.42);
+            font-weight: 700;
+          }
 
           .site-header__toc-btn {
             display: none;
             justify-content: center; align-items: center;
-            width: 44px; height: 44px;
+            width: 40px; height: 40px;
             border: none; background: transparent; cursor: pointer; padding: 0;
             border-radius: 10px;
             margin-left: auto;
@@ -1647,9 +1737,9 @@ class SiteHeader extends HTMLElement {
 
           #hl-toc-drawer {
             position: fixed;
-            top: 60px; right: 0;
+            top: 54px; right: 0;
             width: min(320px, 90vw);
-            max-height: calc(100vh - 80px);
+            max-height: calc(100vh - 72px);
             overflow-y: auto;
             background: rgba(251,246,234,0.97);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -1697,15 +1787,16 @@ class SiteHeader extends HTMLElement {
           <nav class="site-header__nav" aria-label="グローバルナビゲーション">
             <ul class="site-header__nav-list">
               <li class="site-header__dropdown" tabindex="0">
-                <a href="/archive/" class="site-header__nav-link" style="cursor: pointer;">Archive ▾</a>
+                <span class="site-header__nav-label">Archive</span>
                 <div class="site-header__dropdown-menu">
-                  <a href="/archive/app/" class="site-header__dropdown-link">App</a>
-                  <a href="/archive/play/" class="site-header__dropdown-link">Play</a>
-                  <a href="/archive/note/" class="site-header__dropdown-link">Note</a>
-                  <a href="/archive/other/" class="site-header__dropdown-link">Other</a>
+                  <a href="/archive/" class="site-header__dropdown-link site-header__dropdown-link--parent">Archive</a>
+                  <a href="/archive/app/" class="site-header__dropdown-link site-header__dropdown-link--child">App</a>
+                  <a href="/archive/play/" class="site-header__dropdown-link site-header__dropdown-link--child">Play</a>
+                  <a href="/archive/note/" class="site-header__dropdown-link site-header__dropdown-link--child">Note</a>
+                  <a href="/archive/other/" class="site-header__dropdown-link site-header__dropdown-link--child">Other</a>
                 </div>
               </li>
-              <li><a href="/about/" class="site-header__nav-link">About</a></li>
+              <li><a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-header__nav-link">Links</a></li>
               <li><a href="/contact/" class="site-header__contact">Contact</a></li>
             </ul>
           </nav>
@@ -1739,10 +1830,10 @@ class SiteHeader extends HTMLElement {
                 left: max(20px, 100%);
                 margin-left: -10px; 
                 transform: scaleX(-1); 
-                bottom: -2px; 
-                width: 20px; 
+                bottom: -1px; 
+                width: 18px; 
                 max-width: none;
-                min-width: 20px;
+                min-width: 18px;
                 height: auto; 
                 z-index: 10;
                 transition: transform 0.2s ease;
@@ -1756,7 +1847,6 @@ class SiteHeader extends HTMLElement {
 
     const menuBtn = this.querySelector('.site-header__menu-btn');
     const nav = this.querySelector('.site-header__nav');
-    const dropdown = this.querySelector('.site-header__dropdown');
     const tocToggleBtn = this.querySelector('#hl-toc-toggle-btn');
 
     const initTocDrawer = () => {
@@ -1822,12 +1912,6 @@ class SiteHeader extends HTMLElement {
       document.body.style.overflow = isOpen ? 'hidden' : '';
     });
 
-    dropdown.addEventListener('click', (e) => {
-      if (window.innerWidth <= 860 && e.target.classList.contains('site-header__nav-link')) {
-        dropdown.classList.toggle('is-expanded');
-      }
-    });
-
     nav.addEventListener('click', (e) => {
       if (e.target.tagName === 'A') {
         menuBtn.classList.remove('is-open');
@@ -1887,7 +1971,7 @@ class SiteFooter extends HTMLElement {
           </div>
 
           <div class="site-footer__grid">
-            <div>
+            <div class="site-footer__col--site">
               <p class="site-footer__col-heading" style="display:flex;align-items:center;gap:0.45rem;">
                 <img src="https://5gkyu.github.io/icon/hl-char/Akari.png" alt="Akari" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(227,106,140,0.4);">
                 Site
@@ -1895,9 +1979,8 @@ class SiteFooter extends HTMLElement {
               <a href="/policy/" class="site-footer__col-link">Policy - サイトポリシー</a>
               <a href="/" class="site-footer__col-link">Entrance - トップページ</a>
               <a href="/contact/" class="site-footer__col-link">Contact - お問い合わせ</a>
-              <a href="/concept/" class="site-footer__col-link">Concept - コンセプト</a>
             </div>
-            <div>
+            <div class="site-footer__col--archive">
               <p class="site-footer__col-heading" style="display:flex;align-items:center;gap:0.45rem;">
                 <img src="https://5gkyu.github.io/icon/hl-char/Dulcie.png" alt="Dulcie" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(244,149,106,0.4);">
                 Archive
@@ -1908,17 +1991,16 @@ class SiteFooter extends HTMLElement {
               <a href="/archive/note/" class="site-footer__col-link">Note - メモ・記事</a>
               <a href="/archive/other/" class="site-footer__col-link">Other - その他</a>
             </div>
-            <div>
+            <div class="site-footer__col--me">
               <p class="site-footer__col-heading" style="display:flex;align-items:center;gap:0.45rem;">
                 <img src="https://5gkyu.github.io/icon/hl-char/Esme.png" alt="Esme" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(243,196,111,0.4);">
                 Me
               </p>
-              <a href="/about/" class="site-footer__col-link">About - 自己紹介</a>
+              <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Links - KyuLink</a>
               <a href="https://x.com/5gkyu" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">X</a>
               <a href="https://steamcommunity.com/id/QueenKyu/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Steam</a>
-              <a href="https://5gkyu.github.io/KyuLink/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">その他全サービス</a>
             </div>
-            <div>
+            <div class="site-footer__col--credits">
               <p class="site-footer__col-heading" style="display:flex;align-items:center;gap:0.45rem;">
                 <img src="https://5gkyu.github.io/icon/hl-char/Fuka.png" alt="Fuka" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(169,196,125,0.4);">
                 Credits
@@ -1952,27 +2034,23 @@ class SiteFooter extends HTMLElement {
       chara.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handleAction(e); });
     }
 
-    /* ─── soar ボタンの生成とスタイル (縦並び・文字が下) ─── */
+    /* ─── 上に戻るボタン ─── */
     if (!document.getElementById('hl-scroll-to-top')) {
       document.head.insertAdjacentHTML('beforeend', `<style>
         .hl-scroll-to-top {
           position: fixed; bottom: -100px; right: 16px;
-          width: 52px; height: auto; padding: 0.7rem 0;
+          width: 46px; height: 46px; padding: 0;
           background: rgba(251, 246, 234, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
           border: 1.5px solid var(--clr-sage); border-radius: 50px;
           z-index: 199; cursor: pointer;
           transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.2s ease, opacity 0.3s ease, border-color 0.2s ease;
           box-shadow: 0 4px 12px rgba(106, 86, 74, 0.08);
-          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
+          display: flex; align-items: center; justify-content: center;
         }
         @media (min-width: 861px) { .hl-scroll-to-top { right: 30px; } }
         .hl-scroll-to-top.is-visible { bottom: 20px; }
         @media (min-width: 861px) { .hl-scroll-to-top.is-visible { bottom: 30px; } }
         .hl-scroll-to-top:hover { transform: translateY(-4px); border-color: #EEAFA1; box-shadow: 0 8px 16px rgba(106, 86, 74, 0.12); }
-        .hl-scroll-to-top__text {
-          color: #EEAFA1; font-size: 0.75rem; font-weight: 700;
-          letter-spacing: 0.05em; font-family: 'Quicksand', sans-serif; line-height: 1; user-select: none;
-        }
         .hl-scroll-to-top__balloon {
           width: 28px; height: auto;
           animation: hl-balloon-float 3.5s ease-in-out infinite;
@@ -1994,7 +2072,6 @@ class SiteFooter extends HTMLElement {
       soarBtn.id = 'hl-scroll-to-top';
       soarBtn.className = 'hl-scroll-to-top';
       soarBtn.title = 'とぶ'; 
-      // ★ 画像を上に、文字を下に
       soarBtn.innerHTML = `
         <svg class="hl-scroll-to-top__balloon" viewBox="0 0 36 54" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <ellipse cx="18" cy="20" rx="14" ry="17" fill="#EEAFA1"/>
@@ -2002,7 +2079,6 @@ class SiteFooter extends HTMLElement {
           <path d="M15 37 Q18 41 21 37" stroke="#d8897a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
           <path d="M18 41 C16 45 20 49 18 53" stroke="#9AB08F" stroke-width="1" fill="none" stroke-linecap="round"/>
         </svg>
-        <span class="hl-scroll-to-top__text">soar</span>
       `;
       document.body.appendChild(soarBtn);
       
@@ -2088,7 +2164,7 @@ class HlProfile extends HTMLElement {
               </div>
             </div>
           </div>
-          <div class="hl-profile__bio">妄想癖LV99。字と絵とコードがちょっとずつかける。<br>ゲームはQueenKyu、ゲーム以外は5Gkyuで活動しています。</div>
+          <div class="hl-profile__bio">字と絵とコードがちょっとずつかける。ゲームはQueenKyu、それ以外は大体5Gkyuで活動しています。</div>
         </div>
       </div>
     `;
@@ -2756,16 +2832,66 @@ class HlCode extends HTMLElement {
     this.dataset.rendered = 'true';
     const lang = this.getAttribute('lang') || 'code';
     const codeText = this.innerHTML.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    this.innerHTML = `<div class="hl-code-wrapper"><div class="hl-code-header"><span class="hl-code-lang">${lang}</span><button class="hl-code-copy">Copy</button></div><pre class="hl-code-pre"><code class="hl-code-content">${codeText}</code></pre></div>`;
+    const dialogTitle = `${lang} code`;
+    this.innerHTML = `<div class="hl-code-wrapper"><div class="hl-code-header"><span class="hl-code-lang">${lang}</span><div class="hl-code-actions"><button class="hl-code-expand" aria-label="コードを拡大表示">Expand</button><button class="hl-code-copy">Copy</button></div></div><pre class="hl-code-pre"><code class="hl-code-content">${codeText}</code></pre></div>`;
     const copyBtn = this.querySelector('.hl-code-copy');
-    copyBtn.addEventListener('click', () => {
+    const expandBtn = this.querySelector('.hl-code-expand');
+    const overlay = document.createElement('div');
+    overlay.className = 'hl-modal-overlay hl-code-modal-overlay';
+    const modalId = `hl-code-modal-title-${Math.random().toString(36).slice(2, 10)}`;
+    overlay.innerHTML = `<div class="hl-modal-content hl-code-modal-content" role="dialog" aria-modal="true" aria-labelledby="${modalId}"><button class="hl-modal-close" aria-label="閉じる">✕</button><div class="hl-code-modal-toolbar"><h3 class="hl-modal-title hl-code-modal-title" id="${modalId}">${dialogTitle}</h3><button class="hl-code-modal-copy" aria-label="モーダル内コードをコピー">Copy</button></div><pre class="hl-code-modal-pre"><code class="hl-code-modal-code">${codeText}</code></pre></div>`;
+    document.body.appendChild(overlay);
+
+    const closeBtn = overlay.querySelector('.hl-modal-close');
+    const modalCopyBtn = overlay.querySelector('.hl-code-modal-copy');
+    const closeModal = () => {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+      if (this._previousFocus && typeof this._previousFocus.focus === 'function') this._previousFocus.focus();
+    };
+
+    const copyCurrentCode = (btn) => {
       const textToCopy = this.querySelector('.hl-code-content').textContent;
       navigator.clipboard.writeText(textToCopy).then(() => {
         if (window.HlToast) HlToast.show('コードをコピーしました！');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
       });
+    };
+
+    expandBtn.addEventListener('click', () => {
+      this._previousFocus = document.activeElement;
+      overlay.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      trapFocus(overlay.querySelector('.hl-code-modal-content'));
+      closeBtn.focus();
     });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    this._onCodeModalKeydown = (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+    };
+    document.addEventListener('keydown', this._onCodeModalKeydown);
+
+    this._codeModalOverlay = overlay;
+
+    copyBtn.addEventListener('click', () => copyCurrentCode(copyBtn));
+    modalCopyBtn.addEventListener('click', () => copyCurrentCode(modalCopyBtn));
+  }
+
+  disconnectedCallback() {
+    if (this._onCodeModalKeydown) {
+      document.removeEventListener('keydown', this._onCodeModalKeydown);
+      this._onCodeModalKeydown = null;
+    }
+    if (this._codeModalOverlay) {
+      this._codeModalOverlay.remove();
+      this._codeModalOverlay = null;
+    }
   }
 }
 customElements.define('hl-code', HlCode);
