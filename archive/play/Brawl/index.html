@@ -118,7 +118,7 @@
       .table-char-image { width: 52px; height: 52px; object-fit: contain; display: block; }
 
       .gear-icon-wrap {
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center; justify-content: flex-start;
         gap: 0; flex-wrap: nowrap; margin: 0; padding: 0; line-height: 0;
       }
       .table-icon-wrap {
@@ -154,6 +154,23 @@
       .strength-wrap.strength-table { gap: 2px; }
       .strength-wrap.strength-table .strength-meter { gap: 2px; }
       .strength-wrap.strength-table .strength-bar { width: 8px; height: 9px; }
+
+      .strength-legend-list {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 6px;
+      }
+      .strength-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--clr-brown);
+        font-size: 0.9rem;
+        font-family: var(--font-main);
+      }
+      .strength-legend-item .strength-wrap { flex-shrink: 0; }
 
       .modal-strength-wrap { display: inline-flex; align-items: center; gap: 6px; }
       .modal-strength-meter { display: inline-flex; gap: 4px; }
@@ -438,17 +455,20 @@
         </hl-accordion>
 
         <hl-accordion title="評価基準" style="margin-bottom: 16px;">
-          <p><strong>強さ</strong></p>
-          <ul>
-            <li>★★★★★ ぶっ壊れキャラ</li>
-            <li>★★★★☆ 環境キャラ</li>
-            <li>★★★☆☆ 現役キャラ</li>
-            <li>★★☆☆☆ 使う場面が少ないキャラ</li>
-            <li>★☆☆☆☆ 環境に関与しないキャラ</li>
+          <p>主に3対3(ガチバトル)を想定。</p>
+          <p><hl-chip color="blue">強さ</hl-chip></p>
+          <ul class="strength-legend-list">
+            <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-5"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span></span></span><span>ぶっ壊れキャラ</span></li>
+            <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-4"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span></span></span><span>環境キャラ</span></li>
+            <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-3"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>現役キャラ</span></li>
+            <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-2"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>使う場面が少ないキャラ</span></li>
+            <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-1"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>環境に関与しないキャラ</span></li>
           </ul>
-          <p>育てるキャラを迷った場合、<strong>★★★☆☆以上が推奨</strong>。</p>
-          <p><strong>スタパとガジェット</strong></p>
-          <p>おすすめビルドは「コインをケチるならこれだけは買え」という意味合いです。</p>
+          <p>育てるキャラを迷った場合、<span class="strength-wrap strength-table strength-level-3"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span>以上が推奨。</p>
+          <p><hl-chip>スタパとガジェット</hl-chip></p>
+          <p>おすすめビルドは「コインをケチるならこっちを買え」という意味合いです。</p>
+          <p><hl-chip>ギア</hl-chip></p>
+          <p>左から順におすすめ。</p>
         </hl-accordion>
 
         <p id="lastUpdated" class="hl-content-text" style="margin-bottom: 4px">最終更新: -</p>
@@ -457,7 +477,7 @@
         <div class="brawl-filter-row">
           <input id="searchInput" type="text" placeholder="キャラ名で検索..." autocomplete="off" />
           <button id="rarityFilterBtn" type="button" aria-label="レアリティ絞り込み">レアリティ: すべて</button>
-          <button id="sortToggleBtn" type="button" aria-label="並び替え">並び替え: デフォルト</button>
+          <button id="sortToggleBtn" type="button" aria-label="並び替え">並び替え: レア度順</button>
         </div>
 
         <div id="tableView" class="view-panel"></div>
@@ -504,7 +524,7 @@
           <label class="filter-sheet-label">レアリティ</label>
           <button id="fabRarityFilterBtn" class="filter-sheet-input" style="text-align:left; cursor:pointer;" type="button">レアリティ: すべて</button>
           <label class="filter-sheet-label">並び替え</label>
-          <button id="fabSortToggleBtn" class="filter-sheet-input" style="text-align:left; cursor:pointer;" type="button">並び替え: デフォルト</button>
+          <button id="fabSortToggleBtn" class="filter-sheet-input" style="text-align:left; cursor:pointer;" type="button">並び替え: レア度順</button>
         </div>
       </div>
     </div>

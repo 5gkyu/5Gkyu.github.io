@@ -27,7 +27,7 @@ const fabRarityFilterBtn = document.getElementById("fabRarityFilterBtn");
 const fabSortToggleBtn = document.getElementById("fabSortToggleBtn");
 
 const SORT_MODES = [
-  { value: "", label: "並び替え: デフォルト" },
+  { value: "", label: "並び替え: レア度順" },
   { value: "strength-desc", label: "並び替え: 強さ順" },
 ];
 let currentSortIndex = 0;
@@ -310,15 +310,15 @@ function renderTableView(characters) {
 
       const imageCell = character.image
         ? `<div class="table-image-wrap" data-index="${index}"${imageBgStyle}><img src="${escapeHtml(imagePath)}" alt="${escapeHtml(character.name)}" class="table-char-image" loading="lazy" /><span class="table-char-name">${escapeHtml(character.name)}</span></div>`
-        : `<div class="table-image-wrap" data-index="${index}"><span>なし</span></div>`;
+        : `<div class="table-image-wrap" data-index="${index}"><span>-</span></div>`;
 
       const starCell = starPath
         ? `<div class="table-icon-wrap"><img src="${escapeHtml(starPath)}" alt="スターパワー${character.sutapa}" class="table-sg-icon" loading="lazy" /></div>`
-        : `${character.sutapa}`;
+        : "-";
 
       const gadgetCell = gadgetPath
         ? `<div class="table-icon-wrap"><img src="${escapeHtml(gadgetPath)}" alt="ガジェット${character.gaje}" class="table-sg-icon" loading="lazy" /></div>`
-        : `${character.gaje}`;
+        : "-";
 
       return `
         <tr class="${character.tuyosa >= 4 ? "is-high-strength" : ""}">
@@ -327,7 +327,7 @@ function renderTableView(characters) {
           <td class="cell-difficulty">${createDifficultyHtml(character.difficulty)}</td>
           <td class="cell-icon">${starCell}</td>
           <td class="cell-icon">${gadgetCell}</td>
-          <td class="cell-gears">${gearIcons || "なし"}</td>
+          <td class="cell-gears">${gearIcons || "-"}</td>
         </tr>
       `;
     })
@@ -378,12 +378,12 @@ function openModal(character) {
 
   const starHtml = starPath
     ? `<img src="${escapeHtml(starPath)}" alt="スターパワー${character.sutapa}" class="icon icon-sg" loading="lazy" />`
-    : `${character.sutapa}`;
+    : '<span class="meta-dim">-</span>';
 
   const gadgetHtml = gadgetPath
     ? `<img src="${escapeHtml(gadgetPath)}" alt="ガジェット${character.gaje}" class="icon icon-sg" loading="lazy" />`
-    : `${character.gaje}`;
-  const gearsInlineHtml = createGearIconsHtml(character.gears, false) || "";
+    : '<span class="meta-dim">-</span>';
+  const gearsInlineHtml = createGearIconsHtml(character.gears, false) || '<span class="meta-dim">-</span>';
   const modeIconsHtml = createModeIconsHtml(character.modes);
 
   const comHtml = character.com
@@ -436,7 +436,17 @@ function openModal(character) {
 }
 
 function createStrengthHtml(value, variant = "table") {
-  const safeValue = Math.max(1, Math.min(5, Number(value) || 1));
+  const rawValue = value;
+  if (
+    rawValue === null ||
+    rawValue === undefined ||
+    String(rawValue).trim() === "" ||
+    !Number.isFinite(Number(rawValue))
+  ) {
+    return '<span class="meta-dim">未実装</span>';
+  }
+
+  const safeValue = Math.max(1, Math.min(5, Number(rawValue) || 1));
 
   if (variant === "modal") {
     const dots = Array.from({ length: 5 }, (_, index) => {
@@ -563,15 +573,21 @@ function normalizeCharacter(row, indexMap) {
   const rare = getCell(row, indexMap, "rare");
   const rareColor = normalizeHexColor(rare);
 
-  let tuyosa = Number(getFirstAvailableCell(row, indexMap, ["tuyosa", "tuyosaLegacy"]));
-  if (!Number.isFinite(tuyosa)) tuyosa = 1;
-  tuyosa = Math.max(1, Math.min(5, Math.round(tuyosa)));
+  const tuyosaRaw = getFirstAvailableCell(row, indexMap, ["tuyosa", "tuyosaLegacy"]);
+  let tuyosa = Number(tuyosaRaw);
+  if (!tuyosaRaw || !Number.isFinite(tuyosa)) {
+    tuyosa = null;
+  } else {
+    tuyosa = Math.max(1, Math.min(5, Math.round(tuyosa)));
+  }
 
-  let sutapa = Number(getFirstAvailableCell(row, indexMap, ["sutapa", "sutapaLegacy"]));
-  if (sutapa !== 1 && sutapa !== 2) sutapa = 1;
+  const sutapaRaw = getFirstAvailableCell(row, indexMap, ["sutapa", "sutapaLegacy"]);
+  const sutapaNum = Number(sutapaRaw);
+  const sutapa = sutapaRaw && (sutapaNum === 1 || sutapaNum === 2) ? sutapaNum : null;
 
-  let gaje = Number(getFirstAvailableCell(row, indexMap, ["gaje", "gajeLegacy"]));
-  if (gaje !== 1 && gaje !== 2) gaje = 1;
+  const gajeRaw = getFirstAvailableCell(row, indexMap, ["gaje", "gajeLegacy"]);
+  const gajeNum = Number(gajeRaw);
+  const gaje = gajeRaw && (gajeNum === 1 || gajeNum === 2) ? gajeNum : null;
 
   const gears = ["g1", "g2", "g3", "g4"]
     .map((key) => getCell(row, indexMap, key))
