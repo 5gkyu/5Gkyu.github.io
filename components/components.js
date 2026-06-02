@@ -69,6 +69,26 @@ function trapFocus(element) {
   const preconnect2 = document.createElement('link'); preconnect2.rel = 'preconnect'; preconnect2.href = 'https://fonts.gstatic.com'; preconnect2.crossOrigin = 'anonymous'; document.head.appendChild(preconnect2);
   const fontLink = document.createElement('link'); fontLink.rel = 'stylesheet'; fontLink.href = 'https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Zen+Maru+Gothic:wght@300;400;500;700&display=swap'; document.head.appendChild(fontLink);
 
+// ▼▼▼ ここから追加：Google Analytics (GA4) の注入 ▼▼▼
+  if (!document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
+    // 外部スクリプトの読み込み
+    const gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-35DCQ7MMMR';
+    document.head.appendChild(gaScript);
+
+    // 設定用スクリプトの追加
+    const inlineScript = document.createElement('script');
+    inlineScript.textContent = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-35DCQ7MMMR');
+    `;
+    document.head.appendChild(inlineScript);
+  }
+  // ▲▲▲ ここまで追加 ▲▲▲
+
   const style = document.createElement('style');
   style.id = 'halcyon-shared-style';
   style.textContent = `
