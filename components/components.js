@@ -1605,8 +1605,44 @@ class SiteHeader extends HTMLElement {
         .site-header__dropdown-link:hover { background: rgba(154, 176, 143, 0.15); color: var(--clr-sage); }
 
         @media (min-width: 861px) {
-          .site-header__dropdown:hover .site-header__dropdown-menu,
-          .site-header__dropdown:focus-within .site-header__dropdown-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+          /* PCではArchiveモーダルを解除し横並びのリンクとして表示 */
+          .site-header__dropdown { position: static; }
+          .site-header__nav-label { display: none; }
+          .site-header__dropdown-menu {
+            position: static;
+            transform: none;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            min-width: 0;
+          }
+          .site-header__dropdown-link {
+            padding: 0;
+            position: relative;
+            color: var(--clr-cream);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.25s ease;
+            padding-bottom: 3px;
+          }
+          .site-header__dropdown-link:hover {
+            background: transparent;
+            color: var(--clr-peach);
+          }
+          .site-header__dropdown-link::after {
+            content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 0; height: 1.5px; background: var(--clr-peach); border-radius: 2px; transition: width 0.3s ease;
+          }
+          .site-header__dropdown-link:hover::after { width: 100%; }
+          .site-header__dropdown-link--child::before { content: none; }
+
           .site-header__menu-btn { display: none; }
           .site-header__toc-btn { display: none; }
           #hl-toc-drawer { display: none !important; }
@@ -1630,7 +1666,13 @@ class SiteHeader extends HTMLElement {
     height: 29px;
   }
   .site-header__site-name {
-    display: none;
+    display: inline-flex;
+    margin-left: 0.42rem;
+    padding: 0.14rem 0.46rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    border-color: rgba(251,246,234,0.36);
+    opacity: 0.78;
   }
           .site-header__menu-btn { 
             display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; 
@@ -1786,6 +1828,7 @@ class SiteHeader extends HTMLElement {
           
           <nav class="site-header__nav" aria-label="グローバルナビゲーション">
             <ul class="site-header__nav-list">
+              <!--
               <li class="site-header__dropdown" tabindex="0">
                 <span class="site-header__nav-label">Archive</span>
                 <div class="site-header__dropdown-menu">
@@ -1796,6 +1839,12 @@ class SiteHeader extends HTMLElement {
                   <a href="/archive/other/" class="site-header__dropdown-link site-header__dropdown-link--child">Other</a>
                 </div>
               </li>
+              -->
+              <li><a href="/archive/" class="site-header__nav-link">Archive</a></li>
+              <li><a href="/archive/app/" class="site-header__nav-link">App</a></li>
+              <li><a href="/archive/play/" class="site-header__nav-link">Play</a></li>
+              <li><a href="/archive/note/" class="site-header__nav-link">Note</a></li>
+              <li><a href="/archive/other/" class="site-header__nav-link">Other</a></li>
               <li><a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-header__nav-link">Links</a></li>
               <li><a href="/contact/" class="site-header__contact">Contact</a></li>
             </ul>
@@ -1976,8 +2025,8 @@ class SiteFooter extends HTMLElement {
                 <img src="https://5gkyu.github.io/icon/hl-char/Akari.png" alt="Akari" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(227,106,140,0.4);">
                 Site
               </p>
-              <a href="/policy/" class="site-footer__col-link">Policy - サイトポリシー</a>
               <a href="/" class="site-footer__col-link">Entrance - トップページ</a>
+              <a href="/policy/" class="site-footer__col-link">Policy - サイトポリシー</a>
               <a href="/contact/" class="site-footer__col-link">Contact - お問い合わせ</a>
             </div>
             <div class="site-footer__col--archive">
@@ -1996,7 +2045,7 @@ class SiteFooter extends HTMLElement {
                 <img src="https://5gkyu.github.io/icon/hl-char/Esme.png" alt="Esme" draggable="false" oncontextmenu="return false;" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(243,196,111,0.4);">
                 Me
               </p>
-              <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Links - KyuLink</a>
+              <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">KyuLink</a>
               <a href="https://x.com/5gkyu" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">X</a>
               <a href="https://steamcommunity.com/id/QueenKyu/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Steam</a>
             </div>
@@ -2015,8 +2064,6 @@ class SiteFooter extends HTMLElement {
                 Services &amp; Libraries
               </p>
               <a href="https://phosphoricons.com/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Phosphor Icons</a>
-              <a href="https://fonts.google.com/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">Google Fonts</a>
-              <a href="https://pages.github.com/" class="site-footer__col-link" target="_blank" rel="noopener noreferrer">GitHub Pages</a>
             </div>
           </div>
           <div class="site-footer__bottom" style="margin-top: 1rem;">
@@ -2929,7 +2976,9 @@ class HlBreadcrumb extends HTMLElement {
     const level1Url = this.getAttribute('level1-url');
     const level2Name = this.getAttribute('level2-name');
     const level2Url = this.getAttribute('level2-url');
-    
+    const level3Name = this.getAttribute('level3-name');
+    const level3Url = this.getAttribute('level3-url');
+
     let pathHtml = '<li><a href="/">Home</a></li>';
     if (level1Name && level1Url) {
       pathHtml += `<li><a href="${level1Url}">${level1Name}</a></li>`;
@@ -2937,8 +2986,10 @@ class HlBreadcrumb extends HTMLElement {
     if (level2Name && level2Url) {
       pathHtml += `<li><a href="${level2Url}">${level2Name}</a></li>`;
     }
+    if (level3Name && level3Url) {
+      pathHtml += `<li><a href="${level3Url}">${level3Name}</a></li>`;
+    }
     pathHtml += `<li><span aria-current="page">${current}</span></li>`;
-
     this.innerHTML = `
       <style>
         .hl-breadcrumb-nav { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--clr-sage); margin-bottom: 2rem; list-style: none; padding: 0; }

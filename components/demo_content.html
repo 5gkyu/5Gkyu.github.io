@@ -49,13 +49,18 @@
 
     <div class="hl-layout-main">
 
-      <hl-breadcrumb current="コンテンツ"></hl-breadcrumb>
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Other" level2-url="/archive/other/"
+        level3-name="Component Gallery" level3-url="/archive/other/halcyon_ui_design/"
+        current="コンテンツ">
+      </hl-breadcrumb>
       <page-title>コンテンツ</page-title>
 
       <div class="hl-content-text" style="margin-bottom: 2rem;">
         <p>記事・ブログ・シナリオなど<strong>コンテンツを表示するためのコンポーネント</strong>をまとめたページです。</p>
         <p style="margin-top:0.5em;">
-          コンポーネント一覧は <a href="/archive/app/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
+          コンポーネント一覧は <a href="/archive/other/halcyon_ui_design/" class="hl-link">Gallery インデックス</a> をご覧ください。
         </p>
       </div>
 
@@ -516,7 +521,7 @@ function helloHalcyon() {
       <hl-profile></hl-profile>
       <hl-sidebar-box title="ギャラリー">
         <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
-          <li><a href="/archive/app/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+          <li><a href="/archive/other/halcyon_ui_design/" class="hl-link">インデックス</a></li>
           <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
           <li><a href="./demo_ui.html" class="hl-link">UI コンポーネント</a></li>
           <li style="font-weight:700;color:var(--clr-brown);">コンテンツ（現在）</li>
