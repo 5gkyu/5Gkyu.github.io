@@ -418,7 +418,7 @@ function trapFocus(element) {
 
     .hl-tabs-nav { display: flex; gap: 1rem; border-bottom: 2px solid rgba(106, 86, 74, 0.1); margin-bottom: 1.5rem; overflow-x: auto; scrollbar-width: none; }
     .hl-tabs-nav::-webkit-scrollbar { display: none; }
-    .hl-tabs-btn { background: transparent; border: none; padding: 0.8rem 0.5rem; font-family: var(--font-main); font-size: 0.95rem; font-weight: 700; color: var(--clr-brown); opacity: 0.5; cursor: pointer; position: relative; white-space: nowrap; transition: opacity 0.3s ease; }
+    .hl-tabs-btn { background: transparent; border: none; padding: 0.8rem 0.5rem; font-family: var(--font-main); font-size: 0.95rem; font-weight: 700; color: var(--clr-brown); opacity: 0.5; cursor: pointer; position: relative; white-space: nowrap; transition: opacity 0.3s ease; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
     .hl-tabs-btn:hover { opacity: 0.8; }
     .hl-tabs-btn.is-active { opacity: 1; color: var(--clr-peach); }
     .hl-tabs-btn::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--clr-peach); transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -2307,6 +2307,58 @@ class HlAppSheet extends HTMLElement {
 }
 customElements.define('hl-app-sheet', HlAppSheet);
 
+class HlSidebarBox extends HTMLElement {
+  connectedCallback() {
+    if (this.dataset.rendered) return;
+    this.dataset.rendered = 'true';
+    const title = this.getAttribute('title');
+    const icon = this.getAttribute('icon');
+    let iconHtml = '';
+    if (icon) {
+      if (icon.match(/^[a-zA-Z0-9\-]+$/)) {
+        iconHtml = `<span><hl-icon name="${icon}"></hl-icon></span>`;
+      } else {
+        iconHtml = `<span>${icon}</span>`;
+      }
+    }
+    const titleHtml = title ? `<div class="hl-sidebar-title">${iconHtml}${title}</div>` : '';
+
+    this.innerHTML = `<div class="hl-sidebar-block">${titleHtml}${this.innerHTML}</div>`;
+  }
+}
+customElements.define('hl-sidebar-box', HlSidebarBox);
+
+const HL_ICONS = {
+  gear: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40q-2.16-.06-4.32,0L107.2,25.08a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.48a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84q-.06,2.16,0,4.32L25.08,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.9,123.66Z"/></svg>`,
+  lightbulb: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M172,120a8,8,0,0,1-8,8H92a8,8,0,0,1,0-16h72A8,8,0,0,1,172,120Zm-24,32H108a8,8,0,0,0,0,16h40a8,8,0,0,0,0-16ZM232,80a15.82,15.82,0,0,1-12.35,15.6l-20.35,4.52a64.08,64.08,0,0,0,8.7,31.88,8,8,0,1,1-13.86,8,80.12,80.12,0,0,1-10.87-39.86v-1.11A16.09,16.09,0,0,1,167.14,83.3a8,8,0,0,0-14.28-7.38,32,32,0,1,0-54.89-.92,8,8,0,0,0-13.86,8,15.93,15.93,0,0,1-16.14,16.14V100.3a80,80,0,0,1,3.48,157.6,8,8,0,0,1-2.31-15.83,64,64,0,0,0,8.83-30.07l-20.35-4.52A16,16,0,0,1,40,192a8,8,0,0,1,0-16,31.81,31.81,0,0,0,26.54-14.29,8,8,0,1,1,13.29,8.91A47.88,47.88,0,0,1,40,192l20.35,4.52A16,16,0,0,1,72.71,212.1a64,64,0,0,0,111.45,0,16,16,0,0,1,12.36-15.58L216.87,192a47.88,47.88,0,0,1-39.81-22.38,8,8,0,1,1,13.29-8.91A31.81,31.81,0,0,0,216,176a8,8,0,0,1,0,16,16,16,0,0,1-12.36,15.58L183.29,212.1a80,80,0,0,1-111.45,0L51.49,207.58A15.82,15.82,0,0,1,39.14,192a47.88,47.88,0,0,1,39.81-22.38,8,8,0,1,1-13.29,8.91A31.81,31.81,0,0,0,40,192a8,8,0,0,1,0-16,15.93,15.93,0,0,1,16.14-16.14V100.3a64,64,0,0,1-2.78-126,8,8,0,1,1,2.78,15.75,48,48,0,0,0,82.34,1.42,8,8,0,0,1,14.28,7.38,16.09,16.09,0,0,0,16.13,15.76v1.11a64.08,64.08,0,0,1-8.7,31.88,8,8,0,1,1,13.86-8A80.12,80.12,0,0,0,183.29,83.3v-1.11a16.09,16.09,0,0,1-16.13-15.76,8,8,0,0,1,14.28-7.38,48,48,0,0,0,82.34-1.42,8,8,0,1,1,2.78-15.75A64,64,0,0,1,183.29,212.1l20.35,4.52A15.82,15.82,0,0,1,216,232a8,8,0,0,1,0-16,31.81,31.81,0,0,0-26.54-14.29,8,8,0,1,1-13.29,8.91A47.88,47.88,0,0,1,216,232Zm-48-56H88a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z"/></svg>`,
+  trash: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>`,
+  image: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM48,48H208V172.69l-34.34-34.35a16,16,0,0,0-22.63,0l-20.68,20.69L98.34,127a16,16,0,0,0-22.63,0L48,154.63ZM208,208H48V177.25l39-39,34.34,34.34a8,8,0,0,0,11.32,0L153.37,151.9l43.32,43.32ZM144,96a16,16,0,1,1-16-16A16,16,0,0,1,144,96Z"/></svg>`,
+  ruler: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,100.69l-72-72a16,16,0,0,0-22.62,0l-104,104a16,16,0,0,0,0,22.62l72,72a16,16,0,0,0,22.62,0l104-104A16,16,0,0,0,227.31,100.69ZM104,216,40,152,72,120l12,12a8,8,0,0,0,11.32-11.32l-12-12L104,88l12,12a8,8,0,0,0,11.32-11.32l-12-12,20.69-20.68L216,136Z"/></svg>`,
+  layout: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM120,48V120H48V48Zm-72,88h72v72H48Zm88,72V136h72v72Zm72-88H136V48h72Z"/></svg>`,
+  'floppy-disk': `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM96,48h64V72H96ZM208,208H48V48H80V80a8,8,0,0,0,8,8h80a8,8,0,0,0,8-8V48h32V208Zm-40-72v56H88V136a8,8,0,0,1,8-8h64A8,8,0,0,1,168,136Zm-16,8H104v40h48Z"/></svg>`,
+  search: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>`,
+  palette: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM84,108a12,12,0,1,1-12-12A12,12,0,0,1,84,108Zm44-36a12,12,0,1,1-12-12A12,12,0,0,1,128,72Zm44,36a12,12,0,1,1-12-12A12,12,0,0,1,172,108Zm24,72a24,24,0,0,1-24,24h-8.2c-5.74,0-12,2-16.73,6.72a39.9,39.9,0,0,0-11.5,23l-.11.66A88,88,0,1,1,216,128,48,48,0,0,1,196,180Z"/></svg>`,
+  pdf: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216ZM156,120H100a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0v-8h48a24,24,0,0,0,0-48Zm0,32H108v-16h48a8,8,0,0,1,0,16Z"/></svg>`,
+  check: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>`,
+  file: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>`
+};
+
+class HlIcon extends HTMLElement {
+  connectedCallback() {
+    if (this.dataset.rendered) return;
+    this.dataset.rendered = 'true';
+    const name = this.getAttribute('name');
+    if (name && HL_ICONS[name]) {
+      this.innerHTML = HL_ICONS[name];
+    }
+    this.style.display = 'inline-flex';
+    this.style.alignItems = 'center';
+    this.style.justifyContent = 'center';
+    this.style.verticalAlign = 'middle';
+  }
+}
+customElements.define('hl-icon', HlIcon);
+
 // class HlCategories extends HTMLElement {
 //   connectedCallback() {
 //     if (this.dataset.rendered) return;
@@ -2322,18 +2374,6 @@ customElements.define('hl-app-sheet', HlAppSheet);
 // }
 // customElements.define('hl-categories', HlCategories);
 
-class HlSidebarBox extends HTMLElement {
-  connectedCallback() {
-    if (this.dataset.rendered) return;
-    this.dataset.rendered = 'true';
-    const title = this.getAttribute('title');
-    const _defaultIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" style="vertical-align:-0.1em"><path d="M243.31,90.91l-80-80A16.09,16.09,0,0,0,152,6H40A16,16,0,0,0,24,22V134a16.09,16.09,0,0,0,4.69,11.31l80,80a16,16,0,0,0,22.62,0l112-112a16,16,0,0,0,0-22.4ZM96,120A24,24,0,1,1,120,96,24,24,0,0,1,96,120Z"/></svg>';
-    const icon = this.getAttribute('icon') || _defaultIcon;
-    const titleHtml = title ? `<div class="hl-sidebar-title"><span>${icon}</span>${title}</div>` : '';
-    this.innerHTML = `<div class="hl-sidebar-block">${titleHtml}${this.innerHTML}</div>`;
-  }
-}
-customElements.define('hl-sidebar-box', HlSidebarBox);
 
 class HlToc extends HTMLElement {
   connectedCallback() {
@@ -2799,7 +2839,7 @@ class HlTabs extends HTMLElement {
         panel.setAttribute('role', 'tabpanel');
         panel.setAttribute('aria-labelledby', tabId);
         
-        return `<button class="hl-tabs-btn ${index === 0 ? 'is-active' : ''}" id="${tabId}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-controls="${panelId}" data-index="${index}">${label}</button>`;
+        return `<button class="hl-tabs-btn ${index === 0 ? 'is-active' : ''}" id="${tabId}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-controls="${panelId}" data-index="${index}" draggable="false" type="button">${label}</button>`;
       }).join('');
       
       const navContainer = document.createElement('div');
@@ -2813,15 +2853,20 @@ class HlTabs extends HTMLElement {
       
       btns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const index = parseInt(e.target.getAttribute('data-index'), 10);
+          // e.target が内部テキストノード等になるケースに備えてボタン自体を確実に取得
+          const btnEl = e.currentTarget;
+          const index = parseInt(btnEl.getAttribute('data-index'), 10);
+          if (isNaN(index)) return;
+          e.preventDefault();
+          e.stopPropagation();
           btns.forEach(b => { 
             b.classList.remove('is-active'); 
             b.setAttribute('aria-selected', 'false');
           });
           panels.forEach(p => p.classList.remove('is-active'));
           
-          e.target.classList.add('is-active');
-          e.target.setAttribute('aria-selected', 'true');
+          btnEl.classList.add('is-active');
+          btnEl.setAttribute('aria-selected', 'true');
           if(panels[index]) panels[index].classList.add('is-active');
         });
       });

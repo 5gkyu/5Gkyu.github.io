@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -84,7 +84,7 @@
               <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
                 <hl-button>Primary</hl-button>
                 <hl-button variant="secondary">Secondary</hl-button>
-                <hl-button icon="★">Icon Button</hl-button>
+                <hl-button icon="">Icon Button</hl-button>
                 <hl-button href="https://5gkyu.github.io/" target="_blank">Link Button</hl-button>
               </div>
               <div style="margin-bottom: 1.5rem;">
@@ -104,7 +104,7 @@
                 <hl-code lang="html">
 &lt;hl-button&gt;Primary&lt;/hl-button&gt;
 &lt;hl-button variant="secondary"&gt;Secondary&lt;/hl-button&gt;
-&lt;hl-button icon="★"&gt;Icon Button&lt;/hl-button&gt;
+&lt;hl-button icon=""&gt;Icon Button&lt;/hl-button&gt;
 &lt;hl-button href="https://5gkyu.github.io/" target="_blank"&gt;Link Button&lt;/hl-button&gt;
 &lt;hl-button block&gt;Block Button (全幅)&lt;/hl-button&gt;
 &lt;hl-button loading&gt;通信中&lt;/hl-button&gt;</hl-code>
@@ -494,7 +494,7 @@ HlToast.show('エラーです', 'warning');</hl-code>
   &lt;hl-chip color="blue"&gt;ブルー&lt;/hl-chip&gt;
 &lt;/div&gt;
 
-&lt;!-- removable: ✕ボタンで削除、hl-chip-remove イベント発火 --&gt;
+&lt;!-- removable: ボタンで削除、hl-chip-remove イベント発火 --&gt;
 &lt;hl-chip value="Vue" removable&gt;Vue&lt;/hl-chip&gt;
 
 &lt;!-- color: (none) | peach | blue --&gt;</hl-code>
@@ -534,22 +534,83 @@ HlToast.show('エラーです', 'warning');</hl-code>
         </hl-tabs>
       </section>
 
+
+      <!-- ══════════════════════════════
+           Mobile
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-mobile">Mobile</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          モバイルに最適化されたコンポーネントです。
+          <strong>hl-app-sheet</strong>はサイドバーなどのコンテンツをモバイルでボトムシートとして表示するコンポーネントです。
+        </p>
+
+        <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-app-sheet">
+            <div class="demo-block hl-content-text">
+              <hl-alert style="margin-bottom:1.5rem;">
+                <strong>モバイル画面幅（≦860px）でのみ動作するライブデモです</strong>。
+                このページのサイドバーコンテンツに実際に<code>hl-app-sheet</code>を適用済みです。
+                画面幅を級めるか、スマホで開くとヘッダー左に︎ボタンが現れます。
+              </hl-alert>
+              <p style="margin-bottom:1rem;">
+                コンテンツを<code>&lt;hl-app-sheet&gt;</code>で包むだけで、モバイルで自動ボトムシート化されます。
+                PC(≧861px)では<code>display: contents</code>の透明なラッパーになり、ベインのレイアウトに影響しません。
+              </p>
+              <hl-step>
+                <hl-step-item num="1" title="コンテンツを hl-app-sheet で包む">
+                  サイドバーやフィルターパネルなど、モバイルでボトムシートにしたいコンテンツを<code>hl-app-sheet</code>で包みます。
+                </hl-step-item>
+                <hl-step-item num="2" title="モバイルでギアボタンが自動生成">
+                  画面幅が860px以下になると、ヘッダー左に︎ボタンが表れます。タップするとコンテンツが画面下部からスライドインします。
+                </hl-step-item>
+                <hl-step-item num="3" title="ESC ・オーバーレイで閉じる">
+                  ESCキーまたはシート外のオーバーレイエリアをタップするとボトムシートが閉じます。
+                </hl-step-item>
+              </hl-step>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- aside のサイドバーコンテンツを hl-app-sheet で包む例 --&gt;
+&lt;aside class="hl-layout-sidebar"&gt;
+  &lt;hl-app-sheet label="サイドバー"&gt;
+    &lt;div class="sidebar-sticky"&gt;
+      &lt;hl-profile&gt;&lt;/hl-profile&gt;
+      &lt;hl-toc&gt;&lt;/hl-toc&gt;
+    &lt;/div&gt;
+  &lt;/hl-app-sheet&gt;
+&lt;/aside&gt;
+
+&lt;!-- PC(≧861px): display:contents で透明なラッパーになり、レイアウトに影響なし --&gt;
+&lt;!-- Mobile(≦860px): ヘッダーに︎ボタンが生成され、タップでボトムシートとして開く --&gt;
+&lt;!-- label 属性: ︎ボタンの aria-label（省略可） --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
     </div><!-- /hl-layout-main -->
 
     <!-- ─── 右：サイドバー ─── -->
     <aside class="hl-layout-sidebar">
-      <hl-profile></hl-profile>
-      <hl-sidebar-box title="ギャラリー">
-        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
-          <li><a href="/archive/other/halcyon_ui_design/" class="hl-link">インデックス</a></li>
-          <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
-          <li style="font-weight:700;color:var(--clr-brown);">UI コンポーネント（現在）</li>
-          <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
-          <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
-          <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
-        </ul>
-      </hl-sidebar-box>
-      <hl-toc></hl-toc>
+      <hl-app-sheet label="サイドバーを開く">
+        <div class="sidebar-sticky">
+          <hl-profile></hl-profile>
+          <hl-sidebar-box title="ギャラリー">
+            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+              <li><a href="/archive/other/halcyon_ui_design/" class="hl-link">インデックス</a></li>
+              <li><a href="./demo_foundation.html" class="hl-link">デザイン基礎</a></li>
+              <li style="font-weight:700;color:var(--clr-brown);">UI コンポーネント（現在）</li>
+              <li><a href="./demo_content.html" class="hl-link">コンテンツ</a></li>
+              <li><a href="./demo_data.html" class="hl-link">データ・フォーム</a></li>
+              <li><a href="./demo_embed.html" class="hl-link">動画埋め込み</a></li>
+            </ul>
+          </hl-sidebar-box>
+          <hl-toc></hl-toc>
+        </div>
+      </hl-app-sheet>
     </aside>
 
   </hl-layout>

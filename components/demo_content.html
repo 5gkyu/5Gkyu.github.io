@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -71,33 +71,90 @@
         <section-heading id="sec-cards">Cards</section-heading>
         <p class="hl-content-text" style="margin-bottom:1.5rem;">
           <strong>カード</strong>は、サムネイル画像・タイトル・説明文をひとまとめにしたUI部品です。
-          記事一覧・作品紹介・商品リストなど「似た情報を並べて見せる」場面に最適です。
-          <code>image</code>・<code>tag</code>・<code>href</code> 属性を省略すれば軽量版になります。
+          <code>hl-card-grid</code>でグリッドレイアウト、<code>hl-archive-search</code>でリアルタイム検索フィルタが使えます。
         </p>
 
-        <div class="grid-2col" style="margin-bottom: 1.5rem;">
-          <hl-card title="画像付きカード" tag="Article" image="https://5gkyu.github.io/icon/ogp.png" href="#">
-            サムネイル画像とカテゴリタグ付きの標準的なカードレイアウトです。
-          </hl-card>
-          <hl-card title="シンプルカード" href="#">
-            画像・タグを省略した軽量カードです。ホバーで浮き上がります。
-          </hl-card>
-        </div>
+        <hl-tabs>
 
-        <hl-accordion title="コードを見る">
-          <hl-code lang="html">
-&lt;hl-card
-  title="画像付きカード"
-  tag="Article"
-  image="https://5gkyu.github.io/icon/ogp.png"
-  href="#"&gt;
-  サムネイル画像とカテゴリタグ付きの標準的なカードレイアウトです。
-&lt;/hl-card&gt;
+          <div class="hl-tab-panel" data-label="hl-card / hl-card-grid">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;"><code>hl-card-grid</code>の<code>cols</code>属性でカラム数を指定します。スマホ(≦540px)は1カラム、タブレット(≦860px)は2カラムに自動調整されます。</p>
+              <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#EEAFA1;text-transform:uppercase;margin-bottom:0.5rem;">cols="2"</p>
+              <hl-card-grid cols="2" style="margin-top:0;">
+                <hl-card title="画像付きカード" image="https://5gkyu.github.io/icon/ogp.png" href="#">
+                  サムネイル画像付きの標準カードです。ホバーで浮き上がり、画像が拡大します。
+                </hl-card>
+                <hl-card title="シンプルカード" href="#">
+                  画像を省略した軽量版カードです。テキストのみの場合に使います。
+                </hl-card>
+              </hl-card-grid>
+              <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#EEAFA1;text-transform:uppercase;margin:1.5rem 0 0.5rem;">cols="3"（デフォルト）</p>
+              <hl-card-grid cols="3" style="margin-top:0;">
+                <hl-card title="カードA" href="#">カード説明文のサンプルテキストです。</hl-card>
+                <hl-card title="カードB" href="#">カード説明文のサンプルテキストです。</hl-card>
+                <hl-card title="カードC" href="#">カード説明文のサンプルテキストです。</hl-card>
+              </hl-card-grid>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;!-- hl-card-grid の cols 属性でカラム数を指定 --&gt;
+&lt;hl-card-grid cols="2"&gt;
+  &lt;hl-card
+    title="画像付きカード"
+    image="https://example.com/image.jpg"
+    href="#"&gt;
+    説明文テキスト
+  &lt;/hl-card&gt;
+  &lt;hl-card title="シンプルカード" href="#"&gt;
+    画像を省略した軽量カードです。
+  &lt;/hl-card&gt;
+&lt;/hl-card-grid&gt;
 
-&lt;hl-card title="シンプルカード" href="#"&gt;
-  画像・タグを省略した軽量カードです。ホバーで浮き上がります。
-&lt;/hl-card&gt;</hl-code>
-        </hl-accordion>
+&lt;!-- cols: 2 | 3 | 4（省略時はデフォルト 3） --&gt;
+&lt;!-- ≦860px → 2カラム、≦540px → 1カラムに自動調整 --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-archive-search">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                <code>target</code>属性に指定したコンテナ内の<code>hl-card</code>をタイトル・本文でリアルタイムフィルタリングします。
+                マッチするカードが0件のセクションは丸ごと非表示になります。
+              </p>
+              <hl-archive-search target="demo-search-cards" placeholder="カードを検索…"></hl-archive-search>
+              <div id="demo-search-cards">
+                <section class="hl-section">
+                  <hl-card-grid cols="3">
+                    <hl-card title="Halcyon UI" href="#">Webデザインシステム。カスタム要素・CSS・ローディングを1ファイルで提供します。</hl-card>
+                    <hl-card title="ゲームログ vol.3" href="#">最近プレイしたゲームの記録。感想・攻略メモなどをまとめています。</hl-card>
+                    <hl-card title="アバターメーカー" href="#">キャラクターアバターを生成できるWebツールです。</hl-card>
+                    <hl-card title="音楽プレイリスト" href="#">最近聴いている曲をまとめたプレイリストです。</hl-card>
+                    <hl-card title="デザイントークン解説" href="#">カラーパレット・タイポグラフィの設計思想を解説します。</hl-card>
+                    <hl-card title="ロジックパズル" href="#">毎日解けるロジックパズルのWebアプリです。</hl-card>
+                  </hl-card-grid>
+                </section>
+              </div>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;!-- target属性に検索対象コンテナの id を指定 --&gt;
+&lt;hl-archive-search target="my-cards" placeholder="検索…"&gt;&lt;/hl-archive-search&gt;
+
+&lt;div id="my-cards"&gt;
+  &lt;section class="hl-section"&gt;
+    &lt;hl-card-grid cols="3"&gt;
+      &lt;hl-card title="タイトルA" href="#"&gt;説明文A&lt;/hl-card&gt;
+      &lt;hl-card title="タイトルB" href="#"&gt;説明文B&lt;/hl-card&gt;
+    &lt;/hl-card-grid&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+
+&lt;!-- フィルタリングはタイトル・本文テキストに対してリアルタイムで実行 --&gt;
+&lt;!-- セクション内のカードが全件非表示になるとセクションごと非表示 --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+        </hl-tabs>
       </section>
 
       <!-- ══════════════════════════════
@@ -324,12 +381,157 @@ function helloHalcyon() {
       <section class="hl-section">
         <section-heading id="sec-article">Article Components</section-heading>
         <p class="hl-content-text" style="margin-bottom:1.5rem;">
-          ブログ記事やノート（Note）などで活躍するコンポーネントです。
-          <strong>引用（Quote）</strong>は外部ソースや重要なテキストを美しく装飾し、
-          <strong>シェア（Share）</strong>はSNS等への共有ボタンを配置します。
+          ブログ記事・ノートなどで活躍するコンテンツ装飾コンポーネントです。
+          <strong>リード文・引用・比較・図版・参考文献・脚注・シェア</strong>を専用タグで簡単に配置できます。
         </p>
 
         <hl-tabs>
+
+          <div class="hl-tab-panel" data-label="hl-lead">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">記事冒頭に置くリード文コンポーネントです。左ボーダーとライトグリーンの背景で本文と区別されます。</p>
+              <hl-lead>
+                <p>このページは Halcyon デザインシステムの<strong>コンテンツ系コンポーネント</strong>を紹介するデモページです。各コンポーネントはHTMLタグひとつで呼び出せます。</p>
+              </hl-lead>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- 記事先頭、page-title の直後に配置 --&gt;
+&lt;hl-lead&gt;
+  &lt;p&gt;このページは…リード文テキスト…&lt;/p&gt;
+&lt;/hl-lead&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-figure">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">画像にキャプションと出典を付けるコンポーネントです。<code>src</code>・<code>caption</code>・<code>source</code>・<code>source-url</code>属性で指定します。</p>
+              <hl-figure
+                src="https://5gkyu.github.io/icon/ogp.png"
+                alt="Halcyon サイトのOGP画像"
+                caption="Halcyon — Where the world falls silent, we found our own halcyon days."
+                source="5gkyu.github.io"
+                source-url="https://5gkyu.github.io/">
+              </hl-figure>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-figure
+  src="https://example.com/image.jpg"
+  alt="画像の説明"
+  caption="画像のキャプションテキスト"
+  source="出典サイト名"
+  source-url="https://example.com/"&gt;
+&lt;/hl-figure&gt;
+
+&lt;!-- src を省略すると子要素の &lt;img&gt; をそのまま使用 --&gt;
+&lt;!-- source-url を省略するとリンクなしの出典テキスト表示 --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-compare">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">左右2カラムで内容を並べて比較するコンポーネントです。<code>left-label</code>・<code>right-label</code>属性でラベルを指定し、子要素の<code>slot="left"</code>/<code>slot="right"</code>に内容を入れます。スマホでは縦積みになります。</p>
+              <hl-compare left-label="Before" right-label="After">
+                <div slot="left">
+                  <p><strong>変更前</strong></p>
+                  <ul>
+                    <li>手書きのCSS</li>
+                    <li>コンポーネントなし</li>
+                    <li>コード量が多い</li>
+                  </ul>
+                </div>
+                <div slot="right">
+                  <p><strong>変更後</strong></p>
+                  <ul>
+                    <li>デザイントークンで統一</li>
+                    <li>カスタム要素を利用</li>
+                    <li>1行で配置完了</li>
+                  </ul>
+                </div>
+              </hl-compare>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-compare left-label="Before" right-label="After"&gt;
+  &lt;div slot="left"&gt;
+    左カラムの内容
+  &lt;/div&gt;
+  &lt;div slot="right"&gt;
+    右カラムの内容
+  &lt;/div&gt;
+&lt;/hl-compare&gt;
+
+&lt;!-- left-label / right-label: 各カラムの見出し（デフォルト: A / B） --&gt;
+&lt;!-- スマホ(≦640px)では縦積みに自動変換 --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-cite">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">参考文献・引用元情報を整形して表示するコンポーネントです。<code>title</code>・<code>author</code>・<code>publisher</code>・<code>year</code>・<code>url</code>・<code>accessed</code>属性で指定します。</p>
+              <hl-cite
+                title="Halcyon デザインシステム ドキュメント"
+                author="5Gkyu"
+                publisher="5gkyu.github.io"
+                year="2025"
+                url="https://5gkyu.github.io/"
+                accessed="2026.06.03">
+              </hl-cite>
+              <hl-cite
+                title="Web Content Accessibility Guidelines (WCAG) 2.2"
+                author="W3C"
+                publisher="World Wide Web Consortium"
+                year="2023"
+                url="https://www.w3.org/TR/WCAG22/">
+              </hl-cite>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;hl-cite
+  title="記事・書籍名"
+  author="著者名"
+  publisher="出版社・サイト名"
+  year="2025"
+  url="https://example.com/"
+  accessed="2026.06.03"&gt;
+&lt;/hl-cite&gt;
+
+&lt;!-- url・accessed は任意。URLは自動でリンクになります --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-fn / hl-footnotes">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1rem;">
+                本文中に<code>&lt;hl-fn num="1"&gt;</code>を置き、末尾の<code>&lt;hl-footnotes&gt;</code>内に<code>&lt;hl-fn-item num="1"&gt;</code>で対応する注釈を書きます。番号はリンクで相互ジャンプできます。
+              </p>
+              <p class="hl-content-text">
+                Halcyon はカスタム要素<hl-fn num="1"></hl-fn>を使ったデザインシステムです。
+                コンポーネントは components.js<hl-fn num="2"></hl-fn> 1ファイルで提供されます。
+              </p>
+              <hl-footnotes label="注記">
+                <hl-fn-item num="1">Web Components 仕様に基づくカスタム HTML 要素のこと。ブラウザネイティブで動作します。</hl-fn-item>
+                <hl-fn-item num="2">約 200KB のファイルに CSS・コンポーネント定義・ローディング演出がすべて含まれます。</hl-fn-item>
+              </hl-footnotes>
+              <hl-accordion title="コードを見る">
+                <hl-code lang="html">
+&lt;!-- 1. 本文中に参照マーカーを置く --&gt;
+&lt;p&gt;
+  Halcyon はカスタム要素&lt;hl-fn num="1"&gt;&lt;/hl-fn&gt;を使ったデザインシステムです。
+&lt;/p&gt;
+
+&lt;!-- 2. 記事末尾に注釈リストを配置 --&gt;
+&lt;hl-footnotes label="注記"&gt;
+  &lt;hl-fn-item num="1"&gt;
+    Web Components 仕様に基づくカスタム HTML 要素のこと。
+  &lt;/hl-fn-item&gt;
+&lt;/hl-footnotes&gt;
+
+&lt;!-- num 属性の番号でマーカー注釈が双方向リンクになります --&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
 
           <div class="hl-tab-panel" data-label="hl-quote">
             <div class="demo-block">
@@ -356,7 +558,7 @@ function helloHalcyon() {
                 <hl-code lang="html">
 &lt;hl-share text="このページを共有する"&gt;&lt;/hl-share&gt;
 
-&lt;!-- X（Twitter）へのシェア機能と、現在のページのURLをクリップボードにコピーする機能が実装されています --&gt;</hl-code>
+&lt;!-- X（Twitter）へのシェア・OS標準シェア・全文クリップボードコピーが使えます --&gt;</hl-code>
               </hl-accordion>
             </div>
           </div>
