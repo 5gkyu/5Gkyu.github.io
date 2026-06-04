@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -175,6 +175,42 @@
 &lt;hl-toggle name="notify" label="メール通知を受け取る" checked&gt;&lt;/hl-toggle&gt;
 &lt;hl-toggle name="darkmode" label="ダークモード"&gt;&lt;/hl-toggle&gt;
 &lt;hl-toggle name="public" label="プロフィールを公開する" checked&gt;&lt;/hl-toggle&gt;</hl-code>
+              </hl-accordion>
+            </div>
+          </div>
+
+          <div class="hl-tab-panel" data-label="hl-file-input">
+            <div class="demo-block">
+              <p class="hl-content-text" style="margin-bottom:1.5rem;">
+                スタイル付きのファイル選択コンポーネントです。<code>drop</code>属性でドラッグ＆ドロップゾーンUIになります。
+                <code>.files</code>プロパティで選択されたFileListを取得でき、<code>change</code>イベントが発火します。
+              </p>
+              <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#EEAFA1;text-transform:uppercase;margin-bottom:0.5rem;">標準（ボタン型）</p>
+              <hl-file-input accept="image/*" style="margin-bottom:1.5rem;"></hl-file-input>
+              <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#EEAFA1;text-transform:uppercase;margin-bottom:0.5rem;">ドロップゾーン型（drop属性）</p>
+              <hl-file-input accept="image/*" multiple drop></hl-file-input>
+              <hl-accordion title="コードを見る" style="margin-top:1.5rem;">
+                <hl-code lang="html">
+&lt;!-- 標準ボタン型 --&gt;
+&lt;hl-file-input accept="image/*"&gt;&lt;/hl-file-input&gt;
+
+&lt;!-- ドラッグ＆ドロップゾーン型 --&gt;
+&lt;hl-file-input accept="image/*" multiple drop&gt;&lt;/hl-file-input&gt;
+
+&lt;!-- accept: MIME タイプ・拡張子（例: "image/*" ".pdf"） --&gt;
+&lt;!-- multiple: 複数ファイル選択を許可 --&gt;
+&lt;!-- drop: ドラッグ＆ドロップゾーン UI を使用 --&gt;</hl-code>
+                <hl-code lang="javascript">
+/* JS API */
+const fi = document.querySelector('hl-file-input');
+
+// ファイル選択・ドロップ時に発火
+fi.addEventListener('change', () => {
+  console.log(fi.files); // FileList
+});
+
+// 選択状態をクリア
+fi.reset();</hl-code>
               </hl-accordion>
             </div>
           </div>
