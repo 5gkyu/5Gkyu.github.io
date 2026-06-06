@@ -17,19 +17,15 @@ const rarityModalBackdropEl = document.getElementById("rarityModalBackdrop");
 const rarityModalCloseBtn = document.getElementById("rarityModalCloseBtn");
 const rarityModalContentEl = document.getElementById("rarityModalContent");
 
-// FAB filter elements
-const fabFilterBtn = document.getElementById("fabFilterBtn");
-const filterSheetEl = document.getElementById("filterSheet");
-const filterSheetBackdrop = document.getElementById("filterSheetBackdrop");
-const filterSheetClose = document.getElementById("filterSheetClose");
-const fabSearchInput = document.getElementById("fabSearchInput");
-const fabRarityFilterBtn = document.getElementById("fabRarityFilterBtn");
-const fabSortToggleBtn = document.getElementById("fabSortToggleBtn");
-
 const SORT_MODES = [
   { value: "", label: "並び替え: レア度順" },
-  { value: "strength-desc", label: "並び替え: 強さ順" },
+  { value: "strength-desc", label: "並び替え: 強さ順(高い順)" },
+  { value: "strength-asc", label: "並び替え: 強さ順(低い順)" },
+  { value: "difficulty-desc", label: "並び替え: 難易度順(高い順)" },
+  { value: "difficulty-asc", label: "並び替え: 難易度順(低い順)" },
+  { value: "name-asc", label: "並び替え: 50音順" },
 ];
+
 let currentSortIndex = 0;
 let currentRarityFilter = "";
 
@@ -71,12 +67,12 @@ const MODE_NAME_TO_KEY = {
 };
 
 const ROLE_LABELS = {
-  "タンク": { emoji: "🛡️", color: "#3b82f6" },
-  "アサシン": { emoji: "🗡️", color: "#ef4444" },
-  "サポート": { emoji: "💚", color: "#22c55e" },
-  "シューター": { emoji: "🔫", color: "#f59e0b" },
-  "コントローラー": { emoji: "🎯", color: "#8b5cf6" },
-  "スローワー": { emoji: "💣", color: "#f97316" },
+  "タンク": { emoji: "", color: "#3b82f6" },
+  "アサシン": { emoji: "", color: "#ef4444" },
+  "サポート": { emoji: "", color: "#22c55e" },
+  "シューター": { emoji: "", color: "#f59e0b" },
+  "コントローラー": { emoji: "", color: "#8b5cf6" },
+  "スローワー": { emoji: "", color: "#f97316" },
 };
 
 const ROLE_SORT_ORDER = {
@@ -124,8 +120,10 @@ const HEADER_ALIASES = {
   tips: ["tips", "tip", "コツ", "ポイント"],
   banner: ["banner", "バナー"],
   guide: ["guide", "ガイド"],
-  alias: ["alias", "表記ゆれ", "よみ", "読み"],
-  addedDate: ["added", "addeddate", "実装日", "追加日", "更新日", "最終更新"],
+  alias: ["alias", "表記ゆれ", "よみ", "読み", "yomi", "ヨミ", "ふりがな", "フリガナ", "カナ", "kana", "ruby", "ルビ"],
+  hiragana: ["hiragana", "ひらがな"],
+  addedDate: ["added", "addeddate", "実装日", "追加日"],
+  updatedDate: ["updated", "updateddate", "更新日", "最終更新"],
 };
 
 let currentCharacters = [];
@@ -145,7 +143,6 @@ function toggleSort() {
 function updateSortUI() {
   const label = SORT_MODES[currentSortIndex].label;
   if (sortToggleBtn) sortToggleBtn.textContent = label;
-  if (fabSortToggleBtn) fabSortToggleBtn.textContent = label;
 }
 
 if (sortToggleBtn) {
@@ -162,7 +159,6 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeModal();
     if (typeof closeRarityModal === "function") closeRarityModal();
-    closeFilterSheet();
   }
 });
 
@@ -177,39 +173,8 @@ function closeRarityModal() {
 }
 
 if (rarityFilterBtn) rarityFilterBtn.addEventListener("click", openRarityModal);
-if (fabRarityFilterBtn) fabRarityFilterBtn.addEventListener("click", openRarityModal);
 if (rarityModalCloseBtn) rarityModalCloseBtn.addEventListener("click", closeRarityModal);
 if (rarityModalBackdropEl) rarityModalBackdropEl.addEventListener("click", closeRarityModal);
-
-
-// --- FAB filter sheet ---
-fabFilterBtn.addEventListener("click", openFilterSheet);
-filterSheetBackdrop.addEventListener("click", closeFilterSheet);
-filterSheetClose.addEventListener("click", closeFilterSheet);
-
-fabSearchInput.addEventListener("input", () => {
-  searchInput.value = fabSearchInput.value;
-  renderCurrentView();
-});
-
-if (fabSortToggleBtn) {
-  fabSortToggleBtn.addEventListener("click", toggleSort);
-}
-
-function openFilterSheet() {
-  // sync values from main filters
-  fabSearchInput.value = searchInput.value;
-  updateSortUI();
-  filterSheetEl.hidden = false;
-  document.body.classList.add("sheet-open");
-  fabFilterBtn.style.display = "none";
-}
-
-function closeFilterSheet() {
-  filterSheetEl.hidden = true;
-  document.body.classList.remove("sheet-open");
-  fabFilterBtn.style.display = "";
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadCharactersFromCsvUrl();
@@ -218,7 +183,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadCharactersFromCsvUrl() {
   try {
     setStatus("CSVを取得中...");
-    const response = await fetch(CSV_URL, { cache: "no-store" });
+    const cacheBusterUrl = CSV_URL + "&t=" + Date.now();
+    const response = await fetch(cacheBusterUrl, { cache: "no-store" });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -249,7 +215,11 @@ async function loadCharactersFromCsvUrl() {
     currentCharacters = rows
       .slice(1)
       .filter((row) => row.some((cell) => cell.trim() !== ""))
-      .map((row) => normalizeCharacter(row, indexMap));
+      .map((row, idx) => {
+        const char = normalizeCharacter(row, indexMap);
+        char.originalIndex = idx;
+        return char;
+      });
 
     updateRarityOptions(currentCharacters);
     setLastUpdatedFromTopRow(currentCharacters);
@@ -277,11 +247,52 @@ function getFilteredCharacters() {
     return nameMatched && rareMatched;
   });
 
-  if (sortKey === "strength-desc") {
+  if (sortKey) {
     filtered.sort((a, b) => {
-      const strengthDiff = Number(b.tuyosa ?? 0) - Number(a.tuyosa ?? 0);
-      if (strengthDiff !== 0) return strengthDiff;
-      return (a.name ?? "").localeCompare(b.name ?? "", "ja");
+      const isUnreleased = (char) => {
+        const val = char.tuyosa;
+        return val === null || val === undefined || String(val).trim() === "" || !Number.isFinite(Number(val));
+      };
+      const unreleasedA = isUnreleased(a);
+      const unreleasedB = isUnreleased(b);
+
+      if (unreleasedA && !unreleasedB) return 1;
+      if (!unreleasedA && unreleasedB) return -1;
+
+      let diff = 0;
+      if (sortKey === "strength-desc") {
+        diff = Number(b.tuyosa ?? 0) - Number(a.tuyosa ?? 0);
+      } else if (sortKey === "strength-asc") {
+        diff = Number(a.tuyosa ?? 0) - Number(b.tuyosa ?? 0);
+      } else if (sortKey === "difficulty-desc") {
+        const diffA = a.difficulty || 999;
+        const diffB = b.difficulty || 999;
+        diff = diffB - diffA;
+      } else if (sortKey === "difficulty-asc") {
+        const diffA = a.difficulty || 999;
+        const diffB = b.difficulty || 999;
+        diff = diffA - diffB;
+      } else if (sortKey === "name-asc") {
+        const nameA = a.hiragana || a.name || "";
+        const nameB = b.hiragana || b.name || "";
+        diff = nameA.localeCompare(nameB, "ja");
+      }
+
+      if (diff !== 0) return diff;
+
+      if (sortKey !== "name-asc") {
+        const getRarityRank = (rareHex) => {
+          if (!rareHex) return 999;
+          const index = RARITY_SORT_ORDER.indexOf(rareHex.toLowerCase());
+          return index === -1 ? 999 : index;
+        };
+
+        const rareA = getRarityRank(a.rare);
+        const rareB = getRarityRank(b.rare);
+        if (rareA !== rareB) return rareA - rareB;
+      }
+
+      return (a.originalIndex ?? 0) - (b.originalIndex ?? 0);
     });
   }
 
@@ -338,9 +349,9 @@ function renderTableView(characters) {
       <table class="rating-table">
         <thead>
           <tr class="table-header-row">
-            <th class="th-image">アイコン</th>
-            <th class="th-strength">強さ</th>
-            <th class="th-difficulty">難易度</th>
+            <th class="th-image sortable-th" data-sorts=",name-asc" title="タップでレア度順 / 50音順を切り替え">アイコン <span class="sort-indicator"></span></th>
+            <th class="th-strength sortable-th" data-sorts="strength-desc,strength-asc" title="タップで強さ順（昇順/降順）">強さ <span class="sort-indicator"></span></th>
+            <th class="th-difficulty sortable-th" data-sorts="difficulty-asc,difficulty-desc" title="タップで難易度順（昇順/降順）">難易度 <span class="sort-indicator"></span></th>
             <th colspan="3" class="th-build">おすすめビルド</th>
           </tr>
         </thead>
@@ -348,6 +359,40 @@ function renderTableView(characters) {
       </table>
     </div>
   `;
+
+  const currentSortKey = SORT_MODES[currentSortIndex].value;
+  tableViewEl.querySelectorAll(".sortable-th").forEach(th => {
+    const sorts = th.dataset.sorts.split(",");
+    const indicator = th.querySelector(".sort-indicator");
+
+    if (sorts.includes(currentSortKey)) {
+      th.classList.add("is-active");
+      if (currentSortKey === "") indicator.textContent = "▼";
+      else if (currentSortKey === "name-asc") indicator.textContent = "▲";
+      else if (currentSortKey === "strength-desc") indicator.textContent = "▼";
+      else if (currentSortKey === "strength-asc") indicator.textContent = "▲";
+      else if (currentSortKey === "difficulty-desc") indicator.textContent = "▼";
+      else if (currentSortKey === "difficulty-asc") indicator.textContent = "▲";
+    } else {
+      th.classList.remove("is-active");
+      indicator.textContent = "▼";
+    }
+
+    th.addEventListener("click", () => {
+      let nextKey = sorts[0];
+      const idx = sorts.indexOf(currentSortKey);
+      if (idx !== -1) {
+        nextKey = sorts[(idx + 1) % sorts.length];
+      }
+
+      const newIndex = SORT_MODES.findIndex(m => m.value === nextKey);
+      if (newIndex !== -1) {
+        currentSortIndex = newIndex;
+        updateSortUI();
+        renderCurrentView();
+      }
+    });
+  });
 
   tableViewEl.querySelectorAll(".table-image-wrap[data-index]").forEach((wrap) => {
     wrap.addEventListener("click", () => {
@@ -373,8 +418,8 @@ function openModal(character) {
   const bannerHtml = bannerSrc
     ? `<img src="${escapeHtml(bannerSrc)}" alt="${escapeHtml(character.name)}" class="modal-banner" loading="lazy" />`
     : (character.image
-        ? `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(character.name)}" class="modal-main-image" loading="lazy" />`
-        : '<div class="modal-main-image modal-noimage">画像なし</div>');
+      ? `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(character.name)}" class="modal-main-image" loading="lazy" />`
+      : '<div class="modal-main-image modal-noimage">画像なし</div>');
 
   const starHtml = starPath
     ? `<img src="${escapeHtml(starPath)}" alt="スターパワー${character.sutapa}" class="icon icon-sg" loading="lazy" />`
@@ -391,7 +436,7 @@ function openModal(character) {
     : '';
 
   const guideHtml = character.guide && /^https?:\/\//i.test(character.guide)
-    ? `<a href="${escapeHtml(character.guide)}" target="_blank" rel="noopener noreferrer" class="guide-link">📊 Brawl Insights で詳細を見る →</a>`
+    ? `<a href="${escapeHtml(character.guide)}" target="_blank" rel="noopener noreferrer" class="guide-link"> Brawl Insights で詳細を見る →</a>`
     : '';
 
   const roleInfo = ROLE_LABELS[character.role];
@@ -408,7 +453,7 @@ function openModal(character) {
     : '';
 
   const tipsHtml = character.tips
-    ? `<div class="modal-tips"><p class="modal-tips-icon">💡</p><p class="modal-tips-text">${escapeHtml(character.tips)}</p></div>`
+    ? `<div class="modal-tips"><p class="modal-tips-icon"><hl-icon name="lightbulb"></hl-icon></p><p class="modal-tips-text">${escapeHtml(character.tips)}</p></div>`
     : '';
 
   modalContentEl.innerHTML = `
@@ -612,9 +657,11 @@ function normalizeCharacter(row, indexMap) {
   const banner = getCell(row, indexMap, "banner");
   const guide = getCell(row, indexMap, "guide");
   const alias = getCell(row, indexMap, "alias");
+  const hiragana = getCell(row, indexMap, "hiragana");
   const addedDate = getCell(row, indexMap, "addedDate");
+  const updatedDate = getCell(row, indexMap, "updatedDate");
 
-  return { name, image, rare, rareColor, tuyosa, sutapa, gaje, gears, com, modes, role, difficulty, tips, banner, guide, alias, addedDate };
+  return { name, image, rare, rareColor, tuyosa, sutapa, gaje, gears, com, modes, role, difficulty, tips, banner, guide, alias, hiragana, addedDate, updatedDate };
 }
 
 function buildIndexMap(headers) {
@@ -685,7 +732,9 @@ function buildIndexMap(headers) {
   indexMap.banner = pickIndex("banner", true);
   indexMap.guide = pickIndex("guide", true);
   indexMap.alias = pickIndex("alias", true);
+  indexMap.hiragana = pickIndex("hiragana", true);
   indexMap.addedDate = pickIndex("addedDate", true);
+  indexMap.updatedDate = pickIndex("updatedDate", true);
 
   return indexMap;
 }
@@ -750,7 +799,7 @@ function getModeIconPath(name) {
 
 function setLastUpdatedFromTopRow(characters) {
   if (!lastUpdatedEl) return;
-  const topDate = (characters?.[0]?.addedDate ?? "").trim();
+  const topDate = (characters?.[0]?.updatedDate ?? "").trim();
   lastUpdatedEl.textContent = topDate ? `最終更新: ${topDate}` : "最終更新: -";
 }
 
@@ -775,9 +824,7 @@ function updateRarityOptions(characters) {
   allBtn.type = "button";
   allBtn.className = "rarity-color-btn" + (currentRarityFilter === "" ? " is-selected" : "");
   allBtn.textContent = "全レアリティ";
-  allBtn.style.background = "var(--brawl-surface)";
-  allBtn.style.color = "var(--clr-brown)";
-  if(currentRarityFilter !== "") allBtn.style.borderColor = "var(--brawl-border)";
+  allBtn.style.setProperty("--rarity-color", "var(--clr-sage)");
   allBtn.addEventListener("click", () => selectRarity(""));
   rarityModalContentEl.appendChild(allBtn);
 
@@ -787,10 +834,8 @@ function updateRarityOptions(characters) {
     btn.type = "button";
     btn.className = "rarity-color-btn" + (currentRarityFilter === orig ? " is-selected" : "");
     btn.textContent = RARITY_COLOR_TO_NAME[origLower] ?? orig;
-    btn.style.background = origLower;
-    // 白か薄い色が多いので文字はデフォルト色をベースに
-    if(origLower === "#2c0249") btn.style.color = "#fff"; // ハイパーレア特例
-    
+    btn.style.setProperty("--rarity-color", origLower);
+
     btn.addEventListener("click", () => selectRarity(orig));
     rarityModalContentEl.appendChild(btn);
   });
@@ -801,7 +846,7 @@ function selectRarity(rareValue) {
   const rareName = rareValue ? (RARITY_COLOR_TO_NAME[rareValue.toLowerCase()] ?? rareValue) : "すべて";
   if (rarityFilterBtn) rarityFilterBtn.textContent = `レアリティ: ${rareName}`;
   if (fabRarityFilterBtn) fabRarityFilterBtn.textContent = `レアリティ: ${rareName}`;
-  
+
   updateRarityOptions(currentCharacters);
   closeRarityModal();
   renderCurrentView();
