@@ -1,9 +1,35 @@
 {
+  "latest": {
+    "sections": [
+      {
+        "id": "latest-updates",
+        "heading": "最新のアップデート",
+        "description": "最近追加・更新されたコンテンツです。",
+        "cols": 2,
+        "items": [
+          {
+            "title": "ブロスタ キャラクター評価",
+            "tag": "ブロスタ",
+            "href": "/archive/play/Brawl/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
+            "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+          },
+          {
+            "title": "Halcyon Component Gallery",
+            "tag": "コンポーネント",
+            "href": "/archive/other/halcyon_ui_design/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Components.png",
+            "description": "デザイントークン・カラーパレット・レイアウト・タイポグラフィーのリファレンス。"
+          }
+        ]
+      }
+    ]
+  },
   "app": {
     "sections": [
       {
         "id": "image-tools",
-        "heading": "🖼️ 画像ツール",
+        "heading": "画像ツール",
         "cols": 3,
         "items": [
           {
@@ -18,20 +44,20 @@
             "tag": "画像ツール",
             "href": "/archive/app/image-compression/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ブラウザ上で画像をリサイズ・圧縮し軽量化。JPEG / PNG / WebP の3形式に対応。データはサーバーに送信されません。"
+            "description": "ブラウザ上で画像をリサイズ・圧縮し軽量化。JPEG / PNG / WebP の3形式に対応。"
           },
           {
             "title": "画像→PDF変換",
             "tag": "画像ツール",
             "href": "/archive/app/image-pdf/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "複数の画像を選択して1つのPDFにまとめます。JPEG・PNG・WebP対応。データはサーバーに送信されません。"
+            "description": "複数の画像を選択して1つのPDFにまとめます。JPEG・PNG・WebP対応。"
           }
         ]
       },
       {
         "id": "dev-tools",
-        "heading": "🔧 開発ツール",
+        "heading": "開発ツール",
         "cols": 3,
         "items": [
           {
@@ -59,7 +85,7 @@
       },
       {
         "id": "x-tools",
-        "heading": "𝕏 X ツール",
+        "heading": "Xツール",
         "cols": 3,
         "items": [
           {
@@ -84,9 +110,15 @@
     "sections": [
       {
         "id": "consideration",
-        "heading": "🔍 考察",
+        "heading": "<hl-icon name='search'></hl-icon> 考察",
         "cols": 3,
         "items": [
+          {
+            "title": "騒音の中であなたの声だけ聞こえる ── カクテルパーティー効果",
+            "href": "/archive/note/cocktail-party/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "大勢の声が飛び交う中で、自分の名前だけがふと耳に届く。情報過多な世界で「必要なものだけを拾う」脳の防衛術を考察します。"
+          },
           {
             "title": "色に名前をつけるということ",
             "href": "/archive/note/color-and-design/",
@@ -115,9 +147,15 @@
       },
       {
         "id": "guide",
-        "heading": "📖 ガイド",
+        "heading": " ガイド",
         "cols": 3,
         "items": [
+          {
+            "title": "ビジュアルノベルの歴史 ── ADVからVNへ",
+            "href": "/archive/note/visual-novel-history/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "「読む」ゲームはどのように生まれたか。ポートピアから弟切草、かまいたちの夜、To Heart、CLANNADへ。ビジュアルノベルの誕生と進化をたどるガイド。"
+          },
           {
             "title": "Webタイポグラフィ入門",
             "href": "/archive/note/typography/",
@@ -134,14 +172,87 @@
       },
       {
         "id": "column",
-        "heading": "✍️ コラム",
+        "heading": " コラム",
         "cols": 3,
         "items": [
+          {
+            "title": "終わり良ければすべて良し、は本当 ── ピーク・エンドの法則",
+            "href": "/archive/note/peak-end/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "人は経験を「一番感情が動いた瞬間（ピーク）」と「終わった時（エンド）」の記憶だけで判断する。だから、別れ際に「またね」と笑うことには、思いのほか大きな意味がある。"
+          },
+          {
+            "title": "やる気は『やってから』ついてくる ── 「作業興奮」",
+            "href": "/archive/note/sakugyo-kofun/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "最初の一歩が重い理由。動けない自分を責めず、「とりあえず5分だけ」で脳をだます。クレペリンが発見した「作業興奮」からわかる、やる気の本当のしくみ。"
+          },
+          {
+            "title": "機械が歌うということ ── 私がボカロ曲に求める4つの基準",
+            "href": "/archive/note/vocaloid/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "音・詞・声・映像。好きなボカロ曲には「これでなければならなかった」という感覚が宿っている。その基準を言語化した個人的なコラム。"
+          },
           {
             "title": "雨の日に窓の外を見るのが好きな理由",
             "href": "/archive/note/rain-and-cozy/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "なぜ人は、安全な部屋の中から嵐や雨を見るのが好きなのか。「守られた空間（シェルター）」から外界を見ることで得られる根源的な安心感についてのコラム。"
+          }
+        ]
+      },
+      {
+        "id": "trivia",
+        "heading": "<hl-icon name='lightbulb'></hl-icon> 雑学",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ぽっかり浮かぶ白い雲は、ゾウ100頭分よりも重い",
+            "href": "/archive/note/cloud-weight/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ふわふわと空に漂う積雲は、実はアフリカゾウ約100頭分・約500トンの重さを持っている。それでも落ちてこない理由とは。"
+          },
+          {
+            "title": "イチゴはベリーじゃないのに、スイカやバナナはベリー",
+            "href": "/archive/note/berry-paradox/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "「ストロベリー」と名乗っているのに植物学上はベリーではなく、名前に「ベリー」のないスイカやバナナは正真正銘のベリー。果物の分類が意外すぎる件。"
+          },
+          {
+            "title": "フランスと最も長く国境を接している国は、ブラジル",
+            "href": "/archive/note/france-brazil/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "フランスの隣国といえばドイツやスペイン——と思いきや、国境線が最も長い隣国はブラジル。南アメリカに存在するフランスの「飛び地」が生む、地図の意外な事実。"
+          },
+          {
+            "title": "キツツキの舌は、頭蓋骨をぐるりと巻いて「脳のシートベルト」になっている",
+            "href": "/archive/note/woodpecker-tongue/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1秒間に20回、重力の1000倍の衝撃で木をつつくキツツキ。なぜ脳が無事なのか。その答えは、頭蓋骨をぐるりと一周する「異様に長い舌」にあった。"
+          },
+          {
+            "title": "日本語じゃなかった「イクラ」── お寿司のイクラはロシア語",
+            "href": "/archive/note/ikura-russian/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "お寿司の定番「イクラ」は実はロシア語（икра）。ロシアでは魚卵全般を指すこの言葉が、日露戦争のころに製法とともに日本へ渡ってきた。"
+          },
+          {
+            "title": "サンドボックスの語源 ── 「目標がない」が最大の目標",
+            "href": "/archive/note/sandbox/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ゲームの「サンドボックス」という言葉は、子供が遊ぶ砂場が語源。クリア条件がなく、プレイヤーが自分で目的を作り出すこのジャンルを世界的に有名にしたのがMinecraftだ。"
+          },
+          {
+            "title": "メトロイドヴァニア ── 2つの名作が合体して生まれた言葉",
+            "href": "/archive/note/metroidvania/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "「メトロイドヴァニア」は任天堂の『メトロイド』とコナミの『キャッスルヴァニア』を掛け合わせた造語。新能力で行動範囲が広がる探索×成長の快感が、インディーゲーム界を席巻している。"
+          },
+          {
+            "title": "ローグライクとローグライト ── 一度死んだらすべてを失う快感",
+            "href": "/archive/note/roguelike/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ローグライクは1980年の『Rogue』に由来。自動生成ダンジョンとパーマデスが特徴で、死んだら最初からやり直し。現代では一部引き継ぎ要素を持つローグライトも大流行。"
           }
         ]
       }
@@ -151,21 +262,42 @@
     "sections": [
       {
         "id": "brawl-stars",
-        "heading": "🎯 Brawl Stars",
+        "heading": " ブロスタ",
         "cols": 3,
         "items": [
           {
             "title": "ブロスタ キャラクター評価",
             "tag": "ブロスタ",
             "href": "/archive/play/Brawl/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
             "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+          },
+          {
+            "title": "BanPic-Brawl",
+            "tag": "ブロスタ",
+            "href": "/archive/play/BanPic-Brawl/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ブロスタのBan/Pickツールです。"
+          }
+        ]
+      },
+      {
+        "id": "pjsekai",
+        "heading": " プロジェクトセカイ",
+        "cols": 3,
+        "items": [
+          {
+            "title": "プロセカ スキル計算",
+            "tag": "プロジェクトセカイ",
+            "href": "/archive/play/pjsekai_skill/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。"
           }
         ]
       },
       {
         "id": "other-games",
-        "heading": "🎮 その他",
+        "heading": " その他",
         "cols": 3,
         "items": [
           {
@@ -180,10 +312,9 @@
   },
   "other": {
     "sections": [
-      
       {
         "id": "browser-tools",
-        "heading": "🔖 ブラウザツール",
+        "heading": " ブラウザツール",
         "cols": 3,
         "items": [
           {
@@ -197,43 +328,15 @@
       },
       {
         "id": "components-gallery",
-        "heading": "📦 コンポーネントデモ",
+        "heading": " コンポーネントデモ",
         "cols": 3,
         "items": [
           {
-            "title": "デザイン基礎",
+            "title": "Halcyon Component Gallery",
             "tag": "コンポーネント",
-            "href": "/components/demo_foundation.html",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "href": "/archive/other/halcyon_ui_design/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Components.png",
             "description": "デザイントークン・カラーパレット・レイアウト・タイポグラフィーのリファレンス。"
-          },
-          {
-            "title": "UI コンポーネント",
-            "tag": "コンポーネント",
-            "href": "/components/demo_ui.html",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ボタン・モーダル・タブ・アバターなどの UIパーツデモ。"
-          },
-          {
-            "title": "コンテンツコンポーネント",
-            "tag": "コンポーネント",
-            "href": "/components/demo_content.html",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "カード・チャットUI・引用・ステップ・カルーセルなどのコンテンツパーツデモ。"
-          },
-          {
-            "title": "データ・フォーム",
-            "tag": "コンポーネント",
-            "href": "/components/demo_data.html",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "テーブル・フォーム・ページネーションなどのデータ系パーツデモ。"
-          },
-          {
-            "title": "動画埋め込み",
-            "tag": "コンポーネント",
-            "href": "/components/demo_embed.html",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "YouTube・ニコニコ対応の hl-embed コンポーネントと iframe 比較デモ。"
           }
         ]
       }

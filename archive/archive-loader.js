@@ -13,7 +13,7 @@
  *     "sections": [
  *       {
  *         "id": "section-id",          // <section id="..."> に使用
- *         "heading": "🖼️ セクション名", // <section-heading> の中身
+ *         "heading": "<hl-icon name="image"></hl-icon> セクション名", // <section-heading> の中身
  *         "cols": 3,                   // <hl-card-grid cols="...">（省略時: 3）
  *         "items": [
  *           {
@@ -66,8 +66,9 @@
     const cols  = section.cols || 3;
     const items = (section.items || []).map(renderItem).join('\n        ');
     const id    = escapeAttr(section.id || '');
+    const descHtml = section.description ? `\n      <p class="hl-content-text" style="margin-bottom: 1.5rem;">${escapeAttr(section.description)}</p>` : '';
     return `<section class="hl-section" id="${id}">
-      <section-heading>${section.heading || ''}</section-heading>
+      <section-heading>${section.heading || ''}</section-heading>${descHtml}
       <hl-card-grid cols="${cols}">
         ${items}
       </hl-card-grid>
