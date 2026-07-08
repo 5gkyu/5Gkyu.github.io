@@ -191,24 +191,9 @@
       <!-- 最新コンテンツのピックアップセクションを追加 -->
       <hl-divider variant="dashed" style="margin: 3rem 0;"></hl-divider>
 
-      <section-heading>Latest Updates</section-heading>
       <p class="hl-content-text" style="margin-bottom: 1.5rem;">最近追加・更新されたコンテンツです。</p>
       
-      <hl-card-grid cols="2">
-        <hl-card
-          title="CollageMaker"
-          tag="App"
-          href="/archive/app/collage-maker/"
-          image="https://5gkyu.github.io/icon/ogp.png">
-          複数の画像を一枚に美しく織り上げる画像コラージュツール。
-        </hl-card>
-        <hl-card
-          title="サイトリニューアルのお知らせ"
-          tag="Note"
-          href="#">
-          Halcyonのデザインシステムを刷新し、より見やすく穏やかな空間に生まれ変わりました。
-        </hl-card>
-      </hl-card-grid>
+      <div id="latest-container"></div>
 
     </div>
 
@@ -224,6 +209,12 @@
 
   <site-footer copy="5Gkyu"></site-footer>
   <script src="/components/components.js"></script>
+  <script src="/archive/archive-loader.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      loadArchiveSections('latest', 'latest-container');
+    });
+  </script>
 </body>
 </html>
 
