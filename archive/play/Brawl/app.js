@@ -59,11 +59,17 @@ const GEAR_NAME_TO_INDEX = {
 
 const MODE_NAME_TO_KEY = {
   eme: "eme",
+  エメハン: "eme",
   godatu: "godatu",
+  強奪: "godatu",
   hotzone: "hotzone",
+  ホットゾーン: "hotzone",
   knock: "knock",
+  ノックアウト: "knock",
   soccer: "soccer",
+  サッカー: "soccer",
   syokin: "syokin",
+  賞金稼ぎ: "syokin",
 };
 
 const ROLE_LABELS = {
@@ -124,6 +130,17 @@ const HEADER_ALIASES = {
   hiragana: ["hiragana", "ひらがな"],
   addedDate: ["added", "addeddate", "実装日", "追加日"],
   updatedDate: ["updated", "updateddate", "更新日", "最終更新"],
+  range: ["range", "射程"],
+  attack: ["attack", "攻撃"],
+  approach: ["approach", "接近"],
+  defKnockback: ["defKnockback", "ノックバックor無敵", "ノックバック", "無敵"],
+  defSlow: ["defSlow", "スロー"],
+  defStun: ["defStun", "スタン"],
+  defEscape: ["defEscape", "逃げ"],
+  wall: ["wall", "壁"],
+  summon: ["summon", "小物召喚"],
+  tank: ["tank", "タンク"],
+  tankkiller: ["tankkiller", "タンクキラー"],
 };
 
 let currentCharacters = [];
@@ -513,6 +530,8 @@ function createStrengthHtml(value, variant = "table") {
   return `<span class="strength-wrap ${modeClass} ${levelClass}"><span class="strength-meter">${bars}</span></span>`;
 }
 
+
+
 function createDifficultyHtml(value) {
   const DIFF_LABEL = { 1: "低", 2: "中", 3: "高" };
   const label = DIFF_LABEL[value];
@@ -661,7 +680,21 @@ function normalizeCharacter(row, indexMap) {
   const addedDate = getCell(row, indexMap, "addedDate");
   const updatedDate = getCell(row, indexMap, "updatedDate");
 
-  return { name, image, rare, rareColor, tuyosa, sutapa, gaje, gears, com, modes, role, difficulty, tips, banner, guide, alias, hiragana, addedDate, updatedDate };
+  const tags = {
+    range: getCell(row, indexMap, "range"),
+    attack: getCell(row, indexMap, "attack"),
+    approach: String(getCell(row, indexMap, "approach")).toUpperCase() === "TRUE",
+    defKnockback: String(getCell(row, indexMap, "defKnockback")).toUpperCase() === "TRUE",
+    defSlow: String(getCell(row, indexMap, "defSlow")).toUpperCase() === "TRUE",
+    defStun: String(getCell(row, indexMap, "defStun")).toUpperCase() === "TRUE",
+    defEscape: String(getCell(row, indexMap, "defEscape")).toUpperCase() === "TRUE",
+    wall: String(getCell(row, indexMap, "wall")).toUpperCase() === "TRUE",
+    summon: String(getCell(row, indexMap, "summon")).toUpperCase() === "TRUE",
+    tank: String(getCell(row, indexMap, "tank")).toUpperCase() === "TRUE",
+    tankkiller: String(getCell(row, indexMap, "tankkiller")).toUpperCase() === "TRUE",
+  };
+
+  return { name, image, rare, rareColor, tuyosa, sutapa, gaje, gears, com, modes, role, difficulty, tips, banner, guide, alias, hiragana, addedDate, updatedDate, tags };
 }
 
 function buildIndexMap(headers) {
@@ -735,6 +768,17 @@ function buildIndexMap(headers) {
   indexMap.hiragana = pickIndex("hiragana", true);
   indexMap.addedDate = pickIndex("addedDate", true);
   indexMap.updatedDate = pickIndex("updatedDate", true);
+  indexMap.range = pickIndex("range", true);
+  indexMap.attack = pickIndex("attack", true);
+  indexMap.approach = pickIndex("approach", true);
+  indexMap.defKnockback = pickIndex("defKnockback", true);
+  indexMap.defSlow = pickIndex("defSlow", true);
+  indexMap.defStun = pickIndex("defStun", true);
+  indexMap.defEscape = pickIndex("defEscape", true);
+  indexMap.wall = pickIndex("wall", true);
+  indexMap.summon = pickIndex("summon", true);
+  indexMap.tank = pickIndex("tank", true);
+  indexMap.tankkiller = pickIndex("tankkiller", true);
 
   return indexMap;
 }
