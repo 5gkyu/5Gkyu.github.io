@@ -1312,6 +1312,15 @@
             "yomi": "すたーのゔぁ"
         },
         {
+            "id": "wendy",
+            "name": "ウェンディ",
+            "image": "c-39-31wendy.png",
+            "rarity": "ミシック",
+            "rarityLevel": 5,
+            "order": 41,
+            "yomi": "うぇんでぃ"
+        },
+        {
             "id": "spike",
             "name": "スパイク",
             "image": "c-41-spike.png",
@@ -1427,6 +1436,15 @@
             "rarityLevel": 6,
             "order": 13,
             "yomi": "ぴあす"
+        },
+        {
+            "id": "nori",
+            "name": "ノリ",
+            "image": "c-49-5nori.png",
+            "rarity": "レジェンド",
+            "rarityLevel": 6,
+            "order": 14,
+            "yomi": "のり"
         },
         {
             "id": "kaze",
