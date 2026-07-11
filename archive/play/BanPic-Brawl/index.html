@@ -26,6 +26,39 @@
         }
     </style>
     <style>
+        /* フェーズ遷移時のインターバル画面 */
+        .phase-interstitial {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 900;
+            z-index: 9999;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 20px var(--primary-color);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            text-align: center;
+            padding: 2rem;
+            transform: scale(0.9);
+        }
+
+        .phase-interstitial.active {
+            opacity: 1;
+            pointer-events: none;
+            /* コンテナスクロール許可のためnoneに変更 */
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+
         * {
             margin: 0;
             padding: 0;
@@ -934,19 +967,7 @@
             padding: 0 0.1rem;
         }
 
-        .map-grid-item.kyougi {
-            background: rgba(255, 180, 0, 0.18);
-            border-color: rgba(255, 180, 0, 0.35);
-        }
 
-        .map-grid-item.kyougi:hover {
-            background: rgba(255, 180, 0, 0.28);
-        }
-
-        .map-grid-item.kyougi.selected {
-            background: rgba(255, 180, 0, 0.35);
-            border-color: #ffb400;
-        }
 
         /* モバイル: grid-row/columnの明示的指定をリセット */
         @media (max-width: 767px) {
@@ -2499,17 +2520,13 @@
             color: #000;
         }
 
-        /* PICフェーズのチーム色（先攻=145=青、後攻=236=赤） */
-        .phase-step.active[data-phase="pic1"],
-        .phase-step.active[data-phase="pic4"],
-        .phase-step.active[data-phase="pic5"] {
+        /* PICフェーズのチーム色（動的に付与） */
+        .phase-step.active.turn-my {
             background: #4a90d9;
             color: #fff;
         }
 
-        .phase-step.active[data-phase="pic2"],
-        .phase-step.active[data-phase="pic3"],
-        .phase-step.active[data-phase="pic6"] {
+        .phase-step.active.turn-opponent {
             background: #e74c3c;
             color: #fff;
         }
@@ -3179,14 +3196,6 @@
         .btn-lg {
             padding: 0.75rem 2rem;
             font-size: 1.1rem;
-        }
-
-        /* テストモードバッジ */
-        .test-mode-indicator {
-            position: fixed;
-            top: 70px;
-            right: 10px;
-            z-index: 100;
         }
 
         /* タブレット調整 (iPad等) */
@@ -4146,7 +4155,6 @@
                     <div
                         style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem;">
                         <button class="btn btn-primary" id="create-room-btn">ルームを作成</button>
-                        <button class="btn btn-warning" id="test-mode-btn">テストモード</button>
                         <div class="user-info" id="user-info-btn" title="プロフィール設定" style="margin-left: auto;">
                             <div class="user-avatar" id="user-avatar"
                                 style="box-shadow: 0 0 0 2px rgba(255,255,255,0.2);"></div>
@@ -4346,8 +4354,6 @@
         </div>
     </div>
 
-    <!-- テストモード開始ボタン（ロビーに追加） -->
-
     <!-- ルーム作成モーダル -->
     <div class="modal-overlay" id="create-room-modal">
         <div class="modal">
@@ -4427,10 +4433,7 @@
                     <label>参加するルーム</label>
                     <input type="text" id="join-room-name" readonly autocomplete="username">
                 </div>
-                <div class="form-group">
-                    <label>あなたの名前</label>
-                    <input type="text" id="guest-name-input" placeholder="ゲスト" maxlength="10" autocomplete="username">
-                </div>
+
                 <div class="form-group" id="join-password-group" style="display: none;">
                     <label>パスワード <span class="required">*</span></label>
                     <input type="password" id="join-password-input" placeholder="パスワードを入力"
@@ -4486,11 +4489,14 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue, get, push, update, set, remove, runTransaction, onDisconnect, serverTimestamp, off, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    <script>
+        window.openMapModal = openMapModal;
+        window.closeMapModal = closeMapModal;
+
         // ========================================
         // Firebase 初期化
         // ========================================
@@ -4505,9 +4511,9 @@
             measurementId: "G-35DCQ7MMMR"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
 
         // ========================================
         // グローバル状態
@@ -4521,6 +4527,157 @@
         let guestHeartbeatInterval = null;
         // room expiry timers: { roomId: timeoutId }
         const roomExpiryTimers = {};
+
+        // ========================================
+        // 音声管理 (SoundManager) - Web Audio API版
+        // モバイル/タブレットでもラグなし・ブロック回避
+        const SoundManager = {
+            // AudioContext（遅延初期化）
+            _ctx: null,
+            // デコード済みバッファ格納先
+            _buffers: {},
+            // ループ再生中のソースノード
+            _loopSources: {},
+            // 読み込み済みフラグ
+            _loaded: false,
+            // 読み込み中フラグ
+            _loading: false,
+            // アンロック済みフラグ
+            _unlocked: false,
+            // 音声ファイルのマッピング
+            _soundMap: {
+                match: '../../../sound/マッチング.mp3',
+                coinToss: '../../../sound/コイントス.mp3',
+                tickTock: '../../../sound/チクタク.mp3',
+                banTap: '../../../sound/banタップ.mp3',
+                picTap: '../../../sound/picタップ.mp3',
+                picConfirm: '../../../sound/pic確定.mp3',
+                yourTurn: '../../../sound/あなたの番.mp3'
+            },
+
+            // AudioContextを取得・作成
+            _getContext: function () {
+                if (!this._ctx) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    this._ctx = new AC();
+                }
+                return this._ctx;
+            },
+
+            // モバイルのAutoplay制限を解除する
+            // ユーザーのタッチ/クリックイベント内で呼ぶ
+            unlock: function () {
+                if (this._unlocked) return;
+                const ctx = this._getContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => { });
+                }
+                // 無音バッファを再生してロック解除
+                const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+                const src = ctx.createBufferSource();
+                src.buffer = silentBuffer;
+                src.connect(ctx.destination);
+                src.start(0);
+                this._unlocked = true;
+                // まだ読み込んでいなければ読み込み開始
+                if (!this._loaded && !this._loading) {
+                    this._loadAll();
+                }
+            },
+
+            // 全音声ファイルを一括フェッチ＆デコード
+            _loadAll: function () {
+                if (this._loading || this._loaded) return;
+                this._loading = true;
+                const ctx = this._getContext();
+                const entries = Object.entries(this._soundMap);
+                let loadedCount = 0;
+
+                entries.forEach(([key, url]) => {
+                    fetch(url)
+                        .then(res => {
+                            if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+                            return res.arrayBuffer();
+                        })
+                        .then(arrayBuf => ctx.decodeAudioData(arrayBuf))
+                        .then(audioBuf => {
+                            this._buffers[key] = audioBuf;
+                            loadedCount++;
+                            if (loadedCount === entries.length) {
+                                this._loaded = true;
+                                this._loading = false;
+                                console.log('SoundManager: 全音声読み込み完了');
+                            }
+                        })
+                        .catch(err => {
+                            console.warn(`SoundManager: ${key} の読み込み失敗:`, err);
+                            loadedCount++;
+                            if (loadedCount === entries.length) {
+                                this._loaded = true;
+                                this._loading = false;
+                            }
+                        });
+                });
+            },
+
+            // 再生（ワンショット）
+            play: function (key) {
+                const ctx = this._getContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => { });
+                }
+                const buffer = this._buffers[key];
+                if (!buffer) {
+                    // バッファ未読み込みの場合、フォールバックとしてHTML5 Audioで再生
+                    const url = this._soundMap[key];
+                    if (url) {
+                        const fallback = new Audio(url);
+                        fallback.play().catch(() => { });
+                    }
+                    return;
+                }
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(ctx.destination);
+                source.start(0);
+            },
+
+            // ループ再生
+            playLoop: function (key) {
+                // 既にループ再生中なら何もしない
+                if (this._loopSources[key]) return;
+                const ctx = this._getContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => { });
+                }
+                const buffer = this._buffers[key];
+                if (!buffer) return;
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.loop = true;
+                source.connect(ctx.destination);
+                source.start(0);
+                this._loopSources[key] = source;
+            },
+
+            // 停止
+            stop: function (key) {
+                if (this._loopSources[key]) {
+                    try {
+                        this._loopSources[key].stop();
+                    } catch (e) { /* already stopped */ }
+                    delete this._loopSources[key];
+                }
+            }
+        };
+
+        // ページ上の最初のユーザー操作でAudio Unlockを実行
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, function _unlockAudio() {
+                SoundManager.unlock();
+                document.removeEventListener(evt, _unlockAudio, { capture: true });
+            }, { capture: true, once: true });
+        });
 
         // 画像ベースパス（BanPic-Brawl配下からmainpage/imageを参照）
         const IMAGE_BASE_PATH = '../../../image/';
@@ -4622,7 +4779,7 @@
 
             mapsToShow.forEach((map, idx) => {
                 const item = document.createElement('div');
-                item.className = 'map-grid-item' + (idx === 0 ? ' selected' : '') + (map.kyougi ? ' kyougi' : '');
+                item.className = 'map-grid-item' + (idx === 0 ? ' selected' : '');
                 item.dataset.mapId = map.id;
                 item.dataset.mapImage = map.image;
                 item.innerHTML = `
@@ -4853,15 +5010,17 @@
         function subscribeToRooms() {
             // 既存のリスナーを必ず解除してから再登録（重複リスナー蓄積防止）
             unsubscribeFromRooms();
-            const roomsRef = database.ref('rooms');
+            const roomsRef = ref(database, 'rooms');
 
             // orderByChildを使わずにシンプルにリスナーを設定（DBルールとの互換性向上）
-            roomsListener = roomsRef.on('value', (snapshot) => {
+            roomsListener = onValue(roomsRef, (snapshot) => {
                 const allRooms = snapshot.val() || {};
                 // クライアント側でopenなルームをフィルター
                 const rooms = {};
                 Object.entries(allRooms).forEach(([id, room]) => {
-                    if (room.meta && room.meta.state === 'open') {
+                    if (room.meta && isStaleRoom(room.meta)) {
+                        remove(ref(database, `rooms/${id}`)).catch(e => console.warn('stale room remove failed', e));
+                    } else if (room.meta && room.meta.state === 'open') {
                         rooms[id] = room;
                     }
                 });
@@ -4877,7 +5036,7 @@
         function unsubscribeFromRooms() {
             if (roomsListener) {
                 // 特定のコールバックだけでなく、念のため全 value リスナーを解除
-                database.ref('rooms').off('value');
+                off(ref(database, 'rooms'), 'value');
                 roomsListener = null;
             }
         }
@@ -4888,12 +5047,12 @@
                 clearRoomExpiry(roomId);
                 roomExpiryTimers[roomId] = setTimeout(async () => {
                     try {
-                        const snap = await database.ref(`rooms/${roomId}/meta`).once('value');
+                        const snap = await get(ref(database, `rooms/${roomId}/meta`));
                         const meta = snap.val();
                         if (!meta) return; // already removed
                         // ゲストがまだいない・状態が open の場合は削除
                         if ((!meta.guestId) && meta.state === 'open') {
-                            await database.ref(`rooms/${roomId}`).remove();
+                            await remove(ref(database, `rooms/${roomId}`));
                         }
                     } catch (err) {
                         console.warn('room expiry check failed for', roomId, err);
@@ -4948,7 +5107,7 @@
             hideLobbyError();
             try {
                 if (!auth.currentUser) {
-                    await auth.signInAnonymously();
+                    await signInAnonymously(auth);
                 }
             } catch (e) {
                 console.error('再試行サインイン失敗:', e);
@@ -4973,7 +5132,7 @@
                 if (!room.meta.roomName) return false;
                 if (isStaleRoom(room.meta)) {
                     // 古いルームは自動削除を試みる
-                    database.ref(`rooms/${id}`).remove().catch(e => console.warn('stale room remove failed', e));
+                    remove(ref(database, `rooms/${id}`)).catch(e => console.warn('stale room remove failed', e));
                     return false;
                 }
                 return true;
@@ -5028,7 +5187,7 @@
                 card.addEventListener('click', (e) => {
                     // 管理者用削除ボタンが押された場合は参加処理を行わない
                     if (e.target.closest('.btn-admin-delete')) return;
-                    
+
                     if (playerCount < 2) {
                         openJoinModal(roomId, meta);
                     }
@@ -5041,7 +5200,7 @@
                         e.stopPropagation();
                         if (confirm(`ルーム「${meta.roomName}」を削除しますか？`)) {
                             try {
-                                await database.ref(`rooms/${roomId}`).remove();
+                                await remove(ref(database, `rooms/${roomId}`));
                             } catch (err) {
                                 alert('削除に失敗しました: ' + err.message);
                             }
@@ -5054,7 +5213,7 @@
                 // ホストのアバターを差し替え（roomメタのhostAvatarを優先）
                 const avatarEl = card.querySelector('.room-avatar');
                 if (meta.hostAvatar) {
-                    avatarEl.innerHTML = `<img src="${meta.hostAvatar}" alt="host">`;
+                    setAvatarSafe(avatarEl, meta.hostAvatar, meta.hostName || '?');
                 } else {
                     avatarEl.textContent = (meta.hostName || '?').charAt(0).toUpperCase();
                 }
@@ -5101,7 +5260,6 @@
             // モードに関わらず map select の必須を復元
             const mapSelectClose = document.getElementById('room-map-select');
             if (mapSelectClose) mapSelectClose.required = true;
-            delete createRoomModal.dataset.testMode;
             const headerH3 = document.querySelector('#create-room-modal .modal-header h3');
             if (headerH3) headerH3.textContent = 'ルームを作成';
         });
@@ -5112,7 +5270,6 @@
             // map select の必須を復元
             const mapSelectCancel = document.getElementById('room-map-select');
             if (mapSelectCancel) mapSelectCancel.required = true;
-            delete createRoomModal.dataset.testMode;
             const headerH3c = document.querySelector('#create-room-modal .modal-header h3');
             if (headerH3c) headerH3c.textContent = 'ルームを作成';
         });
@@ -5149,17 +5306,16 @@
                 // restore map select required attribute
                 const mapSelectSubmit = document.getElementById('room-map-select');
                 if (mapSelectSubmit) mapSelectSubmit.required = true;
-                delete createRoomModal.dataset.testMode;
                 const headerH3t = document.querySelector('#create-room-modal .modal-header h3');
                 if (headerH3t) headerH3t.textContent = 'ルームを作成';
                 return;
             }
 
             try {
-                const newRoomRef = database.ref('rooms').push();
+                const newRoomRef = push(ref(database, 'rooms'));
                 const roomId = newRoomRef.key;
 
-                await newRoomRef.set({
+                await set(newRoomRef, {
                     meta: {
                         roomName: roomName,
                         hostId: currentUserId,
@@ -5170,7 +5326,7 @@
                         guestAvatar: null,
                         passwordHash: hashPassword(password),
                         state: 'open',
-                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        createdAt: serverTimestamp(),
                         mode: modeKey,
                         mapName: mapName,
                         mapImage: mapImage,
@@ -5181,17 +5337,17 @@
 
                 // ホストが切断したらルームを削除する（onDisconnect）
                 try {
-                    await newRoomRef.child('meta').onDisconnect().remove();
+                    await onDisconnect(child(newRoomRef, 'meta')).remove();
                 } catch (err) {
                     console.warn('onDisconnect remove 設定失敗:', err);
                 }
 
                 // ホストのハートビート（lastSeen）を設定
                 try {
-                    await newRoomRef.child('meta').update({ lastSeen: firebase.database.ServerValue.TIMESTAMP });
+                    await update(child(newRoomRef, 'meta'), { lastSeen: serverTimestamp() });
                     if (hostHeartbeatInterval) clearInterval(hostHeartbeatInterval);
                     hostHeartbeatInterval = setInterval(() => {
-                        database.ref(`rooms/${roomId}/meta`).update({ lastSeen: firebase.database.ServerValue.TIMESTAMP }).catch(e => console.warn('heartbeat error', e));
+                        update(ref(database, `rooms/${roomId}/meta`), { lastSeen: serverTimestamp() }).catch(e => console.warn('heartbeat error', e));
                     }, 30000);
                 } catch (err) {
                     console.warn('ホストハートビート初期化失敗:', err);
@@ -5226,13 +5382,7 @@
             document.getElementById('join-room-name').value = meta.roomName;
             document.getElementById('join-room-id').value = roomId;
 
-            // 現在のユーザー名を自動入力
-            const guestNameInput = document.getElementById('guest-name-input');
-            if (currentUserName && currentUserName !== 'ゲスト') {
-                guestNameInput.value = currentUserName;
-            } else {
-                guestNameInput.value = '';
-            }
+
 
             const passwordGroup = document.getElementById('join-password-group');
             if (meta.passwordHash) {
@@ -5258,12 +5408,12 @@
             e.preventDefault();
 
             const roomId = document.getElementById('join-room-id').value;
-            const guestName = document.getElementById('guest-name-input').value.trim() || 'ゲスト';
+            const guestName = (typeof currentUserName !== 'undefined' && currentUserName && currentUserName !== 'ゲスト') ? currentUserName : 'ゲスト';
             const password = document.getElementById('join-password-input').value;
 
             try {
-                const roomRef = database.ref(`rooms/${roomId}`);
-                const snapshot = await roomRef.once('value');
+                const roomRef = ref(database, `rooms/${roomId}`);
+                const snapshot = await get(roomRef);
                 const room = snapshot.val();
 
                 if (!room || room.meta.state !== 'open') {
@@ -5285,7 +5435,7 @@
                 }
 
                 // ゲストとして参加
-                await roomRef.child('meta').update({
+                await update(child(roomRef, 'meta'), {
                     guestId: currentUserId,
                     guestName: guestName,
                     guestAvatar: userAvatarUrl || null
@@ -5300,17 +5450,20 @@
 
                 // ゲストが切断したら guest 情報をクリアする
                 try {
-                    await roomRef.onDisconnect().remove();
+                    await onDisconnect(child(roomRef, 'meta/guestId')).remove();
+                    await onDisconnect(child(roomRef, 'meta/guestName')).remove();
+                    await onDisconnect(child(roomRef, 'meta/guestAvatar')).remove();
+                    await onDisconnect(child(roomRef, 'meta/guestLastSeen')).remove();
                 } catch (err) {
                     console.warn('ゲスト onDisconnect 設定失敗:', err);
                 }
 
                 // ゲストのハートビート（guestLastSeen）を設定
                 try {
-                    await roomRef.child('meta').update({ guestLastSeen: firebase.database.ServerValue.TIMESTAMP });
+                    await update(child(roomRef, 'meta'), { guestLastSeen: serverTimestamp() });
                     if (guestHeartbeatInterval) clearInterval(guestHeartbeatInterval);
                     guestHeartbeatInterval = setInterval(() => {
-                        database.ref(`rooms/${roomId}/meta`).update({ guestLastSeen: firebase.database.ServerValue.TIMESTAMP }).catch(e => console.warn('guest heartbeat error', e));
+                        update(ref(database, `rooms/${roomId}/meta`), { guestLastSeen: serverTimestamp() }).catch(e => console.warn('guest heartbeat error', e));
                     }, 30000);
                 } catch (err) {
                     console.warn('ゲストハートビート初期化失敗:', err);
@@ -5337,11 +5490,11 @@
         function enterWaitingRoom(roomId, roomName, hostName, guestName, isHost) {
             // 古いリスナーを解除（前回の履歴が残らないように）
             if (currentRoomRef) {
-                currentRoomRef.off();
+                off(currentRoomRef);
                 currentRoomRef = null;
             }
             if (activeGameRef) {
-                activeGameRef.off();
+                off(activeGameRef);
                 activeGameRef = null;
             }
             showScreen('waiting-screen');
@@ -5372,30 +5525,30 @@
 
             // 自分がホストなら自分のアバターを即時反映（Firebase不要）
             if (isHost && userAvatarUrl) {
-                hostAvatarInitEl.innerHTML = `<img src="${userAvatarUrl}" alt="host">`;
+                setAvatarSafe(hostAvatarInitEl, userAvatarUrl, 'host');
             }
             // 自分がゲストなら自分のアバターをゲスト側に即時反映
             if (!isHost && guestName && userAvatarUrl) {
                 const guestAvatarEl = document.getElementById('guest-avatar');
-                guestAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="guest">`;
+                setAvatarSafe(guestAvatarEl, userAvatarUrl, 'guest');
                 guestAvatarEl.classList.remove('empty');
             }
 
             // ルームの変更を監視
-            currentRoomRef = database.ref(`rooms/${roomId}/meta`);
+            currentRoomRef = ref(database, `rooms/${roomId}/meta`);
             // 初回取得でホスト/ゲストのアバターがあれば表示（roomメタのhostAvatar/guestAvatarを優先）
-            database.ref(`rooms/${roomId}/meta`).once('value').then((snap) => {
+            get(ref(database, `rooms/${roomId}/meta`)).then((snap) => {
                 const initialMeta = snap.val();
                 if (initialMeta) {
                     const hostEl = document.getElementById('host-avatar');
                     if (initialMeta.hostAvatar) {
-                        hostEl.innerHTML = `<img src="${initialMeta.hostAvatar}" alt="host">`;
+                        setAvatarSafe(hostEl, initialMeta.hostAvatar, initialMeta.hostName || hostName || 'H');
                     } else if (!hostEl.querySelector('img')) {
                         hostEl.textContent = (initialMeta.hostName || hostName || 'H').charAt(0).toUpperCase();
                     }
                     if (initialMeta.guestId && initialMeta.guestAvatar) {
                         const guestEl = document.getElementById('guest-avatar');
-                        guestEl.innerHTML = `<img src="${initialMeta.guestAvatar}" alt="guest">`;
+                        setAvatarSafe(guestEl, initialMeta.guestAvatar, initialMeta.guestName || '?');
                         guestEl.classList.remove('empty');
                     } else if (initialMeta.guestId && !document.getElementById('guest-avatar').querySelector('img')) {
                         const guestEl = document.getElementById('guest-avatar');
@@ -5406,11 +5559,11 @@
             }).catch((err) => console.warn('初回ルームメタ取得失敗:', err));
 
             let roomGameStarted = false;
-            currentRoomRef.on('value', async (snapshot) => {
+            onValue(currentRoomRef, async (snapshot) => {
                 const meta = snapshot.val();
                 if (!meta) {
                     // ルームが削除された
-                    alert('ルームが削除されました');
+                    alert('対戦相手の接続が切れました');
                     leaveRoom();
                     return;
                 }
@@ -5426,7 +5579,7 @@
                     // ゲストアバターをroomメタから直接取得（guestAvatarフィールド）
                     const guestAvatarEl = document.getElementById('guest-avatar');
                     if (meta.guestAvatar) {
-                        guestAvatarEl.innerHTML = `<img src="${meta.guestAvatar}" alt="guest">`;
+                        setAvatarSafe(guestAvatarEl, meta.guestAvatar, meta.guestName || '?');
                     } else if (!guestAvatarEl.querySelector('img')) {
                         guestAvatarEl.textContent = (meta.guestName || '?').charAt(0).toUpperCase();
                     }
@@ -5449,7 +5602,7 @@
 
                     // ルームに古い guest 情報が残っている場合、ホストが自動で掃除する
                     if (isHost && hasGuestRecord && guestIsStale && meta.state === 'open') {
-                        database.ref(`rooms/${roomId}/meta`).update({
+                        update(ref(database, `rooms/${roomId}/meta`), {
                             guestId: null,
                             guestName: null,
                             guestAvatar: null,
@@ -5466,7 +5619,7 @@
                         else if (meta.firstMove === 'guest') resolvedIsBlue = false;
                         else resolvedIsBlue = Math.random() < 0.5;
 
-                        await database.ref(`rooms/${roomId}/meta`).update({ state: 'playing', resolvedFirstMoveIsBlue: resolvedIsBlue });
+                        await update(ref(database, `rooms/${roomId}/meta`), { state: 'playing', resolvedFirstMoveIsBlue: resolvedIsBlue });
                     } catch (err) {
                         console.warn('failed to update room state to playing:', err);
                     }
@@ -5515,24 +5668,24 @@
 
         async function leaveRoom() {
             if (currentRoomRef) {
-                currentRoomRef.off();
+                off(currentRoomRef);
             }
 
             if (currentRoomId) {
                 try {
-                    const roomRef = database.ref(`rooms/${currentRoomId}/meta`);
-                    const snapshot = await roomRef.once('value');
+                    const roomRef = ref(database, `rooms/${currentRoomId}/meta`);
+                    const snapshot = await get(roomRef);
                     const meta = snapshot.val();
 
                     if (meta) {
                         if (meta.hostId === currentUserId) {
                             // ホストが退出 → ルーム削除
-                            await database.ref(`rooms/${currentRoomId}`).remove();
+                            await remove(ref(database, `rooms/${currentRoomId}`));
                             if (hostHeartbeatInterval) { clearInterval(hostHeartbeatInterval); hostHeartbeatInterval = null; }
                             try { clearRoomExpiry(currentRoomId); } catch (e) { console.warn('clear expiry on host leave', e); }
                         } else if (meta.guestId === currentUserId) {
                             // ゲストが退出
-                            await database.ref(`rooms/${currentRoomId}`).remove();
+                            await remove(ref(database, `rooms/${currentRoomId}`));
                             if (guestHeartbeatInterval) { clearInterval(guestHeartbeatInterval); guestHeartbeatInterval = null; }
                             try { clearRoomExpiry(currentRoomId); } catch (e) { console.warn('clear expiry on guest leave', e); }
                         }
@@ -5616,14 +5769,14 @@
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     userAvatarUrl = event.target.result;
-                    userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
-                    userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                    setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
+                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
                     // LocalStorageに保存
                     localStorage.setItem('userAvatar', userAvatarUrl);
                     // Firebase Realtime Database にも保存（Storageは使わないため、base64データをDBに置く）
                     if (currentUserId) {
                         try {
-                            database.ref(`users/${currentUserId}`).update({
+                            update(ref(database, `users/${currentUserId}`), {
                                 avatar: userAvatarUrl,
                                 displayName: currentUserName || null
                             });
@@ -5637,7 +5790,7 @@
         });
 
         // Googleログイン
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        const googleProvider = new GoogleAuthProvider();
 
         document.getElementById('google-login-btn').addEventListener('click', async () => {
             try {
@@ -5646,14 +5799,14 @@
                 // 既に匿名ユーザーならリンクして同じUIDにGoogleを紐付ける
                 if (current && current.isAnonymous) {
                     try {
-                        result = await current.linkWithPopup(googleProvider);
+                        result = await linkWithPopup(current, googleProvider);
                     } catch (linkErr) {
                         // リンクが失敗したら通常のサインインにフォールバック
                         console.warn('linkWithPopup失敗、signInWithPopupにフォールバック:', linkErr);
-                        result = await auth.signInWithPopup(googleProvider);
+                        result = await signInWithPopup(auth, googleProvider);
                     }
                 } else {
-                    result = await auth.signInWithPopup(googleProvider);
+                    result = await signInWithPopup(auth, googleProvider);
                 }
 
                 const user = result.user;
@@ -5668,12 +5821,12 @@
                 } else {
                     userAvatarUrl = GOOGLE_ICON_URL;
                 }
-                userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
-                userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
+                setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
 
                 // DBにも保存（他クライアントが取得できるように）
                 try {
-                    await database.ref(`users/${currentUserId}`).update({
+                    await update(ref(database, `users/${currentUserId}`), {
                         displayName: currentUserName,
                         avatar: userAvatarUrl
                     });
@@ -5697,9 +5850,9 @@
         // ログアウト
         document.getElementById('logout-btn').addEventListener('click', async () => {
             try {
-                await auth.signOut();
+                await signOut(auth);
                 // 匿名で再ログイン
-                const userCredential = await auth.signInAnonymously();
+                const userCredential = await signInAnonymously(auth);
                 currentUserId = userCredential.user.uid;
                 currentUserName = 'ゲスト';
                 currentUserNameEl.textContent = currentUserName;
@@ -5713,6 +5866,17 @@
             }
         });
 
+        function setAvatarSafe(container, url, altText) {
+            container.innerHTML = '';
+            if (url) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = altText || 'Avatar';
+                container.appendChild(img);
+            } else {
+                container.textContent = (altText || 'G').charAt(0).toUpperCase();
+            }
+        }
         function updateLoginSection() {
             const user = auth.currentUser;
             const loginSection = document.getElementById('login-section');
@@ -5738,7 +5902,7 @@
                 // DBに保存（匿名含む）
                 if (currentUserId) {
                     try {
-                        database.ref(`users/${currentUserId}`).update({
+                        update(ref(database, `users/${currentUserId}`), {
                             displayName: newName,
                             avatar: userAvatarUrl || null
                         });
@@ -5762,8 +5926,8 @@
 
             if (savedAvatar) {
                 userAvatarUrl = savedAvatar;
-                userAvatarEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
-                userAvatarLargeEl.innerHTML = `<img src="${savedAvatar}" alt="avatar">`;
+                setAvatarSafe(userAvatarEl, savedAvatar, 'avatar');
+                setAvatarSafe(userAvatarLargeEl, savedAvatar, 'avatar');
             } else {
                 // アバター未設定: 名前のイニシャルを表示
                 const initial = (currentUserName || savedName || 'G').charAt(0).toUpperCase();
@@ -5776,7 +5940,7 @@
         // 初期化
         // ========================================
         // 認証状態の監視
-        auth.onAuthStateChanged((user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserId = user.uid;
 
@@ -5796,7 +5960,7 @@
                 }
                 // DBに保存されているプロフィールがあるかチェック（優先）
                 try {
-                    database.ref(`users/${currentUserId}`).once('value').then((snap) => {
+                    get(ref(database, `users/${currentUserId}`)).then((snap) => {
                         const profile = snap.val();
                         if (profile) {
                             if (profile.displayName) {
@@ -5806,8 +5970,8 @@
                             }
                             if (profile.avatar) {
                                 userAvatarUrl = profile.avatar;
-                                userAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
-                                userAvatarLargeEl.innerHTML = `<img src="${userAvatarUrl}" alt="avatar">`;
+                                setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
+                                setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
                                 localStorage.setItem('userAvatar', userAvatarUrl);
                             } else {
                                 // 無ければ既存のlocalStorageを復元
@@ -5833,7 +5997,7 @@
                 subscribeToRooms();
             } else {
                 // ユーザーがいない場合は匿名サインイン
-                auth.signInAnonymously()
+                signInAnonymously(auth)
                     .then((userCredential) => {
                         currentUserId = userCredential.user.uid;
                         restoreUserSettings();
@@ -5883,6 +6047,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadImageData().then(() => {
+                if (typeof updateSlotPreview === 'function') updateSlotPreview();
+                preloadImages();
+            }).catch(() => {
+                if (typeof updateSlotPreview === 'function') updateSlotPreview();
+            });
             loadImageData().then(() => {
                 // 画像データ読込後にスロット初期表示を更新
                 if (typeof updateSlotPreview === 'function') updateSlotPreview();
@@ -5947,7 +6117,6 @@
 
         // BANPIC ゲーム状態
         let banpicState = {
-            isTestMode: false,
             isBlueTeam: true,  // プレイヤーがブルーチームかどうか
             phase: 'ban',      // 'ban', 'pic1'~'pic6', 'done'
             phaseIndex: 0,     // 0=BAN, 1-6=PIC1-6, 7=done
@@ -6033,8 +6202,9 @@
             if (banpicState.allBannedIds.includes(charId)) return;
             if ([...banpicState.bluePicks, ...banpicState.redPicks].includes(charId)) return;
 
-            // BANフェーズの処理
+            // BANフェーズの場合
             if (phase === 'ban') {
+                SoundManager.play('banTap');
                 // BANフェーズ: 最大3体まで選択可能（トグル）
                 const idx = banpicState.selectedCharacters.indexOf(charId);
                 if (idx >= 0) {
@@ -6051,6 +6221,7 @@
                     }
                     return;
                 }
+                SoundManager.play('picTap');
                 banpicState.selectedCharacters = [charId];
             } else {
                 // 不明なフェーズは無視
@@ -6139,7 +6310,10 @@
             const leftSlots = document.querySelectorAll('#ban-slots-left .ban-slot');
             const rightSlots = document.querySelectorAll('#ban-slots-right .ban-slot');
 
-            banpicState.blueBans.forEach((charId, i) => {
+            const myBans = banpicState.isBlueTeam ? banpicState.blueBans : banpicState.redBans;
+            const opponentBans = banpicState.isBlueTeam ? banpicState.redBans : banpicState.blueBans;
+
+            myBans.forEach((charId, i) => {
                 const brawler = BRAWLERS.find(b => b.id === charId);
                 if (brawler && leftSlots[i]) {
                     leftSlots[i].innerHTML = `<img src="${buildImageUrl(brawler.image, true)}" alt="${brawler.name}">`;
@@ -6148,7 +6322,7 @@
                 }
             });
 
-            banpicState.redBans.forEach((charId, i) => {
+            opponentBans.forEach((charId, i) => {
                 const brawler = BRAWLERS.find(b => b.id === charId);
                 if (brawler && rightSlots[i]) {
                     rightSlots[i].innerHTML = `<img src="${buildImageUrl(brawler.image, true)}" alt="${brawler.name}">`;
@@ -6161,7 +6335,10 @@
             const bluePickSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
             const redPickSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
 
-            banpicState.bluePicks.forEach((charId, i) => {
+            const myPicks = banpicState.isBlueTeam ? banpicState.bluePicks : banpicState.redPicks;
+            const opponentPicks = banpicState.isBlueTeam ? banpicState.redPicks : banpicState.bluePicks;
+
+            myPicks.forEach((charId, i) => {
                 const brawler = BRAWLERS.find(b => b.id === charId);
                 if (brawler && bluePickSlots[i]) {
                     const orderBadge = bluePickSlots[i].querySelector('.pick-order');
@@ -6172,9 +6349,8 @@
                 }
             });
 
-            banpicState.redPicks.forEach((charId, i) => {
+            opponentPicks.forEach((charId, i) => {
                 const brawler = BRAWLERS.find(b => b.id === charId);
-                // レッド側は逆順で表示（data-slot="2,1,0"の順）
                 const slotIndex = 2 - i;
                 const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(slotIndex));
                 if (brawler && slot) {
@@ -6188,41 +6364,24 @@
 
             // 未確定の選択をスロットに表示（自分の選択）
             const phase = banpicState.phase;
-            const isBluePlayer = banpicState.isBlueTeam;
             if (banpicState.selectedCharacters.length > 0) {
                 if (phase === 'ban') {
-                    // BAN時は同じ列（自チーム）に選択を表示
-                    const targetSlots = isBluePlayer ? leftSlots : rightSlots;
                     banpicState.selectedCharacters.forEach((charId, i) => {
                         const b = BRAWLERS.find(x => x.id === charId);
-                        if (b && targetSlots[i] && targetSlots[i].classList.contains('empty')) {
-                            targetSlots[i].innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
-                            targetSlots[i].classList.add('selected');
-                            targetSlots[i].classList.remove('empty');
+                        if (b && leftSlots[i] && leftSlots[i].classList.contains('empty')) {
+                            leftSlots[i].innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
+                            leftSlots[i].classList.add('selected');
+                            leftSlots[i].classList.remove('empty');
                         }
                     });
                 } else if (phase.startsWith('pic')) {
-                    // PIC時は自チームの次のピックスロットに表示
-                    if (isBluePlayer) {
-                        const nextIndex = banpicState.bluePicks.length; // 0..2
-                        const slot = bluePickSlots[nextIndex];
-                        const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
-                        if (b && slot && slot.classList.contains('empty')) {
-                            slot.innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
-                            slot.classList.add('selected');
-                            slot.classList.remove('empty');
-                        }
-                    } else {
-                        // レッドは逆位置
-                        const nextIndex = banpicState.redPicks.length; // 0..2
-                        const targetSlotIndex = 2 - nextIndex; // data-slot mapping
-                        const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
-                        const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
-                        if (b && slot && slot.classList.contains('empty')) {
-                            slot.innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
-                            slot.classList.add('selected');
-                            slot.classList.remove('empty');
-                        }
+                    const nextIndex = (banpicState.isBlueTeam ? banpicState.bluePicks : banpicState.redPicks).length;
+                    const slot = bluePickSlots[nextIndex];
+                    const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
+                    if (b && slot && slot.classList.contains('empty')) {
+                        slot.innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
+                        slot.classList.add('selected');
+                        slot.classList.remove('empty');
                     }
                 }
             }
@@ -6234,12 +6393,13 @@
                 const picNum = parseInt(banpicState.phase.replace('pic', ''));
                 const isBlueTurn = ['1', '4', '5'].includes(String(picNum)) ? true : false;
                 // ただし実際のプレイヤーがブルーかは関係なく、表示上は自チームの次スロットを白にする
-                if (isBlueTurn) {
-                    const nextIndex = banpicState.bluePicks.length; // 次に埋まるインデックス
+                const isMyTurn = banpicState.isBlueTeam === isBlueTurn;
+                if (isMyTurn) {
+                    const nextIndex = (banpicState.isBlueTeam ? banpicState.bluePicks : banpicState.redPicks).length;
                     const target = bluePickSlots[nextIndex];
                     if (target) target.classList.add('pic-phase-active');
                 } else {
-                    const nextIndex = banpicState.redPicks.length; // 0..2
+                    const nextIndex = (banpicState.isBlueTeam ? banpicState.redPicks : banpicState.bluePicks).length;
                     const targetSlotIndex = 2 - nextIndex;
                     const target = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
                     if (target) target.classList.add('pic-phase-active');
@@ -6250,17 +6410,30 @@
         }
 
         // フェーズ表示を更新
+        let lastPlayedPhaseIndex = -1;
         function updatePhaseDisplay() {
             const phaseText = document.getElementById('phase-text');
             const timerEl = document.getElementById('phase-timer');
 
             const phaseSteps = document.querySelectorAll('.phase-step');
+            if (banpicState.phaseIndex !== lastPlayedPhaseIndex && isPlayerTurn()) {
+                SoundManager.play('yourTurn');
+                lastPlayedPhaseIndex = banpicState.phaseIndex;
+            }
             phaseSteps.forEach((step, i) => {
-                step.classList.remove('active', 'completed');
+                step.classList.remove('active', 'completed', 'turn-my', 'turn-opponent');
                 if (i < banpicState.phaseIndex) {
                     step.classList.add('completed');
                 } else if (i === banpicState.phaseIndex) {
                     step.classList.add('active');
+                    const phase = banpicState.phase;
+                    if (phase && phase.startsWith('pic')) {
+                        if (isPlayerTurn()) {
+                            step.classList.add('turn-my');
+                        } else {
+                            step.classList.add('turn-opponent');
+                        }
+                    }
                 }
             });
 
@@ -6375,6 +6548,10 @@
                 banpicState.timer = Math.max(0, banpicState.timer - 1);
                 updatePhaseDisplay();
 
+                if (banpicState.timer > 0) {
+                    SoundManager.play('tickTock');
+                }
+
                 if (banpicState.timer <= 0) {
                     // オンラインで確定済み/相手ターン待ちのときは0秒表示で停止（自動確定はしない）
                     if (isOnlineMode() && (banpicState.confirmed || !isPlayerTurn())) {
@@ -6385,6 +6562,40 @@
                     handleTimeout();
                 }
             }, 1000);
+        }
+
+
+        // ========================================
+        // フェーズインターバル表示
+        // ========================================
+        function showPhaseInterstitial(phase) {
+            return new Promise(resolve => {
+                let overlay = document.getElementById('phase-interstitial');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'phase-interstitial';
+                    overlay.className = 'phase-interstitial';
+                    document.body.appendChild(overlay);
+                }
+
+                let text = '';
+                if (phase === 'ban') {
+                    text = '禁止キャラを選んでください！';
+                } else if (phase.startsWith('pic')) {
+                    if (isPlayerTurn()) {
+                        text = '使用キャラを選んでください！';
+                    } else {
+                        text = '相手が選択中...';
+                    }
+                }
+                overlay.textContent = text;
+                overlay.classList.add('active');
+
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    setTimeout(() => resolve(), 300); // Wait for fade out transition
+                }, 2000);
+            });
         }
 
         function stopPhaseTimer() {
@@ -6451,8 +6662,8 @@
             }
 
             // オンラインモード: Firebase に対して確定を書き込む
-            if (!banpicState.isTestMode && roomId) {
-                const gameRef = database.ref(`rooms/${roomId}/game`);
+            if (roomId) {
+                const gameRef = ref(database, `rooms/${roomId}/game`);
 
                 if (phase === 'ban') {
                     // BANは3体選択で確定
@@ -6471,7 +6682,7 @@
                         updateData.redConfirmed = true;
                     }
 
-                    gameRef.update(updateData).then(() => {
+                    update(gameRef, updateData).then(() => {
                         banpicState.selectedCharacters = [];
                         updateConfirmButton();
                         renderCharacterGrid();
@@ -6495,7 +6706,7 @@
                     if ((isBlue && isBluePhase) || (!isBlue && !isBluePhase)) {
                         banpicState.confirmed = true;
                         // 読み出して配列に追加してから更新
-                        gameRef.once('value').then(snap => {
+                        get(gameRef).then(snap => {
                             const current = snap.val() || {};
                             const picks = isBlue ? ([...(current.bluePicks || [])]) : ([...(current.redPicks || [])]);
 
@@ -6517,7 +6728,7 @@
                                 updateData.redConfirmed = true;
                             }
 
-                            return gameRef.update(updateData);
+                            return update(gameRef, updateData);
                         }).then(() => {
                             banpicState.selectedCharacters = [];
                             updateConfirmButton();
@@ -6551,31 +6762,12 @@
                 }
                 banpicState.selectedCharacters = [];
 
-                if (banpicState.isTestMode) {
-                    if (isBlue) {
-                        banpicState.redBans = generateBotBans();
-                    } else {
-                        banpicState.blueBans = generateBotBans();
-                    }
-                }
 
                 const allBans = new Set([...banpicState.blueBans, ...banpicState.redBans]);
                 banpicState.allBannedIds = [...allBans];
 
                 banpicState.phase = 'pic1';
                 banpicState.phaseIndex = 1;
-
-                if (banpicState.isTestMode && !isPlayerTurn()) {
-                    renderCharacterGrid();
-                    updateSlotPreview();
-                    updatePhaseDisplay();
-                    updateConfirmButton();
-                    setTimeout(() => {
-                        botSelectPick();
-                    }, 1000);
-                    return;
-                }
-
             } else if (phase.startsWith('pic')) {
                 const picNum = parseInt(phase.replace('pic', ''));
                 const isMyTurn = isPlayerTurn();
@@ -6592,13 +6784,6 @@
                 if (picNum < 6) {
                     banpicState.phase = `pic${picNum + 1}`;
                     banpicState.phaseIndex = picNum + 1;
-
-                    if (banpicState.isTestMode && !isPlayerTurn()) {
-                        setTimeout(() => {
-                            botSelectPick();
-                        }, 1000);
-                        return;
-                    }
                 } else {
                     banpicState.phase = 'done';
                     banpicState.phaseIndex = 7;
@@ -6613,78 +6798,9 @@
             updateConfirmButton();
 
             if (banpicState.phase !== 'done') {
-                startPhaseTimer();
-            }
-        }
-
-        // BOTのBAN生成（ランダム3体）
-        function generateBotBans() {
-            // プレイヤーがBANしたキャラを除外
-            const playerBans = banpicState.isBlueTeam ? banpicState.blueBans : banpicState.redBans;
-            const available = BRAWLERS.filter(b => !playerBans.includes(b.id));
-            const bans = [];
-
-            for (let i = 0; i < 3 && available.length > 0; i++) {
-                const idx = Math.floor(Math.random() * available.length);
-                bans.push(available[idx].id);
-                available.splice(idx, 1);
-            }
-
-            return bans;
-        }
-
-        // BOTのPICK選択
-        function botSelectPick() {
-            const available = getAvailableCharacters();
-            if (available.length === 0) {
-                confirmSelection();
-                return;
-            }
-
-            const idx = Math.floor(Math.random() * available.length);
-            const charId = available[idx].id;
-
-            // BOTのPICKを追加（プレイヤーの反対側）
-            if (banpicState.isBlueTeam) {
-                // プレイヤーが青なのでBOTは赤
-                banpicState.redPicks.push(charId);
-            } else {
-                // プレイヤーが赤なのでBOTは青
-                banpicState.bluePicks.push(charId);
-            }
-
-            // プレイヤーがプレピックしていたキャラをBOTが取った場合はクリア
-            if (banpicState.selectedCharacters[0] === charId) {
-                banpicState.selectedCharacters = [];
-            }
-
-            // 次のフェーズへ
-            const picNum = parseInt(banpicState.phase.replace('pic', ''));
-            if (picNum < 6) {
-                banpicState.phase = `pic${picNum + 1}`;
-                banpicState.phaseIndex = picNum + 1;
-            } else {
-                banpicState.phase = 'done';
-                banpicState.phaseIndex = 7;
-                renderCharacterGrid();
-                updateSlotPreview();
-                updatePhaseDisplay();
-                showBanpicResult();
-                return;
-            }
-
-            renderCharacterGrid();
-            updateSlotPreview();
-            updatePhaseDisplay();
-            updateConfirmButton();
-
-            // BOTが連続ターンの場合
-            if (banpicState.isTestMode && !isPlayerTurn()) {
-                setTimeout(() => {
-                    botSelectPick();
-                }, 1000);
-            } else {
-                startPhaseTimer();
+                showPhaseInterstitial(banpicState.phase).then(() => {
+                    startPhaseTimer();
+                });
             }
         }
 
@@ -6709,130 +6825,12 @@
         }
 
         // BANPIC開始（テストモード）
-        // 引数: modeKey (optional) - MODE_DATA のキー、 mapName (optional)、firstMove (optional) - 'random'/'host'/'guest'
-        function startTestMode(modeKey, mapName, firstMove) {
-            // 先攻後攻を決定（firstMoveがrandomなら50%で切り替え）
-            let isBlueFirst = true;
-            // random が指定されるか、引数が未指定の場合は50/50で決定
-            if (!firstMove || firstMove === 'random') {
-                isBlueFirst = Math.random() < 0.5;
-            } else if (firstMove === 'guest') {
-                isBlueFirst = false; // guest 指定ならプレイヤーは後攻（赤）になる
-            } else if (firstMove === 'host') {
-                isBlueFirst = true; // host 指定ならプレイヤーは先攻（青）
-            }
-            // 状態リセット
-            banpicState = {
-                isTestMode: true,
-                isBlueTeam: isBlueFirst,
-                phase: 'ban',
-                phaseIndex: 0,
-                timer: 20,
-                timerDuration: 20,
-                timerInterval: null,
-                selectedCharacters: [],
-                blueBans: [],
-                redBans: [],
-                bluePicks: [],
-                redPicks: [],
-                allBannedIds: [],
-                // mode は name プロパティを期待するためオブジェクト形式で格納
-                mode: null,
-                map: '静かな広場',
-            };
-            // 引数で渡された modeKey があればそれを使い、なければ既存の GAME_MODES からランダム選択
-            if (modeKey && MODE_DATA && MODE_DATA[modeKey]) {
-                banpicState.mode = { id: modeKey, name: MODE_DATA[modeKey].label };
-            } else if (typeof GAME_MODES !== 'undefined' && Array.isArray(GAME_MODES) && GAME_MODES.length) {
-                // GAME_MODES の各要素が {id, name} か {name} を想定
-                const gm = GAME_MODES[Math.floor(Math.random() * GAME_MODES.length)];
-                banpicState.mode = (gm && gm.name) ? gm : { id: gm && gm.id ? gm.id : 'soccer', name: gm && gm.name ? gm.name : (MODE_DATA && MODE_DATA.soccer ? MODE_DATA.soccer.label : 'ブロストライカー') };
-            } else {
-                banpicState.mode = { id: 'soccer', name: (MODE_DATA && MODE_DATA.soccer ? MODE_DATA.soccer.label : 'ブロストライカー') };
-            }
-
-            if (mapName) banpicState.map = mapName;
-
-            // モード・マップ表示（applyBannerでMAP画像サムネイルも更新）
-            const banpicModeEl = document.getElementById('banpic-mode');
-            const banpicMapEl = document.getElementById('banpic-map');
-            if (banpicModeEl) banpicModeEl.textContent = banpicState.mode.name;
-            if (banpicMapEl) banpicMapEl.textContent = banpicState.map;
-            // MAP画像サムネイルを設定
-            const testMapObj = IMAGE_DATA && IMAGE_DATA.maps ? IMAGE_DATA.maps.find(m => m.name === banpicState.map) : null;
-            applyBanner(banpicState.mode.id, banpicState.map, testMapObj ? testMapObj.image : null);
-
-            // テストモードインジケーターは表示しない（右側のテキスト削除）
-            // 元の実装はここで要素を追加していたが、UIから除去します。
-
-            // スロットリセット
-            document.querySelectorAll('.ban-slot, .pick-slot').forEach(slot => {
-                slot.innerHTML = '';
-                slot.classList.remove('filled');
-                slot.classList.add('empty');
-            });
-
-            // 確定ボタンを初期化
-            const btn = document.getElementById('confirm-selection-btn');
-            if (btn) {
-                btn.onclick = null;
-                btn.textContent = '選択を確定';
-                btn.disabled = true;
-            }
-
-            showScreen('game-screen');
-            renderCharacterGrid();
-            updateSlotPreview();
-            updatePickOrderLabels(); // ピック順ラベル更新
-            updatePhaseDisplay();
-            updateConfirmButton();
-
-            // テストモードのプレイヤー名を設定
-            const blueNameEl = document.getElementById('blue-player-name');
-            const redNameEl = document.getElementById('red-player-name');
-            const blueAvatarEl = document.getElementById('blue-player-avatar');
-            const redAvatarEl = document.getElementById('red-player-avatar');
-            if (banpicState.isBlueTeam) {
-                // プレイヤーが青（左）、BOTが赤（右）
-                if (blueNameEl) blueNameEl.textContent = 'プレイヤー';
-                if (redNameEl) redNameEl.textContent = 'BOT';
-                // アバター設定
-                if (blueAvatarEl && userAvatarUrl) {
-                    blueAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="player">`;
-                } else if (blueAvatarEl) {
-                    blueAvatarEl.textContent = '';
-                }
-                if (redAvatarEl) redAvatarEl.textContent = 'BOT';
-            } else {
-                // プレイヤーが赤（右）、BOTが青（左）
-                if (blueNameEl) blueNameEl.textContent = 'BOT';
-                if (redNameEl) redNameEl.textContent = 'プレイヤー';
-                // アバター設定
-                if (blueAvatarEl) blueAvatarEl.textContent = 'BOT';
-                if (redAvatarEl && userAvatarUrl) {
-                    redAvatarEl.innerHTML = `<img src="${userAvatarUrl}" alt="player">`;
-                } else if (redAvatarEl) {
-                    redAvatarEl.textContent = '';
-                }
-            }
-            // 先攻表示インジケーターを更新
-            const firstMoveIndicator = document.getElementById('first-move-indicator');
-            if (firstMoveIndicator) {
-                if (banpicState.isBlueTeam) {
-                    firstMoveIndicator.textContent = '先攻: プレイヤー';
-                } else {
-                    firstMoveIndicator.textContent = '先攻: BOT';
-                }
-            }
-
-            startPhaseTimer();
-        }
 
         // オンライン対戦開始処理 (meta は rooms/{id}/meta の内容)
         function startOnlineMode(meta, roomId) {
             // 古いリスナーを解除（前回のルームの残骸防止）
             if (activeGameRef) {
-                activeGameRef.off();
+                off(activeGameRef);
                 activeGameRef = null;
             }
             stopPhaseTimer();
@@ -6856,7 +6854,6 @@
             // 状態リセット（オンラインプレイ）
             const gameDuration = meta.timerDuration || 20;
             banpicState = {
-                isTestMode: false,
                 isBlueTeam: myIsBlue,
                 phase: 'ban',
                 phaseIndex: 0,
@@ -6878,23 +6875,23 @@
             };
 
             // ホストは game ノードを初期化して進行を管理する
-            const gameRef = database.ref(`rooms/${roomId}/game`);
+            const gameRef = ref(database, `rooms/${roomId}/game`);
             activeGameRef = gameRef; // グローバルに保存（クリーンアップ用）
 
             // 自分のアバターURLをroomメタに書き込む（相手が参照できるよう）
             if (userAvatarUrl && currentUserId) {
                 const avatarField = amHost ? 'hostAvatar' : 'guestAvatar';
-                database.ref(`rooms/${roomId}/meta`).update({ [avatarField]: userAvatarUrl })
+                update(ref(database, `rooms/${roomId}/meta`), { [avatarField]: userAvatarUrl })
                     .catch(e => console.warn('avatar sync to room failed:', e));
             }
 
             // アバター表示: roomメタ書き込み完了後にもう一度roomメタを読んで両者のアバターを設定
-            database.ref(`rooms/${roomId}/meta`).once('value').then(snap => {
+            get(ref(database, `rooms/${roomId}/meta`)).then(snap => {
                 const freshMeta = snap.val();
                 if (freshMeta) setPlayerAvatars(freshMeta, amHost, myIsBlue);
             }).catch(() => { });
             if (amHost) {
-                gameRef.set({
+                set(gameRef, {
                     phase: 'ban',
                     phaseIndex: 0,
                     blueBans: [],
@@ -6910,7 +6907,7 @@
             // 前回のフェーズを追跡（フェーズ変更検出用）
             let previousPhase = null;
 
-            gameRef.on('value', (snapshot) => {
+            onValue(gameRef, (snapshot) => {
                 const gameData = snapshot.val();
                 if (!gameData) return;
 
@@ -6947,7 +6944,7 @@
                 if (amHost) {
                     // BAN → PIC1: 両者確定したら遷移
                     if (dbPhase === 'ban' && blueConfirmed && redConfirmed) {
-                        gameRef.update({
+                        update(gameRef, {
                             phase: 'pic1',
                             phaseIndex: 1,
                             blueConfirmed: false,
@@ -6965,14 +6962,14 @@
 
                         if (turnConfirmed) {
                             if (picNum < 6) {
-                                gameRef.update({
+                                update(gameRef, {
                                     phase: `pic${picNum + 1}`,
                                     phaseIndex: picNum + 1,
                                     blueConfirmed: false,
                                     redConfirmed: false
                                 }).catch(e => console.warn('Phase transition failed:', e));
                             } else {
-                                gameRef.update({
+                                update(gameRef, {
                                     phase: 'done',
                                     phaseIndex: 7
                                 }).catch(e => console.warn('Phase transition failed:', e));
@@ -6985,7 +6982,8 @@
                 // =====================================
                 // 3. ローカル状態をDBと同期
                 // =====================================
-                const phaseChanged = (previousPhase !== null && previousPhase !== dbPhase);
+                const oldPhase = previousPhase;
+                const phaseChanged = (oldPhase !== dbPhase);
                 previousPhase = dbPhase;
 
                 // フェーズを更新
@@ -6997,6 +6995,10 @@
 
                 // フェーズが変わった場合
                 if (phaseChanged) {
+                    // 誰かが確定してフェーズが変わったら確定音を鳴らす (BANも含む)
+                    if (oldPhase !== null && oldPhase !== 'done') {
+                        SoundManager.play('picConfirm');
+                    }
                     // BANフェーズから抜ける時、または現在選択中のキャラが使えなくなった場合はクリア
                     const currentSelected = banpicState.selectedCharacters[0];
                     const isAvailable = currentSelected && !banpicState.allBannedIds.includes(currentSelected) && !banpicState.bluePicks.includes(currentSelected) && !banpicState.redPicks.includes(currentSelected);
@@ -7012,11 +7014,21 @@
                         showBanpicResult();
                     } else {
                         stopPhaseTimer();
-                        startPhaseTimer();
+                        // インターバルを表示してからタイマー開始
+                        showPhaseInterstitial(dbPhase).then(() => {
+                            if (banpicState.phase === dbPhase) { // 状態が上書きされていないか確認
+                                startPhaseTimer();
+                            }
+                        });
                     }
                 } else {
                     // フェーズ変更なしの場合、DBの確定状態を反映
                     banpicState.confirmed = myConfirmedInDB;
+
+                    // リロード等でタイマーが止まっている場合は再開
+                    if (!banpicState.timerInterval && dbPhase !== 'done') {
+                        startPhaseTimer();
+                    }
                 }
 
                 // =====================================
@@ -7047,14 +7059,9 @@
             const myName = amHost ? (meta.hostName || 'ホスト') : (meta.guestName || 'ゲスト');
             const opponentName = amHost ? (meta.guestName || 'ゲスト') : (meta.hostName || 'ホスト');
 
-            // 自分が青チーム（左側）なら自分の名前を左に、そうでなければ相手の名前を左に
-            if (myIsBlue) {
-                if (blueNameEl) blueNameEl.textContent = myName;
-                if (redNameEl) redNameEl.textContent = opponentName;
-            } else {
-                if (blueNameEl) blueNameEl.textContent = opponentName;
-                if (redNameEl) redNameEl.textContent = myName;
-            }
+            // 常に自分を左に表示
+            if (blueNameEl) blueNameEl.textContent = myName;
+            if (redNameEl) redNameEl.textContent = opponentName;
 
             // アバター表示を設定
             setPlayerAvatars(meta, amHost, myIsBlue);
@@ -7085,7 +7092,6 @@
             updatePickOrderLabels();
             updatePhaseDisplay();
             updateConfirmButton();
-            startPhaseTimer();
         }
 
         // ピック順ラベル更新（固定: 左=1,4,5 / 右=2,3,6）
@@ -7096,8 +7102,9 @@
             // 常に固定: 左側(先攻)=1,4,5 / 右側(後攻)=2,3,6
             // 表示は左から: top-row(青)が 1,4,5。
             // bottom-row(赤)は左から 6,3,2 と表示する（左→右で 1 4 5 6 3 2 となるように）
-            const blueOrder = [1, 4, 5];
-            const redOrder = [6, 3, 2];
+            const isBlueTeam = banpicState.isBlueTeam;
+            const blueOrder = isBlueTeam ? [1, 4, 5] : [2, 3, 6];
+            const redOrder = isBlueTeam ? [6, 3, 2] : [5, 4, 1];
 
             blueSlots.forEach((slot, i) => {
                 let badge = slot.querySelector('.pick-order');
@@ -7106,7 +7113,7 @@
                     badge.className = 'pick-order';
                     slot.appendChild(badge);
                 }
-                badge.textContent = blueOrder[i] || (i + 1);
+                badge.textContent = blueOrder[i];
             });
 
             redSlots.forEach((slot, i) => {
@@ -7116,7 +7123,7 @@
                     badge.className = 'pick-order';
                     slot.appendChild(badge);
                 }
-                badge.textContent = redOrder[i] || (i + 4);
+                badge.textContent = redOrder[i];
             });
         }
 
@@ -7133,23 +7140,23 @@
             const myAvatarInRoom = amHost ? meta.hostAvatar : meta.guestAvatar;
             const opponentAvatarInRoom = amHost ? meta.guestAvatar : meta.hostAvatar;
 
-            // 自分と相手のIDを青/赤に割り当て
-            const blueId = myIsBlue ? myId : opponentId;
-            const redId = myIsBlue ? opponentId : myId;
-            const blueName = myIsBlue ? myName : opponentName;
-            const redName = myIsBlue ? opponentName : myName;
-            const blueAvatarUrl = myIsBlue ? (userAvatarUrl || myAvatarInRoom) : opponentAvatarInRoom;
-            const redAvatarUrl = myIsBlue ? opponentAvatarInRoom : (userAvatarUrl || myAvatarInRoom);
+            // 常に自分を左（青側）に割り当て
+            const blueId = myId;
+            const redId = opponentId;
+            const blueName = myName;
+            const redName = opponentName;
+            const blueAvatarUrl = userAvatarUrl || myAvatarInRoom;
+            const redAvatarUrl = opponentAvatarInRoom;
 
             // 青側アバター
             if (blueAvatarEl) {
                 if (blueAvatarUrl) {
-                    blueAvatarEl.innerHTML = `<img src="${blueAvatarUrl}" alt="player">`;
+                    setAvatarSafe(blueAvatarEl, blueAvatarUrl, blueName || '?');
                 } else if (blueId) {
-                    database.ref(`users/${blueId}`).once('value').then(snap => {
+                    get(ref(database, `users/${blueId}`)).then(snap => {
                         const p = snap.val();
                         if (p && p.avatar) {
-                            blueAvatarEl.innerHTML = `<img src="${p.avatar}" alt="player">`;
+                            setAvatarSafe(blueAvatarEl, p.avatar, blueName || '?');
                         } else {
                             blueAvatarEl.textContent = (blueName || '?').charAt(0).toUpperCase();
                         }
@@ -7162,12 +7169,12 @@
             // 赤側アバター
             if (redAvatarEl) {
                 if (redAvatarUrl) {
-                    redAvatarEl.innerHTML = `<img src="${redAvatarUrl}" alt="player">`;
+                    setAvatarSafe(redAvatarEl, redAvatarUrl, redName || '?');
                 } else if (redId) {
-                    database.ref(`users/${redId}`).once('value').then(snap => {
+                    get(ref(database, `users/${redId}`)).then(snap => {
                         const p = snap.val();
                         if (p && p.avatar) {
-                            redAvatarEl.innerHTML = `<img src="${p.avatar}" alt="player">`;
+                            setAvatarSafe(redAvatarEl, p.avatar, redName || '?');
                         } else {
                             redAvatarEl.textContent = (redName || '?').charAt(0).toUpperCase();
                         }
@@ -7181,28 +7188,32 @@
         // コイントス演出を表示
         function showCoinToss(data) {
             return new Promise(resolve => {
-                const winnerName = data && data.winnerName ? data.winnerName : 'プレイヤー';
-                const mapName = data ? data.mapName : null;
-                const mapImage = data ? data.mapImage : null;
-                const hostName = data && data.hostName ? data.hostName : 'ホスト';
-                const guestName = data && data.guestName ? data.guestName : 'ゲスト';
-                const hostAvatar = data ? data.hostAvatar : null;
-                const guestAvatar = data ? data.guestAvatar : null;
-                const hostFirst = data ? !!data.hostFirst : true;
+                SoundManager.play('match');
 
-                const hostInitial = escapeHtml((hostName || 'H').charAt(0).toUpperCase());
-                const guestInitial = escapeHtml((guestName || 'G').charAt(0).toUpperCase());
-                const hostFace = hostAvatar
-                    ? `<img class="coin-avatar-img" src="${hostAvatar}" alt="${escapeHtml(hostName)}">`
-                    : `<span class="coin-avatar-fallback">${hostInitial}</span>`;
-                const guestFace = guestAvatar
-                    ? `<img class="coin-avatar-img" src="${guestAvatar}" alt="${escapeHtml(guestName)}">`
-                    : `<span class="coin-avatar-fallback">${guestInitial}</span>`;
-                const finalRotate = hostFirst ? '1800deg' : '1980deg';
+                setTimeout(() => {
+                    SoundManager.play('coinToss');
+                    const winnerName = data && data.winnerName ? data.winnerName : 'プレイヤー';
+                    const mapName = data ? data.mapName : null;
+                    const mapImage = data ? data.mapImage : null;
+                    const hostName = data && data.hostName ? data.hostName : 'ホスト';
+                    const guestName = data && data.guestName ? data.guestName : 'ゲスト';
+                    const hostAvatar = data ? data.hostAvatar : null;
+                    const guestAvatar = data ? data.guestAvatar : null;
+                    const hostFirst = data ? !!data.hostFirst : true;
 
-                const overlay = document.createElement('div');
-                overlay.className = 'coin-toss-overlay';
-                overlay.innerHTML = `
+                    const hostInitial = escapeHtml((hostName || 'H').charAt(0).toUpperCase());
+                    const guestInitial = escapeHtml((guestName || 'G').charAt(0).toUpperCase());
+                    const hostFace = hostAvatar
+                        ? `<img class="coin-avatar-img" src="${hostAvatar}" alt="${escapeHtml(hostName)}">`
+                        : `<span class="coin-avatar-fallback">${hostInitial}</span>`;
+                    const guestFace = guestAvatar
+                        ? `<img class="coin-avatar-img" src="${guestAvatar}" alt="${escapeHtml(guestName)}">`
+                        : `<span class="coin-avatar-fallback">${guestInitial}</span>`;
+                    const finalRotate = hostFirst ? '1800deg' : '1980deg';
+
+                    const overlay = document.createElement('div');
+                    overlay.className = 'coin-toss-overlay';
+                    overlay.innerHTML = `
             <div class="coin-toss-title">先攻を決定中...</div>
             <div class="coin">
                 <div class="coin-inner" style="--coin-final-rotate:${finalRotate};">
@@ -7212,13 +7223,14 @@
             </div>
             <div class="coin-result">先攻: ${winnerName}</div>
         `;
-                document.body.appendChild(overlay);
+                    document.body.appendChild(overlay);
 
-                // コイントス表示後にマップ画像を表示
-                setTimeout(() => {
-                    overlay.remove();
-                    showMapPreview(mapName, mapImage).then(resolve);
-                }, 3200);
+                    // コイントス表示後にマップ画像を表示
+                    setTimeout(() => {
+                        overlay.remove();
+                        showMapPreview(mapName, mapImage).then(resolve);
+                    }, 3200);
+                }, 1500);
             });
         }
 
@@ -7258,13 +7270,13 @@
 
             // Firebaseリスナーを解除（次回のルームで二重発火を防止）
             if (activeGameRef) {
-                activeGameRef.off();
+                off(activeGameRef);
                 activeGameRef = null;
             }
 
             // メタリスナーを解除（ロビー戻り後に「ルームが削除されました」が出ないように）
             if (currentRoomRef) {
-                currentRoomRef.off();
+                off(currentRoomRef);
                 currentRoomRef = null;
             }
 
@@ -7281,7 +7293,7 @@
             // ホストならルームを削除してクリーンアップ
             const cleanupRoomId = currentRoomId;
             if (cleanupRoomId && banpicState.amHost) {
-                database.ref(`rooms/${cleanupRoomId}`).remove().catch(e => console.warn('room cleanup on exit:', e));
+                remove(ref(database, `rooms/${cleanupRoomId}`)).catch(e => console.warn('room cleanup on exit:', e));
             }
             currentRoomId = null;
 
@@ -7309,39 +7321,6 @@
 
         // イベントリスナー設定
         document.addEventListener('DOMContentLoaded', () => {
-            // テストモードボタン
-            const testModeBtn = document.getElementById('test-mode-btn');
-            if (testModeBtn) {
-                testModeBtn.addEventListener('click', () => {
-                    // 既存のルーム作成モーダルをテストモード用に再利用
-                    if (!createRoomModal) return;
-                    createRoomModal.dataset.testMode = 'true';
-                    // モーダルタイトルを変更
-                    const headerH3 = document.querySelector('#create-room-modal .modal-header h3');
-                    if (headerH3) headerH3.textContent = 'テストモード設定';
-                    // プレースホルダを埋める
-                    const roomNameInput = document.getElementById('room-name-input');
-                    const modeSelect = document.getElementById('room-mode-select');
-                    const mapSelect = document.getElementById('room-map-select');
-                    if (roomNameInput) roomNameInput.value = 'テストルーム';
-                    if (modeSelect) modeSelect.value = 'eme';
-                    if (mapSelect) {
-                        // フォーム検証で submit が止まらないよう required を一時解除
-                        mapSelect.required = false;
-                        // populateMapSelect を呼んで対象モードの候補を作る
-                        if (typeof populateMapSelect === 'function') populateMapSelect('eme');
-                        if (mapSelect.options && mapSelect.options.length > 1) {
-                            // テストモードでもダブルレールを優先選択
-                            let foundIndex = -1;
-                            for (let i = 0; i < mapSelect.options.length; i++) {
-                                if (mapSelect.options[i].text.includes('ダブルレール')) { foundIndex = i; break; }
-                            }
-                            mapSelect.selectedIndex = (foundIndex >= 0) ? foundIndex : 1;
-                        }
-                    }
-                    showModal(createRoomModal);
-                });
-            }
 
             // 確定ボタン
             const confirmBtn = document.getElementById('confirm-selection-btn');
