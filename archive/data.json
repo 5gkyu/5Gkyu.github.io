@@ -40,11 +40,11 @@
             "description": "複数の画像を一枚に織り上げるコラージュ作成ツール。"
           },
           {
-            "title": "画像圧縮ツール",
+            "title": "画像変換・圧縮ツール",
             "tag": "画像ツール",
             "href": "/archive/app/image-compression/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ブラウザ上で画像をリサイズ・圧縮し軽量化。JPEG / PNG / WebP の3形式に対応。"
+            "description": "ブラウザ上で画像をリサイズ・圧縮し、軽量化やフォーマット変換ができるツールです。JPEG / PNG / WebP に対応。"
           },
           {
             "title": "画像→PDF変換",
@@ -276,7 +276,7 @@
             "title": "BanPic-Brawl",
             "tag": "ブロスタ",
             "href": "/archive/play/BanPic-Brawl/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/BanPic-Brawl.png",
             "description": "ブロスタのBan/Pickツールです。"
           }
         ]
@@ -289,8 +289,8 @@
           {
             "title": "プロセカ スキル計算",
             "tag": "プロジェクトセカイ",
-            "href": "/archive/play/pjsekai_skill/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "href": "/archive/play/pjsekai-skill/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/pjsekai-skill.png",
             "description": "5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。"
           }
         ]
