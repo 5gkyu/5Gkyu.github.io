@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
   <title>プロセカ スキル計算 | Halcyon - 5Gkyu</title>
 
   <meta name="description" content="プロジェクトセカイ用 実効値・内部値 計算ツール。5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。">
-  <link rel="canonical" href="https://5gkyu.github.io/archive/app/pjsekai_skill/">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/pjsekai-skill/">
 
   <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
@@ -17,7 +18,7 @@
   <meta property="og:title" content="プロセカ スキル計算 | Halcyon - 5Gkyu">
   <meta property="og:description" content="5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。">
   <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
-  <meta property="og:url" content="https://5gkyu.github.io/archive/app/pjsekai_skill/">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/play/pjsekai-skill/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Halcyon">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,7 +28,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "プロセカ スキル計算",
-    "url": "https://5gkyu.github.io/archive/app/pjsekai_skill/",
+    "url": "https://5gkyu.github.io/archive/play/pjsekai-skill/",
     "description": "5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。",
     "applicationCategory": "Utilities",
     "operatingSystem": "Web",
@@ -35,8 +36,21 @@
   }
   </script>
 
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 
   <style>
     /* =====================================================
@@ -44,9 +58,16 @@
     ===================================================== */
 
     /* 電話番号リンク無効化 */
-    a[href^="tel:"] { pointer-events: none; color: inherit; text-decoration: none; }
+    a[href^="tel:"] {
+      pointer-events: none;
+      color: inherit;
+      text-decoration: none;
+    }
 
-    .sidebar-sticky { position: sticky; top: 100px; }
+    .sidebar-sticky {
+      position: sticky;
+      top: 100px;
+    }
 
     /* メインカード */
     .ps-card {
@@ -60,13 +81,15 @@
 
     /* 入力エリア */
     .ps-input-wrap {
+      position: relative;
       margin-bottom: 0.5rem;
     }
+
     .ps-big-input {
       width: 100%;
-      font-size: 1.5rem;
+      font-size: clamp(0.95rem, 5.5vw, 1.35rem);
       font-weight: 700;
-      padding: 0.85rem 1.1rem;
+      padding: 0.8rem 2.4rem 0.8rem 0.6rem;
       border: 2px solid rgba(106, 86, 74, 0.15);
       border-radius: 12px;
       background: rgba(251, 246, 234, 0.5);
@@ -74,13 +97,18 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
-      letter-spacing: 0.08em;
+      letter-spacing: 0;
     }
+
     .ps-big-input:focus {
       border-color: var(--clr-sage);
       box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
     }
-    .ps-big-input::placeholder { color: rgba(106, 86, 74, 0.3); }
+
+    .ps-big-input::placeholder {
+      color: rgba(106, 86, 74, 0.3);
+    }
+
     /* ヒント行（リセットボタンと横並び） */
     .ps-hint-row {
       display: flex;
@@ -99,54 +127,116 @@
       margin-top: 0.4rem;
       min-height: 1.2rem;
     }
+
     .ps-hint.is-error {
       color: #b00020;
       opacity: 1;
       font-weight: 700;
     }
 
-    /* 結果カード */
-    .ps-result-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+    .ps-hint.is-progress {
+      color: var(--clr-dusty-blue, #5c848e);
+      opacity: 1;
+      font-weight: 700;
     }
-    @media (max-width: 500px) {
-      .ps-result-row { grid-template-columns: 1fr; }
+
+    .ps-hint.is-success {
+      color: var(--clr-sage, #9ab08f);
+      opacity: 1;
+      font-weight: 700;
     }
-    .ps-result-box {
-      padding: 1.2rem 1.4rem;
-      border-radius: 16px;
-      border: 1.5px solid rgba(154, 176, 143, 0.25);
-      background: rgba(154, 176, 143, 0.07);
+
+    /* 結果カード（実効値メイン） */
+    .ps-result-box-compact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem 1rem;
+      border-radius: 12px;
+      border: 1.5px solid rgba(154, 176, 143, 0.4);
+      background: rgba(154, 176, 143, 0.08);
+      margin-bottom: 1.2rem;
     }
-    .ps-result-label {
-      font-size: 0.78rem;
+
+    .ps-result-label-main {
+      font-size: 0.85rem;
       font-weight: 700;
       color: var(--clr-sage);
-      margin-bottom: 0.35rem;
       letter-spacing: 0.05em;
     }
-    .ps-result-value {
-      font-size: 2.2rem;
+
+    .ps-result-value-main {
+      font-size: 3.2rem;
       font-weight: 800;
-      color: var(--clr-brown);
+      color: var(--clr-sage);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
       line-height: 1.1;
+      margin-top: 0.2rem;
+      margin-bottom: 0.8rem;
     }
-    .ps-result-value.is-empty {
+
+    .ps-result-value-main.is-empty {
       opacity: 0.25;
     }
-    #ps-effective {
-      color: var(--clr-sage);
+
+    .ps-result-sub {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--clr-brown);
+      opacity: 0.6;
+      background: rgba(106, 86, 74, 0.06);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .ps-result-value-sub {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .ps-result-value-sub.is-empty {
+      opacity: 0.3;
+    }
+
+    /* クリアボタン */
+    .ps-clear-btn {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      border: none;
+      background: rgba(106, 86, 74, 0.12);
+      color: var(--clr-brown);
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .ps-clear-btn:hover {
+      opacity: 1;
+      background: rgba(106, 86, 74, 0.2);
     }
 
     /* 分割グリッド */
     .ps-parts-section {
       margin-top: 0.5rem;
-      margin-bottom: 1.5rem; /* 実効値の上に移動するため下の余白を追加 */
+      margin-bottom: 1.5rem;
+      /* 実効値の上に移動するため下の余白を追加 */
     }
+
     .ps-parts-heading {
       font-size: 0.82rem;
       font-weight: 700;
@@ -154,16 +244,19 @@
       margin-bottom: 0.75rem;
       letter-spacing: 0.05em;
     }
+
     .ps-parts-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 0.5rem;
     }
+
     .ps-part-col {
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
     }
+
     .ps-part-label {
       font-size: 0.72rem;
       font-weight: 700;
@@ -172,27 +265,39 @@
       border-radius: 6px;
       background: rgba(154, 176, 143, 0.12);
       color: var(--clr-sage);
-      white-space: nowrap; /* 追加: 改行を禁止する */
+      white-space: nowrap;
+      /* 追加: 改行を禁止する */
     }
 
     /* 追加: 画面幅が狭いスマホ向けに文字サイズと隙間を微調整 */
     @media (max-width: 400px) {
+      .ps-big-input {
+        font-size: clamp(0.85rem, 5vw, 1.05rem);
+        padding: 0.7rem 2.2rem 0.7rem 0.4rem;
+        letter-spacing: -0.01em;
+      }
+
       .ps-parts-grid {
         gap: 0.25rem;
       }
+
       .ps-part-label {
         font-size: 0.65rem;
       }
-      .ps-part-input {
+
+      .ps-part-val {
         font-size: 1rem;
         padding: 0.5rem 0.1rem;
+        min-height: 2.2rem;
       }
     }
+
     .ps-part-col:first-child .ps-part-label {
       background: rgba(146, 181, 188, 0.18);
       color: var(--clr-dusty-blue);
     }
-    .ps-part-input {
+
+    .ps-part-val {
       width: 100%;
       text-align: center;
       font-size: 1.1rem;
@@ -203,19 +308,14 @@
       background: #fff;
       color: var(--clr-brown);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      min-height: 2.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .ps-part-input:focus {
-      border-color: var(--clr-sage);
-      box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.18);
-    }
-    .ps-part-col:first-child .ps-part-input {
+
+    .ps-part-col:first-child .ps-part-val {
       border-color: rgba(146, 181, 188, 0.35);
-    }
-    .ps-part-col:first-child .ps-part-input:focus {
-      border-color: var(--clr-dusty-blue);
-      box-shadow: 0 0 0 3px rgba(146, 181, 188, 0.2);
     }
 
     /* 途中式 */
@@ -228,9 +328,8 @@
       font-size: 0.8rem;
       color: var(--clr-brown);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      line-height: 1.6;
+      line-height: 1.5;
       display: none;
-      white-space: pre-wrap;
     }
 
     /* 縦並びレイアウト（計算フォーム ＋ 使い方） */
@@ -244,26 +343,31 @@
     .ps-howto {
       padding: 0 0.5rem 1rem;
     }
+
     .ps-howto__title {
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--clr-brown);
       margin-bottom: 0.9rem;
     }
+
     .ps-howto__list {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
     }
+
     .ps-howto__list li {
       font-size: 0.82rem;
       color: var(--clr-brown);
       opacity: 0.8;
-      padding-left: 0.8rem; /* 1.2remから0.8remに減らして左の空白を詰める */
+      padding-left: 0.8rem;
+      /* 1.2remから0.8remに減らして左の空白を詰める */
       position: relative;
       line-height: 1.5;
     }
+
     .ps-howto__list li::before {
       content: '•';
       position: absolute;
@@ -271,6 +375,7 @@
       color: var(--clr-sage);
       font-weight: 700;
     }
+
     .ps-howto__formula {
       margin-top: 1rem;
       padding: 0.9rem;
@@ -283,16 +388,15 @@
     }
   </style>
 </head>
+
 <body>
 
-  <site-header site-name="App"></site-header>
+  <site-header site-name="プロセカ スキル計算"></site-header>
 
   <hl-layout cols="2" class="fluffy-entry delay-1">
     <div class="hl-layout-main">
 
-      <hl-breadcrumb
-        level1-name="Archive" level1-url="/archive/"
-        level2-name="App" level2-url="/archive/app/"
+      <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Play" level2-url="/archive/play/"
         current="プロセカ スキル計算">
       </hl-breadcrumb>
 
@@ -305,22 +409,20 @@
           <div class="ps-card">
 
             <div class="ps-input-wrap">
-              <input id="ps-input" class="ps-big-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="160150140130130" aria-label="スキル値の連結入力" autocomplete="off" autocorrect="off" autocapitalize="off">
+              <input id="ps-input" class="ps-big-input" type="text" maxlength="19" placeholder="160150140130130"
+                aria-label="スキル値の連結入力" autocomplete="off" autocorrect="off" autocapitalize="off">
+              <button id="ps-reset" class="ps-clear-btn" aria-label="クリア">✕</button>
             </div>
 
-            <div class="ps-hint-row">
-              <div id="ps-hint" class="ps-hint">スキルUP%を順番に繋げて入力（最低10桁・最大15桁）</div>
-              <hl-button id="ps-reset" variant="secondary" style="flex-shrink:0;font-size:0.8rem;padding:0.25rem 0.7rem;">リセット</hl-button>
+            <div class="ps-hint-row" style="justify-content: flex-start;">
+              <div id="ps-hint" class="ps-hint">スキルUP%を連結入力</div>
             </div>
 
-            <div class="ps-result-row">
-              <div class="ps-result-box">
-                <div class="ps-result-label">実効値</div>
-                <div id="ps-effective" class="ps-result-value is-empty">—</div>
-              </div>
-              <div class="ps-result-box">
-                <div class="ps-result-label">内部値</div>
-                <div id="ps-internal" class="ps-result-value is-empty">—</div>
+            <div class="ps-result-box-compact">
+              <div class="ps-result-label-main">実効値</div>
+              <div id="ps-effective" class="ps-result-value-main is-empty">—</div>
+              <div class="ps-result-sub">
+                内部値: <span id="ps-internal" class="ps-result-value-sub is-empty">—</span>
               </div>
             </div>
 
@@ -337,16 +439,26 @@
         <div class="hl-content" style="padding: 0 0.5rem;">
           <section-heading>使い方</section-heading>
           <ul class="hl-list">
-            <li>スキルUP%（30〜160）を順番に連結して入力</li>
-            <li>1人目がリーダー、2〜5人目がサブ扱い</li>
+            <li>スキルUP%（30〜160）を<strong>カンマなしで</strong>連続して入力（カンマは自動付与されます）</li>
+            <li>1人目がリーダー、2〜5人目がサブ</li>
             <li>例: リーダー160、サブ150/140/130/130<br>→ <code>160150140130130</code></li>
-            <li>カンマ・スペース・%付きの貼り付けも自動整形</li>
-            <li>分割欄から個別に値を直接編集できます</li>
           </ul>
           <div class="hl-note" style="margin-top: 1rem;">
-            実効値 = リーダー + (サブ合計 ÷ 5)<br>
+            実効値 = リーダー + (サブ合計 ÷ 5) ※小数点以下切り捨て<br>
             内部値 = 全スキル値の合計
           </div>
+
+          <details
+            style="margin-top: 1rem; font-size: 0.82rem; color: var(--clr-brown); background: rgba(154, 176, 143, 0.08); padding: 0.8rem; border-radius: 10px; cursor: pointer; border: 1.5px solid rgba(154, 176, 143, 0.15);">
+            <summary style="font-weight: 700; color: var(--clr-sage); outline: none;">なぜ連続入力でも正確に分割できるの？</summary>
+            <div style="margin-top: 0.6rem; line-height: 1.6; padding-left: 1.2rem; cursor: text;">
+              <ul style="margin: 0.4rem 0; padding-left: 1.2rem;">
+                <li>先頭が「<strong>1</strong>」なら必ず <strong>3桁</strong>（100〜160）</li>
+                <li>先頭が「<strong>2〜9</strong>」なら必ず <strong>2桁</strong>（30〜99）</li>
+              </ul>
+              この法則により、数字を繋げて入力しても「ここは3桁、次は2桁…」と絶対に間違えることなく1通りのパターンで正確に分割できるようになっています。
+            </div>
+          </details>
         </div>
 
       </div>
@@ -369,31 +481,78 @@
     // 各値の許容範囲: 30〜160
     // ========================================================
 
-    const psInput       = document.getElementById('ps-input');
-    const psReset       = document.getElementById('ps-reset');
-    const psHint        = document.getElementById('ps-hint');
-    const psEffective   = document.getElementById('ps-effective');
-    const psInternal    = document.getElementById('ps-internal');
+    const psInput = document.getElementById('ps-input');
+    const psReset = document.getElementById('ps-reset');
+    const psHint = document.getElementById('ps-hint');
+    const psEffective = document.getElementById('ps-effective');
+    const psInternal = document.getElementById('ps-internal');
     const psPartsSection = document.getElementById('ps-parts-section');
-    const psPartsGrid   = document.getElementById('ps-parts-grid');
-    const psCalcSteps   = document.getElementById('ps-calc-steps');
+    const psPartsGrid = document.getElementById('ps-parts-grid');
+    const psCalcSteps = document.getElementById('ps-calc-steps');
 
     const LABELS = ['リーダー', 'サブ1', 'サブ2', 'サブ3', 'サブ4'];
+
+    // 全角数字を半角数字に変換する関数
+    function toHalfWidthDigit(str) {
+      return str.replace(/[０-９]/g, function (s) {
+        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+      });
+    }
 
     // 現在の分割値（個別入力欄からの編集でも更新される）
     let currentParts = [null, null, null, null, null];
 
+    // ─── 自動フォーマット ──────────────────────────────
+    function formatWithComma(digits) {
+      let res = [];
+      let i = 0;
+      while (i < digits.length) {
+        let c = digits[i];
+        let len = (c === '1') ? 3 : 2; // 先頭が1なら3桁、それ以外は2桁とみなす
+        if (i + len <= digits.length) {
+          res.push(digits.substring(i, i + len));
+          i += len;
+        } else {
+          res.push(digits.substring(i));
+          break;
+        }
+      }
+      return res;
+    }
+
+    // ─── 異常値チェック ────────────────────────────────
+    function checkInvalidValues(partsArray) {
+      for (let i = 0; i < partsArray.length; i++) {
+        const p = partsArray[i];
+        const val = Number(p);
+        const isComplete = p.length === ((p[0] === '1') ? 3 : 2);
+
+        if (isComplete) {
+          if (val > 160) return `警告: ${val}%（161%以上のスキルは存在しません）`;
+          if (val < 30) return `警告: ${val}%（29%以下のスキルは存在しません）`;
+        } else {
+          if (p.length === 2 && p[0] === '1' && val > 16) return `警告: ${val}X%（161%以上のスキルは存在しません）`;
+          if (p[0] === '0') return `警告: 0で始まるスキル値はありません`;
+          if (p[0] === '2' && p.length === 2 && val < 30) return `警告: ${val}%（29%以下のスキルは存在しません）`;
+        }
+      }
+      return null;
+    }
+
     // ─── ヒント / エラー表示 ───────────────────────────
     let hintTimer = null;
-    function setHint(msg, isError = false) {
+    function setHint(msg, isError = false, type = 'normal') {
       if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
       psHint.textContent = msg;
-      psHint.classList.toggle('is-error', isError);
+      psHint.classList.remove('is-error', 'is-progress', 'is-success');
+      if (isError) psHint.classList.add('is-error');
+      else if (type === 'progress') psHint.classList.add('is-progress');
+      else if (type === 'success') psHint.classList.add('is-success');
     }
-    function setTempHint(msg, isError = false, ms = 3500) {
-      setHint(msg, isError);
+    function setTempHint(msg, isError = false, type = 'normal', ms = 3500) {
+      setHint(msg, isError, type);
       hintTimer = setTimeout(() => {
-        setHint('スキルUP%を順番に繋げて入力（最低10桁・最大15桁）');
+        setHint('スキルUP%をカンマなしで連続入力（カンマは自動で付きます）');
         hintTimer = null;
       }, ms);
     }
@@ -407,8 +566,7 @@
       psCalcSteps.style.display = 'none';
       psCalcSteps.innerHTML = '';
       currentParts = [null, null, null, null, null];
-      // 非表示にするのではなく、空の枠を描画する
-      renderPartsGrid([null, null, null, null, null]);
+      psPartsSection.style.display = 'none';
     }
 
     // ─── 3桁優先バックトラック分割 ─────────────────────
@@ -462,11 +620,32 @@
       psEffective.classList.remove('is-empty');
       psInternal.textContent = String(res.internal);
       psInternal.classList.remove('is-empty');
+
       // 途中式
       const [a, b, c, d, e] = parts;
+      const subSum = b + c + d + e;
+      const subSumDiv5 = parseFloat((subSum / 5).toFixed(1)); // ゴミを除去
+      const exactEffective = a + subSumDiv5;
+      const finalEffective = Math.trunc(exactEffective);
+
+      let effectiveCalcStep = '';
+      if (exactEffective !== finalEffective) {
+        effectiveCalcStep = `= ${a} + ${subSumDiv5} <br><span style="padding-left: 0.5rem;">= ${exactEffective} → <strong style="font-size: 1.05rem;">${finalEffective}</strong> (切り捨て)</span>`;
+      } else {
+        effectiveCalcStep = `= ${a} + ${subSumDiv5} <br><span style="padding-left: 0.5rem;">= <strong style="font-size: 1.05rem;">${finalEffective}</strong></span>`;
+      }
+
       psCalcSteps.innerHTML =
-        `実効値 = ${a} + (${b}+${c}+${d}+${e}) / 5 = ${res.effective.toFixed(2)} → ${Math.trunc(res.effective)}\n` +
-        `内部値 = ${a}+${b}+${c}+${d}+${e} = ${res.internal}`;
+        `<div style="margin-bottom: 0.8rem; overflow-x: auto; white-space: nowrap; padding-bottom: 0.3rem;">
+           <div style="color: var(--clr-sage); font-weight: 700; font-size: 0.75rem; margin-bottom: 0.2rem;">■ 実効値</div>
+           <div style="padding-left: 0.5rem;">${a} + (${b}+${c}+${d}+${e}) ÷ 5</div>
+           <div style="padding-left: 0.5rem;">${effectiveCalcStep}</div>
+         </div>
+         <div style="overflow-x: auto; white-space: nowrap; padding-bottom: 0.3rem;">
+           <div style="color: var(--clr-sage); font-weight: 700; font-size: 0.75rem; margin-bottom: 0.2rem;">■ 内部値</div>
+           <div style="padding-left: 0.5rem;">${a} + ${b} + ${c} + ${d} + ${e}</div>
+           <div style="padding-left: 0.5rem;">= <strong style="font-size: 1.05rem;">${res.internal}</strong></div>
+         </div>`;
       psCalcSteps.style.display = 'block';
     }
 
@@ -483,38 +662,12 @@
         lbl.className = 'ps-part-label';
         lbl.textContent = LABELS[i];
 
-        const inp = document.createElement('input');
-        inp.type = 'tel';
-        inp.inputMode = 'numeric';
-        inp.pattern = '[0-9]*';
-        inp.maxLength = 3;
-        inp.className = 'ps-part-input';
-        // 変更: null の場合は空文字を入れて初期表示を空枠にする
-        inp.value = parts[i] !== null ? String(parts[i]) : '';
-        inp.dataset.index = String(i);
-        inp.setAttribute('aria-label', LABELS[i]);
-
-        inp.addEventListener('input', (ev) => {
-          ev.target.value = ev.target.value.replace(/\D+/g, '');
-          const idx = Number(ev.target.dataset.index);
-          const v = ev.target.value;
-          currentParts[idx] = v === '' ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
-          showResults(currentParts);
-          // 全部有効ならメイン入力にも同期
-          if (currentParts.every(x => typeof x === 'number' && Number.isFinite(x))) {
-            psInput.value = currentParts.map(String).join('');
-          }
-        });
-
-        inp.addEventListener('focus', (ev) => {
-          setTimeout(() => ev.target.select(), 10);
-        });
-        inp.addEventListener('click', (ev) => {
-          ev.target.select();
-        });
+        const valBox = document.createElement('div');
+        valBox.className = 'ps-part-val';
+        valBox.textContent = parts[i] !== null ? String(parts[i]) : '';
 
         col.appendChild(lbl);
-        col.appendChild(inp);
+        col.appendChild(valBox);
         psPartsGrid.appendChild(col);
       }
 
@@ -523,47 +676,133 @@
     }
 
     // ─── メイン処理 ───────────────────────────────────
-    function onInput() {
-      const raw = psInput.value.trim();
-      if (!raw) { clearResults(); setHint('スキルUP%を順番に繋げて入力（最低10桁・最大15桁）'); return; }
-      if (/\D/.test(raw)) { clearResults(); setHint('数字のみ入力できます（半角）', true); return; }
-      if (raw.length < 10) { clearResults(); setHint(`入力を続けてください（あと ${10 - raw.length} 桁）`); return; }
+    function onInput(raw, autoParts) {
+      if (!raw) { clearResults(); setHint('スキルUP%をカンマなしで連続入力（カンマは自動で付きます）'); return; }
+
+      if (autoParts.length > 5) {
+        clearResults();
+        setHint('入力が多すぎます（スキルは最大5人分です）', true);
+        return;
+      }
+
+      const invalidMsg = checkInvalidValues(autoParts);
+      if (invalidMsg) {
+        clearResults();
+        setHint(invalidMsg, true);
+        return;
+      }
+
+      if (raw.length < 10) {
+        clearResults();
+        setHint(`入力中：現在 ${raw.length} 桁 (最低10桁まで あと ${10 - raw.length} 桁)`, false, 'progress');
+        return;
+      }
       if (raw.length > 15) { clearResults(); setHint('入力は最大15桁までです', true); return; }
 
       const parts = findPartition(raw);
       if (!parts) {
         clearResults();
-        setHint('有効な分割が見つかりません。桁数や各値の範囲（30〜160）を確認してください', true);
+        if (raw.length < 15) {
+          setHint(`入力中：現在 ${raw.length} 桁 (入力を続けてください...)`, false, 'progress');
+        } else {
+          setHint('有効な分割が見つかりません。各値の範囲（30〜160）を確認してください', true);
+        }
         return;
       }
 
-      setHint('分割成功');
+      setHint('分割成功！', false, 'success');
       renderPartsGrid(parts);
     }
 
     // ─── イベント ─────────────────────────────────────
+    let isComposing = false;
+    psInput.addEventListener('compositionstart', () => { isComposing = true; });
+    psInput.addEventListener('compositionend', () => { isComposing = false; });
+
     psInput.addEventListener('input', (ev) => {
-      const cleaned = ev.target.value.replace(/\D+/g, '');
-      if (cleaned !== ev.target.value) ev.target.value = cleaned;
-      onInput();
+      if (isComposing) return; // IMEなどの変換中はフォーマット処理を保留
+
+      let oldVal = ev.target.value;
+      let selectionStart = ev.target.selectionStart;
+      let digitsBeforeCursor = oldVal.substring(0, selectionStart).replace(/\D+/g, '').length;
+
+      let val = toHalfWidthDigit(oldVal);
+      const digits = val.replace(/\D+/g, '');
+      const autoParts = formatWithComma(digits);
+      const formatted = autoParts.join(',');
+
+      // サードパーティキーボード（Simejiなど）の内部バッファとの競合を防ぐため、
+      // 現在のイベント処理が完全に終わってから非同期で value を上書きする
+      setTimeout(() => {
+        if (ev.target.value !== formatted) {
+          ev.target.value = formatted;
+
+          let newCursorPos = 0;
+          let count = 0;
+          for (let i = 0; i < formatted.length; i++) {
+            if (/\d/.test(formatted[i])) count++;
+            if (count === digitsBeforeCursor) {
+              newCursorPos = i + 1;
+              break;
+            }
+          }
+          if (digitsBeforeCursor === 0) newCursorPos = 0;
+          ev.target.setSelectionRange(newCursorPos, newCursorPos);
+        }
+        onInput(digits, autoParts);
+      }, 10);
     });
 
     psInput.addEventListener('paste', (ev) => {
       try {
         ev.preventDefault();
         const text = (ev.clipboardData || window.clipboardData).getData('text') || '';
-        const digits = text.replace(/[,%\s、。]/g, '').replace(/\D+/g, '');
+        let val = toHalfWidthDigit(text);
+        const digits = val.replace(/[,%\s、。]/g, '').replace(/\D+/g, '');
         if (!digits) { setTempHint('貼り付けに数字が含まれていませんでした', true); return; }
-        if (digits !== text) setTempHint('貼り付け時に記号・空白を自動削除しました');
-        psInput.value = digits;
-        setTimeout(() => { onInput(); psInput.focus(); }, 0);
-      } catch (_) {}
+
+        const autoParts = formatWithComma(digits);
+        psInput.value = autoParts.join(',');
+
+        setTimeout(() => { onInput(digits, autoParts); psInput.focus(); }, 0);
+      } catch (_) { }
+    });
+
+    // タップした箇所の数字ブロック（カンマ間）を全体選択する
+    psInput.addEventListener('click', (ev) => {
+      // ドラッグなどで意図的に範囲選択した場合はそのままにする
+      if (ev.target.selectionStart !== ev.target.selectionEnd) return;
+
+      const pos = ev.target.selectionStart;
+      const val = ev.target.value;
+      if (!val) return;
+
+      let start = 0;
+      while (start <= val.length) {
+        let end = val.indexOf(',', start);
+        if (end === -1) end = val.length;
+
+        // カーソル位置がこのブロック内にあるかチェック
+        if (pos >= start && pos <= end + 1) {
+          // コンマの直後(end+1)をタップした場合、右側のブロックが意図されることが多いので補正
+          if (pos === end + 1 && end !== val.length) {
+            start = end + 1;
+            continue;
+          }
+          // OSのカーソル移動処理より後に選択させるため少し遅延
+          setTimeout(() => {
+            ev.target.setSelectionRange(start, end);
+          }, 10);
+          break;
+        }
+        start = end + 1;
+      }
     });
 
     psReset.addEventListener('click', () => {
       psInput.value = '';
       clearResults();
-      setHint('スキルUP%を順番に繋げて入力（最低10桁・最大15桁）');
+      setHint('スキルUP%をカンマなしで連続入力（カンマは自動で付きます）');
       psInput.focus();
     });
 
@@ -573,4 +812,5 @@
   </script>
 
 </body>
+
 </html>
