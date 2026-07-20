@@ -1484,7 +1484,9 @@ function trapFocus(element) {
       50% { opacity: 0.9; }
     }
   `;
-  document.head.appendChild(style);
+  if (!window.HL_SKIP_STYLES) {
+    document.head.appendChild(style);
+  }
 })();
 
 /* ============================================================
@@ -3927,8 +3929,15 @@ class HlEmbed extends HTMLElement {
     let src           = this.getAttribute('src')     || '';
     const url         = this.getAttribute('url')     || '';
     const caption     = this.getAttribute('caption') || '';
-    if (!src && url) src = HlEmbed.toEmbedUrl(url);
+    
+    // オプション属性の取得
+    const autoplay = this.hasAttribute('autoplay');
+    const loop = this.hasAttribute('loop');
+    const muted = this.hasAttribute('muted');
+
+    if (!src && url) src = HlEmbed.toEmbedUrl(url, { autoplay, loop, muted });
     if (!src) { this.innerHTML = ''; return; }
+    
     const captionHtml = caption ? `<p class="hl-embed__caption">${caption}</p>` : '';
     this.innerHTML = `
       <div class="hl-embed">
@@ -3940,23 +3949,48 @@ class HlEmbed extends HTMLElement {
         ${captionHtml}
       </div>`;
   }
-  static toEmbedUrl(url) {
+  
+  static toEmbedUrl(url, options = {}) {
+    let embedSrc = '';
+    let isYouTube = false;
+    let videoId = '';
+    
     try {
       const u = new URL(url);
       if (u.hostname.includes('youtube.com') && u.pathname === '/watch') {
-        const v = u.searchParams.get('v');
-        if (v) return `https://www.youtube.com/embed/${v}`;
+        videoId = u.searchParams.get('v');
+        if (videoId) { embedSrc = `https://www.youtube.com/embed/${videoId}`; isYouTube = true; }
       }
-      if (u.hostname === 'youtu.be') {
-        const v = u.pathname.slice(1);
-        if (v) return `https://www.youtube.com/embed/${v}`;
+      else if (u.hostname === 'youtu.be') {
+        videoId = u.pathname.slice(1);
+        if (videoId) { embedSrc = `https://www.youtube.com/embed/${videoId}`; isYouTube = true; }
       }
-      if (u.hostname.includes('nicovideo.jp') && u.pathname.startsWith('/watch/')) {
-        const id = u.pathname.replace('/watch/', '');
-        if (id) return `https://embed.nicovideo.jp/watch/${id}`;
+      else if (u.hostname.includes('nicovideo.jp') && u.pathname.startsWith('/watch/')) {
+        videoId = u.pathname.replace('/watch/', '');
+        if (videoId) { embedSrc = `https://embed.nicovideo.jp/watch/${videoId}`; }
       }
     } catch (e) {}
-    return '';
+
+    if (!embedSrc) return '';
+
+    // パラメータの組み立て
+    const params = new URLSearchParams();
+    if (options.autoplay) params.append('autoplay', '1');
+    if (options.muted) {
+      if (isYouTube) params.append('mute', '1');
+      else params.append('muted', '1');
+    }
+    if (options.loop) {
+      if (isYouTube) {
+        params.append('loop', '1');
+        params.append('playlist', videoId); // YouTubeはloopにplaylistの指定が必要
+      } else {
+        params.append('loop', '1');
+      }
+    }
+    
+    const queryString = params.toString();
+    return queryString ? `${embedSrc}?${queryString}` : embedSrc;
   }
 }
 customElements.define('hl-embed', HlEmbed);
@@ -4000,6 +4034,8 @@ customElements.define('hl-compare', HlCompare);
    4. ローディング画面＆自動フェードアウト (スコープカプセル化)
 ============================================================ */
 (function initHalcyonLoading() {
+  if (window.HL_SKIP_LOADING) return;
+
   const FADE_OUT_MS  = 480;
   const PAGE_TRANSITION_MS = 500;
 
