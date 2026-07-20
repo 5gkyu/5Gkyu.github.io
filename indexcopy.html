@@ -90,9 +90,40 @@
       border: none;
     }
 
+    /* プラットフォーム切り替えタブ */
+    .platform-tabs {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .platform-tab {
+      background: rgba(40, 40, 40, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 0.4rem 1.2rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    .platform-tab:hover {
+      background: rgba(80, 80, 80, 0.5);
+      color: #fff;
+    }
+    .platform-tab.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
     /* 動画情報パネル */
     .hero-video-info {
-      margin-top: 1rem;
+      margin-top: 0.6rem;
       background: rgba(40, 40, 40, 0.4);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -120,11 +151,15 @@
       gap: 0.3rem;
       overflow: hidden;
       flex: 1;
+      min-width: 0;
     }
     .hero-video-author {
       font-size: 0.8rem;
       opacity: 0.8;
       letter-spacing: 0.05em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .hero-video-title {
       font-size: 1.1rem;
@@ -440,9 +475,16 @@
 
   <!-- ヒーロー背景動画（フルブリード） -->
   <section class="hero-img-section" id="hero-section">
-    <div class="hero-left-col" style="display: flex; flex-direction: column;">
-      <div class="hero-video-wrapper">
+    <div class="hero-left-col" style="display: flex; flex-direction: column; min-width: 0;">
+      <div class="hero-video-wrapper" id="hero-video-wrapper">
         <div id="youtube-player"></div>
+      </div>
+
+      <!-- プラットフォーム切り替えタブ -->
+      <div class="platform-tabs">
+        <button class="platform-tab active" id="tab-youtube" onclick="switchPlatform('youtube')">YouTube</button>
+        <button class="platform-tab" id="tab-niconico" onclick="switchPlatform('niconico')">Niconico</button>
+        <button class="platform-tab" id="tab-soundcloud" onclick="switchPlatform('soundcloud')">SoundCloud</button>
       </div>
       <!-- 動画情報パネル -->
       <div class="hero-video-info" id="video-info-panel">
@@ -512,8 +554,36 @@
   </section>
 
   <script>
+    const nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238", "sm4445918"];
+    let currentPlatform = 'youtube';
     var ytPlayer;
-    function onYouTubeIframeAPIReady() {
+
+    // ニコニコ動画のJS API用メッセージリスナー
+    window.addEventListener('message', (event) => {
+      if (event.origin !== 'https://embed.nicovideo.jp') return;
+      if (event.data.eventName === 'loadComplete') {
+        const iframe = document.getElementById('nicoPlayer');
+        if (!iframe) return;
+        
+        iframe.contentWindow.postMessage({
+          sourceConnectorType: 1,
+          playerId: 'player1',
+          eventName: 'mute',
+          data: { mute: true }
+        }, 'https://embed.nicovideo.jp');
+        
+        iframe.contentWindow.postMessage({
+          sourceConnectorType: 1,
+          playerId: 'player1',
+          eventName: 'play'
+        }, 'https://embed.nicovideo.jp');
+      }
+    });
+
+    function initYouTube() {
+      const wrapper = document.getElementById('hero-video-wrapper');
+      wrapper.innerHTML = '<div id="youtube-player"></div>';
+      
       ytPlayer = new YT.Player('youtube-player', {
         host: 'https://www.youtube-nocookie.com',
         playerVars: {
@@ -531,6 +601,7 @@
             event.target.playVideoAt(0);
           },
           'onStateChange': function(event) {
+            if (currentPlatform !== 'youtube') return;
             const panel = document.getElementById('video-info-panel');
             const authorEl = document.getElementById('video-info-author');
             const titleEl = document.getElementById('video-info-title');
@@ -555,6 +626,85 @@
           }
         }
       });
+    }
+
+    function initNiconico() {
+      if (ytPlayer && ytPlayer.destroy) {
+        ytPlayer.destroy();
+      }
+      
+      const randomId = nicoList[Math.floor(Math.random() * nicoList.length)];
+      const wrapper = document.getElementById('hero-video-wrapper');
+      
+      // ニコニコ動画のiframeを生成 (JS API有効化)
+      wrapper.innerHTML = `<iframe id="nicoPlayer" src="https://embed.nicovideo.jp/watch/${randomId}?jsapi=1&playerId=player1" allow="autoplay; encrypted-media" allowfullscreen style="width: 100%; height: 100%; border: none;"></iframe>`;
+      
+      // 情報パネルをニコニコ仕様に変更
+      const panel = document.getElementById('video-info-panel');
+      const authorEl = document.getElementById('video-info-author');
+      const titleEl = document.getElementById('video-info-title');
+      const eq = document.getElementById('video-equalizer');
+      const heroSection = document.getElementById('hero-section');
+      
+      authorEl.textContent = 'ニコニコ動画';
+      titleEl.textContent = 'Now Playing (Random)';
+      panel.classList.add('show');
+      if (eq) eq.classList.remove('playing');
+      
+      // 背景をデフォルトに戻す
+      heroSection.style.removeProperty('--hero-bg');
+    }
+
+    function initSoundCloud() {
+      if (ytPlayer && ytPlayer.destroy) {
+        ytPlayer.destroy();
+      }
+      
+      const wrapper = document.getElementById('hero-video-wrapper');
+      
+      // SoundCloudのiframeを生成
+      wrapper.innerHTML = `<iframe width="100%" height="100%" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A2270724245&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true" style="border:none;"></iframe>`;
+      
+      // 情報パネルをSoundCloud仕様に変更
+      const panel = document.getElementById('video-info-panel');
+      const authorEl = document.getElementById('video-info-author');
+      const titleEl = document.getElementById('video-info-title');
+      const eq = document.getElementById('video-equalizer');
+      const heroSection = document.getElementById('hero-section');
+      
+      authorEl.textContent = 'SoundCloud';
+      titleEl.textContent = 'Untitled playlist';
+      panel.classList.add('show');
+      if (eq) eq.classList.remove('playing');
+      
+      // 背景をデフォルトに戻す
+      heroSection.style.removeProperty('--hero-bg');
+    }
+
+    function switchPlatform(platform) {
+      if (currentPlatform === platform) return;
+      currentPlatform = platform;
+      
+      document.getElementById('tab-youtube').classList.toggle('active', platform === 'youtube');
+      document.getElementById('tab-niconico').classList.toggle('active', platform === 'niconico');
+      document.getElementById('tab-soundcloud').classList.toggle('active', platform === 'soundcloud');
+      
+      const panel = document.getElementById('video-info-panel');
+      panel.classList.remove('show');
+      
+      if (platform === 'youtube') {
+        initYouTube();
+      } else if (platform === 'niconico') {
+        initNiconico();
+      } else if (platform === 'soundcloud') {
+        initSoundCloud();
+      }
+    }
+
+    function onYouTubeIframeAPIReady() {
+      if (currentPlatform === 'youtube') {
+        initYouTube();
+      }
     }
 
     // YouTube APIを非同期で読み込む
