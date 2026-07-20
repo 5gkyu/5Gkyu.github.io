@@ -482,9 +482,9 @@
 
       <!-- プラットフォーム切り替えタブ -->
       <div class="platform-tabs">
-        <button class="platform-tab active" id="tab-youtube" onclick="switchPlatform('youtube')">YouTube</button>
-        <button class="platform-tab" id="tab-niconico" onclick="switchPlatform('niconico')">Niconico</button>
-        <button class="platform-tab" id="tab-soundcloud" onclick="switchPlatform('soundcloud')">SoundCloud</button>
+        <!-- <button class="platform-tab" id="tab-youtube" onclick="switchPlatform('youtube')">YouTube</button> -->
+        <button class="platform-tab active" id="tab-niconico" onclick="switchPlatform('niconico')">Niconico</button>
+        <!-- <button class="platform-tab" id="tab-soundcloud" onclick="switchPlatform('soundcloud')">SoundCloud</button> -->
       </div>
       <!-- 動画情報パネル -->
       <div class="hero-video-info" id="video-info-panel">
@@ -555,7 +555,7 @@
 
   <script>
     const nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238", "sm4445918"];
-    let currentPlatform = 'youtube';
+    let currentPlatform = 'niconico';
     var ytPlayer;
 
     // ニコニコ動画のJS API用メッセージリスナー
@@ -706,6 +706,14 @@
         initYouTube();
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (currentPlatform === 'niconico') {
+        initNiconico();
+      } else if (currentPlatform === 'soundcloud') {
+        initSoundCloud();
+      }
+    });
 
     // YouTube APIを非同期で読み込む
     var tag = document.createElement('script');
