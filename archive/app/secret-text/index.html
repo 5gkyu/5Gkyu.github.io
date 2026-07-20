@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特殊文字・透明文字コピー | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="透明文字（ハングルフィラー）やゼロ幅文字、レイアウト操作文字など、特殊なUnicode文字をクリップボードにコピーするツール。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/secret-text/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="特殊文字・透明文字コピー | Halcyon - 5Gkyu">
+  <meta property="og:description" content="透明文字（ハングルフィラー）やゼロ幅文字など、特殊な動作をする文字をコピーできます。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/secret-text/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    :root {
+      --clr-cream:       #FBF6EA;
+      --clr-sage:        #9AB08F;
+      --clr-peach:       #EEAFA1;
+      --clr-dusty-blue:  #92B5BC;
+      --clr-brown:       #6A564A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    .char-section {
+      margin-top: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .char-section h2 {
+      font-size: 1.3rem;
+      color: var(--clr-brown);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px dashed rgba(106, 86, 74, 0.15);
+    }
+    .char-section-desc {
+      font-size: 0.95rem;
+      color: var(--clr-brown);
+      opacity: 0.85;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .char-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .char-card {
+      background: #fff;
+      border: 1.5px solid rgba(106, 86, 74, 0.08);
+      border-radius: 12px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      box-shadow: 0 4px 12px rgba(106, 86, 74, 0.03);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .char-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(106, 86, 74, 0.06);
+    }
+    
+    .char-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .char-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--clr-brown);
+    }
+    .char-unicode {
+      background: var(--clr-cream);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--clr-dusty-blue);
+      font-weight: bold;
+    }
+
+    .char-desc {
+      font-size: 0.95rem;
+      color: var(--clr-brown);
+      line-height: 1.5;
+    }
+
+    .char-action {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .app-button {
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      color: #fff;
+      background-color: var(--clr-sage);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s, transform 0.1s, background-color 0.2s;
+      min-width: 100px;
+    }
+    .app-button:hover {
+      opacity: 0.9;
+    }
+    .app-button:active {
+      transform: scale(0.98);
+    }
+    
+    @media (max-width: 480px) {
+      .app-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="特殊文字コピー"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/"
+        current="特殊文字コピー">
+      </hl-breadcrumb>
+      <page-title>特殊・透明文字コピー</page-title>
+
+      <p class="hl-content-text">画面表示やシステムに特殊な影響を与えるUnicodeの文字をカテゴリ別にまとめました。用途に応じて使い分けられるよう、代表的なものをリストアップしています。</p>
+
+      <!-- カテゴリ1 -->
+      <section class="char-section">
+        <h2>1. 見えない・幅を持たない文字（ゼロ幅文字）</h2>
+        <p class="char-section-desc">画面上には表示されませんが、システムの挙動（改行や単語の区切りなど）をコントロールするために裏で働く文字です。</p>
+        <div class="char-grid">
+          
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ハングルフィラー (Hangul Filler)</span>
+              <span class="char-unicode">U+3164</span>
+            </div>
+            <div class="char-desc">透明文字の代表格。空白のように見えますが、文字として認識されるため名前の未入力回避などによく使われます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">点字の空白 (Braille Pattern Blank)</span>
+              <span class="char-unicode">U+2800</span>
+            </div>
+            <div class="char-desc">点が1つもない点字。システムに「空白（スペース）」として削除されにくいため、透明文字の代用として優秀です。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ゼロ幅スペース (Zero Width Space)</span>
+              <span class="char-unicode">U+200B</span>
+            </div>
+            <div class="char-desc">幅が完全にゼロのスペース。見た目は変わりませんが、システムに「ここで改行してもOK」と伝えます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">単語結合子 (Word Joiner)</span>
+              <span class="char-unicode">U+2060</span>
+            </div>
+            <div class="char-desc">ゼロ幅スペースの逆。この文字を挟んだ単語同士は「絶対にここで改行させない」という強い結びつきを持ちます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ゼロ幅接合子 (Zero Width Joiner / ZWJ)</span>
+              <span class="char-unicode">U+200D</span>
+            </div>
+            <div class="char-desc">隣り合う文字（主に絵文字やアラビア文字）を合体させるボンド。例：「👨」+ ZWJ +「🍳」＝「👨‍🍳」</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ゼロ幅非接合子 (Zero Width Non-Joiner)</span>
+              <span class="char-unicode">U+200C</span>
+            </div>
+            <div class="char-desc">ZWJの逆。本来くっついて表示される文字同士を、強制的に離して（独立させて）表示させます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ネクストライン (Next Line / NEL)</span>
+              <span class="char-unicode">U+0085</span>
+            </div>
+            <div class="char-desc">システムに「次の行へ移動する」ことを指示する制御文字です。通常の改行（LFやCR）とは異なるため、一部のシステムで特殊な挙動を引き起こすことがあります。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- カテゴリ2 -->
+      <section class="char-section">
+        <h2>2. テキストの進行方向・レイアウトを操作する文字</h2>
+        <p class="char-section-desc">テキストの流れる方向を強制的に変えたり、1文字で異常なスペースを取ったりする文字です。悪用されることも多いため、多くのシステムで警戒されています。</p>
+        <div class="char-grid">
+          
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">右から左へのオーバーライド (Right-To-Left Override)</span>
+              <span class="char-unicode">U+202E</span>
+            </div>
+            <div class="char-desc">この文字以降のテキストを強制的に右から左へ反転させます。（例：あいう → ういあ）</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">左から右へのオーバーライド (Left-To-Right Override)</span>
+              <span class="char-unicode">U+202D</span>
+            </div>
+            <div class="char-desc">上記の逆。反転したテキストを通常の左から右への流れに戻す際に使われます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">アラビア語の合字 (Arabic Ligature Bismillah)</span>
+              <span class="char-unicode">U+FDFD</span>
+            </div>
+            <div class="char-desc">「﷽」。神の御名において、という長いフレーズを1文字に圧縮したもの。1文字なのに異常に横幅が長いため、UI破壊によく使われます。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">ソフトハイフン (Soft Hyphen)</span>
+              <span class="char-unicode">U+00AD</span>
+            </div>
+            <div class="char-desc">普段は透明ですが、行の右端で単語が途切れて改行される時だけ「-（ハイフン）」として姿を現す忍者テキストです。</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- カテゴリ3 -->
+      <section class="char-section">
+        <h2>3. 文字を装飾・侵食する文字（ダイアクリティカルマーク）</h2>
+        <p class="char-section-desc">前の文字に点や線を「後付け」するための文字です。仕様上、無限に重ね掛けできるため、文字化け（Zalgo Text）を引き起こす原因になります。</p>
+        <div class="char-grid">
+          
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">合成用マクロン (Combining Macron)</span>
+              <span class="char-unicode">U+0304</span>
+            </div>
+            <div class="char-desc">前の文字の上に横線を引きます。（例：a + ̄ = ā）</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">合成用ロングソリドゥス (Combining Long Solidus)</span>
+              <span class="char-unicode">U+0338</span>
+            </div>
+            <div class="char-desc">前の文字に斜線を引いて打ち消します。（例：A + ̸ = A̸）</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+          <div class="char-card">
+            <div class="char-header">
+              <span class="char-name">合成用下部チルダ (Combining Tilde Below)</span>
+              <span class="char-unicode">U+0330</span>
+            </div>
+            <div class="char-desc">前の文字の下に波線を引きます。（例：A + ̰ = A̰）</div>
+            <div class="char-action">
+              <button class="app-button" onclick="copyChar(this)">コピー</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+
+  </hl-layout>
+
+  <site-footer copy="5Gkyu Apps"></site-footer>
+  <script src="/components/components.js"></script>
+  
+  <script>
+    function copyChar(btnElement) {
+        try {
+            const card = btnElement.closest('.char-card');
+            const name = card.querySelector('.char-name').textContent.trim();
+            const unicodeText = card.querySelector('.char-unicode').textContent.trim();
+            
+            const codePoint = parseInt(unicodeText.replace('U+', ''), 16);
+            const textToCopy = String.fromCodePoint(codePoint);
+
+            const onSuccess = () => {
+                const originalText = btnElement.textContent;
+                btnElement.textContent = "コピー完了！";
+                btnElement.style.backgroundColor = "var(--clr-peach)";
+                
+                if (window.HlToast) {
+                    HlToast.show(`「${name}」をコピーしました！`);
+                }
+                
+                setTimeout(() => {
+                    btnElement.textContent = originalText;
+                    btnElement.style.backgroundColor = "";
+                }, 2000);
+            };
+
+            const onError = (err) => {
+                if (window.HlToast) {
+                    HlToast.show('コピーに失敗しました', 'warning');
+                } else {
+                    alert("コピーに失敗しました。");
+                }
+                console.error('コピー失敗:', err);
+            };
+
+            // navigator.clipboard が使用可能な環境（HTTPSなど）
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(onSuccess).catch(onError);
+            } else {
+                // 古い環境やローカルファイル（file://）用のフォールバック
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        onSuccess();
+                    } else {
+                        onError(new Error("execCommand failed"));
+                    }
+                } catch (err) {
+                    onError(err);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        } catch (e) {
+            console.error("スクリプトエラー:", e);
+            if (window.HlToast) HlToast.show('エラーが発生しました', 'warning');
+            else alert('エラーが発生しました');
+        }
+    }
+  </script>
+</body>
+</html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>画像圧縮ツール | Halcyon - 5Gkyu</title>
-  <meta name="description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化できるツールです。">
+  <title>画像変換・圧縮ツール | Halcyon - 5Gkyu</title>
+  <meta name="description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化やフォーマット変換（PNG/WebP/JPEG）ができるツールです。">
   <link rel="canonical" href="https://5gkyu.github.io/archive/app/image-compression/">
 
   <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
@@ -12,8 +12,8 @@
   <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
   <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
 
-  <meta property="og:title" content="画像圧縮ツール | Halcyon - 5Gkyu">
-  <meta property="og:description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化できるツールです。">
+  <meta property="og:title" content="画像変換・圧縮ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ブラウザ上で画像をリサイズ・圧縮し、軽量化やフォーマット変換（PNG/WebP/JPEG）ができるツールです。">
   <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
   <meta property="og:url" content="https://5gkyu.github.io/archive/app/image-compression/">
   <meta property="og:type" content="website">
@@ -71,19 +71,19 @@
 </head>
 <body>
 
-  <site-header site-name="画像圧縮ツール"></site-header>
+  <site-header site-name="画像変換・圧縮ツール"></site-header>
 
   <hl-layout cols="2" class="fluffy-entry delay-1">
     <div class="hl-layout-main">
       <hl-breadcrumb
-        current="画像圧縮ツール"
+        current="画像変換・圧縮ツール"
         level1-name="Archive" level1-url="/archive/"
         level2-name="App" level2-url="/archive/app/">
       </hl-breadcrumb>
 
-      <page-title>画像リサイズ＆圧縮ツール</page-title>
+      <page-title>画像変換＆圧縮ツール</page-title>
       <p class="hl-content-text" style="margin-bottom: 2rem;">
-        ブラウザ上で画像を読み込み、指定した横幅やフォーマットでリサイズ・圧縮を行います。データはサーバーに送信されないため安全です。
+        ブラウザ上で画像を読み込み、指定した横幅やフォーマット（PNG・WebP・JPEG）で変換・リサイズ・圧縮を行います。データはサーバーに送信されないため安全です。
       </p>
 
       <div class="ic-main-card">
@@ -121,7 +121,7 @@
                     <button class="hl-tabs-btn" data-value="image/webp">WebP</button>
                 </div>
                 <p id="jpegAlphaNote" class="hl-field-hint" style="margin-top: 0.5rem; color: var(--clr-peach);">
-                    ⚠️ JPEGは透明部分（アルファチャンネル）を保存できません。透明箇所は白で塗り潰されます。
+                     JPEGは透明部分（アルファチャンネル）を保存できません。透明箇所は白で塗り潰されます。
                 </p>
             </div>
 
@@ -304,7 +304,7 @@
                   const saveName = (filenameInput.value.trim() || 'compressed_image') + '.' + ext;
                   downloadLink.download = saveName;
                   downloadLink.style.display = 'flex';
-                  downloadLink.innerHTML = `📥 ダウンロード (${(blob.size / 1024).toFixed(1)} KB)`;
+                  downloadLink.innerHTML = ` ダウンロード (${(blob.size / 1024).toFixed(1)} KB)`;
                   
                   const previewKb = (blob.size / 1024).toFixed(1);
                   

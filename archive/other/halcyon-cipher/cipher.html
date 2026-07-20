@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>十六夜暗号 変換ツール - 六星鍵型</title>
+<style>
+  body {
+    font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Yu Mincho', serif;
+    background-color: #0b101e;
+    color: #e0e6ed;
+    padding: 30px 20px;
+    text-align: center;
+  }
+  h1 { color: #f5f5f5; margin-bottom: 5px; }
+  p { color: #8c9baf; margin-bottom: 20px; font-size: 0.9em; }
+  .container {
+    max-width: 600px; margin: 0 auto; background: #1a2235;
+    padding: 25px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  }
+  textarea {
+    width: 100%; height: 120px; padding: 12px; margin: 10px 0;
+    background: #0b101e; color: #e0e6ed; border: 1px solid #4a5a80;
+    border-radius: 6px; font-size: 16px; font-family: inherit;
+    box-sizing: border-box; resize: vertical;
+  }
+  textarea::placeholder { color: #4a5a80; }
+  .controls { margin: 15px 0; }
+  button {
+    background: #4a5a80; color: #fff; border: none; padding: 12px 24px;
+    margin: 0 5px; cursor: pointer; border-radius: 6px;
+    font-size: 16px; font-family: inherit; transition: background 0.2s, transform 0.1s;
+  }
+  button:hover { background: #6b7ea5; }
+  button:active { transform: scale(0.98); }
+  .error { color: #ff8b8b; font-size: 14px; min-height: 20px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>十六夜暗号  幻</h1>
+    <p>平文依存型・動的六星鍵 搭載（かぶりなし完全版）</p>
+    
+    <textarea id="normalText" placeholder="通常の文章をここに入力してください..."></textarea>
+    
+    <div class="controls">
+      <button onclick="doConvert()">変換</button>
+    </div>
+    
+    <div id="errorMsg" class="error"></div>
+    
+    <textarea id="cipherText" placeholder="十六夜暗号がここに表示されます..."></textarea>
+  </div>
+
+  <script>
+    // 1. 6つのXOR鍵配列 (Base36抽出)
+    const keyArrays = [
+      [29, 10, 20, 10, 23, 10, 28, 18, 10, 20, 10, 27, 18], // 0: TakanasiAkari
+      [11, 14, 12, 20, 34, 12, 14, 21, 14, 28, 29, 14, 11, 10, 20, 14, 27], // 1: BeckyCelesteBaker
+      [12, 17, 10, 27, 21, 24, 29, 29, 14, 10, 13, 14, 21, 14, 23, 24, 18, 27], // 2: CharlotteAdeleNoir
+      [13, 30, 21, 12, 18, 14, 21, 18, 23], // 3: DulcieLin
+      [14, 28, 22, 14, 10, 30, 27, 14, 21, 18, 10, 32, 27, 14, 23], // 4: EsmeAureliaWren
+      [18, 12, 17, 18, 23, 24, 28, 14, 15, 30, 20, 10] // 5: IchinoseFuka
+    ];
+
+    // 2. 鍵標記漢字 (インデックス判別用)
+    const indicatorMap = [
+  ["春", "桜", "桃", "柳", "菫"], // Key 0 (春と花)
+  ["夏", "蓮", "葵", "蘭", "桂"], // Key 1 (夏と草)
+  ["秋", "楓", "菊", "萩", "桔"], // Key 2 (秋と紅葉)
+  ["冬", "柊", "椿", "松", "柏"], // Key 3 (冬と常緑)
+  ["朝", "旭", "晨", "黎", "旦"], // Key 4 (夜明けと始まり)
+  ["夕", "暮", "昏", "晩", "茜"]  // Key 5 (日暮れと終わり)
+];
+
+    // 鍵標記漢字の逆引きマップ
+    const indicatorReverseMap = {};
+    indicatorMap.forEach((kanjis, index) => {
+      kanjis.forEach(k => { indicatorReverseMap[k] = index; });
+    });
+
+    // 3. 頻度比例型 同音換字マップ (重複なし)
+    const kanjiMap = [
+  ["零", "闇", "幽", "冥", "虚", "無", "寂", "淵"], // 0 (8): 深淵と無
+  ["月", "影", "朔", "望", "弦", "宵", "孤", "弓"], // 1 (8): 月と夜
+  ["火", "炎", "焔", "烽", "燦", "灼", "炉", "焦"], // 2 (8): 炎と熱
+  ["水", "雫", "泉", "澪", "滴", "滝", "沫", "潤"], // 3 (8): 水と泉
+  ["木", "森", "林", "樹", "枝", "根", "葉", "幹"], // 4 (8): 森と樹木
+  ["金", "鐘", "鈴", "鏡", "剣", "刃", "鋼", "鉄"], // 5 (8): 金属と刃
+  ["土", "砂", "泥", "塊", "塵"], // 6 (5): 大地と塵
+  ["日", "陽", "暉", "晴", "照"], // 7 (5): 太陽と光
+  ["星", "瞬", "昴", "彗", "隕", "軌", "芒", "辰", "宿", "銀", "宙", "宇", "輝", "耀", "綺"], // 8 (15): 星と宇宙
+  ["空", "天", "穹", "蒼", "碧", "高", "遥", "霄", "飛", "翔", "頂", "仰", "凌", "越", "浮"], // 9 (15): 天空と飛翔
+  ["風", "嵐", "凪", "疾", "颯", "旋", "烈", "涼", "飄", "扇", "息", "吹", "陣", "竜", "巻"], // A (15): 風と嵐
+  ["雲", "霞", "雷", "靄", "曇", "霆", "震", "霹", "靂", "閃", "電", "吼", "轟", "迅", "撃"], // B (15): 雲と雷鳴
+  ["霜", "氷", "凍", "凛", "冽"], // C (5): 氷と冷気
+  ["雪", "白", "晶", "華", "純"], // D (5): 雪と純白
+  ["雨", "涙", "露", "霖", "波", "哀", "悲", "愁", "濡", "湿", "涛", "渦", "憂", "慕", "泣"], // E (15): 涙と哀愁
+  ["霧", "煙", "朦", "朧", "隠", "幻", "迷", "惑", "秘", "密", "妖", "艶", "帷", "帳", "匣"]  // F (15): 幻と神秘
+];
+    // 4. ダミー漢字 (全20文字 重複なし)
+    const dummyKanji = [
+  "花", "鳥", "蝶", "舞", "散", "咲", "鳴", "響", "夢", "音", 
+  "詩", "歌", "奏", "紡", "綴", "語", "詠", "薫", "漂", "揺"
+];
+
+    // 復号用の逆引きマップ
+    const reverseMap = {};
+    kanjiMap.forEach((candidates, hexValue) => {
+        candidates.forEach(kanji => { reverseMap[kanji] = hexValue.toString(16); });
+    });
+
+    // 暗号化処理
+    function encode() {
+        clearError();
+        const input = document.getElementById('normalText').value;
+        if (!input) return;
+
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(input);
+
+        // 平文バイトの合計値を計算し、使用する鍵を決定 (mod 6)
+        let byteSum = 0;
+        for (let b of bytes) byteSum += b;
+        const keyIndex = byteSum % 6;
+        const currentKeyArray = keyArrays[keyIndex];
+
+        // 鍵標記漢字をランダムに選び、先頭にセット
+        const indicators = indicatorMap[keyIndex];
+        let result = indicators[Math.floor(Math.random() * indicators.length)];
+
+        for (let i = 0; i < bytes.length; i++) {
+            const xored = bytes[i] ^ currentKeyArray[i % currentKeyArray.length];
+            const hexStr = xored.toString(16).padStart(2, '0');
+            
+            for (const char of hexStr) {
+                const hexIndex = parseInt(char, 16);
+                const candidates = kanjiMap[hexIndex];
+                
+                result += candidates[Math.floor(Math.random() * candidates.length)];
+
+                // ダミー挿入 (0〜3個)
+                const dummyCount = Math.floor(Math.random() * 4);
+                for (let d = 0; d < dummyCount; d++) {
+                    result += dummyKanji[Math.floor(Math.random() * dummyKanji.length)];
+                }
+            }
+        }
+        document.getElementById('cipherText').value = result;
+    }
+
+    // 復号処理
+    function decode() {
+        clearError();
+        const input = document.getElementById('cipherText').value;
+        if (!input) {
+            showError('復号する暗号文が入力されていません。');
+            return;
+        }
+
+        // ダミー文字と空白を除去
+        let cleanedInput = '';
+        for (const char of input) {
+            if (char.trim() === '') continue;
+            if (dummyKanji.includes(char)) continue;
+            cleanedInput += char;
+        }
+
+        if (cleanedInput.length < 3) { // 最低でもマーカー1文字 + 暗号2文字(1バイト)が必要
+            showError('エラー：暗号文が短すぎます。');
+            return;
+        }
+
+        // 先頭1文字から鍵インデックスを特定
+        const indicatorChar = cleanedInput[0];
+        const keyIndex = indicatorReverseMap[indicatorChar];
+        
+        if (keyIndex === undefined) {
+            showError(`エラー：無効な鍵標記文字「${indicatorChar}」が先頭にあります。`);
+            return;
+        }
+
+        const currentKeyArray = keyArrays[keyIndex];
+        
+        // 先頭のマーカー文字を切り落として、本体部分を取り出す
+        const cipherBody = cleanedInput.substring(1);
+
+        let hexStr = '';
+        for (const char of cipherBody) {
+            if (reverseMap[char] !== undefined) {
+                hexStr += reverseMap[char];
+            } else {
+                showError(`エラー：未定義の文字「${char}」が含まれています。`);
+                return;
+            }
+        }
+
+        if (hexStr.length % 2 !== 0) {
+            showError('エラー：ダミー除去後の文字数が奇数です（データが欠損しています）。');
+            return;
+        }
+
+        const bytes = new Uint8Array(hexStr.length / 2);
+        for (let i = 0; i < hexStr.length; i += 2) {
+            const hexByte = hexStr.substring(i, i + 2);
+            bytes[i / 2] = parseInt(hexByte, 16) ^ currentKeyArray[(i / 2) % currentKeyArray.length];
+        }
+
+        try {
+            const decoder = new TextDecoder();
+            const decodedText = decoder.decode(bytes);
+            document.getElementById('normalText').value = decodedText;
+        } catch (e) {
+            showError('エラー：正常に復号できませんでした。データが改ざんされています。');
+        }
+    }
+
+    function doConvert() {
+        clearError();
+        const normal = document.getElementById('normalText').value.trim();
+        const cipher = document.getElementById('cipherText').value.trim();
+
+        if (normal && !cipher) { encode(); return; }
+        if (cipher && !normal) { decode(); return; }
+        if (normal && cipher) { encode(); return; }
+        showError('入力がありません。');
+    }
+
+    function showError(msg) { document.getElementById('errorMsg').innerText = msg; }
+    function clearError() { document.getElementById('errorMsg').innerText = ''; }
+  </script>
+</body>
+</html>

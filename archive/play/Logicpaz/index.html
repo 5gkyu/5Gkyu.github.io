@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logicpaz | Halcyon - 5Gkyu</title>
+  <meta name="description" content="6人の席と持ち物を推理して埋めるマトリックス論理パズル。開始前はガイド付き、開始後は全画面の集中モードで遊べます。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/Logicpaz/">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    .intro-note {
+      margin-top: 0.8rem;
+      font-size: 0.92rem;
+      color: var(--clr-brown);
+      opacity: 0.85;
+      line-height: 1.8;
+    }
+
+    .start-panel {
+      margin-top: 1.6rem;
+      padding: 1.4rem;
+      border-radius: 20px;
+      border: 1px solid rgba(154, 176, 143, 0.26);
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .start-title {
+      font-size: 1.06rem;
+      color: var(--clr-brown);
+      margin-bottom: 0.7rem;
+      font-weight: 700;
+    }
+
+    .start-list {
+      margin: 0;
+      padding-left: 1.2rem;
+      line-height: 1.9;
+      color: var(--clr-brown);
+      font-size: 0.95rem;
+    }
+
+    .start-actions {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 0;
+      padding: 0.72rem 1.25rem;
+      background: linear-gradient(135deg, #b04f35, #8c3421);
+      color: #fff7f1;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: transform 0.14s, box-shadow 0.14s;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .start-sub {
+      font-size: 0.82rem;
+      color: var(--clr-brown);
+      opacity: 0.72;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body.is-playing {
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f8f3ea, #ede5d8);
+    }
+
+    :root {
+      --bg: #f4efe4;
+      --surface: #fffbf4;
+      --ink: #2f2218;
+      --muted: #75665b;
+      --accent: #a3482f;
+      --accent2: #2d6c66;
+      --line: rgba(80, 54, 40, 0.15);
+      --r: 12px;
+    }
+
+    body.is-playing {
+      font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+      color: var(--ink);
+    }
+
+    /* ── APP SHELL ── */
+    .app {
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: 50px 1fr;
+      overflow: hidden;
+      background: linear-gradient(135deg, #f8f3ea, #ede5d8);
+      z-index: 2000;
+    }
+
+    .app[hidden] {
+      display: none !important;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      background: rgba(255, 251, 244, 0.95);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+
+    .topbar-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .meta-pills {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(45, 108, 102, 0.1);
+      border: 1px solid rgba(45, 108, 102, 0.18);
+      color: var(--accent2);
+      white-space: nowrap;
+    }
+
+    /* ── BUTTONS ── */
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 6px 13px;
+      font: inherit;
+      cursor: pointer;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: transform 0.14s, box-shadow 0.14s;
+    }
+
+    button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
+    .primary   { background: linear-gradient(135deg, #b04f35, #8c3421); color: #fff5ed; }
+    .secondary { background: #efe4d5; color: var(--ink); }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ステージ+プールは左列の上段 */
+    .stage-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    /* 手掛かりは右列全体 */
+    .right-col {
+      grid-row: 1 / -1;
+      grid-column: 2;
+    }
+
+    /* ── LEFT: STAGE (DRAG & DROP) ── */
+    .stage {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .stage-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    
+    .stage-hint {
+      font-size: 0.65rem;
+      color: var(--accent2);
+    }
+
+    .chars-row {
+      display: grid;
+      grid-template-columns: repeat(var(--char-cols, 6), 1fr);
+      gap: 5px;
+      align-items: start;
+      min-height: 0;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+
+    /* ── SEAT CARDS & DROP ZONES ── */
+    .seat-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .seat-header {
+      background: rgba(255, 251, 244, 0.96);
+      text-align: center;
+      padding: 6px 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      border-bottom: 1px dashed var(--line);
+      color: var(--accent);
+    }
+
+    .drop-zones-wrap {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 5px;
+      padding: 5px;
+      background: linear-gradient(160deg, #e8dfd4, #d4c8b8);
+      overflow: visible;
+    }
+
+    .drop-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px dashed rgba(80, 54, 40, 0.3);
+      border-radius: 8px;
+      min-height: 60px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      transition: all 0.2s;
+      padding: 4px;
+    }
+
+    .drop-zone.person-zone {
+      aspect-ratio: 1 / 1;
+      min-height: 102px;
+      padding: 8px;
+    }
+
+    .drop-zone.item-zone {
+      min-height: 52px;
+    }
+
+    .drop-zone.drag-over {
+      background: rgba(45, 108, 102, 0.2);
+      border-color: var(--accent2);
+      border-style: solid;
+      transform: scale(1.02);
+    }
+
+    .drop-zone.filled {
+      background: transparent;
+      border-style: solid;
+      border-color: transparent;
+    }
+
+    /* ── CHIPS (DRAGGABLE) ── */
+    .chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 9px;
+      background: #f0e8dc;
+      border: 1px solid var(--line);
+      line-height: 1.3;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      user-select: none;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    
+    .chip img {
+      pointer-events: none; /* ドラッグ時の誤動作を防ぐ */
+    }
+
+    .chip[draggable="true"] {
+      cursor: grab;
+    }
+    
+    .chip[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
+    /* ドロップゾーン内のチップ */
+    .drop-zone .chip {
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      background: var(--surface);
+      border-color: var(--muted);
+      cursor: pointer;
+    }
+
+    .drop-zone .chip img {
+      width: 62px;
+      height: 62px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .drop-zone .chip b {
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── MEMO PANEL ── */
+    .memo-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .memo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .memo-label { font-size: 0.68rem; letter-spacing: 0.12em; color: var(--muted); }
+
+    .memo-clear {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .memo-clear:hover { background: #e8ddd0; }
+
+    .memo-textarea {
+      width: 100%;
+      resize: none;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font: inherit;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--ink);
+      background: #fdfaf5;
+      outline: none;
+      height: 180px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .memo-textarea:focus { border-color: rgba(45, 108, 102, 0.4); background: #fffdf8; }
+
+    /* ── RIGHT COLUMN ── */
+    .right-col {
+      display: grid;
+      grid-template-rows: 1fr;
+      gap: 10px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .clues-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      overflow-y: auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .panel-label { font-size: 0.68rem; letter-spacing: 0.12em; color: var(--muted); flex-shrink: 0; }
+
+    ol.clues {
+      padding-left: 1.35em;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    
+    ol.clues li {
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    
+    ol.clues li:hover {
+      background: rgba(0,0,0,0.03);
+    }
+    
+    ol.clues li.resolved {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+    
+    ol.clues li.incorrect {
+      background: rgba(220, 50, 50, 0.1);
+      color: #a3482f !important;
+      border-left: 3px solid #a3482f;
+      opacity: 1 !important;
+      text-decoration: none !important;
+    }
+    
+    ol.clues li.incorrect .person-mark {
+      color: #a3482f !important;
+    }
+
+    .answer-section { border-top: 1px solid var(--line); padding-top: 8px; flex-shrink: 0; }
+    .answer-section[hidden] { display: none; }
+
+    /* ── REFERENCE PANEL (CHIP POOLS) ── */
+    .ref-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ref-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ref-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 52px;
+    }
+
+    .ref-chips { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; flex: 1; }
+
+    .chip.is-assigned {
+      opacity: 0.45;
+      filter: grayscale(0.95);
+      cursor: not-allowed !important;
+      box-shadow: none;
+    }
+
+    .person-mark {
+      font-weight: 700;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(251, 246, 234, 0.9);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    
+    .loading-overlay[hidden] {
+      display: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-overlay .loading-text {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── 思考プロセス表示 ── */
+    .thinking-section { border-top: 1px solid var(--line); padding-top: 8px; flex-shrink: 0; }
+    .thinking-section[hidden] { display: none; }
+
+    .thinking-log {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+    }
+
+    .thinking-step {
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(45, 108, 102, 0.06);
+      border-left: 3px solid var(--accent2);
+    }
+
+    .thinking-step .step-num {
+      font-weight: 700;
+      color: var(--accent2);
+      margin-right: 4px;
+    }
+
+    .thinking-step .step-result {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .thinking-step.is-decisive {
+      background: rgba(163, 72, 47, 0.08);
+      border-left-color: var(--accent);
+    }
+
+    .thinking-step.is-decisive .step-result {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── LOBBY SETTINGS ── */
+    .settings-panel {
+      background: var(--clr-card, #fffbf4);
+      border: 1px solid rgba(80,54,40,0.15);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .settings-panel .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .settings-panel .setting-label {
+      font-size: 0.82rem;
+      font-weight: bold;
+      color: #5a4a3a;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .settings-panel select {
+      font: inherit;
+      font-size: 0.85rem;
+      padding: 5px 10px;
+      border: 1px solid rgba(80,54,40,0.2);
+      border-radius: 8px;
+      background: #fdfaf5;
+      color: #2f2218;
+      cursor: pointer;
+    }
+
+    .settings-panel .hint-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .settings-panel .hint-checkboxes label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #5a4a3a;
+      background: #f0e8dc;
+      padding: 4px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(80,54,40,0.12);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .settings-panel .hint-checkboxes label:hover {
+      background: #e8ddd0;
+    }
+
+    .settings-panel .hint-checkboxes .item-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      color: var(--accent2);
+    }
+
+    input[type="checkbox"] {
+      accent-color: #a3482f;
+    }
+
+    .zone-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 4px;
+      outline: 2px solid transparent;
+      outline-offset: -2px;
+      transition: outline-color 0.2s, background 0.2s;
+      box-sizing: border-box;
+    }
+    .zone-container.is-selected {
+      outline-color: var(--accent);
+      background: rgba(45, 108, 102, 0.05);
+    }
+    .mini-candidates {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      min-height: 16px;
+      justify-content: center;
+      width: 100%;
+    }
+    .mini-cand {
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: var(--text);
+      background: rgba(0,0,0,0.05);
+      border-radius: 3px;
+      padding: 0 3px;
+    }
+
+    .hint-actions {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .hint-group {
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(80,54,40,0.15);
+    }
+    .hint-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .hint-group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .hint-stars {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #a3482f;
+    }
+
+    .hint-actions button {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--accent2, #2d6c66);
+      border: 1px solid rgba(45,108,102,0.3);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .hint-actions button:hover {
+      background: rgba(45,108,102,0.1);
+    }
+    
+    .global-hint-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(80,54,40,0.15);
+    }
+    
+    .global-hint-actions button {
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      border-radius: 6px;
+      background: rgba(45,108,102,0.05);
+      color: var(--accent2, #2d6c66);
+      border: 1px solid rgba(45,108,102,0.4);
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    .global-hint-actions button:hover {
+      background: rgba(45,108,102,0.15);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .start-warning {
+      font-size: 0.78rem;
+      color: var(--accent, #a3482f);
+      display: none;
+    }
+
+    .start-warning.visible {
+      display: block;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="prestartShell">
+    <site-header site-name="Logicpaz"></site-header>
+
+    <hl-layout cols="2" class="fluffy-entry delay-1">
+      <div class="hl-layout-main">
+        <hl-breadcrumb current="Logicpaz"></hl-breadcrumb>
+        <page-title>Logicpaz</page-title>
+
+        <p class="hl-content-text">
+          6人の席順と持ち物を、手掛かりだけで導く論理パズルです。
+          開始するとゲーム画面に切り替わり、ヘッダーやサイドバーなしの全画面で集中して遊べます。
+        </p>
+        <p class="intro-note">ドラッグ&ドロップで人物チップと持ち物チップを配置し、推理メモを使って絞り込んでください。</p>
+
+        <div class="start-panel">
+          <div class="start-title">パズル設定</div>
+          <div class="settings-panel">
+            <div class="setting-row">
+              <span class="setting-label">人数</span>
+              <select id="settingPeopleCount">
+                <option value="4">4人</option>
+                <option value="5">5人</option>
+                <option value="6" selected>6人</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">ヒントの種類</span>
+              <div style="flex:1;" id="hintCheckboxesContainer">
+                <div class="global-hint-actions">
+                  <button type="button" id="hintToggleAll">すべて選択 / 解除</button>
+                </div>
+                
+                <div class="hint-group">
+                  <div class="hint-group-header">
+                    <span class="hint-stars">★★★★ 非常に強い</span>
+                    <div class="hint-actions">
+                      <button type="button" class="group-toggle-all" data-target="group-4">全選択 / 解除</button>
+                    </div>
+                  </div>
+                  <div class="hint-checkboxes" id="group-4">
+                    <label><input type="checkbox" value="seat-exact" checked>席確定</label>
+                    <label><input type="checkbox" value="item-exact" checked>持ち物確定</label>
+                    <label><input type="checkbox" value="seat-item" checked>席+持ち物</label>
+                  </div>
+                </div>
+
+                <div class="hint-group">
+                  <div class="hint-group-header">
+                    <span class="hint-stars">★★★☆ 強い</span>
+                    <div class="hint-actions">
+                      <button type="button" class="group-toggle-all" data-target="group-3">全選択 / 解除</button>
+                    </div>
+                  </div>
+                  <div class="hint-checkboxes" id="group-3">
+                    <label><input type="checkbox" value="immediate-left-item" checked>すぐ左</label>
+                    <label><input type="checkbox" value="item-right-of-item" checked>アイテム隣接</label>
+                    <label><input type="checkbox" value="between-persons" checked>挟まれる</label>
+                  </div>
+                </div>
+
+                <div class="hint-group">
+                  <div class="hint-group-header">
+                    <span class="hint-stars">★★☆☆ 普通</span>
+                    <div class="hint-actions">
+                      <button type="button" class="group-toggle-all" data-target="group-2">全選択 / 解除</button>
+                    </div>
+                  </div>
+                  <div class="hint-checkboxes" id="group-2">
+                    <label><input type="checkbox" value="adjacent-person" checked>隣接</label>
+                    <label><input type="checkbox" value="adjacent-item" checked>持ち物隣接</label>
+                    <label><input type="checkbox" value="one-between-person" checked>間に1人</label>
+                    <label><input type="checkbox" value="two-between-person" checked>間に2人</label>
+                    <label><input type="checkbox" value="closer-to" checked>距離比較(近い)</label>
+                    <label><input type="checkbox" value="seat-edge" checked>端</label>
+                    <label><input type="checkbox" value="item-not-edge" checked>アイテム非端</label>
+                  </div>
+                </div>
+
+                <div class="hint-group">
+                  <div class="hint-group-header">
+                    <span class="hint-stars">★☆☆☆ 弱い</span>
+                    <div class="hint-actions">
+                      <button type="button" class="group-toggle-all" data-target="group-1">全選択 / 解除</button>
+                    </div>
+                  </div>
+                  <div class="hint-checkboxes" id="group-1">
+                    <label><input type="checkbox" value="seat-not" checked>席否定</label>
+                    <label><input type="checkbox" value="item-not" checked>持ち物否定</label>
+                    <label><input type="checkbox" value="left-of" checked>左右関係</label>
+                    <label><input type="checkbox" value="left-of-item" checked>左側</label>
+                    <label><input type="checkbox" value="item-left-of-item" checked>アイテム左側</label>
+                    <label><input type="checkbox" value="not-adjacent" checked>非隣接</label>
+                    <label><input type="checkbox" value="item-not-adjacent" checked>アイテム非隣接</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul class="start-list">
+            <li>人物と持ち物を席にドラッグして配置</li>
+            <li>ダブルクリックで配置解除</li>
+            <li>ロビーに戻って再度出題できます</li>
+          </ul>
+          <div class="start-actions">
+            <button id="startGameButton" class="start-btn">パズルを開始する</button>
+            <span class="start-sub">開始後は全画面モードに切り替わります</span>
+            <span class="start-warning" id="startWarning">※ 選択されたヒントでは問題を作成できません。種類を増やしてください。</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hl-layout-sidebar">
+        <hl-profile></hl-profile>
+        <hl-sidebar-box title="ゲーム概要">
+          <p class="hl-content-text" style="margin:0;">
+            1問ごとにランダム生成される一意解パズルです。答え表示で検証もできます。
+          </p>
+        </hl-sidebar-box>
+      </aside>
+    </hl-layout>
+
+    <site-footer copy="5Gkyu"></site-footer>
+  </div>
+
+  <div id="gameRoot" class="app" hidden>
+    <header class="topbar">
+      <span class="topbar-title" id="topbarTitle">マトリックス推理パズル</span>
+      <button class="secondary" id="toggleAnswerButton">答えを表示</button>
+      <button class="secondary" id="resetBoardButton">盤面をリセット</button>
+      <button class="primary" id="backToLobbyButton" style="margin-left: auto;">ロビーに戻る</button>
+      <div class="meta-pills" style="flex: 0;">
+        <span class="pill" id="puzzleId">–</span>
+        <span class="pill" id="clueCount">手掛かり: –</span>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="stage-area">
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-label">STAGE — 席配置</div>
+            <div class="stage-hint">※チップをドラッグして配置（ダブルクリックで解除）</div>
+          </div>
+          <div class="chars-row" id="charsRow"></div>
+        </section>
+
+        <div class="ref-panel">
+          <div class="ref-row">
+            <div class="ref-label">人物</div>
+            <div class="ref-chips" id="peopleChips"></div>
+          </div>
+          <div class="ref-row">
+            <div class="ref-label">持ち物</div>
+            <div class="ref-chips" id="itemChips"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <article class="clues-panel">
+          <div class="panel-label">CLUES — 手掛かり</div>
+          <ol class="clues" id="clueList"></ol>
+          <div class="answer-section" id="answerSection" hidden>
+            <div class="panel-label" style="margin-bottom: 7px; color: var(--accent);">ANSWER — 正解</div>
+            <ol class="clues" id="answerList" style="font-size: 0.8rem; color: var(--accent);"></ol>
+          </div>
+          <div class="thinking-section" id="thinkingSection" hidden>
+            <div class="panel-label" style="margin-bottom: 7px; color: var(--accent2);">THINKING — 思考プロセス</div>
+            <ul class="thinking-log" id="thinkingLog"></ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="loading-overlay" hidden>
+    <fuka-anim id="loadingAnim" width="200" fps="3" order="4,5,6,7,6,5"></fuka-anim>
+    <div class="loading-text">問題を作成中...</div>
+  </div>
+
+  <script src="/components/components.js"></script>
+  <script src="/components/fuka-animation.js"></script>
+  <script>
+    /* ═══════════════════════════════════════════════════════════════
+       CONFIG
+    ═══════════════════════════════════════════════════════════════ */
+    const ALL_PEOPLE      = ["Akari", "Becky", "Charlotte", "Dulcie", "Esme", "Fuka"];
+    const ALL_CHAR_IMAGES = [
+      "https://5gkyu.github.io/icon/hl-char/Akari.png",
+      "https://5gkyu.github.io/icon/hl-char/Becky.png",
+      "https://5gkyu.github.io/icon/hl-char/Charlotte.png",
+      "https://5gkyu.github.io/icon/hl-char/Dulcie.png",
+      "https://5gkyu.github.io/icon/hl-char/Esme.png",
+      "https://5gkyu.github.io/icon/hl-char/Fuka.png"
+    ];
+    const ALL_ITEMS       = ["懐中時計", "万年筆", "コンパス", "花束", "ギター", "ベル"];
+    const ALL_ITEM_SVGS   = {
+      "懐中時計": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M12,2A10,10,0,1,0,22,12A10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,6V12L16,14L15,15.5L10.5,13V6Z"/></svg>`,
+      "万年筆": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M3,21L4.6,15.4L18.4,1.6A2.1,2.1,0,0,1,21.4,1.6A2.1,2.1,0,0,1,21.4,4.6L7.6,18.4ZM18.4,4.6L19.4,3.6L17.4,1.6L16.4,2.6Z"/></svg>`,
+      "コンパス": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M12,2L14,8L20,10L14,12L12,18L10,12L4,10L10,8Z"/></svg>`,
+      "花束": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M12,2C15,2,18,5,18,8C18,12,22,12,22,12C22,12,12,6,8,6C5,6,2,9,2,12Z"/></svg>`,
+      "ギター": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M2,22L6,18L18,6C20,4,22,6,20,8L8,20Z"/></svg>`,
+      "ベル": `<svg viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" style="vertical-align: middle;"><path d="M12,2A4,4,0,0,0,8,6V10L4,14V16H20V14L16,10V6A4,4,0,0,0,12,2ZM12,22A2,2,0,0,0,14,20H10A2,2,0,0,0,12,22Z"/></svg>`
+    };
+    const ALL_PERSON_COLORS = {
+      Akari: "#E36A8C", Becky: "#9FC9D6", Charlotte: "#B794DA",
+      Dulcie: "#F4956A", Esme: "#F3C46F", Fuka: "#A9C47D"
+    };
+
+    function getItemLabel(id) {
+      const name = ITEMS[id];
+      const svg = ALL_ITEM_SVGS[name] || "";
+      return `<span class="item-icon">${svg}</span>${name}`;
+    }
+
+    // 動的に変わる値（ロビーの設定に応じて変更）
+    let N = 6;
+    let PEOPLE = ALL_PEOPLE.slice(0, N);
+    let CHAR_IMAGES = ALL_CHAR_IMAGES.slice(0, N);
+    let ITEMS = ALL_ITEMS.slice(0, N);
+    let PERSON_COLORS = {};
+    let allowedClueTypes = null; // null = 全て許可
+
+    function updateConfigFromLobby() {
+      N = parseInt(document.getElementById("settingPeopleCount").value) || 6;
+      PEOPLE = ALL_PEOPLE.slice(0, N);
+      CHAR_IMAGES = ALL_CHAR_IMAGES.slice(0, N);
+      ITEMS = ALL_ITEMS.slice(0, N);
+      PERSON_COLORS = {};
+      PEOPLE.forEach(p => { PERSON_COLORS[p] = ALL_PERSON_COLORS[p]; });
+
+      // ヒント種別の取得
+      const checkboxes = document.querySelectorAll("#hintCheckboxesContainer input[type=checkbox]");
+      const types = [];
+      checkboxes.forEach(cb => { if (cb.checked) types.push(cb.value); });
+      allowedClueTypes = types.length > 0 ? new Set(types) : null;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════ */
+    const HINTS_KEY = "matrixpuzzle_hints_v2";
+    let ALL_STATES = null;
+
+    const prestartShell      = document.getElementById("prestartShell");
+    const startGameButton    = document.getElementById("startGameButton");
+    const gameRoot           = document.getElementById("gameRoot");
+
+    const toggleAnswerButton = document.getElementById("toggleAnswerButton");
+    const clueList           = document.getElementById("clueList");
+    const charsRow           = document.getElementById("charsRow");
+    const answerSection      = document.getElementById("answerSection");
+    const answerList         = document.getElementById("answerList");
+    const puzzleIdEl         = document.getElementById("puzzleId");
+    const clueCountEl        = document.getElementById("clueCount");
+    const peopleChips        = document.getElementById("peopleChips");
+    const itemChips          = document.getElementById("itemChips");
+    const memoTextarea       = document.getElementById("memoTextarea");
+    const memoClearBtn       = document.getElementById("memoClearBtn");
+    const matrixContainer    = document.getElementById("matrixContainer");
+    const thinkingSection    = document.getElementById("thinkingSection");
+    const thinkingLog        = document.getElementById("thinkingLog");
+    const resetBoardButton   = document.getElementById("resetBoardButton");
+    const backToLobbyButton  = document.getElementById("backToLobbyButton");
+    const topbarTitle        = document.getElementById("topbarTitle");
+    const loadingOverlay     = document.getElementById("loadingOverlay");
+    const loadingAnim        = document.getElementById("loadingAnim");
+
+    let currentPuzzle = null;
+    let draggedItem = null;
+
+    let userState = {
+      people: Array(6).fill(null),
+      items: Array(6).fill(null),
+      candsPerson: Array(6).fill().map(() => []),
+      candsItem: Array(6).fill().map(() => [])
+    };
+
+    startGameButton.addEventListener("click", startGame);
+
+    // 全選択/全解除 トグルボタン（全体）
+    document.getElementById("hintToggleAll").addEventListener("click", () => {
+      const allCbs = document.querySelectorAll("#hintCheckboxesContainer input[type=checkbox]");
+      const allChecked = Array.from(allCbs).every(cb => cb.checked);
+      allCbs.forEach(cb => cb.checked = !allChecked);
+      validateSettings();
+    });
+
+    // グループごとの全選択/全解除 トグルボタン
+    document.querySelectorAll(".group-toggle-all").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const targetId = e.currentTarget.dataset.target;
+        const groupCbs = document.querySelectorAll(`#${targetId} input[type=checkbox]`);
+        const allChecked = Array.from(groupCbs).every(cb => cb.checked);
+        groupCbs.forEach(cb => cb.checked = !allChecked);
+        validateSettings();
+      });
+    });
+
+    // 設定変更時にバリデーション
+    document.getElementById("hintCheckboxesContainer").addEventListener("change", validateSettings);
+    document.getElementById("settingPeopleCount").addEventListener("change", validateSettings);
+
+    function loadHintsFromStorage() {
+      try {
+        const saved = localStorage.getItem(HINTS_KEY);
+        if (saved) {
+          const selectedTypes = JSON.parse(saved);
+          document.querySelectorAll("#hintCheckboxesContainer input[type=checkbox]").forEach(cb => {
+            cb.checked = selectedTypes.includes(cb.value);
+          });
+        }
+      } catch(e) {}
+      validateSettings();
+    }
+    
+    // ページロード時にヒント復元
+    loadHintsFromStorage();
+
+    function validateSettings() {
+      const checkboxes = document.querySelectorAll("#hintCheckboxesContainer input[type=checkbox]:checked");
+      const warning = document.getElementById("startWarning");
+
+      // 選択状態を保存
+      try {
+        const selected = Array.from(checkboxes).map(cb => cb.value);
+        localStorage.setItem(HINTS_KEY, JSON.stringify(selected));
+      } catch(e) {}
+
+      if (checkboxes.length < 3) {
+        startGameButton.disabled = true;
+        warning.classList.add("visible");
+        warning.textContent = checkboxes.length === 0 
+          ? "※ ヒントが1つも選択されていません。" 
+          : "※ ヒントの種類が少なすぎると問題が作れません。3種類以上選択してください。";
+        return;
+      }
+
+      startGameButton.disabled = false;
+      warning.classList.remove("visible");
+    }
+
+    async function startGame() {
+      updateConfigFromLobby();
+
+      userState = { 
+        people: Array(N).fill(null), 
+        items: Array(N).fill(null),
+        candsPerson: Array(N).fill().map(() => []),
+        candsItem: Array(N).fill().map(() => [])
+      };
+
+      prestartShell.hidden = true;
+      gameRoot.hidden = false;
+      document.body.classList.add("is-playing");
+
+      topbarTitle.textContent = `マトリックス推理パズル (${N}人)`;
+
+      initGame();
+    }
+
+    function backToLobby() {
+      gameRoot.hidden = true;
+      prestartShell.hidden = false;
+      document.body.classList.remove("is-playing");
+      currentPuzzle = null;
+    }
+
+    // 候補メモのキーボード入力管理
+    document.addEventListener("keydown", (e) => {
+      // Inputフォーカス中は無視
+      if (document.activeElement.tagName.toLowerCase() === "input") return;
+
+      const selected = document.querySelector(".zone-container.is-selected");
+      if (!selected) return;
+
+      const type = selected.dataset.type;
+      const candsContainer = selected.querySelector(".mini-candidates");
+      if (!candsContainer) return;
+
+      const key = e.key.toUpperCase();
+      let toggleId = null;
+
+      if (type === "person") {
+        // A~Fのキー入力をAkari, Becky...等にマッピング
+        const personMatch = PEOPLE.find(p => p.toUpperCase().startsWith(key));
+        if (personMatch) toggleId = personMatch;
+      } else if (type === "item" && /^[1-6]$/.test(key)) {
+        // 数字1〜6をアイテムにマッピング
+        const idx = parseInt(key) - 1;
+        if (idx < N) toggleId = ITEMS[idx];
+      }
+
+      if (toggleId) {
+        // stateに反映
+        const candsState = type === "person" ? userState.candsPerson[selected.dataset.seat] : userState.candsItem[selected.dataset.seat];
+        const existIdx = candsState.indexOf(toggleId);
+        if (existIdx >= 0) {
+          candsState.splice(existIdx, 1);
+        } else {
+          candsState.push(toggleId);
+          // ソートする (人物はアルファベット順、アイテムはITEMS内の定義順)
+          candsState.sort((a, b) => {
+            if (type === "person") return a.localeCompare(b);
+            return ITEMS.indexOf(a) - ITEMS.indexOf(b);
+          });
+        }
+        
+        // DOMを再描画
+        candsContainer.innerHTML = "";
+        candsState.forEach(candVal => {
+          const span = document.createElement("span");
+          span.className = "mini-cand";
+          span.dataset.val = candVal;
+          if (type === "item") {
+            const svg = ALL_ITEM_SVGS[candVal] || "";
+            span.innerHTML = `${svg}`;
+            span.title = candVal;
+          } else {
+            span.textContent = candVal;
+            const color = PERSON_COLORS[candVal];
+            if (color) span.style.color = color;
+          }
+          candsContainer.appendChild(span);
+        });
+      }
+    });
+
+    // ゾーン外クリックで選択解除
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".zone-container")) {
+        document.querySelectorAll(".zone-container").forEach(z => z.classList.remove("is-selected"));
+      }
+    });
+
+    function initGame() {
+      document.documentElement.style.setProperty("--char-cols", N);
+      ALL_STATES = buildAllStates();
+
+      resetBoardButton.onclick = () => {
+        if (!confirm("盤面とメモをリセットして初期状態に戻しますか？")) return;
+        userState.people.fill(null);
+        userState.items.fill(null);
+        userState.candsPerson = Array(N).fill().map(() => []);
+        userState.candsItem = Array(N).fill().map(() => []);
+        renderStage(false);
+      };
+
+      backToLobbyButton.onclick = () => {
+        if (!confirm("ロビーに戻りますか？")) return;
+        backToLobby();
+      };
+
+      buildChips();
+      generateAndRenderAsync();
+
+      toggleAnswerButton.onclick = () => {
+        if (!currentPuzzle) return;
+        const hidden = answerSection.hasAttribute("hidden");
+        if (hidden) {
+          answerSection.removeAttribute("hidden");
+          thinkingSection.removeAttribute("hidden");
+          thinkingLog.innerHTML = "<li class='thinking-step'>思考プロセスを計算中...</li>";
+          setTimeout(() => {
+            if (currentPuzzle) buildThinkingProcess(currentPuzzle);
+          }, 50);
+          
+          toggleAnswerButton.textContent = "答えを隠す";
+          renderStage(true);
+
+          // 答え合わせハイライトのロジック
+          try {
+            const wrongPeople = [];
+            const wrongItems = [];
+            for (let s = 0; s < N; s++) {
+              const p = userState.people[s];
+              const i = userState.items[s];
+              
+              if (p !== null && typeof p === "number" && p !== currentPuzzle.solution.seatToPerson[s]) {
+                wrongPeople.push(PEOPLE[p]);
+              }
+              if (i !== null && typeof i === "number") {
+                const correctItemForSeat = currentPuzzle.solution.personToItem[currentPuzzle.solution.seatToPerson[s]];
+                if (i !== correctItemForSeat) {
+                  wrongItems.push(ITEMS[i]);
+                }
+              }
+            }
+            
+            const clueItems = clueList.querySelectorAll("li");
+            currentPuzzle.clues.forEach((c, idx) => {
+              if (!c || !c.text || !clueItems[idx]) return;
+              const hasWrong = wrongPeople.some(wp => wp && c.text.includes(wp)) || wrongItems.some(wi => wi && c.text.includes(wi));
+              if (hasWrong) {
+                clueItems[idx].classList.add("incorrect");
+              } else {
+                clueItems[idx].classList.remove("incorrect");
+              }
+            });
+          } catch(e) {
+            console.error("Highlight Error:", e);
+          }
+
+        } else {
+          answerSection.setAttribute("hidden", "");
+          thinkingSection.setAttribute("hidden", "");
+          toggleAnswerButton.textContent = "答えを表示";
+          renderStage(false);
+          
+          clueList.querySelectorAll("li").forEach(li => li.classList.remove("incorrect"));
+        }
+      };
+    }
+
+    function handleDragStart(e) {
+      draggedItem = {
+        type: e.currentTarget.dataset.type,
+        id: parseInt(e.currentTarget.dataset.id),
+        source: e.currentTarget.dataset.source || "pool",
+        seat: e.currentTarget.dataset.seat ? parseInt(e.currentTarget.dataset.seat) : null
+      };
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", e.currentTarget.dataset.id);
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      const zone = e.currentTarget;
+      if (draggedItem && draggedItem.type === zone.dataset.type) {
+        zone.classList.add("drag-over");
+      }
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove("drag-over");
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const zone = e.currentTarget;
+      zone.classList.remove("drag-over");
+
+      if (draggedItem && draggedItem.type === zone.dataset.type) {
+        const targetSeat = parseInt(zone.dataset.seat);
+        const type = draggedItem.type;
+        const id = draggedItem.id;
+        const arr = type === "person" ? userState.people : userState.items;
+        const sourceSeat = draggedItem.source === "seat" ? draggedItem.seat : null;
+        const targetCurrent = arr[targetSeat];
+
+        if (sourceSeat !== null && sourceSeat === targetSeat) {
+          return;
+        }
+
+        if (sourceSeat !== null) {
+          arr[targetSeat] = id;
+          arr[sourceSeat] = targetCurrent;
+        } else {
+          const existing = arr.indexOf(id);
+          if (existing !== -1) arr[existing] = null;
+          arr[targetSeat] = id;
+        }
+
+        renderStage(false);
+      }
+    }
+
+    async function generateAndRenderAsync() {
+      // ローディング開始（アニメーションを確実にリスタート）
+      if (loadingAnim && loadingAnim._stop) loadingAnim._stop();
+      loadingOverlay.hidden = false;
+      // 少し待ってからアニメ開始（DOM描画を確実にするため）
+      await new Promise(r => requestAnimationFrame(r));
+      if (loadingAnim && loadingAnim._start) loadingAnim._start();
+
+      // 少しだけUI描画を待機（アニメーションを見せるため意図的なディレイ）
+      await new Promise(resolve => setTimeout(resolve, 1800));
+
+      currentPuzzle = await generatePuzzle();
+
+      if (!currentPuzzle) {
+        // 生成失敗 → ロビーに戻す
+        loadingOverlay.hidden = true;
+        if (loadingAnim && loadingAnim._stop) loadingAnim._stop();
+        alert("選択されたヒントでは問題を作成できませんでした。\nヒントの種類を増やして再度お試しください。");
+        backToLobby();
+        return;
+      }
+      
+      userState.people.fill(null);
+      userState.items.fill(null);
+      
+      answerSection.setAttribute("hidden", "");
+      thinkingSection.setAttribute("hidden", "");
+      thinkingLog.innerHTML = "";
+      toggleAnswerButton.textContent = "答えを表示";
+      
+      clueList.innerHTML = "";
+      currentPuzzle.clues.forEach((c) => {
+        const li = document.createElement("li");
+        li.innerHTML = decoratePeopleText(c.text);
+        li.addEventListener("click", () => li.classList.toggle("resolved"));
+        clueList.appendChild(li);
+      });
+
+      answerList.innerHTML = "";
+      for (let seat = 0; seat < N; seat++) {
+        const p = currentPuzzle.solution.seatToPerson[seat];
+        const item = currentPuzzle.solution.personToItem[p];
+        const li = document.createElement("li");
+        li.innerHTML = decoratePeopleText(`${seat + 1}番席: ${PEOPLE[p]} (${ITEMS[item]})`);
+        answerList.appendChild(li);
+      }
+
+      puzzleIdEl.textContent  = `ID: ${makeId()}`;
+      clueCountEl.textContent = `手掛かり: ${currentPuzzle.clues.length}`;
+      
+      renderStage(false);
+
+      // ローディング終了
+      loadingOverlay.hidden = true;
+      if (loadingAnim && loadingAnim._stop) loadingAnim._stop();
+    }
+
+    function renderStage(showAnswer) {
+      charsRow.innerHTML = "";
+      for (let seat = 0; seat < N; seat++) {
+        const card = document.createElement("div");
+        card.className = "seat-card";
+
+        const header = document.createElement("div");
+        header.className = "seat-header";
+        header.textContent = `${seat + 1}番席`;
+        card.appendChild(header);
+
+        const zonesWrap = document.createElement("div");
+        zonesWrap.className = "drop-zones-wrap";
+
+        const pZoneWrap = createZoneWrapper("person", seat, showAnswer);
+        const iZoneWrap = createZoneWrapper("item", seat, showAnswer);
+
+        zonesWrap.appendChild(pZoneWrap);
+        zonesWrap.appendChild(iZoneWrap);
+        card.appendChild(zonesWrap);
+        charsRow.appendChild(card);
+      }
+      
+      peopleChips.style.opacity = showAnswer ? "0.5" : "1";
+      itemChips.style.opacity = showAnswer ? "0.5" : "1";
+
+      buildChips(showAnswer);
+    }
+
+    function createZoneWrapper(type, seat, showAnswer) {
+      const wrap = document.createElement("div");
+      wrap.className = "zone-container";
+      wrap.dataset.type = type;
+      wrap.dataset.seat = seat;
+
+      // クリックで選択状態にする
+      wrap.addEventListener("click", (e) => {
+        if (e.target.tagName.toLowerCase() === "input") return;
+        document.querySelectorAll(".zone-container").forEach(z => z.classList.remove("is-selected"));
+        wrap.classList.add("is-selected");
+      });
+
+      const zone = createDropZone(type, seat, showAnswer);
+      wrap.appendChild(zone);
+
+      // 候補メモエリアの復元
+      const cands = document.createElement("div");
+      cands.className = "mini-candidates";
+      const candsState = type === "person" ? userState.candsPerson[seat] : userState.candsItem[seat];
+      candsState.forEach(candVal => {
+        const span = document.createElement("span");
+        span.className = "mini-cand";
+        span.dataset.val = candVal;
+        if (type === "item") {
+          const svg = ALL_ITEM_SVGS[candVal] || "";
+          span.innerHTML = `${svg}`;
+          span.title = candVal;
+        } else {
+          span.textContent = candVal;
+          const color = PERSON_COLORS[candVal];
+          if (color) span.style.color = color;
+        }
+        cands.appendChild(span);
+      });
+      wrap.appendChild(cands);
+
+      return wrap;
+    }
+
+    function createDropZone(type, seat, showAnswer) {
+      const zone = document.createElement("div");
+      zone.className = "drop-zone";
+      zone.classList.add(type === "person" ? "person-zone" : "item-zone");
+      zone.dataset.type = type;
+      zone.dataset.seat = seat;
+
+      let currentId = null;
+      if (showAnswer && currentPuzzle) {
+        if (type === "person") currentId = currentPuzzle.solution.seatToPerson[seat];
+        if (type === "item") {
+          const person = currentPuzzle.solution.seatToPerson[seat];
+          currentId = currentPuzzle.solution.personToItem[person];
+        }
+      } else {
+        currentId = type === "person" ? userState.people[seat] : userState.items[seat];
+      }
+
+      if (currentId !== null) {
+        zone.classList.add("filled");
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        
+        if (type === "person") {
+            const imgSrc = CHAR_IMAGES[currentId];
+            if (imgSrc) {
+              chip.innerHTML = `<img src="${imgSrc}" alt="${PEOPLE[currentId]}"><b>${PEOPLE[currentId]}</b>`;
+            } else {
+              chip.innerHTML = `<span style="font-size:1.2rem">${ICONS[currentId]}</span><b>${PEOPLE[currentId]}</b>`;
+            }
+        } else {
+            chip.innerHTML = getItemLabel(currentId);
+        }
+        
+        chip.draggable = !showAnswer;
+        chip.dataset.type = type;
+        chip.dataset.id = currentId;
+        chip.dataset.source = "seat";
+        chip.dataset.seat = seat;
+
+        if(!showAnswer) {
+          chip.addEventListener("dragstart", handleDragStart);
+          chip.addEventListener("dblclick", () => {
+             if(type === "person") userState.people[seat] = null;
+             if(type === "item") userState.items[seat] = null;
+             renderStage(false);
+          });
+          chip.title = "ダブルクリックで外す";
+        }
+        zone.appendChild(chip);
+      } else {
+        zone.textContent = type === "person" ? "人物をドロップ" : "持ち物をドロップ";
+      }
+
+      if (!showAnswer) {
+        zone.addEventListener("dragover", handleDragOver);
+        zone.addEventListener("dragleave", handleDragLeave);
+        zone.addEventListener("drop", handleDrop);
+      }
+
+      return zone;
+    }
+
+    function buildChips(showAnswer = false) {
+      peopleChips.innerHTML = "";
+      for (let i = 0; i < N; i++) {
+        const c = document.createElement("div");
+        c.className = "chip";
+        const assigned = userState.people.includes(i);
+        const imgSrc = CHAR_IMAGES[i];
+        if (imgSrc) {
+          c.innerHTML = `<img src="${imgSrc}" alt="${PEOPLE[i]}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 4px;"> ${PEOPLE[i]}`;
+        } else {
+          c.innerHTML = `<span style="font-size:1.2rem">${ICONS[i]}</span> ${PEOPLE[i]}`;
+        }
+        c.draggable = !showAnswer && !assigned;
+        c.dataset.type = "person";
+        c.dataset.id = i;
+        c.dataset.source = "pool";
+        if (assigned) c.classList.add("is-assigned");
+        if (!showAnswer && !assigned) c.addEventListener("dragstart", handleDragStart);
+        peopleChips.appendChild(c);
+      }
+      
+      itemChips.innerHTML = "";
+      for (let i = 0; i < N; i++) {
+        const c = document.createElement("div");
+        c.className = "chip";
+        const assigned = userState.items.includes(i);
+        c.innerHTML = getItemLabel(i);
+        c.draggable = !showAnswer && !assigned;
+        c.dataset.type = "item";
+        c.dataset.id = i;
+        c.dataset.source = "pool";
+        if (assigned) c.classList.add("is-assigned");
+        if (!showAnswer && !assigned) c.addEventListener("dragstart", handleDragStart);
+        itemChips.appendChild(c);
+      }
+    }
+
+    function decoratePeopleText(text) {
+      let decorated = text;
+      PEOPLE.forEach(name => {
+        const color = PERSON_COLORS[name] || "#000";
+        // フルネームならカラーコードと被らないので通常の正規表現置換でOK
+        const regex = new RegExp(name, 'g');
+        decorated = decorated.replace(regex, `<span class="person-mark" style="color:${color};">${name}</span>`);
+      });
+      return decorated;
+    }
+
+    /* ── パズル生成ロジック ── */
+    function buildAllStates() {
+      const indices = Array.from({length: N}, (_, i) => i);
+      const seatPerms = permutations(indices);
+      const itemPerms = permutations(indices);
+      const states = [];
+      seatPerms.forEach((seatToPerson) => {
+        const personToSeat = invertPermutation(seatToPerson);
+        itemPerms.forEach((personToItem) => {
+          states.push({ seatToPerson: seatToPerson.slice(), personToSeat: personToSeat.slice(), personToItem: personToItem.slice(), itemToPerson: invertPermutation(personToItem) });
+        });
+      });
+      return states;
+    }
+
+    async function generatePuzzle() {
+      const startTime = Date.now();
+      for (let attempt = 0; attempt < 100; attempt++) {
+        // UIをブロックしないようにメインスレッドを少し解放
+        await new Promise(r => setTimeout(r, 0));
+
+        if (Date.now() - startTime > 8000) return null; // 8秒でタイムアウト
+
+        const solution = {
+          seatToPerson: samplePermutation(),
+          personToItem: samplePermutation()
+        };
+        solution.personToSeat = invertPermutation(solution.seatToPerson);
+        solution.itemToPerson = invertPermutation(solution.personToItem);
+
+        const pool = shuffle(buildCluePool(solution));
+        let survivors = ALL_STATES.slice();
+        const chosen = [];
+        const seenTypes = new Set();
+
+        while (survivors.length > 1 && pool.length) {
+          if (Date.now() - startTime > 8000) return null; // ループ内でもタイムアウト確認
+
+          let bestIndex = -1;
+          let bestSurvivors = survivors;
+          let bestScore = Number.POSITIVE_INFINITY;
+
+          for (let i = 0; i < pool.length; i++) {
+            const clue = pool[i];
+            const next = survivors.filter(clue.test);
+            if (!next.length || next.length >= survivors.length) continue;
+
+            const diversityBonus = seenTypes.has(clue.type) ? 1.04 : 1;
+            const score = next.length * diversityBonus;
+            
+            // 探索の最適化: パターン数が多い序盤は、半分以下に減らせる有用なヒントを見つけたら即採用して計算量を大幅に削減する
+            if (survivors.length > 5000 && next.length < survivors.length * 0.5) {
+              bestScore = score;
+              bestIndex = i;
+              bestSurvivors = next;
+              break;
+            }
+
+            if (score < bestScore) {
+              bestScore = score;
+              bestIndex = i;
+              bestSurvivors = next;
+            }
+          }
+
+          if (bestIndex === -1) break;
+
+          const [selected] = pool.splice(bestIndex, 1);
+          chosen.push(selected);
+          seenTypes.add(selected.type);
+          survivors = bestSurvivors;
+        }
+
+        if (survivors.length !== 1) continue;
+
+        pruneClues(chosen);
+        const finalCandidates = ALL_STATES.filter((state) => chosen.every((clue) => clue.test(state)));
+        if (finalCandidates.length !== 1) continue;
+
+        return { solution, clues: chosen };
+      }
+      return null; // 生成失敗
+    }
+
+    function pruneClues(clues) {
+      let index = 0;
+      while (index < clues.length) {
+        const candidateSet = clues.filter((_, i) => i !== index);
+        const survivorCount = ALL_STATES.filter((state) => candidateSet.every((clue) => clue.test(state))).length;
+        if (survivorCount === 1) {
+          clues.splice(index, 1);
+        } else {
+          index++;
+        }
+      }
+    }
+
+    function buildCluePool(solution) {
+      const clues = [];
+
+      for (let person = 0; person < N; person++) {
+        const seat = solution.personToSeat[person];
+        const item = solution.personToItem[person];
+
+        clues.push({ type: "seat-exact", text: `${PEOPLE[person]}は${seat + 1}番の席にいる。`, test: (state) => state.personToSeat[person] === seat });
+        clues.push({ type: "item-exact", text: `${PEOPLE[person]}が持っているのは「${ITEMS[item]}」だ。`, test: (state) => state.personToItem[person] === item });
+
+        for (let otherSeat = 0; otherSeat < N; otherSeat++) {
+          if (otherSeat === seat) continue;
+          clues.push({ type: "seat-not", text: `${PEOPLE[person]}は${otherSeat + 1}番の席ではない。`, test: (state) => state.personToSeat[person] !== otherSeat });
+        }
+
+        for (let otherItem = 0; otherItem < N; otherItem++) {
+          if (otherItem === item) continue;
+          clues.push({ type: "item-not", text: `${PEOPLE[person]}は「${ITEMS[otherItem]}」を持っていない。`, test: (state) => state.personToItem[person] !== otherItem });
+        }
+
+        // 端に関するヒント
+        if (seat === 0 || seat === N - 1) {
+          clues.push({ type: "seat-edge", text: `${PEOPLE[person]}はどちらかの端（1番か${N}番）に座っている。`, test: (state) => state.personToSeat[person] === 0 || state.personToSeat[person] === N - 1 });
+        }
+        if (seat !== 0 && seat !== N - 1) {
+          clues.push({ type: "item-not-edge", text: `「${ITEMS[item]}」は端の席（1番や${N}番）にはない。`, test: (state) => {
+            const s = state.personToSeat[state.itemToPerson[item]];
+            return s !== 0 && s !== N - 1;
+          }});
+        }
+      }
+
+      for (let leftPerson = 0; leftPerson < N; leftPerson++) {
+        for (let rightPerson = 0; rightPerson < N; rightPerson++) {
+          if (leftPerson === rightPerson) continue;
+          const leftSeat = solution.personToSeat[leftPerson];
+          const rightSeat = solution.personToSeat[rightPerson];
+          if (leftSeat < rightSeat) {
+            clues.push({
+              type: "left-of",
+              text: `${PEOPLE[leftPerson]}は${PEOPLE[rightPerson]}より左側にいる。`,
+              test: (state) => state.personToSeat[leftPerson] < state.personToSeat[rightPerson]
+            });
+          }
+          if (Math.abs(leftSeat - rightSeat) === 1) {
+            clues.push({
+              type: "adjacent-person",
+              text: `${PEOPLE[leftPerson]}と${PEOPLE[rightPerson]}は隣り合っている。`,
+              test: (state) => Math.abs(state.personToSeat[leftPerson] - state.personToSeat[rightPerson]) === 1
+            });
+          }
+          if (Math.abs(leftSeat - rightSeat) === 2) {
+            clues.push({
+              type: "one-between-person",
+              text: `${PEOPLE[leftPerson]}と${PEOPLE[rightPerson]}の間にはちょうど1人いる。`,
+              test: (state) => Math.abs(state.personToSeat[leftPerson] - state.personToSeat[rightPerson]) === 2
+            });
+          }
+          if (Math.abs(leftSeat - rightSeat) === 3) {
+            clues.push({
+              type: "two-between-person",
+              text: `${PEOPLE[leftPerson]}と${PEOPLE[rightPerson]}の間にはちょうど2人いる。`,
+              test: (state) => Math.abs(state.personToSeat[leftPerson] - state.personToSeat[rightPerson]) === 3
+            });
+          }
+          if (Math.abs(leftSeat - rightSeat) > 1) {
+            clues.push({
+              type: "not-adjacent",
+              text: `${PEOPLE[leftPerson]}と${PEOPLE[rightPerson]}は隣り合っていない。`,
+              test: (state) => Math.abs(state.personToSeat[leftPerson] - state.personToSeat[rightPerson]) > 1
+            });
+          }
+        }
+      }
+
+      for (let seat = 0; seat < N; seat++) {
+        const person = solution.seatToPerson[seat];
+        const item = solution.personToItem[person];
+        clues.push({ type: "seat-item", text: `${seat + 1}番の席の人は「${ITEMS[item]}」を持っている。`, test: (state) => { const occupant = state.seatToPerson[seat]; return state.personToItem[occupant] === item; } });
+      }
+
+      for (let person = 0; person < N; person++) {
+        for (let item = 0; item < N; item++) {
+          const itemOwnerSeat = solution.personToSeat[solution.itemToPerson[item]];
+          const personSeat = solution.personToSeat[person];
+          if (solution.personToItem[person] === item) continue;
+
+          if (Math.abs(personSeat - itemOwnerSeat) === 1) {
+            clues.push({
+              type: "adjacent-item",
+              text: `${PEOPLE[person]}は「${ITEMS[item]}」を持つ人の隣にいる。`,
+              test: (state) => {
+                const ownerSeat = state.personToSeat[state.itemToPerson[item]];
+                return Math.abs(state.personToSeat[person] - ownerSeat) === 1;
+              }
+            });
+          }
+
+          if (personSeat + 1 === itemOwnerSeat) {
+            clues.push({
+              type: "immediate-left-item",
+              text: `${PEOPLE[person]}は「${ITEMS[item]}」を持つ人のすぐ左にいる。`,
+              test: (state) => {
+                const ownerSeat = state.personToSeat[state.itemToPerson[item]];
+                return state.personToSeat[person] + 1 === ownerSeat;
+              }
+            });
+          }
+
+          if (personSeat < itemOwnerSeat) {
+            clues.push({
+              type: "left-of-item",
+              text: `${PEOPLE[person]}は「${ITEMS[item]}」を持つ人より左側にいる。`,
+              test: (state) => {
+                const ownerSeat = state.personToSeat[state.itemToPerson[item]];
+                return state.personToSeat[person] < ownerSeat;
+              }
+            });
+          }
+        }
+      }
+
+      // アイテム同士の関係
+      for (let itemA = 0; itemA < N; itemA++) {
+        for (let itemB = 0; itemB < N; itemB++) {
+          if (itemA === itemB) continue;
+          const seatA = solution.personToSeat[solution.itemToPerson[itemA]];
+          const seatB = solution.personToSeat[solution.itemToPerson[itemB]];
+          
+          if (seatA + 1 === seatB) {
+            clues.push({
+              type: "item-right-of-item",
+              text: `「${ITEMS[itemA]}」を持つ人のすぐ右に、「${ITEMS[itemB]}」を持つ人がいる。`,
+              test: (state) => {
+                const sA = state.personToSeat[state.itemToPerson[itemA]];
+                const sB = state.personToSeat[state.itemToPerson[itemB]];
+                return sA + 1 === sB;
+              }
+            });
+          }
+          
+          if (seatA < seatB) {
+            clues.push({
+              type: "item-left-of-item",
+              text: `「${ITEMS[itemA]}」は「${ITEMS[itemB]}」より左側にある。`,
+              test: (state) => {
+                const sA = state.personToSeat[state.itemToPerson[itemA]];
+                const sB = state.personToSeat[state.itemToPerson[itemB]];
+                return sA < sB;
+              }
+            });
+          }
+          
+          if (Math.abs(seatA - seatB) > 1) {
+            clues.push({
+              type: "item-not-adjacent",
+              text: `「${ITEMS[itemA]}」と「${ITEMS[itemB]}」は隣り合っていない。`,
+              test: (state) => {
+                const sA = state.personToSeat[state.itemToPerson[itemA]];
+                const sB = state.personToSeat[state.itemToPerson[itemB]];
+                return Math.abs(sA - sB) > 1;
+              }
+            });
+          }
+        }
+      }
+
+      // 間に挟まれるヒント
+      for (let pA = 0; pA < N; pA++) {
+        for (let pB = 0; pB < N; pB++) {
+          for (let pC = 0; pC < N; pC++) {
+            if (pA === pB || pA === pC || pB === pC) continue;
+            // BとCの重複を省くため pB < pC の時のみ生成
+            if (pB > pC) continue;
+            const sA = solution.personToSeat[pA];
+            const sB = solution.personToSeat[pB];
+            const sC = solution.personToSeat[pC];
+            if ((sB < sA && sA < sC) || (sC < sA && sA < sB)) {
+              clues.push({
+                type: "between-persons",
+                text: `${PEOPLE[pA]}は、${PEOPLE[pB]}と${PEOPLE[pC]}の間に座っている。`,
+                test: (state) => {
+                  const a = state.personToSeat[pA], b = state.personToSeat[pB], c = state.personToSeat[pC];
+                  return (b < a && a < c) || (c < a && a < b);
+                }
+              });
+            }
+          }
+        }
+      }
+
+      // 距離比較 (closer-to)
+      for (let pA = 0; pA < N; pA++) {
+        for (let pB = 0; pB < N; pB++) {
+          for (let pC = 0; pC < N; pC++) {
+            if (pA === pB || pA === pC || pB === pC) continue;
+            const distB = Math.abs(solution.personToSeat[pA] - solution.personToSeat[pB]);
+            const distC = Math.abs(solution.personToSeat[pA] - solution.personToSeat[pC]);
+            // Cの方が近い場合のみ追加
+            if (distC < distB) {
+              clues.push({
+                type: "closer-to",
+                text: `${PEOPLE[pA]}は、${PEOPLE[pB]}よりも${PEOPLE[pC]}に近い。`,
+                test: (state) => {
+                  const da = state.personToSeat[pA];
+                  const db = state.personToSeat[pB];
+                  const dc = state.personToSeat[pC];
+                  return Math.abs(da - dc) < Math.abs(da - db);
+                }
+              });
+            }
+          }
+        }
+      }
+
+      let filtered = dedupeClues(clues);
+      // ロビーで選択されたヒント種別のみに絞り込み
+      if (allowedClueTypes) {
+        filtered = filtered.filter(c => allowedClueTypes.has(c.type));
+      }
+      return filtered;
+    }
+
+    function dedupeClues(clues) {
+      const map = new Map();
+      clues.forEach((clue) => {
+        const key = `${clue.type}:${clue.text}`;
+        if (!map.has(key)) map.set(key, clue);
+      });
+      return Array.from(map.values());
+    }
+
+    function permutations(values) {
+      const result = [];
+      const used = Array(values.length).fill(false);
+      const path = [];
+
+      function visit() {
+        if (path.length === values.length) {
+          result.push(path.slice());
+          return;
+        }
+        for (let i = 0; i < values.length; i++) {
+          if (used[i]) continue;
+          used[i] = true;
+          path.push(values[i]);
+          visit();
+          path.pop();
+          used[i] = false;
+        }
+      }
+
+      visit();
+      return result;
+    }
+
+    function invertPermutation(list) {
+      const inverted = Array(list.length);
+      for (let i = 0; i < list.length; i++) {
+        inverted[list[i]] = i;
+      }
+      return inverted;
+    }
+
+    function samplePermutation() {
+      return shuffle(Array.from({length: N}, (_, i) => i));
+    }
+
+    function shuffle(list) {
+      const cloned = list.slice();
+      for (let i = cloned.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
+      }
+      return cloned;
+    }
+
+    function makeId() {
+      const d = new Date();
+      return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}-${Math.floor(Math.random() * 9000) + 1000}`;
+    }
+
+    /* ── 思考プロセス生成 ── */
+    function buildThinkingProcess(puzzle) {
+      thinkingLog.innerHTML = "";
+      if (!puzzle || !puzzle.clues || !ALL_STATES) return;
+
+      let survivors = ALL_STATES.slice();
+      const total = survivors.length;
+
+      // 各人物・各アイテムの「可能な席」を追跡
+      function getPossibilities(states) {
+        const personSeats = {};
+        const itemSeats = {};
+        const personItems = {};
+        for (let p = 0; p < N; p++) { 
+          personSeats[p] = new Set(); 
+          itemSeats[p] = new Set(); 
+          personItems[p] = new Set();
+        }
+        states.forEach(s => {
+          for (let p = 0; p < N; p++) {
+            personSeats[p].add(s.personToSeat[p]);
+            itemSeats[p].add(s.personToSeat[s.itemToPerson[p]]);
+            personItems[p].add(s.personToItem[p]);
+          }
+        });
+        return { personSeats, itemSeats, personItems };
+      }
+
+      function formatSeatSet(seatSet) {
+        return [...seatSet].sort((a,b) => a-b).map(s => `${s+1}番`).join(", ");
+      }
+
+      function formatItemSet(itemSet) {
+        return [...itemSet].map(i => ITEMS[i]).join(", ");
+      }
+
+      const prevPoss = getPossibilities(survivors);
+
+      puzzle.clues.forEach((clue, idx) => {
+        const before = survivors.length;
+        survivors = survivors.filter(clue.test);
+        const after = survivors.length;
+        const eliminated = before - after;
+
+        const currPoss = getPossibilities(survivors);
+
+        // 確定した情報を検出
+        const insights = [];
+        for (let p = 0; p < N; p++) {
+          const prevSize = prevPoss.personSeats[p].size;
+          const currSize = currPoss.personSeats[p].size;
+          if (currSize === 1 && prevSize > 1) {
+            const seat = [...currPoss.personSeats[p]][0];
+            insights.push(`${PEOPLE[p]} の席が ${seat+1}番 に確定`);
+          } else if (currSize < prevSize && currSize > 1) {
+            insights.push(`${PEOPLE[p]} の席候補: ${formatSeatSet(currPoss.personSeats[p])}`);
+          }
+
+          const prevItemSize = prevPoss.personItems[p].size;
+          const currItemSize = currPoss.personItems[p].size;
+          if (currItemSize === 1 && prevItemSize > 1) {
+            const item = [...currPoss.personItems[p]][0];
+            insights.push(`${PEOPLE[p]} の持ち物が「${ITEMS[item]}」に確定`);
+          } else if (currItemSize < prevItemSize && currItemSize > 1) {
+            insights.push(`${PEOPLE[p]} の持ち物候補: ${formatItemSet(currPoss.personItems[p])}`);
+          }
+        }
+        for (let i = 0; i < N; i++) {
+          const prevSize = prevPoss.itemSeats[i].size;
+          const currSize = currPoss.itemSeats[i].size;
+          if (currSize === 1 && prevSize > 1) {
+            const seat = [...currPoss.itemSeats[i]][0];
+            insights.push(`「${ITEMS[i]}」の位置が ${seat+1}番 に確定`);
+          } else if (currSize < prevSize && currSize > 1) {
+            insights.push(`「${ITEMS[i]}」の位置候補: ${formatSeatSet(currPoss.itemSeats[i])}`);
+          }
+        }
+
+        // 前の状態を更新
+        for (let p = 0; p < N; p++) {
+          prevPoss.personSeats[p] = new Set(currPoss.personSeats[p]);
+          prevPoss.itemSeats[p] = new Set(currPoss.itemSeats[p]);
+          prevPoss.personItems[p] = new Set(currPoss.personItems[p]);
+        }
+
+        const isDecisive = after === 1 || insights.some(s => s.includes("確定"));
+
+        const li = document.createElement("li");
+        li.className = "thinking-step" + (isDecisive ? " is-decisive" : "");
+
+        let resultHTML = "";
+        if (insights.length > 0) {
+          resultHTML = insights.map((s, index) => {
+            const num = index < 20 ? String.fromCharCode(0x2460 + index) : `(${index+1})`;
+            return `<div style="margin-bottom: 2px;">${num} ${s}</div>`;
+          }).join("");
+        }
+        if (after === 1) {
+          resultHTML += `<div style="margin-top: 6px; font-weight: bold; color: var(--accent);">★ すべての席と持ち物が確定！</div>`;
+        }
+        
+        if (resultHTML === "") {
+          resultHTML = `<div style="color: #999; font-size: 0.85em;">（この条件は一旦保留し、以降のヒントと組み合わせて絞り込みます）</div>`;
+        }
+
+        li.innerHTML = `
+          <div style="margin-bottom: 6px;">
+            <span class="step-num">Step ${idx + 1}.</span> ${decoratePeopleText(clue.text)}
+          </div>
+          <div class="step-result" style="padding-left: 8px; border-left: 2px solid rgba(0,0,0,0.1);">
+            ${resultHTML}
+          </div>
+        `;
+        thinkingLog.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

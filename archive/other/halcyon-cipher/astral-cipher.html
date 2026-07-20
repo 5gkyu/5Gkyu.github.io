@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星導暗号 変換ツール (Astral Cipher)</title>
+<style>
+  body {
+    font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Yu Mincho', serif;
+    background-color: #07090f;
+    color: #e0e6ed;
+    padding: 30px 20px;
+    text-align: center;
+    background-image: radial-gradient(circle at top, #141b2d 0%, #07090f 60%);
+    min-height: 100vh;
+    margin: 0;
+  }
+  h1 { 
+    color: #f5f5f5; 
+    margin-bottom: 5px; 
+    font-weight: 300;
+    letter-spacing: 2px;
+  }
+  p { 
+    color: #8c9baf; 
+    margin-bottom: 20px; 
+    font-size: 0.9em; 
+    letter-spacing: 1px;
+  }
+  .container {
+    max-width: 600px; 
+    margin: 0 auto; 
+    background: rgba(20, 27, 45, 0.7);
+    padding: 30px; 
+    border-radius: 12px; 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+    border: 1px solid rgba(74, 90, 128, 0.3);
+    backdrop-filter: blur(10px);
+  }
+  textarea {
+    width: 100%; 
+    height: 140px; 
+    padding: 15px; 
+    margin: 10px 0;
+    background: rgba(7, 9, 15, 0.8); 
+    color: #e0e6ed; 
+    border: 1px solid #4a5a80;
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-family: inherit;
+    box-sizing: border-box; 
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color 0.3s;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: #8c9baf;
+  }
+  textarea::placeholder { color: #3a4760; }
+  
+  /* 暗号テキストエリアは星の記号が美しく見えるようにする */
+  #cipherText {
+    font-size: 18px;
+    letter-spacing: 3px;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  .controls { margin: 20px 0; }
+  button {
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+    color: #fff; 
+    border: 1px solid #4a5a80; 
+    padding: 12px 36px;
+    margin: 0 10px; 
+    cursor: pointer; 
+    border-radius: 30px;
+    font-size: 16px; 
+    font-family: inherit; 
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+  button:hover { 
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    border-color: #8c9baf;
+  }
+  button:active { 
+    transform: translateY(1px); 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .error { 
+    color: #ff8b8b; 
+    font-size: 14px; 
+    min-height: 20px; 
+    margin-bottom: 10px; 
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>星導暗号</h1>
+    <p>Astral Cipher - 動的自己同期・高圧縮モデル</p>
+    
+    <textarea id="normalText" placeholder="言葉を紡ぐ..."></textarea>
+    
+    <div class="controls">
+      <button onclick="doConvert()">星界変換</button>
+    </div>
+    
+    <div id="errorMsg" class="error"></div>
+    
+    <textarea id="cipherText" placeholder="✧✦✯✰..."></textarea>
+  </div>
+
+  <script>
+    // 指定された6パターンのXOR鍵配列
+    const KEY_ARRAYS = [
+      [29, 10, 20, 10, 23, 10, 28, 18, 10, 20, 10, 27, 18], // 0: TakanasiAkari
+      [11, 14, 12, 20, 34, 12, 14, 21, 14, 28, 29, 14, 11, 10, 20, 14, 27], // 1: BeckyCelesteBaker
+      [12, 17, 10, 27, 21, 24, 29, 29, 14, 10, 13, 14, 21, 14, 23, 24, 18, 27], // 2: CharlotteAdeleNoir
+      [13, 30, 21, 12, 18, 14, 21, 18, 23], // 3: DulcieLin
+      [14, 28, 22, 14, 10, 30, 27, 14, 21, 18, 10, 32, 27, 14, 23], // 4: EsmeAureliaWren
+      [18, 12, 17, 18, 23, 24, 28, 14, 15, 30, 20, 10] // 5: IchinoseFuka
+    ];
+
+    // 64種の美しい星標（シンボル）セット
+    // 0〜63 のインデックスに対応
+    const SYMBOLS_STR = "✧✦✯✰✱✲✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋☼☽☾⚝⍟≛⊛⊜⊝⌾⍣⎈⎉⎊⏣✢✣✤✥✩✪✫✬✭✮⋆⍋⍒⍫⍚⍙⍇⍈⍐⍗";
+    const SYMBOLS = Array.from(SYMBOLS_STR);
+    
+    // 100種以上のダミー文字セット (ルーン文字、ギリシャ文字、幾何学模様など)
+    const DUMMY_STR = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛟᛞΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ△▽◁▷▴▾▸▂▃▄▅▆▇█▉▊▋▌▍▎▏■□▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯";
+    const DUMMIES = Array.from(DUMMY_STR);
+    const DUMMY_SET = new Set(DUMMIES);
+
+    // 逆引き用マップ
+    const REVERSE_MAP = {};
+    SYMBOLS.forEach((sym, index) => {
+        REVERSE_MAP[sym] = index;
+    });
+
+    // 文字列をUTF-16のバイト列（Uint8Array）に変換
+    function strToBytes(str) {
+        let bytes = [];
+        for (let i = 0; i < str.length; i++) {
+            let code = str.charCodeAt(i);
+            bytes.push(code >> 8);   // 上位8ビット
+            bytes.push(code & 0xFF); // 下位8ビット
+        }
+        return new Uint8Array(bytes);
+    }
+
+    // バイト列（Uint8Array）をUTF-16文字列に復元
+    function bytesToStr(bytes) {
+        let str = "";
+        for (let i = 0; i < bytes.length; i += 2) {
+            if (i + 1 < bytes.length) {
+                let code = (bytes[i] << 8) | bytes[i+1];
+                str += String.fromCharCode(code);
+            }
+        }
+        return str;
+    }
+
+    // 暗号化処理
+    function encode() {
+        clearError();
+        const input = document.getElementById('normalText').value;
+        if (!input) return;
+
+        // 1. 平文をバイト列へ
+        const plainBytes = strToBytes(input);
+
+        // 2. 平文バイトの合計から鍵インデックス(0〜5)を決定
+        let byteSum = 0;
+        for (let b of plainBytes) byteSum += b;
+        const keyIndex = byteSum % 6;
+        const currentKeyArray = KEY_ARRAYS[keyIndex];
+
+        // 3. インジケーター値の決定 (0〜63の中で、値 % 6 === keyIndex になるようにランダム選択)
+        // 64文字中、0〜59の範囲でランダムに選ぶことで均等な10パターンのランダム性を生む
+        const randomMultiplier = Math.floor(Math.random() * 10); // 0〜9
+        const indicatorValue = keyIndex + (randomMultiplier * 6);
+
+        // 4. XOR暗号化 (CBCモード風: 指定鍵配列 + インジケーター値によるランダム化波及)
+        let cipherBytes = new Uint8Array(plainBytes.length);
+        let iv = indicatorValue;
+        for (let i = 0; i < plainBytes.length; i++) {
+            cipherBytes[i] = plainBytes[i] ^ currentKeyArray[i % currentKeyArray.length] ^ iv;
+            iv = cipherBytes[i]; // 直前の暗号化結果を次の演算に混ぜることで、先頭のランダム性が全体に波及する
+        }
+
+        // 5. 6ビット化 (Base64の要領)
+        let bitStream = 0;
+        let bitCount = 0;
+        let indices = [indicatorValue]; // 先頭にインジケーターを配置
+        
+        for (let i = 0; i < cipherBytes.length; i++) {
+            bitStream = (bitStream << 8) | cipherBytes[i];
+            bitCount += 8;
+            while (bitCount >= 6) {
+                bitCount -= 6;
+                indices.push((bitStream >> bitCount) & 0x3F);
+            }
+        }
+        if (bitCount > 0) {
+            // 余ったビットは左詰めで格納
+            indices.push((bitStream << (6 - bitCount)) & 0x3F);
+        }
+
+        // 5. 記号への変換とダミー文字の挿入
+        let baseArray = indices.map(i => SYMBOLS[i]);
+        const L = baseArray.length;
+        let dummyCount = Math.floor(Math.random() * (L * 2 + 1)); // 0 〜 文字数*2 の間でランダム
+        
+        let result = "";
+        while (baseArray.length > 0 || dummyCount > 0) {
+            if (baseArray.length === 0) {
+                // 本来の文字が尽きたらダミーを入れる
+                result += DUMMIES[Math.floor(Math.random() * DUMMIES.length)];
+                dummyCount--;
+            } else if (dummyCount === 0) {
+                // ダミーが尽きたら本来の文字を入れる
+                result += baseArray.shift();
+            } else {
+                // ランダムにどちらかを入れる
+                if (Math.random() < 0.5) {
+                    result += DUMMIES[Math.floor(Math.random() * DUMMIES.length)];
+                    dummyCount--;
+                } else {
+                    result += baseArray.shift();
+                }
+            }
+        }
+
+        document.getElementById('cipherText').value = result;
+    }
+
+    // 復号処理
+    function decode() {
+        clearError();
+        const input = document.getElementById('cipherText').value;
+        if (!input) return;
+
+        // 空白とダミー文字を除去
+        let cleanedInput = "";
+        for (let char of input.replace(/\s/g, '')) {
+            if (!DUMMY_SET.has(char)) {
+                cleanedInput += char;
+            }
+        }
+
+        if (cleanedInput.length < 2) {
+            showError('暗号文が短すぎます（または有効な記号が含まれていません）。');
+            return;
+        }
+
+        // 1. 記号からインデックス(0〜63)へ変換
+        let indices = [];
+        for (let char of cleanedInput) {
+            if (REVERSE_MAP[char] !== undefined) {
+                indices.push(REVERSE_MAP[char]);
+            } else {
+                showError(`未定義の記号が含まれています: ${char}`);
+                return;
+            }
+        }
+
+        // 2. 先頭のインジケーターから鍵インデックスを取り出す
+        const indicatorValue = indices[0];
+        const keyIndex = indicatorValue % 6;
+        const currentKeyArray = KEY_ARRAYS[keyIndex];
+        indices = indices.slice(1);
+
+        // 3. 6ビット配列から8ビットバイト列へ復元
+        let bitStream = 0;
+        let bitCount = 0;
+        let cipherBytes = [];
+        
+        for (let i = 0; i < indices.length; i++) {
+            bitStream = (bitStream << 6) | indices[i];
+            bitCount += 6;
+            while (bitCount >= 8) {
+                bitCount -= 8;
+                cipherBytes.push((bitStream >> bitCount) & 0xFF);
+            }
+        }
+
+        // 4. XOR演算による復元 (CBCモード風)
+        let plainBytes = new Uint8Array(cipherBytes.length);
+        let iv = indicatorValue;
+        for (let i = 0; i < cipherBytes.length; i++) {
+            plainBytes[i] = cipherBytes[i] ^ currentKeyArray[i % currentKeyArray.length] ^ iv;
+            iv = cipherBytes[i]; // 復号時は、処理した暗号化バイトを次のIVとして使う
+        }
+
+        // 5. バイト列から文字列へ復元
+        document.getElementById('normalText').value = bytesToStr(plainBytes);
+    }
+
+    // 変換の振り分け
+    function doConvert() {
+        clearError();
+        const normal = document.getElementById('normalText').value.trim();
+        const cipher = document.getElementById('cipherText').value.trim();
+
+        if (normal && !cipher) { encode(); return; }
+        if (cipher && !normal) { decode(); return; }
+        if (normal && cipher) { encode(); return; } // 両方ある場合は上書きで暗号化
+        showError('入力がありません。');
+    }
+
+    function showError(msg) { document.getElementById('errorMsg').innerText = msg; }
+    function clearError() { document.getElementById('errorMsg').innerText = ''; }
+  </script>
+</body>
+</html>

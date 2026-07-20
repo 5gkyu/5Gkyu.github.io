@@ -1,0 +1,35 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === $uid",
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "avatar": {
+          ".validate": "newData.isString() && newData.val().length <= 70000"
+        }
+      }
+    },
+    "rooms": {
+      ".read": "auth != null",
+      "$roomId": {
+        ".write": "auth != null && (
+          auth.uid === 'cANK5ZBzjGPwfvz8cbH3o93wUZ33' || 
+          !data.exists() ||
+          data.child('meta/hostId').val() === auth.uid ||
+          data.child('meta/guestId').val() === auth.uid ||
+          data.child('meta/guestId').val() === null ||
+          (!newData.exists() && data.child('meta/lastSeen').isNumber() && (now - data.child('meta/lastSeen').val() > 180000))
+        )" 
+      }
+    },
+    "bookmarks": {
+      "$owner": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === 'FTdtnAHu8tRdbqC7v2URX6NpZVI3'"
+      }
+    }
+  }
+}

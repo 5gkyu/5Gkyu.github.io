@@ -1,0 +1,474 @@
+// ai-worker.js ─ Erosion Gomoku Alpha-Beta AI (最強コード＋並列処理版)
+'use strict';
+
+const BOARD_SIZE  = 15;
+const LIFETIME    = 24;
+const MAX_TOTAL   = 200;
+const EROSION_AMT = 2;
+
+const DIRS8 = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const DIRS4 = [[0,1],[1,0],[1,1],[1,-1]];
+
+const WIN_SCORE = 1000000000; // 10億
+
+class GameEngine {
+  constructor() {
+    this.owner = new Int8Array(BOARD_SIZE * BOARD_SIZE).fill(-1);
+    this.life  = new Int8Array(BOARD_SIZE * BOARD_SIZE).fill(0);
+    this.current = 0;
+    this.moveCount = [0, 0];
+    this.result = -1;
+  }
+
+  idx(r, c) { return r * BOARD_SIZE + c; }
+
+  clone() {
+    const g = new GameEngine();
+    g.owner.set(this.owner);
+    g.life.set(this.life);
+    g.current = this.current;
+    g.moveCount[0] = this.moveCount[0];
+    g.moveCount[1] = this.moveCount[1];
+    g.result = this.result;
+    return g;
+  }
+
+  applyMove(r, c) {
+    if (this.result !== -1) return this.result;
+    const p = this.current;
+    const i = this.idx(r, c);
+
+    this.owner[i] = p;
+    this.life[i]  = LIFETIME;
+    this.moveCount[p]++;
+
+    // 新設石以外の全石の寿命-1（全体ターンベース）
+    const expired = [];
+    for (let ii = 0; ii < BOARD_SIZE * BOARD_SIZE; ii++) {
+      if (ii === i) continue; // 新設石はスキップ
+      const owner = this.owner[ii];
+      if (owner === 0 || owner === 1) {
+        this.life[ii]--;
+        if (this.life[ii] <= 0) expired.push({ ii, player: owner });
+      }
+    }
+
+    const forceExpired = [];
+    for (const { ii, player } of expired) {
+      this.owner[ii] = -1;
+      const er = (ii / BOARD_SIZE) | 0;
+      const ec = ii % BOARD_SIZE;
+      const enemy = 1 - player; // 消滅石の敵
+      for (const [dr, dc] of DIRS8) {
+        const nr = er + dr, nc = ec + dc;
+        if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) continue;
+        const ni = this.idx(nr, nc);
+        if (this.owner[ni] === enemy) {
+          this.life[ni] -= EROSION_AMT;
+          if (this.life[ni] <= 0) forceExpired.push(ni);
+        }
+      }
+    }
+    for (const ii of forceExpired) this.owner[ii] = -1;
+
+    const pWin  = this._checkFive(p);
+    const opWin = this._checkFive(1 - p);
+    if (pWin || opWin) {
+      this.result = (pWin && opWin) ? p : pWin ? p : 1 - p;
+      return this.result;
+    }
+
+    if (this.moveCount[0] + this.moveCount[1] >= MAX_TOTAL) {
+      this.result = 2;
+      return 2;
+    }
+
+    this.current = 1 - p;
+    return -1;
+  }
+
+  _checkFive(player) {
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        if (this.owner[r * BOARD_SIZE + c] !== player) continue;
+        for (const [dr, dc] of DIRS4) {
+          let count = 1, nr = r + dr, nc = c + dc;
+          while (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && this.owner[nr * BOARD_SIZE + nc] === player) {
+            count++; nr += dr; nc += dc;
+          }
+          if (count >= 5) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  getCandidates(radius = 1) {
+    const flagged = new Uint8Array(BOARD_SIZE * BOARD_SIZE);
+    let hasStone  = false;
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        if (this.owner[r * BOARD_SIZE + c] === -1) continue;
+        hasStone = true;
+        for (let dr = -radius; dr <= radius; dr++) {
+          for (let dc = -radius; dc <= radius; dc++) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && this.owner[nr * BOARD_SIZE + nc] === -1) {
+              flagged[nr * BOARD_SIZE + nc] = 1;
+            }
+          }
+        }
+      }
+    }
+    if (!hasStone) return [[7, 7]];
+    
+    const moves = [];
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        if (flagged[r * BOARD_SIZE + c]) moves.push([r, c]);
+      }
+    }
+    return moves;
+  }
+
+  evaluate(player) {
+    if (this.result === player) return WIN_SCORE;
+    if (this.result === 1 - player) return -WIN_SCORE;
+    if (this.result === 2) return 0;
+
+    let scoreP = this._evaluatePlayer(player, 1 - player);
+    let scoreOp = this._evaluatePlayer(1 - player, player);
+    
+    return scoreP - scoreOp * 1.05; // 相手の脅威を少し重く見る（防御的）
+  }
+
+  // 相手の石(r,c)について、盤面上の実際の周囲8マスを調べ、
+  // 「寿命3以下の自軍(p)の石」の数だけ EROSION_AMT を減じた有効寿命を返す
+  calculateEffectiveLife(r, c, p) {
+    let effectiveLife = this.life[r * BOARD_SIZE + c];
+    for (const [dr, dc] of DIRS8) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) continue;
+      const ni = this.idx(nr, nc);
+      if (this.owner[ni] === p && this.life[ni] >= 1 && this.life[ni] <= 3) {
+        effectiveLife -= EROSION_AMT;
+      }
+    }
+    return effectiveLife;
+  }
+
+  _evaluatePlayer(p, op) {
+    let score = 0;
+    
+    // 5マス窓を動かして、ラインの形を評価
+    const evaluateLine = (r, c, dr, dc) => {
+      const cells = [];
+      let r_c = r, c_c = c;
+      for (let i = 0; i < 5; i++) {
+        if (r_c < 0 || r_c >= BOARD_SIZE || c_c < 0 || c_c >= BOARD_SIZE) return;
+        cells.push({ r: r_c, c: c_c,
+          owner: this.owner[r_c * BOARD_SIZE + c_c],
+          life:  this.life[r_c * BOARD_SIZE + c_c]
+        });
+        r_c += dr;
+        c_c += dc;
+      }
+      
+      let hasPermEnemy = false;
+      let hasEnemy = false;
+      let pStones = 0;
+      let minLife = Infinity;
+
+      for (const el of cells) {
+        if (el.owner === p) {
+          pStones++;
+          if (el.life < minLife) minLife = el.life;
+        } else if (el.owner === op) {
+          hasEnemy = true;
+          const effectiveLife = this.calculateEffectiveLife(el.r, el.c, p);
+          if (effectiveLife > 5) {
+            hasPermEnemy = true;
+            break;
+          }
+        }
+      }
+
+      if (hasPermEnemy) return; 
+      if (pStones === 0) return;
+
+      const prev_r = r - dr, prev_c = c - dc;
+      const next_r = r_c,    next_c = c_c;
+      const isInside = (rr, cc) => (rr >= 0 && rr < BOARD_SIZE && cc >= 0 && cc < BOARD_SIZE);
+      
+      const isPrevOpen = isInside(prev_r, prev_c) && this.owner[prev_r * BOARD_SIZE + prev_c] === -1;
+      const isNextOpen = isInside(next_r, next_c) && this.owner[next_r * BOARD_SIZE + next_c] === -1;
+
+      let val = 0;
+      if (pStones === 5) {
+        val = WIN_SCORE;
+      } else if (pStones === 4) {
+        const e0 = cells[0].owner === -1;
+        const e4 = cells[4].owner === -1;
+        const p0 = cells[0].owner === p;
+        const p1 = cells[1].owner === p;
+        const p2 = cells[2].owner === p;
+        const p3 = cells[3].owner === p;
+        const p4 = cells[4].owner === p;
+
+        let isKatsuYon = false;
+        let isBouYon = false;
+
+        if (e0 && p1 && p2 && p3 && p4) {
+          if (isNextOpen) isKatsuYon = true;
+          else isBouYon = true;
+        } else if (p0 && p1 && p2 && p3 && e4) {
+          if (isPrevOpen) {
+          } else {
+            isBouYon = true;
+          }
+        } else {
+          isBouYon = true;
+        }
+
+        if (isKatsuYon) val = 50000000;
+        else if (isBouYon) val = 1000000;
+        else val = 0; 
+
+        // ターン優先権による即死/即勝利の絶対評価（これが最強の理由）
+        if (this.current === p && (isKatsuYon || isBouYon) && !hasEnemy) {
+          val += 100000000; // +1億
+        }
+      } else if (pStones === 3) {
+        const e0 = cells[0].owner === -1;
+        const e1 = cells[1].owner === -1;
+        const e2 = cells[2].owner === -1;
+        const e3 = cells[3].owner === -1;
+        const e4 = cells[4].owner === -1;
+        const p0 = cells[0].owner === p;
+        const p1 = cells[1].owner === p;
+        const p2 = cells[2].owner === p;
+        const p3 = cells[3].owner === p;
+        const p4 = cells[4].owner === p;
+
+        const isKatsuSan =
+          (e0 && p1 && p2 && p3 && e4)
+          || (e0 && p1 && e2 && p3 && p4 && isNextOpen)
+          || (e0 && p1 && p2 && e3 && p4 && isNextOpen);
+
+        val = isKatsuSan ? 500000 : 10000;
+      } else if (pStones === 2) {
+        val = hasEnemy ? 100 : 3000;
+      } else if (pStones === 1) {
+        val = 5;
+      }
+
+      if (hasEnemy) {
+         val = Math.floor(val * 0.5);
+      }
+      
+      score += val;
+    };
+
+    for(let i = 0; i < BOARD_SIZE; i++) {
+      for(let j = 0; j <= BOARD_SIZE - 5; j++) {
+        evaluateLine(i, j, 0, 1);
+        evaluateLine(j, i, 1, 0);
+      }
+    }
+    
+    for(let r = 0; r <= BOARD_SIZE - 5; r++) {
+      for(let c = 0; c <= BOARD_SIZE - 5; c++) {
+        evaluateLine(r, c, 1, 1);
+      }
+      for(let c = 4; c < BOARD_SIZE; c++) {
+        evaluateLine(r, c, 1, -1);
+      }
+    }
+
+    return score;
+  }
+}
+
+function movePriority(move, game, p, lastMove) {
+  const [r, c] = move;
+  let score = 0;
+
+  if (lastMove) {
+    const dr = Math.abs(r - lastMove[0]);
+    const dc = Math.abs(c - lastMove[1]);
+    if (dr <= 1 && dc <= 1) score += 2;
+  }
+
+  for (const [dr, dc] of DIRS8) {
+    const nr = r + dr, nc = c + dc;
+    if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+      const owner = game.owner[nr * BOARD_SIZE + nc];
+      if (owner === 1 - p) score += 4;
+      else if (owner === p) score += 3;
+    }
+  }
+  return score;
+}
+
+function orderMoves(moves, game, lastMove) {
+  const p = game.current;
+  return moves.map(m => ({ m, pri: movePriority(m, game, p, lastMove) }))
+              .sort((a, b) => b.pri - a.pri)
+              .map(x => x.m);
+}
+
+function alphaBeta(game, depth, alpha, beta, maximizing, startPlayer, endTime, lastMove = null) {
+  if (Date.now() >= endTime) return null;
+
+  if (game.result !== -1 || depth === 0) {
+    return game.evaluate(startPlayer);
+  }
+
+  const rawMoves = game.getCandidates(1);
+  if (rawMoves.length === 0) return 0;
+  const moves = orderMoves(rawMoves, game, lastMove);
+
+  if (maximizing) {
+    let maxEval = -Infinity;
+    for (const m of moves) {
+      const b = game.clone();
+      b.applyMove(m[0], m[1]);
+      const ev = alphaBeta(b, depth - 1, alpha, beta, b.current === startPlayer, startPlayer, endTime, m);
+      if (ev === null) return null;
+      if (ev > maxEval) maxEval = ev;
+      if (maxEval > alpha) alpha = maxEval;
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const m of moves) {
+      const b = game.clone();
+      b.applyMove(m[0], m[1]);
+      const ev = alphaBeta(b, depth - 1, alpha, beta, b.current === startPlayer, startPlayer, endTime, m);
+      if (ev === null) return null;
+      if (ev < minEval) minEval = ev;
+      if (minEval < beta) beta = minEval;
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+// 引数に Worker 用の情報を追加
+function iterativeDeepeningAlphaBeta(initGame, budgetMs, maxDepth, workerId, totalWorkers) {
+  const endTime = Date.now() + budgetMs - 20; 
+  const startPlayer = initGame.current;
+  
+  const moves = initGame.getCandidates(2);
+  if (moves.length === 0) return [7, 7];
+  if (moves.length === 1) return moves[0];
+
+  // 並列化：自分が担当する候補手だけを抜き出す
+  let myMoves = moves;
+  if (workerId !== undefined && totalWorkers !== undefined && totalWorkers > 1) {
+    myMoves = moves.filter((_, idx) => idx % totalWorkers === workerId);
+  }
+  
+  // 自分が担当する手がない場合
+  if (myMoves.length === 0) {
+    return { move: [-1, -1], score: -Infinity, fast: false, completedDepth: 0 };
+  }
+
+  let moveScores = myMoves.map(m => {
+    const b = initGame.clone();
+    b.applyMove(m[0], m[1]);
+    const score = b.evaluate(startPlayer);
+    return { move: m, score: score, fast: false };
+  });
+  moveScores.sort((a,b) => b.score - a.score);
+  
+  if (moveScores[0].score > WIN_SCORE / 2) {
+      moveScores[0].fast = true;
+      return moveScores[0];
+  }
+  
+  let validBestMove = moveScores[0];
+  let completedDepth = 0;
+
+  for (let depth = 1; depth <= maxDepth; depth++) {
+    let alpha = -Infinity;
+    let beta = Infinity;
+    let currentBestMove = null;
+    let currentBestScore = -Infinity;
+    let timedOut = false;
+
+    for (const mObj of moveScores) {
+      if (Date.now() >= endTime) { timedOut = true; break; }
+      const b = initGame.clone();
+      b.applyMove(mObj.move[0], mObj.move[1]);
+      
+      const v = alphaBeta(b, depth - 1, alpha, beta, b.current === startPlayer, startPlayer, endTime, mObj.move);
+      
+      if (v === null) { timedOut = true; break; } 
+      mObj.score = v;
+
+      if (v > currentBestScore) {
+        currentBestScore = v;
+        currentBestMove = mObj;
+      }
+      if (currentBestScore > alpha) alpha = currentBestScore;
+    }
+    
+    // この古いコードの素晴らしい所：中途半端な記憶は破棄してブレイクする
+    if (timedOut) {
+      break;
+    }
+
+    moveScores.sort((a, b) => b.score - a.score);
+    validBestMove = currentBestMove || validBestMove;
+    completedDepth = depth;
+
+    if (currentBestScore > WIN_SCORE / 2 || currentBestScore < -WIN_SCORE / 2) {
+      if (validBestMove && validBestMove.move) {
+        validBestMove.fast = true;
+      }
+      break; 
+    }
+  }
+
+  if (validBestMove && !Array.isArray(validBestMove)) {
+    validBestMove.completedDepth = completedDepth;
+  }
+  return validBestMove;
+}
+
+self.onmessage = function (e) {
+  // メイン側から workerId と totalWorkers を受け取る
+  const { board2d, moveCount, current, budgetMs, maxDepth, gameMode, workerId, totalWorkers } = e.data;
+  
+  const game = new GameEngine();
+  game.current = current;
+  game.moveCount = moveCount.slice();
+  
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const cell = board2d[r][c];
+      if (cell) {
+        const i = game.idx(r, c);
+        game.owner[i] = cell.player;
+        game.life[i]  = cell.life;
+      }
+    }
+  }
+  
+  const bestMoveObj = iterativeDeepeningAlphaBeta(game, budgetMs, maxDepth || 6, workerId, totalWorkers);
+  let r, c, fast = false, score = -Infinity, completedDepth = 0;
+  
+  if (Array.isArray(bestMoveObj)) {
+    r = bestMoveObj[0]; c = bestMoveObj[1];
+  } else {
+    r = bestMoveObj.move[0]; c = bestMoveObj.move[1];
+    fast = bestMoveObj.fast;
+    score = bestMoveObj.score !== undefined ? bestMoveObj.score : -Infinity;
+    completedDepth = bestMoveObj.completedDepth || 0;
+  }
+  
+  // 最後にスコアと計算が完了した深さをメインに送る
+  self.postMessage({ r, c, score, fast: gameMode === 'cvc' && fast, completedDepth });
+};

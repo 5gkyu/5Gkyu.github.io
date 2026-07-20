@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。">
+  <link rel="canonical" href="https://5gkyu.github.io/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Halcyon - 5Gkyu">
+  <meta property="og:description" content="Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="google-site-verification" content="99weR7yCJ9qUO3LkBzej2hf9I5lN3deqP-4GbqsuKQQ" />
+
+  <!-- JS読み込み前の画面隠蔽（チラつき防止） -->
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+  </style>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ヒーロー画像（フルブリード） */
+    .hero-img-section {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 100px 2rem 2rem; /* ヘッダー高さを考慮した余白 */
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      align-items: start;
+      position: relative;
+      isolation: isolate; /* 背景用疑似要素のz-index管理のため */
+    }
+
+    /* 動画のサムネイルを背景にしてぼかす（アンビエントモード） */
+    .hero-img-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%) scale(1.05);
+      width: 100vw;
+      height: 100%;
+      background: linear-gradient(135deg, #1e1e1e, #3a3a3a); /* ニコニコ用にダークな背景に */
+      background-size: cover;
+      background-position: center;
+      filter: blur(25px) saturate(130%) brightness(0.85);
+      opacity: 0.8;
+      z-index: -1;
+    }
+
+    .hero-video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      pointer-events: auto; /* クリックを有効化 */
+      box-shadow: 0 10px 30px rgba(106, 86, 74, 0.15);
+    }
+
+    .hero-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ------------------------------------------------------------
+       トップページ専用コンテンツエリア（右カラム）
+    ------------------------------------------------------------ */
+    .hero-overlay-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    @media (max-width: 860px) {
+      .hero-img-section {
+        grid-template-columns: 1fr;
+        padding-top: 88px;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    }
+
+    /* タイトルと説明のガラスパネル */
+    .hero-glass-panel {
+      pointer-events: auto;
+      position: relative;
+      background: linear-gradient(135deg,
+          rgba(255, 107, 157, 0.22),
+          rgba(255, 160, 74, 0.2),
+          rgba(255, 220, 80, 0.18),
+          rgba(100, 220, 160, 0.18),
+          rgba(74, 200, 255, 0.2),
+          rgba(167, 139, 250, 0.22));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: none;
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3vw, 2.5rem);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
+      transition: transform 0.3s;
+    }
+
+    /* 虹色グラデーション枚線（常時表示） */
+    .hero-glass-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .hero-glass-title {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.1;
+      text-shadow: 1px 2px 8px rgba(62, 50, 44, 0.65);
+    }
+
+    .hero-glass-subtitle {
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      opacity: 0.95;
+    }
+
+    .hero-glass-desc {
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+      line-height: 1.8;
+      opacity: 0.95;
+    }
+
+    /* 最終更新日 */
+    .hero-glass-updated {
+      font-size: 0.72rem;
+      opacity: 0.6;
+      text-align: right;
+      letter-spacing: 0.05em;
+      margin-top: auto;
+    }
+
+    /* 詳細ボタン群（ガラスカードスタイル） */
+    .hero-nav {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .hero-nav-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(40, 40, 40, 0.28);
+      border: none;
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+      transition: background 0.25s, transform 0.22s, box-shadow 0.3s;
+      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
+    }
+
+    /* 虹色グラデーション枚線（常時表示、hoverでアニメ） */
+    .hero-nav-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(90deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
+      background-size: 300% 100%;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0.7;
+      transition: opacity 0.35s;
+      animation: rainbow-shift 3s linear infinite paused;
+    }
+
+    .hero-nav-card:hover::before {
+      opacity: 1;
+      animation-play-state: running;
+    }
+
+    @keyframes rainbow-shift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: 300% 50%;
+      }
+    }
+
+    .hero-nav-card:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    /* Aboutだけ少しアクセントカラー → 他と統一 */
+    .hero-nav-card.accent {
+      background: rgba(40, 40, 40, 0.28);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-nav-card.accent:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .nav-card-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .nav-card-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .nav-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 768px) {
+      .hero-overlay-content {
+        align-items: stretch;
+      }
+
+      .hero-glass-panel,
+      .hero-nav {
+        max-width: 100%;
+      }
+
+      .hero-glass-panel {
+        text-align: center;
+        background: linear-gradient(135deg,
+            rgba(255, 107, 157, 0.35),
+            rgba(255, 160, 74, 0.32),
+            rgba(255, 220, 80, 0.28),
+            rgba(100, 220, 160, 0.28),
+            rgba(74, 200, 255, 0.32),
+            rgba(167, 139, 250, 0.35));
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-color: rgba(255, 255, 255, 0.35);
+        padding: 2rem 1.5rem;
+        text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+      }
+
+      .hero-glass-updated {
+        text-align: center;
+        font-size: 0.7rem;
+        opacity: 0.8;
+      }
+
+      .hero-glass-title {
+        font-size: 3rem;
+      }
+
+      .hero-glass-subtitle {
+        font-size: 1.15rem;
+      }
+
+      .nav-card-title {
+        font-size: 1.3rem;
+      }
+
+      .hero-nav-card {
+        background: rgba(30, 30, 30, 0.38);
+        text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.6);
+      }
+
+      /* スマホではアイコンを少し小さく */
+      .nav-card-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .nav-card-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    /* トップページのみフッター上部マージンをリセット */
+    site-footer,
+    .site-footer {
+      margin-top: 0 !important;
+      position: relative;
+      z-index: 30;
+      /* overlay-contentより前面に配置 */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ヘッダー -->
+  <site-header site-name="Entrance"></site-header>
+
+  <!-- ヒーロー背景動画（フルブリード） -->
+  <section class="hero-img-section" id="hero-section">
+    <div class="hero-video-wrapper">
+      <iframe id="nico-player"
+        src=""
+        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <div class="hero-overlay-content">
+      <!-- フロストグラスパネル（サイト情報） -->
+      <div class="hero-glass-panel">
+        <div>
+          <h1 class="hero-glass-title">Halcyon</h1>
+          <div class="hero-glass-subtitle">5Gkyu's Space</div>
+        </div>
+        <div class="hero-glass-updated">Last Updated: 2026.05.14</div>
+      </div>
+
+      <!-- 詳細ボタン群（ガラスカードスタイル） -->
+      <nav class="hero-nav" aria-label="ページナビゲーション">
+        <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="hero-nav-card accent" target="_blank"
+          rel="noopener noreferrer">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,19.93C7.05,19.43 4,16.05 4,12C4,7.95 7.05,4.57 11,4.07V19.93M13,4.07C16.95,4.57 20,7.95 20,12C20,16.05 16.95,19.43 13,19.93V4.07Z" /></svg>
+          </div>
+          <span class="nav-card-title">Links</span>
+        </a>
+
+        <a href="https://www.nicovideo.jp/mylist/79515405" class="hero-nav-card" target="_blank" rel="noopener noreferrer">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.84 21.94,12C21.94,13.16 21.91,14.13 21.84,14.93C21.78,15.73 21.69,16.36 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.5,18.78 17.18,18.84C15.88,18.91 14.15,18.94 12,18.94C9.85,18.94 8.12,18.91 6.82,18.84C5.5,18.78 4.64,18.69 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.31,16.36 2.22,15.73 2.16,14.93C2.09,14.13 2.06,13.16 2.06,12C2.06,10.84 2.09,9.87 2.16,9.07C2.22,8.27 2.31,7.64 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C4.64,5.31 5.5,5.22 6.82,5.16C8.12,5.09 9.85,5.06 12,5.06C14.15,5.06 15.88,5.09 17.18,5.16C18.5,5.22 19.36,5.31 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z" />
+            </svg>
+          </div>
+          <span class="nav-card-title">Now Playing</span>
+        </a>
+
+        <a href="/archive/" class="hero-nav-card">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H6V3H8V4H16V3H18V4H20A2,2 0 0,1 22,6V18C22,19.1 21.1,20 20,20M20,18V11H4V18H20M20,9V6H4V9H20M18,16H6V14H18V16M14,13H6V11H14V13Z" />
+            </svg>
+          </div>
+          <span class="nav-card-title">Archive</span>
+        </a>
+
+        <a href="/contact/" class="hero-nav-card">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" />
+            </svg>
+          </div>
+          <span class="nav-card-title">Contact</span>
+        </a>
+
+      </nav>
+    </div>
+  </section>
+
+  <script>
+    // マイリスト 79515405 の動画リスト
+    let nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238", "sm44459183", "sm44378639", "sm44272302", "sm44154304", "sm44044139", "sm43952031", "sm43940053", "sm43431511", "sm43428567", "sm43431566", "sm43390647", "sm43264382", "so42906629", "sm42802761", "sm42694570"];
+    const nicoPlayer = document.getElementById('nico-player');
+
+    function playRandomNico() {
+      if (!nicoList || nicoList.length === 0) return;
+      const rnd = nicoList[Math.floor(Math.random() * nicoList.length)];
+      // jsapi=1 でAPI有効化、autoplay=1 で自動再生
+      nicoPlayer.src = 'https://embed.nicovideo.jp/watch/' + rnd + '?jsapi=1&autoplay=1';
+    }
+
+    // 初回再生
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', playRandomNico);
+    } else {
+      playRandomNico();
+    }
+    // プレイヤーからのイベントを受け取って連続再生
+    window.addEventListener("message", function(e) {
+      if (e.origin === "https://embed.nicovideo.jp") {
+        const data = e.data;
+        // playerStatus === 4 が終了ステータス
+        if (data.eventName === "playerStatusChange" && data.data.playerStatus === 4) {
+          playRandomNico();
+        }
+      }
+    });
+  </script>
+
+  <!-- フッター -->
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="/components/components.js"></script>
+
+
+</body>
+
+</html>

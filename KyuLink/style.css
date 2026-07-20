@@ -1,0 +1,3019 @@
+/* Extracted from linklocal.html - combined styles */
+:root {
+  --bg: #ffdada;
+  --card: #ffffff;
+  --card-rgb: 255, 255, 255;
+  --accent-1: #ff6b8a;
+  --accent-2: #ff9eb0;
+  --text: #5c3a3a;
+  --muted: #a67c7c;
+  --radius: 12px;
+  --gap: 12px;
+  --row-h: 72px;
+}
+
+/* ============================================================
+   KyuLink 繝ｭ繝ｼ繝�EぁE��ｳ繧�E�逕ｻ髱�E�
+============================================================ */
+#kyulink-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#kyulink-loading.is-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.kyulink-loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: kyulink-fade-up 0.6s ease both;
+}
+
+@keyframes kyulink-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kyulink-loading-logo-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.kyulink-loading-spinner {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, transparent, var(--accent-1), var(--accent-2));
+  animation: kyulink-spin 1.2s linear infinite;
+  /* 蜀・・繧貞�E繧頑栢縺・※繝ｪ繝ｳ繧�E�迥�E�縺�E�縺吶�E�E*/
+  -webkit-mask: radial-gradient(transparent 64%, black 65%);
+  mask: radial-gradient(transparent 64%, black 65%);
+}
+
+@keyframes kyulink-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.kyulink-loading-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+}
+
+.kyulink-loading-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.08em;
+}
+
+.kyulink-loading-bar-wrap {
+  width: 180px;
+}
+
+.kyulink-loading-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(15, 184, 191, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kyulink-loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.kyulink-loading-msg {
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+
+/* Dark mode variables applied when html has .dark-mode */
+
+
+/* 繝斐Φ繧�E� + 繧�E�繝ｼ繝ｩ繝ｫ (Awake) */
+html.theme-awake {
+  --bg: #ffdada;
+  --card: #ffffff;
+  --accent-1: #ff6b8a;
+  --accent-2: #ff9eb0;
+  --text: #5c3a3a;
+  --muted: #8a6565;
+}
+
+html.theme-awake body {
+  background-image: linear-gradient(rgba(255, 235, 235, 0.8), rgba(255, 235, 235, 0.8));
+  background-blend-mode: overlay;
+  background-color: var(--bg);
+}
+
+html.theme-awake .desc {
+  color: rgba(92, 74, 74, 0.88);
+}
+
+html.theme-awake .tag {
+  background: rgba(255, 143, 163, 0.12);
+  color: var(--text);
+  border: 1px solid rgba(255, 143, 163, 0.2);
+}
+
+html.theme-awake header.card {
+  background: linear-gradient(180deg, #ffffff, rgba(255, 245, 240, 0.95));
+}
+
+html.theme-awake .row {
+  background: linear-gradient(135deg, #ffffff, #fff5f0);
+  border: 1px solid rgba(255, 143, 163, 0.15);
+  box-shadow: 0 4px 12px rgba(255, 143, 163, 0.08);
+}
+
+html.theme-awake .row:hover {
+  box-shadow: 0 8px 24px rgba(255, 143, 163, 0.15);
+}
+
+html.theme-awake .open-btn,
+html.theme-awake .actions .open-btn,
+html.theme-awake .row .open-btn,
+html.theme-awake .panel .open-btn {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(255, 143, 163, 0.25) !important;
+}
+
+html.theme-awake .icon-wrap {
+  background: rgba(255, 143, 163, 0.1);
+  color: var(--text);
+}
+
+html.theme-awake select,
+html.theme-awake input[type="url"],
+html.theme-awake input,
+html.theme-awake textarea {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid rgba(255, 143, 163, 0.25);
+}
+
+html.theme-awake button:not(.open-btn):not(.bottom-nav-btn) {
+  background: #fff8f5;
+  color: var(--text);
+  border: 1px solid rgba(255, 143, 163, 0.2);
+}
+
+html.theme-awake .chip,
+html.theme-awake .small-btn {
+  background: rgba(255, 143, 163, 0.1);
+  border: 1px solid rgba(255, 143, 163, 0.2);
+}
+
+html.theme-awake .modal .panel {
+  background: linear-gradient(180deg, #ffffff, #fff8f5);
+  border: 1px solid rgba(255, 143, 163, 0.15);
+}
+
+html.theme-awake .bottom-nav {
+  background: linear-gradient(180deg, #ffffff, #fff5f0);
+  border-top: 1px solid rgba(255, 143, 163, 0.15);
+}
+
+html.theme-awake .bottom-nav-btn {
+  color: var(--text);
+}
+
+html.theme-awake .bottom-nav-btn:hover {
+  background: rgba(255, 143, 163, 0.1);
+}
+
+html.theme-awake .search-overlay-content {
+  background: #ffffff;
+  border: 1px solid rgba(255, 143, 163, 0.2);
+}
+
+/* 繝吶・繧�E�繝･ + 繧�E�繝ｪ繝ｼ繝ｳ邉ｻ (Muse) */
+html.theme-muse {
+  --bg: #F4F1E8;
+  --card: #E6E0D2;
+  --card-rgb: 230, 224, 210;
+  --accent-1: #7FA36A;
+  --accent-2: #8EAE7B;
+  /* changed from pink to lighter green */
+  --text: #5C5A52;
+  --muted: #9A978D;
+}
+
+html.theme-muse body {
+  background-image: none;
+  background-color: var(--bg);
+}
+
+html.theme-muse .desc {
+  color: rgba(92, 90, 82, 0.88);
+}
+
+html.theme-muse .tag {
+  background: rgba(127, 163, 106, 0.12);
+  color: var(--text);
+  border: 1px solid rgba(127, 163, 106, 0.2);
+}
+
+html.theme-muse header.card {
+  background: var(--card);
+}
+
+html.theme-muse .row {
+  background: var(--card);
+  border: 1px solid rgba(127, 163, 106, 0.15);
+  box-shadow: 0 4px 12px rgba(127, 163, 106, 0.08);
+}
+
+html.theme-muse .row:hover {
+  box-shadow: 0 8px 24px rgba(127, 163, 106, 0.18);
+}
+
+html.theme-muse .open-btn,
+html.theme-muse .actions .open-btn,
+html.theme-muse .row .open-btn,
+html.theme-muse .panel .open-btn {
+  background: var(--accent-1) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(127, 163, 106, 0.28) !important;
+}
+
+html.theme-muse .icon-wrap {
+  background: rgba(127, 163, 106, 0.1);
+  color: var(--text);
+}
+
+html.theme-muse select,
+html.theme-muse input[type="url"],
+html.theme-muse input,
+html.theme-muse textarea {
+  background: #f8f5ee;
+  color: var(--text);
+  border: 1px solid rgba(127, 163, 106, 0.25);
+}
+
+html.theme-muse button:not(.open-btn):not(.bottom-nav-btn) {
+  background: #f0ece2;
+  color: var(--text);
+  border: 1px solid rgba(127, 163, 106, 0.2);
+}
+
+html.theme-muse .chip,
+html.theme-muse .small-btn {
+  background: rgba(127, 163, 106, 0.12);
+  border: 1px solid rgba(127, 163, 106, 0.2);
+}
+
+/* Muse繝�E・繝槫崋譛峨・繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ・育�E�大腰濶�E�邉ｻ縺�E�邨�E�荳・・*/
+html.theme-muse .chip.active,
+html.theme-muse .modal .chip.active,
+html.theme-muse .list.layout-grid .icon-wrap,
+html.theme-muse .layout-toggle-btn.active,
+html.theme-muse.bottom-nav-show-desktop .layout-toggle-btn.active {
+  background: linear-gradient(135deg, #7FA36A 0%, #8EAE7B 50%, #A5BA8C 100%) !important;
+}
+
+html.theme-muse .modal .panel {
+  background: var(--card);
+  border: 1px solid rgba(127, 163, 106, 0.2);
+}
+
+html.theme-muse .bottom-nav {
+  background: var(--card);
+  border-top: 1px solid rgba(127, 163, 106, 0.2);
+}
+
+html.theme-muse .bottom-nav-btn {
+  color: var(--text);
+}
+
+html.theme-muse .bottom-nav-btn:hover {
+  background: rgba(127, 163, 106, 0.12);
+}
+
+html.theme-muse .search-overlay-content {
+  background: var(--bg);
+  border: 1px solid rgba(127, 163, 106, 0.25);
+}
+
+/* ========== 繝槭ず繧�E�繧�E�繝�EぁE���E・繝�E(Majesty) ========== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== EOF繝�E・繝�E========== */
+html.theme-eof {
+  --bg: #0d0d0d;
+  --card: rgba(0, 0, 0, 0.55);
+  --card-rgb: 0, 0, 0;
+  --accent-1: #a35853;
+  --accent-2: #e38692;
+  --text: #ffffff;
+  --muted: rgba(255, 255, 255, 0.55);
+}
+
+html.theme-eof,
+html.theme-eof body {
+  background-color: #0d0d0d;
+}
+
+html.theme-eof body {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.10) 2px, rgba(0, 0, 0, 0.10) 4px),
+    url('https://5gkyu.github.io/image/trunk.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  color: var(--text);
+}
+
+html.theme-eof .desc {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+html.theme-eof .tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html.theme-eof .title {
+  color: #ffffff;
+}
+
+html.theme-eof header.card {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html.theme-eof .row {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+html.theme-eof .row:hover {
+  background: rgba(0, 0, 0, 0.70);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  transform: translate(-1px, -1px);
+}
+
+html.theme-eof .open-btn,
+html.theme-eof .actions .open-btn,
+html.theme-eof .row .open-btn,
+html.theme-eof .panel .open-btn {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 2px 2px 0px rgba(163, 88, 83, 0.3) !important;
+  transition: all 0.2s ease;
+}
+
+html.theme-eof .icon-wrap {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+html.theme-eof .icon-wrap img {
+  border-radius: 4px;
+}
+
+html.theme-eof select,
+html.theme-eof input[type="url"],
+html.theme-eof input,
+html.theme-eof textarea {
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html.theme-eof button:not(.open-btn):not(.bottom-nav-btn) {
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s ease;
+}
+
+html.theme-eof button:not(.open-btn):not(.bottom-nav-btn):active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+html.theme-eof .chip,
+html.theme-eof .small-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* EOF繝�E・繝槫崋譛峨・繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ */
+html.theme-eof .chip.active,
+html.theme-eof .modal .chip.active,
+html.theme-eof .list.layout-grid .icon-wrap,
+html.theme-eof .layout-toggle-btn.active,
+html.theme-eof.bottom-nav-show-desktop .layout-toggle-btn.active {
+  background: linear-gradient(135deg, #a35853 0%, #c46d6a 100%) !important;
+  color: #fff !important;
+  box-shadow: 2px 2px 0px rgba(163, 88, 83, 0.3) !important;
+  border-color: transparent !important;
+}
+
+html.theme-eof .modal .panel {
+  background: rgba(10, 8, 8, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+html.theme-eof .modal .panel h3,
+html.theme-eof .modal .panel label {
+  color: #ffffff;
+}
+
+html.theme-eof .bottom-nav {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html.theme-eof .bottom-nav-btn {
+  color: #ffffff;
+}
+
+html.theme-eof .bottom-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-eof .search-overlay-content {
+  background: rgba(10, 8, 8, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-eof .sidebar {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html.theme-eof .sidebar-title {
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+}
+
+/* 繧�E�繝ｪ繝�Eラ繧�E�繝ｼ繝峨・騾乗�E鮟定レ譎ｯ */
+html.theme-eof .list.layout-grid .row {
+  background: rgba(0, 0, 0, 0.30) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+html.theme-eof .list.layout-grid .row:hover {
+  background: rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4) !important;
+  transform: translate(-1px, -1px) !important;
+}
+
+html.theme-eof .list.layout-grid .meta {
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: none;
+  color: #ffffff;
+}
+
+html.theme-eof .list.layout-grid .title {
+  color: #ffffff !important;
+}
+
+html.theme-eof .list.layout-grid .desc {
+  color: rgba(255, 255, 255, 0.80) !important;
+}
+
+/* Dark-mode specific background overlay and text tweaks */
+
+
+/* improve description contrast in dark mode */
+
+
+
+
+/* slightly dim header background highlights on dark mode */
+
+
+/* Dark-mode: make link cards solid and clearly separated from background */
+
+
+
+
+/* Reduce card inner gradient/shine for open button and other elements */
+
+
+/* Make icon-wrap use a subdued solid background in dark mode */
+
+
+
+
+/* Dark-mode: controls (selects, buttons, chip area, count row) */
+
+
+/* General button dark mode - but NOT .open-btn which has its own gradient */
+
+
+/* Make native dropdown/options dark where possible */
+
+
+/* Ensure opened select box itself looks dark on focus/active */
+
+
+/* IE/Edge expand icon contrast */
+
+
+/* WebKit safari/chrome: try to improve option text color */
+
+
+
+
+/* Ensure active chip highlight appears in dark mode */
+
+
+
+
+/* Search input and placeholder contrast */
+
+
+
+
+/* Make selector/controls lines darker than cards */
+
+
+/* Ensure header controls and selector are visible */
+
+
+
+
+/* Modal panels contrast in dark mode */
+
+
+/* make tags grid clearer */
+
+
+
+/* Dark-mode: make Google sign-in and user avatar contrast-friendly */
+
+
+
+
+
+
+
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  /* Firefox逕ｨ */
+  scrollbar-width: none;
+}
+
+/* Chrome, Safari, Edge逕ｨ */
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Background image served from GitHub Pages */
+body {
+  /* background-image: url('backimage.png'); */
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 8px
+}
+
+/* Optional font variants controlled via html class */
+html.font-dotgothic16,
+html.font-dotgothic16 body {
+  font-family: 'DotGothic16', "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+html.font-mplus,
+html.font-mplus body {
+  font-family: 'M PLUS Rounded 1c', "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+html.font-kosugi,
+html.font-kosugi body {
+  font-family: 'Kosugi Maru', "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+html.font-yomogi,
+html.font-yomogi body {
+  font-family: 'Caveat', 'Yomogi', "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+html.font-notojp,
+html.font-notojp body {
+  font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+/* 'default' uses the base Noto Sans JP stack */
+/* Ensure all UI elements inherit the selected font */
+button,
+input,
+select,
+textarea,
+.bottom-nav,
+.bottom-nav-btn,
+.modal .panel,
+.small-btn,
+.open-btn,
+.top-btn,
+.chip,
+.tag-btn {
+  font-family: inherit;
+}
+
+/* Desktop layout: content row */
+.content-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start
+}
+
+.sidebar {
+  display: block;
+  width: 260px;
+  flex: 0 0 260px;
+  position: sticky;
+  top: var(--hdr-h, 0px);
+  align-self: flex-start;
+  max-height: calc(100vh - var(--hdr-h, 0px));
+  overflow: auto;
+  padding: 12px;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid rgba(6, 50, 58, 0.06);
+  box-shadow: 0 4px 16px rgba(2, 18, 22, 0.06)
+}
+
+@media(max-width:880px) {
+  .sidebar {
+    display: none
+  }
+
+  .content-row {
+    display: block
+  }
+}
+
+/* Desktop: pin sidebar to viewport left edge and push main content to the right so
+   there's no left gap and the right side doesn't get clipped. This only applies
+   on sufficiently wide screens. */
+@media(min-width:881px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: var(--hdr-h, 0px);
+    height: calc(100vh - var(--hdr-h, 0px));
+    overflow: hidden;
+    z-index: 994;
+    border-radius: 0;
+    border-left: none;
+    border-top: none
+  }
+
+  /* make the outer wrap reserve space for the fixed sidebar */
+  .wrap {
+    box-sizing: border-box;
+    padding-left: 300px;
+    max-width: none
+  }
+
+  /* ensure content row takes remaining width and doesn't overflow */
+  .content-row {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  main {
+    flex: 1;
+    max-width: calc(100% - 10px);
+  }
+
+  /* When bottom nav is visible on desktop, shrink sidebar to avoid overlap */
+  html.bottom-nav-show-desktop .sidebar {
+    height: calc(100vh - var(--hdr-h, 0px) - 56px - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Sidebar styling */
+.sidebar-section {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(6, 50, 58, 0.08)
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sidebar-search {
+  flex-shrink: 0;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 50, 58, 0.1);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  box-sizing: border-box
+}
+
+.sidebar-search input::placeholder {
+  color: var(--muted)
+}
+
+.sidebar-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 100%;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding-right: 12px;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+  flex: 1;
+}
+
+/* Thin custom scrollbar for sidebar tag list */
+.sidebar-tags::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-tags::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.sidebar-tags::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  border-radius: 4px;
+}
+
+.sidebar-tags::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+/* Firefox */
+.sidebar-tags {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-1) transparent;
+}
+
+#pinnedTags {
+  max-height: none;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  flex: none;
+  gap: 4px;
+}
+
+#pinnedTags .sidebar-tag {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+#pinnedTags .sidebar-tag span:not(.tag-count) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(6, 50, 58, 0.03);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  min-width: 0
+}
+
+.sidebar-tag:hover {
+  background: rgba(15, 184, 191, 0.08);
+  border-color: rgba(15, 184, 191, 0.2)
+}
+
+.sidebar-tag.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  border-color: transparent
+}
+
+.sidebar-tag .tag-count {
+  font-size: 11px;
+  opacity: 0.7;
+  font-weight: 500
+}
+
+.sidebar-tag.active .tag-count {
+  opacity: 1
+}
+
+.sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px
+}
+
+.sidebar-control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.sidebar-control-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 60px
+}
+
+.sidebar-control-row select {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 50, 58, 0.1);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px
+}
+
+.sidebar-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px
+}
+
+.stat-label {
+  color: var(--muted);
+  font-weight: 500
+}
+
+.stat-value {
+  color: var(--text);
+  font-weight: 700
+}
+
+/* Dark mode sidebar */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Theme-specific sidebar styles */
+html.theme-kohane .sidebar {
+  background: linear-gradient(180deg, #fff, #fff8f5);
+  border-color: rgba(255, 143, 163, 0.15)
+}
+
+html.theme-kohane .sidebar-section {
+  border-bottom-color: rgba(255, 143, 163, 0.12)
+}
+
+html.theme-kohane .sidebar-tag:hover {
+  background: rgba(255, 143, 163, 0.1);
+  border-color: rgba(255, 143, 163, 0.2)
+}
+
+html.theme-kohane .sidebar-tag.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2))
+}
+
+
+
+/* Footer styling removed - footer will not be rendered in this build */
+
+/* Sticky header so search is always visible */
+header.card {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
+  backdrop-filter: blur(6px);
+  padding: 12px;
+  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(2, 18, 22, 0.06);
+  border: 1px solid rgba(6, 50, 58, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center
+}
+
+.search {
+  flex: 1;
+  min-width: 200px;
+  position: relative
+}
+
+.search input {
+  width: 100%;
+  padding: 12px 44px 12px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  box-shadow: inset 0 1px 0 rgba(2, 12, 14, 0.02)
+}
+
+.search {
+  flex: 1 1 auto;
+  min-width: 0
+}
+
+.search input {
+  box-sizing: border-box
+}
+
+.search input::placeholder {
+  color: #9fb5b7
+}
+
+.search .icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.9;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none
+}
+
+.selector {
+  display: flex;
+  gap: 8px;
+  align-items: center
+}
+
+.selector {
+  flex: 0 0 auto
+}
+
+select,
+button,
+input[type="url"] {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: var(--card);
+  color: var(--text)
+}
+
+/* Header controls: ensure selector and top-buttons are visible in header */
+header.card .selector {
+  display: flex;
+  align-items: center
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px
+}
+
+/* Prevent parent/page overscroll when interacting with the list on mobile.
+   This reduces pull-to-refresh / page-bounce caused by fast vertical swipes.
+   Browsers that support it will contain the scroll in `.list`. */
+.list {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Desktop grid layout when user selects Grid layout */
+@media(min-width:881px) {
+  .list.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols, 5), 1fr);
+    gap: 18px;
+    align-items: start;
+    padding-top: 8px;
+  }
+
+  /* Column count variations (set via JS on .list element) */
+  .list.layout-grid.cols-3 {
+    --grid-cols: 3;
+  }
+
+  .list.layout-grid.cols-4 {
+    --grid-cols: 4;
+  }
+
+  .list.layout-grid.cols-5 {
+    --grid-cols: 5;
+  }
+
+  .list.layout-grid.cols-6 {
+    --grid-cols: 6;
+  }
+
+  .list.layout-grid.cols-7 {
+    --grid-cols: 7;
+  }
+
+  /* Card-style tiles for grid layout: icon as hero background */
+  .list.layout-grid .row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    height: 260px;
+    /* Fixed height for uniform cards */
+    padding: 0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
+    border: 1px solid rgba(6, 50, 58, 0.04);
+    box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04);
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .list.layout-grid .row:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(2, 18, 22, 0.12);
+  }
+
+  /* Icon as hero image - centered, covering top portion */
+  .list.layout-grid .icon-wrap {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 120px;
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  }
+
+  /* Hero image fills the icon area; fallback favicon uses smaller centered style */
+  .list.layout-grid .icon-wrap img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* When a hero image is identified as square, show the whole image (no crop) */
+  .list.layout-grid .icon-wrap img.hero.square {
+    object-fit: contain;
+  }
+
+  /* Subtle light overlay behind square hero images so theme color is muted
+     and the square icon/photo is clearly visible. Dark mode uses a faint
+     dark overlay instead for contrast. */
+  .list.layout-grid .icon-wrap img.hero.square {
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+
+
+  .list.layout-grid .icon-wrap img.fallback {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 4px 12px rgba(2, 18, 22, 0.15);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* 404grid.png: fill entire icon-wrap area (same as hero image) */
+  .list.layout-grid .icon-wrap img.grid-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    box-shadow: none;
+    background: none;
+  }
+
+  /* Content area with semi-transparent background */
+  .list.layout-grid .meta {
+    flex: 1;
+    margin: 0;
+    padding: 14px 16px 50px 16px;
+    /* extra bottom padding for actions */
+    background: rgba(var(--card-rgb, 255, 255, 255), 0.92);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Title: 1 line with ellipsis */
+  .list.layout-grid .title {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  /* Description: fixed 3 lines height */
+  .list.layout-grid .desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+    height: calc(12px * 1.4 * 3);
+    /* 3 lines */
+    min-height: calc(12px * 1.4 * 3);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  /* Tags in grid view */
+  .list.layout-grid .tags {
+    margin-top: 6px;
+    gap: 4px;
+  }
+
+  .list.layout-grid .tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  /* Actions: bottom-right, larger tap target */
+  .list.layout-grid .actions {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  .list.layout-grid .actions .open-btn,
+  .list.layout-grid .actions .small-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Dark-mode: make the small action buttons (including the 'e' edit button)
+     use a subdued translucent background instead of a bright gradient so
+     they remain readable and don't clash with card hero images. */
+
+
+  /* Dark-mode adjustments for grid cards (ensure borders/shadows remain dark-mode appropriate) */
+
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  height: var(--row-h);
+  gap: 0;
+  padding: 8px 6px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
+  border: 1px solid rgba(6, 50, 58, 0.04);
+  box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04)
+}
+
+.row:hover {
+  box-shadow: 0 8px 24px rgba(6, 50, 58, 0.08)
+}
+
+/* prevent selection from changing layout: ensure selected rows don't alter size */
+.row.selected {
+  transform: none !important;
+  box-sizing: border-box;
+}
+
+/* Edit-mode specific: avoid hover/transform effects and keep actions width fixed so grid doesn't reflow */
+body.edit-mode .row {
+  transform: none !important;
+  transition: none !important;
+}
+
+body.edit-mode .row:hover {
+  box-shadow: 0 4px 10px rgba(6, 50, 58, 0.06)
+}
+
+body.edit-mode .actions {
+  min-width: auto;
+  flex: 0 0 auto
+}
+
+/* ensure action buttons don't expand the card when toggled */
+body.edit-mode .actions .small-btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.icon-wrap {
+  flex: 0 0 56px;
+  height: 56px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  font-weight: 700;
+  color: #ffffff;
+  margin-right: 4px
+}
+
+.icon-wrap img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover
+}
+
+.meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: 0
+}
+
+.title {
+  font-weight: 800;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  padding-right: 0
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 0
+}
+
+.tags {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: hidden
+}
+
+.tag {
+  background: #eafffb;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text);
+  border: 1px solid rgba(6, 50, 58, 0.06);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto
+}
+
+/* Actions area: compact layout for minimal footprint */
+.actions {
+  flex: 0 0 44px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: 0;
+  height: 44px
+}
+
+/* If actions container is empty (non-owner), hide it so title can use full width */
+.actions:empty {
+  display: none
+}
+
+/* Actions buttons: restore flexible sizing (no forced height) */
+.actions button,
+.actions .open-btn,
+.actions .small-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 6px;
+  height: 100%;
+  padding: 0 8px;
+}
+
+/* Provide slightly larger visual for primary open button while keeping compact footprint */
+.actions .open-btn {
+  gap: 4px;
+  padding: 0 10px;
+  height: 100%
+}
+
+.actions .open-btn:active {
+  transform: translateY(1px)
+}
+
+/* Primary action button (邱�E�髮・・繧�E�繝ｳ繝ｻ繝｢繝ｼ繝繝ｫ蜀・�E�晏ｭ倥・繧�E�繝ｳ) */
+.open-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(2, 18, 22, 0.06);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.open-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.97;
+}
+
+/* Ensure modal primary button looks the same and is clearly visible */
+.modal .open-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid rgba(6, 50, 58, 0.08);
+}
+
+/* Keep dark-mode appearance consistent and ensure focus visibility
+   For list-row action buttons (the small 'e' edit button) use a faint
+   translucent surface so the button stands out against the card. */
+
+
+.open-btn:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.12);
+  outline-offset: 2px;
+}
+
+.modal .open-btn:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.12);
+  outline-offset: 2px;
+}
+
+/* Small buttons (secondary) */
+.actions .small-btn {
+  padding: 4px 8px
+}
+
+/* Override edit-mode fixed width to avoid forcing extra space */
+body.edit-mode .actions {
+  min-width: auto !important;
+  flex: 0 0 auto !important
+}
+
+/* Tag button: distinct color to stand out from other buttons */
+.tag-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ffd7a8, #ffb199);
+  color: #0b2b2a;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 3px 10px rgba(6, 50, 58, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease
+}
+
+.tag-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(6, 50, 58, 0.12)
+}
+
+.fab {
+  /* default: bottom-right placement to avoid conflicting top/bottom rules */
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 240;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 28px;
+  border: none;
+  box-shadow: 0 8px 24px rgba(6, 50, 58, 0.12);
+  cursor: pointer;
+}
+
+.fab:active {
+  transform: translateY(2px)
+}
+
+/* Owner-visible FAB: bottom-right, safe-area aware and high z-index so it's always tappable */
+.fab.owner-visible {
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  top: auto;
+  display: flex !important;
+  z-index: 3000 !important;
+}
+
+/* (蜑企勁貂�E 譌ｧ繝ｻ邱�E�髮・Δ繝ｼ繝峨・繝輔Ο繝ｼ繝�EぁE��ｳ繧�E�繝懊ち繝ｳ縺�E�蟒�E�E��E� */
+
+/* action buttons visibility in edit mode */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  flex: 0 0 44px;
+  height: 44px
+}
+
+.small-btn {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  display: none
+}
+
+body.edit-mode .small-btn {
+  display: inline-block
+}
+
+/* Modal buttons should always be visible regardless of edit-mode */
+.modal .small-btn {
+  display: inline-block
+}
+
+/* Quick tag buttons in add/edit modal */
+.quick-tag-btn {
+  font-size: 12px !important;
+  padding: 5px 10px !important;
+  border-radius: 16px !important;
+  background: var(--card) !important;
+  border: 1px solid var(--accent-2) !important;
+  color: var(--text) !important;
+  transition: all 0.15s ease;
+}
+
+.quick-tag-btn:hover {
+  background: var(--accent-2) !important;
+  color: #fff !important;
+}
+
+.quick-tag-btn.active {
+  background: var(--accent-1) !important;
+  color: #fff !important;
+  border-color: var(--accent-1) !important;
+}
+
+/* hide only the per-row open button in edit mode (keep modal open/save buttons visible) */
+body.edit-mode .row .open-btn {
+  display: none
+}
+
+/* top header buttons active state */
+.top-buttons .top-btn.active {
+  background: linear-gradient(90deg, #ff6b6b, #ff8787);
+  color: #ffffff;
+  border-color: transparent
+}
+
+/* top header buttons (always visible) */
+.top-btn {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700
+}
+
+/* header toggle (show on all sizes; on mobile it becomes absolute) */
+.header-toggle {
+  display: inline-flex;
+  margin-right: 8px;
+  background: transparent;
+  border: 1px solid rgba(6, 50, 58, 0.06);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 18px;
+  align-items: center;
+  justify-content: center;
+  position: relative
+}
+
+/* 陦�E�遉ｺ繧�E�繧�E�繧�E�驕ｸ謚槭Γ繝九Η繝ｼ */
+.view-mode-menu {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 1020;
+  background: var(--card);
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 8px 24px rgba(2, 18, 22, 0.12);
+  min-width: 140px
+}
+
+/* When wrapped inside the header hamburger, anchor menu to the toggle button
+   so it appears inside the header instead of overlapping it. */
+#viewToggleWrap .view-mode-menu {
+  top: calc(100% + 6px);
+  left: 0
+}
+
+.view-mode-menu .menu-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(6, 50, 58, 0.06)
+}
+
+.view-mode-menu .menu-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  transition: background 0.2s
+}
+
+.view-mode-menu .menu-radio:hover {
+  background: rgba(6, 50, 58, 0.04)
+}
+
+.view-mode-menu .menu-radio input[type="radio"] {
+  cursor: pointer
+}
+
+.view-mode-menu .menu-radio input[type="radio"]:checked+span {
+  font-weight: 700;
+  color: var(--accent-1)
+}
+
+/* 陦�E�遉ｺ繝｢繝ｼ繝�E small・域怙蟆擾�E�・窶・繧�E�繝ｳ繝代け繝亥喧: 陦碁E��倥・菴咏區繧堤�E��E�繧√※繧医�E�螟壹�E�陦�E�遉ｺ */
+.list--small .row {
+  height: auto;
+  min-height: 32px;
+  padding: 4px 6px;
+  gap: 6px
+}
+
+.list--small .icon-wrap {
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: 4px
+}
+
+.list--small .icon-wrap img {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px
+}
+
+.list--small .meta {
+  flex: 1;
+  min-width: 0
+}
+
+.list--small .title {
+  font-size: 13px;
+  font-weight: 700
+}
+
+.list--small .desc,
+.list--small .tags {
+  display: none
+}
+
+/* 隱�E�譏弱→繧�E�繧�E�繧帝撼陦�E�遉ｺ */
+.list--small .actions {
+  flex: 0 0 44px;
+  height: 24px
+}
+
+/* medium list: match icon-wrap (40px) */
+.list--medium .actions {
+  flex: 0 0 36px;
+  height: 36px
+}
+
+/* 蟁E���E��E�遉ｺ縺�E�邱�E�髮・・繧�E�繝ｳ繧偵�E�繧翫さ繝ｳ繝代け繝医↓縺吶�E��E郁E��後�E鬮倥�E�E��E���E繧帝亟豁E��・・*/
+.list--small .open-btn {
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 6px
+}
+
+.list--small .open-btn span {
+  display: none
+}
+
+/* 陦�E�遉ｺ繝｢繝ｼ繝�E medium・域里蟁E���E�壹ョ繝輔か繝ｫ繝茨�E�俁E�・菴咏區繧貞炎貂帙＠縺�E�繧医�E�螟壹�E�陦�E�遉ｺ */
+.list--medium .row {
+  height: auto;
+  min-height: 48px;
+  padding: 6px 8px;
+  gap: 8px
+}
+
+.list--medium .icon-wrap {
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 6px
+}
+
+.list--medium .icon-wrap img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px
+}
+
+.list--medium .title {
+  font-size: 14px
+}
+
+.list--medium .desc {
+  font-size: 12px;
+  margin-top: 2px
+}
+
+.list--medium .tags {
+  margin-top: 3px;
+  gap: 4px
+}
+
+.list--medium .tag {
+  padding: 2px 6px;
+  font-size: 11px
+}
+
+.list--medium .open-btn {
+  padding: 6px 10px;
+  font-size: 13px
+}
+
+@media(max-width:560px) {
+  .header-toggle {
+    display: inline-flex
+  }
+
+  /* keep hamburger inline within the top-row on small screens to avoid overlapping mid-row */
+  .header-toggle {
+    width: 36px;
+    height: 36px;
+    padding: 4px;
+    border-radius: 8px
+  }
+
+  /* collapsed by default on mobile - keep search visible while hiding other controls */
+  header.card .headerInner {
+    display: block
+  }
+
+  /* when collapsed, hide mid and bottom rows to simulate closed header */
+  header.card.collapsed .mid-row,
+  header.card.collapsed .bottom-row {
+    display: none;
+  }
+
+  /* keep top-row visible */
+  header.card.collapsed .top-row {
+    display: flex;
+  }
+}
+
+@media(min-width:561px) {
+  header.card.collapsed .headerInner {
+    display: block
+  }
+}
+
+/* On desktop, hide the old mid-row view-mode and sort controls (now available via hamburger menu) */
+@media(min-width:881px) {
+  .mid-row .selector {
+    display: none
+  }
+}
+
+/* ========== Kyu 迚ｹ蛻�E�莉墓ｧ・(雎ｪ闖ｯ陬・�E��E�) ========== */
+.row.kyu-special {
+  position: relative;
+  /* border-color 繧帝乗�E縺�E�縺励※閭梧勹繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ繧・border 縺�E�驕ｩ逕ｨ縺吶�E�E*/
+  border: 3px solid transparent !important;
+  background:
+    linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96)) padding-box,
+    linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-1)) border-box !important;
+  background-size: 100% 100%, 200% 200% !important;
+  animation: kyu-border-shimmer 3s linear infinite !important;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-1) 25%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-2) 30%, transparent) inset !important;
+}
+
+.row.kyu-special:hover {
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--accent-1) 40%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-2) 50%, transparent) inset !important;
+  transform: translateY(-2px);
+}
+
+@keyframes kyu-border-shimmer {
+  0% {
+    background-position: 0% 0%, 0% 50%;
+  }
+
+  50% {
+    background-position: 0% 0%, 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 0%, 0% 50%;
+  }
+}
+
+
+/* modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10000
+}
+
+/* ensure modal small buttons are visible regardless of edit-mode */
+.modal .small-btn {
+  display: inline-block
+}
+
+.modal .panel {
+  background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
+  padding: 18px;
+  border-radius: 12px;
+  max-width: 720px;
+  width: 92%;
+  box-shadow: 0 10px 40px rgba(2, 12, 20, 0.4);
+  border: 1px solid rgba(6, 50, 58, 0.04);
+  max-height: calc(90vh - 12px);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  /* panel itself scrolls */
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal,
+.modal .panel {
+  /* Allow vertical pan, prevent horizontal gestures while modal is active */
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+}
+
+/* Prevent horizontal drift when vertically scrolling inside modals.
+   Allow horizontal scrolling only for known horizontal containers (chips/tags). */
+.modal .panel {
+  overflow-x: hidden;
+  /* avoid accidental horizontal content shift */
+}
+
+.modal .panel .chip-container,
+.modal .panel .tags,
+.modal .panel .tagbar {
+  /* these are intentionally horizontal scroll lists; allow pan-x */
+  touch-action: pan-x;
+  -ms-touch-action: pan-x;
+}
+
+.modal .panel> :last-child {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+  background: linear-gradient(180deg, rgba(var(--card-rgb), 0.02), var(--card));
+  padding-top: 10px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  margin: 0 -18px -18px;
+  border-top: 1px solid rgba(6, 50, 58, 0.04);
+}
+
+.modal .panel h3 {
+  margin: 0 0 8px 0;
+  color: var(--text)
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px
+}
+
+.form-row input,
+.form-row textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(2, 12, 14, 0.02)
+}
+
+.form-row input::placeholder,
+.form-row textarea::placeholder {
+  color: #9fb5b7
+}
+
+.form-row label {
+  color: var(--text);
+  font-weight: 700
+}
+
+.form-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center
+}
+
+/* layout for label + action on same row */
+.label-row label {
+  font-weight: 700
+}
+
+.label-row .small-btn {
+  flex-shrink: 0
+}
+
+/* input-with-copy: place a copy button inside the input's right edge to avoid wrapping on narrow screens */
+.input-with-copy {
+  position: relative
+}
+
+.muted-note {
+  font-size: 12px;
+  color: var(--muted)
+}
+
+/* tag overflow control */
+.tagbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  margin-top: 10px
+}
+
+.chip {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #eafffb;
+  border: 1px solid rgba(6, 50, 58, 0.06);
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent
+}
+
+.chip.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  color: #ffffff;
+  border-color: transparent;
+  font-weight: 700
+}
+
+.modal .chip {
+  background: rgba(6, 50, 58, 0.06);
+  border-color: rgba(6, 50, 58, 0.08)
+}
+
+.modal .chip.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+  font-weight: 700 !important
+}
+
+.chip-container {
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+  min-width: 0
+}
+
+.more-btn {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #eafffb;
+  border: 1px solid rgba(6, 50, 58, 0.06);
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700
+}
+
+/* 繝ｦ繝ｼ繧�E�繝ｼ諠・�E��E�陦鯉ｼ医・繝�Eム繝ｼ蜀・�E�・*/
+.user-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(6, 50, 58, 0.04);
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.user-info-row:hover {
+  background: rgba(6, 50, 58, 0.08)
+}
+
+.user-mini-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%
+}
+
+.user-info-text {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px
+}
+
+@media(max-width:560px) {
+  .user-info-text {
+    max-width: 120px
+  }
+}
+
+/* Top-row specifics: show icon only, prevent wrapping */
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  padding: 4px 8px
+}
+
+.top-row .user-info-text {
+  display: none
+}
+
+.top-row .user-mini-avatar {
+  width: 36px;
+  height: 36px
+}
+
+#authRight {
+  margin-left: auto;
+  flex-shrink: 0
+}
+
+.top-row .search {
+  flex: 1;
+  min-width: 0;
+  margin: 0
+}
+
+
+
+/* Keep the count/actions row visible while scrolling */
+/* make count row sticky and reduce horizontal padding to save space
+    top will be set dynamically to the header height via --hdr-h */
+#count {
+  position: sticky;
+  top: var(--hdr-h, 0px);
+  z-index: 995;
+  padding: 8px 0;
+  margin: 0 !important
+}
+
+/* Slight gray translucent background, single-line layout */
+#count .count-row {
+  background: rgba(230, 235, 237, 0.55);
+  /* soft gray translucency */
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: none;
+  border: 1px solid rgba(6, 50, 58, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Custom select styling */
+#viewSizeSelect,
+#sortSelect {
+  padding: 6px 28px 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 50, 58, 0.1);
+  background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(6, 50, 58, 0.04);
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%2306323a" d="M6 8L2 4h8z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+#viewSizeSelect:hover,
+#sortSelect:hover {
+  border-color: rgba(6, 50, 58, 0.15);
+  box-shadow: 0 4px 12px rgba(6, 50, 58, 0.08);
+}
+
+#viewSizeSelect:focus,
+#sortSelect:focus {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+  border-color: var(--accent-1);
+}
+
+/* Count text styling */
+#countText {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 4px 8px;
+}
+
+/* --- Safe area: ensure bottom UI (iOS home indicator / browser bar) doesn't hide list items --- */
+/* add extra bottom padding to main scrollable areas and account for rows so last item is visible */
+.wrap,
+main,
+.list {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.list {
+  padding-bottom: calc(var(--row-h, 72px) + 24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Ensure header stays on top when fixed and content spacing uses --hdr-h */
+header.card {
+  z-index: 1100
+}
+
+.wrap {
+  box-sizing: border-box;
+  padding-top: calc(var(--hdr-h, 72px) + 16px)
+}
+
+/* 繝ｦ繝ｼ繧�E�繝ｼ險�E�螳壹Δ繝ｼ繝繝ｫ */
+.user-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #fff;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.user-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%
+}
+
+/* small screens tweaks */
+@media(max-width:560px) {
+  :root {
+    --row-h: 86px
+  }
+
+  .open-btn {
+    padding: 12px 14px
+  }
+
+  .icon-wrap {
+    flex: 0 0 64px;
+    height: 64px
+  }
+
+  .chip {
+    padding: 8px
+  }
+
+  .modal .chip {
+    padding: 5px 8px;
+    font-size: 12px
+  }
+
+  header.card {
+    padding: 10px 8px
+  }
+
+  /* Stack header vertically on small screens for readability */
+  header.card {
+    flex-direction: column;
+    align-items: stretch
+  }
+
+  .selector {
+    width: 100%;
+    margin-top: 8px
+  }
+
+  /* On narrow screens keep the view button compact and let the select fill remaining space */
+  .selector {
+    display: flex;
+    gap: 8px;
+    align-items: center
+  }
+
+  .selector select {
+    flex: 1;
+    min-width: 0
+  }
+
+  .selector button {
+    flex: 0 0 auto
+  }
+
+  .search {
+    width: 100%
+  }
+
+  .search input {
+    width: 100%
+  }
+
+  /* ensure proper stacking order (no explicit order so layout remains stable) */
+  .search {
+    order: unset
+  }
+
+  .selector {
+    order: unset
+  }
+
+  .top-buttons {
+    order: unset
+  }
+
+  .top-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px
+  }
+
+  .fab {
+    display: none
+  }
+
+  /* mobile: compact actions area (width x height = 32px x 36px) */
+  .actions {
+    flex: 0 0 32px;
+    width: 32px;
+    min-width: 32px;
+    max-width: 32px;
+    height: 36px;
+    overflow: hidden
+  }
+
+  .actions button,
+  .actions .open-btn,
+  .actions .small-btn {
+    padding: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* auth-ui 繧偵さ繝ｳ繝代け繝医ↁE*/
+  #auth-ui {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Prevent iOS Safari auto-zoom on input focus by ensuring tappable inputs use at least 16px font-size */
+@media(max-width:560px) {
+
+  html,
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px !important;
+  }
+
+  .modal .panel input,
+  .modal .panel textarea,
+  .modal .panel select {
+    font-size: 16px !important;
+  }
+}
+
+/* When add/edit modal is open, focus on modal (header/sidebar remain visible) */
+/* Prevent body from scrolling when modal open */
+body.modal-add-open {
+  overflow: hidden;
+}
+
+/* sidebar remains visible when tag/hub modal is open */
+
+/* When tag/user-settings modal is open, avoid hiding count to prevent layout shift */
+
+
+/* Cookie consent banner styles */
+#cookieBanner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 18px;
+  z-index: 1200;
+  background: rgba(15, 184, 191, 0.98);
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(2, 18, 22, 0.12);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 980px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+#cookieBanner .msg {
+  flex: 1;
+  min-width: 0;
+  margin-right: 12px;
+  color: #02292c;
+  font-weight: 700
+}
+
+#cookieBanner .actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0
+}
+
+#cookieBanner .cookie-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700
+}
+
+#cookieBanner .cookie-accept {
+  background: #fff;
+  color: var(--text)
+}
+
+#cookieBanner .cookie-more {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3)
+}
+
+@media(max-width:560px) {
+  #cookieBanner {
+    left: 10px;
+    right: 10px;
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px
+  }
+
+  #cookieBanner .actions {
+    align-self: stretch;
+    justify-content: flex-end;
+    width: 100%
+  }
+
+  #cookieBanner .msg {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff
+  }
+
+  #cookieBanner .cookie-accept {
+    width: 110px
+  }
+}
+
+/* Loading overlay */
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.6));
+  color: var(--text);
+  z-index: 2200;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 6px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--accent, #00d1c1);
+  animation: spinner 1s linear infinite;
+}
+
+.loader-text {
+  font-size: 16px;
+  color: var(--text);
+  opacity: 0.95
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
+/* Hide overlay when JS sets display:none (no extra class needed) */
+
+/* 隧�E�邏ｰ繝懊ち繝ｳ・井ｸ闊ｬ繝ｦ繝ｼ繧�E�繝ｼ逕ｨ・・*/
+.detail-btn {
+  background: var(--accent-1);
+  color: #fff;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  min-width: 32px;
+  height: auto;
+}
+
+.detail-btn:hover {
+  opacity: 0.9
+}
+
+
+/* 隧�E�邏ｰ蛟､縺�E�繧�E�繧�E�繧�E�繝ｫ */
+.detail-value {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.4
+}
+
+.detail-value:empty::before {
+  content: '�E�なし！E;
+  color: var(--muted);
+}
+
+/* ========== Bottom Navigation ========== */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: var(--card);
+  border-top: 1px solid rgba(6, 50, 58, 0.08);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* Settings modal: elements behind modal overlay are naturally dimmed */
+
+/* Normalize spacing in header top-row so tag button aligns evenly */
+.top-row {
+  gap: 8px
+}
+
+.top-row .more-btn {
+  margin-left: 0;
+  margin-right: 0
+}
+
+/* bottom nav stays visible while add/edit modal is open */
+
+
+
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  height: 100%;
+}
+
+.bottom-nav-btn:hover,
+.bottom-nav-btn:active {
+  background: color-mix(in srgb, var(--accent-1) 12%, transparent);
+  color: var(--accent-1);
+}
+
+/* Layout toggle active styling 窶・mirrors .sidebar-tag for visual consistency */
+.layout-toggle-btn {
+  background: rgba(6, 50, 58, 0.04);
+  border: 1px solid transparent;
+  display: inline-block;
+  color: var(--text);
+}
+
+.layout-toggle-btn:hover {
+  background: rgba(15, 184, 191, 0.10);
+  border-color: rgba(15, 184, 191, 0.25);
+}
+
+.layout-toggle-btn.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  color: #fff !important;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure layout toggle is visible even though .small-btn defaults to hidden outside edit mode */
+.sidebar .layout-toggle-btn {
+  display: inline-block !important;
+}
+
+.bottom-nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Show bottom nav only on mobile */
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  /* Add extra padding to list to avoid overlap with bottom nav */
+  .list {
+    padding-bottom: calc(var(--row-h, 72px) + 80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Show bottom nav on PC/tablet when user enables it */
+@media (min-width: 769px) {
+  html.bottom-nav-show-desktop .bottom-nav:not(.hidden-by-user) {
+    display: flex !important;
+  }
+
+  html.bottom-nav-show-desktop .list {
+    padding-bottom: calc(var(--row-h, 72px) + 80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* bottom nav stays visible when add/edit modal is open */
+
+/* User-controlled hide class: ensures JS can force-hide bottom nav even on mobile */
+.bottom-nav.hidden-by-user {
+  display: none !important;
+}
+
+/* Always hide FAB since we use bottom nav on mobile */
+.fab {
+  display: none !important;
+}
+
+/* ========== Search Overlay (Mobile) ========== */
+.search-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1300;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20vh;
+}
+
+.search-overlay.open {
+  display: flex;
+}
+
+
+
+.search-overlay-content {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(2, 12, 20, 0.3);
+}
+
+
+
+.search-overlay-content input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(6, 50, 58, 0.1);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+}
+
+
+
+/* ========== Hub Styles ========== */
+.hub-panel {
+  max-width: 500px;
+  width: 90%;
+}
+
+.hub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.hub-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid rgba(6, 50, 58, 0.06);
+}
+
+
+
+.hub-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hub-item-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-item-date {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.hub-item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hub-delete-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px 6px !important;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.hub-delete-btn:hover {
+  opacity: 1;
+}
+
+.hub-text-display {
+  background: var(--bg);
+  border: 1px solid rgba(6, 50, 58, 0.08);
+  border-radius: var(--radius);
+  padding: 14px;
+  min-height: 60px;
+  max-height: 50vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+
+
+/* bottom nav remains visible when hub modal is open */
+
+/* Password masking via CSS (allows third-party keyboards like Simeji) */
+.hub-pw-masked {
+  -webkit-text-security: disc;
+}
+
+.hub-pw-masked.pw-visible {
+  -webkit-text-security: none;
+}
+
+/* Primary Tag Buttons (Sidebar) */
+.primary-tag-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: 14px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), var(--tag-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  text-align: center;
+  color: #ffffff;
+  aspect-ratio: 1 / 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.primary-tag-btn:hover {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), var(--tag-bg);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.primary-tag-btn.active {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), var(--tag-bg);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--accent-1), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Modal Primary Tag Buttons (Square with Image) */
+.mobile-primary-tag-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), var(--tag-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  text-align: center;
+  color: #ffffff;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 130px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-primary-tag-btn:hover {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), var(--tag-bg);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-primary-tag-btn.active {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), var(--tag-bg);
+  box-shadow: 0 0 0 3px var(--accent-1), 0 6px 16px rgba(0, 0, 0, 0.4);
+  border-color: transparent;
+}
+
+/* 騾乗�E諢溘�E縺めE��迚ｹ蛻�E�繝懊ち繝ｳ (蜈ｨ縺�E�, 繧�E�繧�E�縺�E�縺礼�E�・ */
+.primary-tag-btn.special,
+.mobile-primary-tag-btn.special {
+  background-image: none;
+  background: rgba(120, 120, 120, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(150, 150, 150, 0.3);
+  text-shadow: none;
+  color: var(--text);
+}
+
+.primary-tag-btn.special:hover,
+.mobile-primary-tag-btn.special:hover {
+  background: rgba(120, 120, 120, 0.25);
+  border-color: rgba(150, 150, 150, 0.5);
+  background-image: none;
+}
+
+.primary-tag-btn.special.active,
+.mobile-primary-tag-btn.special.active {
+  background-image: none;
+  background: color-mix(in srgb, var(--accent-1) 20%, transparent);
+  box-shadow: 0 0 0 2px var(--accent-1), 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-1);
+}
+
+.mobile-primary-tag-btn .tag-label {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mobile-primary-tag-btn .tag-count {
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.mobile-primary-tag-btn.active .tag-count {
+  opacity: 1;
+}
+
+.primary-tag-btn .tag-label {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.primary-tag-btn .tag-count {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.primary-tag-btn.active .tag-count {
+  opacity: 1;
+}
+
+/* Dark mode styles for primary tags */
