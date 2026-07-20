@@ -565,6 +565,7 @@
         const iframe = document.getElementById('nicoPlayer');
         if (!iframe) return;
         
+        // ミュート＆再生
         iframe.contentWindow.postMessage({
           sourceConnectorType: 1,
           playerId: 'player1',
@@ -577,6 +578,31 @@
           playerId: 'player1',
           eventName: 'play'
         }, 'https://embed.nicovideo.jp');
+
+        // コメント非表示
+        iframe.contentWindow.postMessage({
+          sourceConnectorType: 1,
+          playerId: 'player1',
+          eventName: 'commentVisibilityChange',
+          data: { commentVisibility: false }
+        }, 'https://embed.nicovideo.jp');
+
+        // 動画情報の取得とUI更新
+        const info = event.data.data && event.data.data.videoInfo;
+        if (info) {
+          const panel = document.getElementById('video-info-panel');
+          const authorEl = document.getElementById('video-info-author');
+          const titleEl = document.getElementById('video-info-title');
+          const heroSection = document.getElementById('hero-section');
+          
+          authorEl.textContent = 'ニコニコ動画';
+          titleEl.textContent = info.title || 'Now Playing';
+          panel.classList.add('show');
+          
+          if (info.thumbnailUrl) {
+            heroSection.style.setProperty('--hero-bg', `url('${info.thumbnailUrl}')`);
+          }
+        }
       }
     });
 
