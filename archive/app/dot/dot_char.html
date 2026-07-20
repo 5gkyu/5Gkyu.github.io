@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>1文字ドットメーカー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f0f14;
+      --bg-secondary: #16161e;
+      --bg-tertiary: #1c1c28;
+      --text-primary: #e8e6f0;
+      --text-muted: #8d8aa3;
+      --accent: #7c5cfc;
+      --border: rgba(255,255,255,0.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(1100px, 100%);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 16px;
+    }
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    input, button, select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font: inherit;
+      padding: 10px;
+    }
+    input#charInput {
+      font-size: 34px;
+      text-align: center;
+      padding: 8px;
+      font-weight: 700;
+    }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      border: none;
+      font-weight: 700;
+    }
+    .sub {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+    }
+    .meta { font-size: 12px; color: var(--text-muted); }
+    .historyControls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .historyBtn {
+      padding: 8px 10px;
+      font-size: 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .historyBtn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .charHistory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      max-height: 92px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .historyChip {
+      width: 34px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+    .historyChip.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(124,92,252,0.35) inset;
+    }
+    .switchRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-primary);
+      margin-top: 4px;
+      user-select: none;
+      cursor: pointer;
+    }
+    .switchRow input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--accent);
+    }
+    .right {
+      background: #101018;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      position: relative;
+      padding: 12px;
+    }
+    .rightInner {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 12px;
+      align-items: start;
+    }
+    .pixelStage {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      grid-template-rows: 24px 1fr;
+      gap: 0;
+      align-items: stretch;
+      justify-items: stretch;
+    }
+    .rightAdjust {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-self: stretch;
+    }
+    .rightAdjust .label {
+      margin: 0;
+    }
+    .paramGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .paramRow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+    .paramRow input[type="range"] {
+      grid-column: 1 / -1;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .paramValue {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 44px;
+      text-align: right;
+    }
+    .axisCorner {
+      border-right: 1px solid rgba(255,255,255,0.12);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .axisTop {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .axisLeft {
+      display: grid;
+      grid-template-rows: repeat(15, 1fr);
+      border-right: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .axisTop span,
+    .axisLeft span {
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      user-select: none;
+    }
+    .canvasCell {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #fff;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .gridOverlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 6px;
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0.45) 0,
+          rgba(0, 0, 0, 0.45) 1px,
+          transparent 1px,
+          transparent calc(100% / 15)
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.45) 0,
+          rgba(0, 0, 0, 0.45) 1px,
+          transparent 1px,
+          transparent calc(100% / 15)
+        );
+    }
+    .gridOverlay.hidden {
+      display: none;
+    }
+    .top {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .paletteStats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .statRow {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      font-size: 12px;
+    }
+    .sw {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+    .statMain {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      gap: 2px;
+    }
+    .statName {
+      font-size: 11px;
+      color: var(--text-primary);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      line-height: 1.35;
+    }
+    .statCount {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    a { color: #c4b6ff; text-decoration: none; font-size: 12px; }
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      background: rgba(20,20,30,0.95);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      font-size: 12px;
+      display: none;
+      max-width: 280px;
+      white-space: nowrap;
+    }
+    @media (max-width: 1050px) {
+      .rightInner {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="left">
+      <div class="label">1文字をドット化（15×15固定）</div>
+      <input id="charInput" value="あ" aria-label="1文字入力" />
+      <div class="historyControls">
+        <button id="undoCharBtn" class="historyBtn" disabled>↶ 戻る</button>
+        <button id="redoCharBtn" class="historyBtn" disabled>↷ 進む</button>
+      </div>
+      <div id="charHistory" class="charHistory" aria-label="文字履歴"></div>
+      <button id="genBtn">生成</button>
+      <button id="saveBtn" class="sub">PNG保存</button>
+        <label for="borderToggle" class="switchRow">
+          <input id="borderToggle" type="checkbox" checked />
+          <span>ボーダー表示</span>
+        </label>
+      <a href="index.html">← メインに戻る</a>
+      <div class="meta">白〜黒の8階調のみを使用します。</div>
+      <div class="meta">遠目で読みやすくなるよう、生成時に軽いにじみを加えます。</div>
+      <div class="label" style="margin-top:8px;">8色パレット使用状況（4行2列）</div>
+      <div id="paletteStats" class="paletteStats"></div>
+    </div>
+    <div class="right">
+      <div class="rightInner">
+        <div>
+          <div class="top">出力: 15 × 15</div>
+          <div class="pixelStage">
+            <div class="axisCorner" aria-hidden="true"></div>
+            <div id="axisTop" class="axisTop" aria-hidden="true"></div>
+            <div id="axisLeft" class="axisLeft" aria-hidden="true"></div>
+            <div class="canvasCell">
+              <canvas id="out" width="15" height="15"></canvas>
+              <div id="gridOverlay" class="gridOverlay" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+        <aside class="rightAdjust" aria-label="見え方調整">
+          <div class="label">見え方調整</div>
+          <div class="paramGroup">
+            <label class="paramRow" for="blurRange">
+              <span>にじみ</span>
+              <span id="blurValue" class="paramValue">2</span>
+              <input id="blurRange" type="range" min="0" max="4" step="1" value="2" />
+            </label>
+            <label class="paramRow" for="thresholdRange">
+              <span>検出しきい値</span>
+              <span id="thresholdValue" class="paramValue">248</span>
+              <input id="thresholdRange" type="range" min="220" max="252" step="1" value="248" />
+            </label>
+            <label class="paramRow" for="fitPadRange">
+              <span>余白</span>
+              <span id="fitPadValue" class="paramValue">2</span>
+              <input id="fitPadRange" type="range" min="0" max="6" step="1" value="2" />
+            </label>
+            <button id="resetParamsBtn" type="button" class="historyBtn">初期化</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <div id="tooltip" class="tooltip" style="display:none"></div>
+
+  <script>
+    const out = document.getElementById('out');
+    const ctx = out.getContext('2d', { willReadFrequently: true });
+    const charInput = document.getElementById('charInput');
+    const blurRange = document.getElementById('blurRange');
+    const blurValue = document.getElementById('blurValue');
+    const thresholdRange = document.getElementById('thresholdRange');
+    const thresholdValue = document.getElementById('thresholdValue');
+    const fitPadRange = document.getElementById('fitPadRange');
+    const fitPadValue = document.getElementById('fitPadValue');
+    const resetParamsBtn = document.getElementById('resetParamsBtn');
+    const undoCharBtn = document.getElementById('undoCharBtn');
+    const redoCharBtn = document.getElementById('redoCharBtn');
+    const charHistoryEl = document.getElementById('charHistory');
+    const genBtn = document.getElementById('genBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const borderToggle = document.getElementById('borderToggle');
+    const paletteStats = document.getElementById('paletteStats');
+    const tooltip = document.getElementById('tooltip');
+    const axisTop = document.getElementById('axisTop');
+    const axisLeft = document.getElementById('axisLeft');
+    const gridOverlay = document.getElementById('gridOverlay');
+
+    const palette = [
+      { name: 'ホワイト(明るい面)', hex: 'c9cae0' },
+      { name: 'ホワイト(暗い面)', hex: 'bebfd3' },
+      { name: 'ライトグレー(明るい面)', hex: 'a8a7b7' },
+      { name: 'ライトグレー(暗い面)', hex: '9796a8' },
+      { name: 'グレー(明るい面)', hex: '75768c' },
+      { name: 'グレー(暗い面)', hex: '525369' },
+      { name: 'ブラック(明るい面)', hex: '3c3c48' },
+      { name: 'ブラック(暗い面)', hex: '303038' }
+    ];
+
+    let latestGrid = new Array(15 * 15).fill(0);
+    let latestCounts = new Array(palette.length).fill(0);
+    let isComposing = false;
+    let charHistory = [];
+    let historyIndex = -1;
+    let isApplyingHistory = false;
+
+    function hexToRgb(hex) {
+      const normalized = hex.replace('#', '').trim();
+      return {
+        r: parseInt(normalized.slice(0, 2), 16),
+        g: parseInt(normalized.slice(2, 4), 16),
+        b: parseInt(normalized.slice(4, 6), 16)
+      };
+    }
+
+    function luminance(rgb) {
+      return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+    }
+
+    const paletteWithRgb = palette.map(p => {
+      const rgb = hexToRgb(p.hex);
+      return { ...p, rgb, lum: luminance(rgb) };
+    });
+
+    const DEFAULT_PARAMS = {
+      blur: 2,
+      threshold: 248,
+      fitPad: 2
+    };
+
+    function nearestPaletteByLuminance(v) {
+      let best = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < paletteWithRgb.length; i++) {
+        const d = Math.abs(v - paletteWithRgb[i].lum);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      }
+      return best;
+    }
+
+    function percentile(values, p) {
+      if (!values || values.length === 0) return 255;
+      const sorted = [...values].sort((a, b) => a - b);
+      const pos = Math.max(0, Math.min(sorted.length - 1, Math.round((sorted.length - 1) * p)));
+      return sorted[pos];
+    }
+
+    function buildActivePaletteIndices(cellLuminances) {
+      if (!cellLuminances || cellLuminances.length === 0) {
+        return paletteWithRgb.map((_, i) => i);
+      }
+
+      const loLum = percentile(cellLuminances, 0.1);
+      const hiLum = percentile(cellLuminances, 0.9);
+      const avgLum = cellLuminances.reduce((sum, v) => sum + v, 0) / cellLuminances.length;
+      const spread = Math.max(0, hiLum - loLum);
+
+      let minIdx = nearestPaletteByLuminance(loLum);
+      let maxIdx = nearestPaletteByLuminance(hiLum);
+      if (minIdx > maxIdx) {
+        const tmp = minIdx;
+        minIdx = maxIdx;
+        maxIdx = tmp;
+      }
+
+      const maxLevels = paletteWithRgb.length;
+      const desiredLevels = Math.max(4, Math.min(maxLevels, Math.round(spread / 26) + 3));
+      const centerIdx = nearestPaletteByLuminance(avgLum);
+
+      let start = minIdx;
+      let end = maxIdx;
+
+      while ((end - start + 1) < desiredLevels) {
+        const canExpandLeft = start > 0;
+        const canExpandRight = end < (maxLevels - 1);
+        if (!canExpandLeft && !canExpandRight) break;
+
+        if (canExpandLeft && canExpandRight) {
+          const leftDist = Math.abs((start - 1) - centerIdx);
+          const rightDist = Math.abs((end + 1) - centerIdx);
+          if (leftDist <= rightDist) {
+            start--;
+          } else {
+            end++;
+          }
+        } else if (canExpandLeft) {
+          start--;
+        } else {
+          end++;
+        }
+      }
+
+      if ((end - start + 1) > desiredLevels) {
+        const half = Math.floor(desiredLevels / 2);
+        start = Math.max(0, Math.min(maxLevels - desiredLevels, centerIdx - half));
+        end = start + desiredLevels - 1;
+      }
+
+      const active = [];
+      for (let i = start; i <= end; i++) {
+        active.push(i);
+      }
+      return active;
+    }
+
+    function nearestPaletteIndex(v, activeIndices) {
+      const source = (activeIndices && activeIndices.length > 0) ? activeIndices : paletteWithRgb.map((_, i) => i);
+      let best = source[0] || 0;
+      let bestDist = Infinity;
+      for (const i of source) {
+        const d = Math.abs(v - paletteWithRgb[i].lum);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      }
+      return best;
+    }
+
+    function renderCharHistory() {
+      if (!charHistoryEl) return;
+      charHistoryEl.innerHTML = '';
+      charHistory.forEach((ch, idx) => {
+        const chip = document.createElement('button');
+        chip.className = `historyChip${idx === historyIndex ? ' active' : ''}`;
+        chip.textContent = ch;
+        chip.title = `履歴 ${idx + 1}: ${ch}`;
+        chip.addEventListener('click', () => applyHistoryIndex(idx));
+        charHistoryEl.appendChild(chip);
+      });
+      if (undoCharBtn) undoCharBtn.disabled = historyIndex <= 0;
+      if (redoCharBtn) redoCharBtn.disabled = historyIndex >= charHistory.length - 1;
+    }
+
+    function pushHistoryChar(ch) {
+      if (!ch || isApplyingHistory) return;
+      if (historyIndex >= 0 && charHistory[historyIndex] === ch) return;
+
+      const next = charHistory.slice(0, historyIndex + 1);
+      next.push(ch);
+      if (next.length > 30) {
+        next.shift();
+      }
+      charHistory = next;
+      historyIndex = charHistory.length - 1;
+      renderCharHistory();
+    }
+
+    function applyHistoryIndex(idx) {
+      if (idx < 0 || idx >= charHistory.length) return;
+      historyIndex = idx;
+      isApplyingHistory = true;
+      charInput.value = charHistory[idx];
+      generateCharDot({ fallback: true, recordHistory: false });
+      isApplyingHistory = false;
+      renderCharHistory();
+    }
+
+    function renderPaletteStats() {
+      paletteStats.innerHTML = '';
+      for (let i = 0; i < paletteWithRgb.length; i++) {
+        const p = paletteWithRgb[i];
+        const row = document.createElement('div');
+        row.className = 'statRow';
+
+        const sw = document.createElement('div');
+        sw.className = 'sw';
+        sw.style.background = `#${p.hex}`;
+
+        const main = document.createElement('div');
+        main.className = 'statMain';
+        const name = document.createElement('div');
+        name.className = 'statName';
+        name.textContent = p.name;
+        main.appendChild(name);
+
+        const count = document.createElement('div');
+        count.className = 'statCount';
+        count.textContent = `${latestCounts[i] || 0}マス`;
+
+        row.appendChild(sw);
+        row.appendChild(main);
+        row.appendChild(count);
+        paletteStats.appendChild(row);
+      }
+    }
+
+    function renderAxes() {
+      axisTop.innerHTML = '';
+      axisLeft.innerHTML = '';
+      for (let i = 0; i < 15; i++) {
+        const topCell = document.createElement('span');
+        topCell.textContent = String(i);
+        axisTop.appendChild(topCell);
+        const leftCell = document.createElement('span');
+        leftCell.textContent = String(i);
+        axisLeft.appendChild(leftCell);
+      }
+    }
+
+    function boxBlur(gray, w, h, radius) {
+      const temp = new Float32Array(gray.length);
+      const out = new Float32Array(gray.length);
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          let sum = 0;
+          let count = 0;
+          for (let k = -radius; k <= radius; k++) {
+            const xx = x + k;
+            if (xx < 0 || xx >= w) continue;
+            sum += gray[y * w + xx];
+            count++;
+          }
+          temp[y * w + x] = sum / count;
+        }
+      }
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          let sum = 0;
+          let count = 0;
+          for (let k = -radius; k <= radius; k++) {
+            const yy = y + k;
+            if (yy < 0 || yy >= h) continue;
+            sum += temp[yy * w + x];
+            count++;
+          }
+          out[y * w + x] = sum / count;
+        }
+      }
+
+      return out;
+    }
+
+    function updateParamLabels() {
+      if (blurValue) blurValue.textContent = String(parseInt(blurRange.value, 10) || 0);
+      if (thresholdValue) thresholdValue.textContent = String(parseInt(thresholdRange.value, 10) || 248);
+      if (fitPadValue) fitPadValue.textContent = String(parseInt(fitPadRange.value, 10) || 2);
+    }
+
+    function getSingleCharValue(fallback = true) {
+      const chars = Array.from(charInput.value || '');
+      if (chars.length === 0) {
+        return fallback ? 'あ' : '';
+      }
+      const ch = chars[0];
+      if (chars.length > 1 || charInput.value !== ch) {
+        charInput.value = ch;
+      }
+      return ch;
+    }
+
+    function generateCharDot(options = {}) {
+      const { fallback = true, recordHistory = true } = options;
+      const ch = getSingleCharValue(fallback);
+      if (!ch) return;
+      if (recordHistory) pushHistoryChar(ch);
+
+      const tmpSize = 180;
+      const tmp = document.createElement('canvas');
+      tmp.width = tmpSize;
+      tmp.height = tmpSize;
+      const tctx = tmp.getContext('2d', { willReadFrequently: true });
+
+      tctx.fillStyle = '#ffffff';
+      tctx.fillRect(0, 0, tmpSize, tmpSize);
+      tctx.fillStyle = '#000000';
+      tctx.textAlign = 'center';
+      tctx.textBaseline = 'alphabetic';
+      const drawFontSize = Math.floor(tmpSize * 0.72);
+      const drawBaselineY = Math.floor(tmpSize * 0.74);
+      tctx.font = `700 ${drawFontSize}px "Yu Gothic UI", "Noto Sans JP", sans-serif`;
+      const glyphMetrics = tctx.measureText(ch);
+      tctx.fillText(ch, tmpSize / 2, drawBaselineY);
+
+      const srcData = tctx.getImageData(0, 0, tmpSize, tmpSize).data;
+      const gray = new Float32Array(tmpSize * tmpSize);
+      for (let i = 0, p = 0; i < srcData.length; i += 4, p++) {
+        gray[p] = srcData[i];
+      }
+
+      const blurRadius = Math.max(0, Math.min(4, parseInt(blurRange.value, 10) || 2));
+      const detectThreshold = Math.max(220, Math.min(252, parseInt(thresholdRange.value, 10) || 248));
+      const fitPad = Math.max(0, Math.min(6, parseInt(fitPadRange.value, 10) || 2));
+
+      const blurred = boxBlur(gray, tmpSize, tmpSize, blurRadius);
+      let minX = tmpSize;
+      let minY = tmpSize;
+      let maxX = -1;
+      let maxY = -1;
+      const threshold = detectThreshold;
+      for (let y = 0; y < tmpSize; y++) {
+        for (let x = 0; x < tmpSize; x++) {
+          const v = blurred[y * tmpSize + x];
+          if (v < threshold) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (maxX < minX || maxY < minY) {
+        minX = 0;
+        minY = 0;
+        maxX = tmpSize - 1;
+        maxY = tmpSize - 1;
+      }
+
+      const isAsciiLetter = /^[A-Za-z]$/.test(ch);
+      if (
+        isAsciiLetter &&
+        Number.isFinite(glyphMetrics.actualBoundingBoxAscent) &&
+        Number.isFinite(glyphMetrics.actualBoundingBoxDescent)
+      ) {
+        const metricTop = Math.floor(drawBaselineY - glyphMetrics.actualBoundingBoxAscent);
+        const metricBottom = Math.ceil(drawBaselineY + glyphMetrics.actualBoundingBoxDescent);
+        const isLowerCase = /^[a-z]$/.test(ch);
+        const topLead = isLowerCase ? Math.round(drawFontSize * 0.12) : Math.round(drawFontSize * 0.05);
+        const bottomLead = isLowerCase ? Math.round(drawFontSize * 0.06) : Math.round(drawFontSize * 0.08);
+        minY = Math.max(0, Math.min(minY, metricTop - topLead));
+        maxY = Math.min(tmpSize - 1, Math.max(maxY, metricBottom + bottomLead));
+      }
+
+      const pad = fitPad;
+      minX = Math.max(0, minX - pad);
+      minY = Math.max(0, minY - pad);
+      maxX = Math.min(tmpSize - 1, maxX + pad);
+      maxY = Math.min(tmpSize - 1, maxY + pad);
+
+      const maxAxisStretch = 1.85;
+      let cropW = Math.max(1, maxX - minX + 1);
+      let cropH = Math.max(1, maxY - minY + 1);
+
+      if ((cropH / cropW) > maxAxisStretch) {
+        const targetW = Math.min(tmpSize, Math.ceil(cropH / maxAxisStretch));
+        const add = Math.max(0, targetW - cropW);
+        let addLeft = Math.min(minX, Math.floor(add / 2));
+        let addRight = Math.min((tmpSize - 1) - maxX, add - addLeft);
+        let remain = add - (addLeft + addRight);
+        if (remain > 0) {
+          const extraLeft = Math.min(minX - addLeft, remain);
+          addLeft += extraLeft;
+          remain -= extraLeft;
+        }
+        if (remain > 0) {
+          const extraRight = Math.min(((tmpSize - 1) - maxX) - addRight, remain);
+          addRight += extraRight;
+        }
+        minX = Math.max(0, minX - addLeft);
+        maxX = Math.min(tmpSize - 1, maxX + addRight);
+        cropW = Math.max(1, maxX - minX + 1);
+      }
+
+      if ((cropW / cropH) > maxAxisStretch) {
+        const targetH = Math.min(tmpSize, Math.ceil(cropW / maxAxisStretch));
+        const add = Math.max(0, targetH - cropH);
+        let addTop = Math.min(minY, Math.floor(add / 2));
+        let addBottom = Math.min((tmpSize - 1) - maxY, add - addTop);
+        let remain = add - (addTop + addBottom);
+        if (remain > 0) {
+          const extraTop = Math.min(minY - addTop, remain);
+          addTop += extraTop;
+          remain -= extraTop;
+        }
+        if (remain > 0) {
+          const extraBottom = Math.min(((tmpSize - 1) - maxY) - addBottom, remain);
+          addBottom += extraBottom;
+        }
+        minY = Math.max(0, minY - addTop);
+        maxY = Math.min(tmpSize - 1, maxY + addBottom);
+        cropH = Math.max(1, maxY - minY + 1);
+      }
+
+      const cellW = cropW / 15;
+      const cellH = cropH / 15;
+      const outImg = ctx.createImageData(15, 15);
+      latestGrid = new Array(15 * 15).fill(0);
+      latestCounts = new Array(paletteWithRgb.length).fill(0);
+      const cellLuminances = [];
+
+      for (let y = 0; y < 15; y++) {
+        for (let x = 0; x < 15; x++) {
+          const sx = minX + x * cellW;
+          const sy = minY + y * cellH;
+          const ex = minX + (x + 1) * cellW;
+          const ey = minY + (y + 1) * cellH;
+          const isx = Math.max(0, Math.floor(sx));
+          const isy = Math.max(0, Math.floor(sy));
+          const iex = Math.min(tmpSize, Math.ceil(ex));
+          const iey = Math.min(tmpSize, Math.ceil(ey));
+
+          let sum = 0;
+          let count = 0;
+          for (let yy = isy; yy < iey; yy++) {
+            for (let xx = isx; xx < iex; xx++) {
+              sum += blurred[yy * tmpSize + xx];
+              count++;
+            }
+          }
+          const avg = count > 0 ? sum / count : 255;
+          cellLuminances.push(avg);
+        }
+      }
+
+      const activePalette = buildActivePaletteIndices(cellLuminances);
+      let lumCursor = 0;
+
+      for (let y = 0; y < 15; y++) {
+        for (let x = 0; x < 15; x++) {
+          const avg = cellLuminances[lumCursor++];
+          const palIdx = nearestPaletteIndex(avg, activePalette);
+          const q = paletteWithRgb[palIdx].rgb;
+          const idx = (y * 15 + x) * 4;
+          outImg.data[idx] = q.r;
+          outImg.data[idx + 1] = q.g;
+          outImg.data[idx + 2] = q.b;
+          outImg.data[idx + 3] = 255;
+          latestGrid[y * 15 + x] = palIdx;
+          latestCounts[palIdx]++;
+        }
+      }
+
+      ctx.putImageData(outImg, 0, 0);
+      renderPaletteStats();
+    }
+
+    function showTooltip(ev) {
+      const rect = out.getBoundingClientRect();
+      const mx = ev.clientX - rect.left;
+      const my = ev.clientY - rect.top;
+      if (mx < 0 || my < 0 || mx > rect.width || my > rect.height) {
+        tooltip.style.display = 'none';
+        return;
+      }
+      const ix = Math.max(0, Math.min(14, Math.floor((mx / rect.width) * 15)));
+      const iy = Math.max(0, Math.min(14, Math.floor((my / rect.height) * 15)));
+      const palIdx = latestGrid[iy * 15 + ix] ?? 0;
+      const p = paletteWithRgb[palIdx];
+      tooltip.innerHTML = `${p.name} (${ix},${iy})`;
+      tooltip.style.display = 'block';
+      let left = ev.clientX + 12;
+      let top = ev.clientY + 12;
+      if (left + 260 > window.innerWidth) left = ev.clientX - 272;
+      if (top + 60 > window.innerHeight) top = ev.clientY - 72;
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    genBtn.addEventListener('click', () => generateCharDot({ fallback: true }));
+    charInput.addEventListener('compositionstart', () => { isComposing = true; });
+    charInput.addEventListener('compositionend', () => {
+      isComposing = false;
+      generateCharDot({ fallback: true });
+    });
+    charInput.addEventListener('input', () => {
+      if (isComposing) return;
+      generateCharDot({ fallback: false });
+    });
+    charInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        generateCharDot({ fallback: true });
+      }
+    });
+    out.addEventListener('mousemove', showTooltip);
+    out.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    borderToggle.addEventListener('change', () => {
+      if (!gridOverlay) return;
+      gridOverlay.classList.toggle('hidden', !borderToggle.checked);
+    });
+    undoCharBtn.addEventListener('click', () => {
+      if (historyIndex > 0) applyHistoryIndex(historyIndex - 1);
+    });
+    redoCharBtn.addEventListener('click', () => {
+      if (historyIndex < charHistory.length - 1) applyHistoryIndex(historyIndex + 1);
+    });
+    saveBtn.addEventListener('click', () => {
+      out.toBlob((blob) => {
+        if (!blob) return;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'dot_char_15x15.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }, 'image/png');
+    });
+
+    renderAxes();
+    updateParamLabels();
+    [blurRange, thresholdRange, fitPadRange].forEach(el => {
+      el.addEventListener('input', () => {
+        updateParamLabels();
+        generateCharDot({ fallback: true, recordHistory: false });
+      });
+    });
+    resetParamsBtn.addEventListener('click', () => {
+      blurRange.value = String(DEFAULT_PARAMS.blur);
+      thresholdRange.value = String(DEFAULT_PARAMS.threshold);
+      fitPadRange.value = String(DEFAULT_PARAMS.fitPad);
+      updateParamLabels();
+      generateCharDot({ fallback: true, recordHistory: false });
+    });
+    renderPaletteStats();
+    pushHistoryChar(getSingleCharValue(true));
+    generateCharDot({ fallback: true, recordHistory: false });
+  </script>
+</body>
+</html>

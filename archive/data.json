@@ -33,6 +33,13 @@
         "cols": 3,
         "items": [
           {
+            "title": "ドット絵パレット変換",
+            "tag": "画像ツール",
+            "href": "/archive/app/dot/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "画像をドット絵風に変換し、カラーパレットの設定やディザリング、SVG出力ができるツールです。"
+          },
+          {
             "title": "画像コラージュ作成",
             "tag": "画像ツール",
             "href": "/archive/app/collage-maker/",

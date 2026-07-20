@@ -1,0 +1,2314 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ドット絵パレット変換 — 完全版（最近のパレット・ディザ・SVG 出力 等）</title>
+<style>
+:root{
+  --leftW:320px;
+  --bg:#fff0f6;
+  --accent:#a6204a;
+  --muted:#6b4b5a;
+  --panel-gap:8px;
+  --detail-pad:8px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--bg);color:#2b1620;}
+.container{display:grid;grid-template-columns:var(--leftW) 1fr;gap:var(--panel-gap);height:calc(100vh - 56px);padding:12px 16px;overflow:hidden;}
+header{padding:8px 12px;border-bottom:1px solid rgba(166,32,74,0.08);background:#fff8fb;display:flex;align-items:center;gap:8px;justify-content:space-between;}
+h1{font-size:1.05rem;margin:0;color:var(--accent);}
+.tabNav{display:flex;gap:4px;}
+.tabBtn{padding:6px 12px;border-radius:6px;border:1px solid;cursor:pointer;font-size:0.9rem;font-weight:600;transition:all 0.2s;}
+.tabBtn[data-tab="img"]{background:rgba(255,102,153,0.1);color:#b21f55;border-color:rgba(255,102,153,0.3);}
+.tabBtn[data-tab="img"]:hover{background:rgba(255,102,153,0.2);}
+.tabBtn[data-tab="img"].active{background:#ff6699;color:#fff;border-color:#ff6699;box-shadow:0 2px 4px rgba(255,102,153,0.3);}
+.tabBtn[data-tab="size"]{background:rgba(0,187,221,0.1);color:#007b9c;border-color:rgba(0,187,221,0.3);}
+.tabBtn[data-tab="size"]:hover{background:rgba(0,187,221,0.2);}
+.tabBtn[data-tab="size"].active{background:#00bbdd;color:#fff;border-color:#00bbdd;box-shadow:0 2px 4px rgba(0,187,221,0.3);}
+.tabBtn[data-tab="filter"]{background:rgba(102,187,106,0.1);color:#2e7d32;border-color:rgba(102,187,106,0.3);}
+.tabBtn[data-tab="filter"]:hover{background:rgba(102,187,106,0.2);}
+.tabBtn[data-tab="filter"].active{background:#66bb6a;color:#fff;border-color:#66bb6a;box-shadow:0 2px 4px rgba(102,187,106,0.3);}
+.tabBtn[data-tab="palette"]{background:rgba(255,119,34,0.1);color:#b85a00;border-color:rgba(255,119,34,0.3);}
+.tabBtn[data-tab="palette"]:hover{background:rgba(255,119,34,0.2);}
+.tabBtn[data-tab="palette"].active{background:#ff7722;color:#fff;border-color:#ff7722;box-shadow:0 2px 4px rgba(255,119,34,0.3);}
+.tabBtn[data-tab="view"]{background:rgba(0,119,221,0.1);color:#005fa8;border-color:rgba(0,119,221,0.3);}
+.tabBtn[data-tab="view"]:hover{background:rgba(0,119,221,0.2);}
+.tabBtn[data-tab="view"].active{background:#0077dd;color:#fff;border-color:#0077dd;box-shadow:0 2px 4px rgba(0,119,221,0.3);}
+.tabBtn[data-tab="export"]{background:rgba(153,102,255,0.1);color:#6a32b8;border-color:rgba(153,102,255,0.3);}
+.tabBtn[data-tab="export"]:hover{background:rgba(153,102,255,0.2);}
+.tabBtn[data-tab="export"].active{background:#9966ff;color:#fff;border-color:#9966ff;box-shadow:0 2px 4px rgba(153,102,255,0.3);}
+
+/* layout */
+.container{display:grid;grid-template-columns:var(--leftW) 1fr;gap:var(--panel-gap);height:calc(100vh - 56px);padding:8px 12px;overflow:hidden;}
+.left{overflow:auto;height:100%;padding:8px;background:#fafafa;border:1px solid rgba(0,0,0,0.04);border-radius:10px;}
+.right{height:100%;padding:8px;background:#fff;border:1px solid rgba(0,0,0,0.04);border-radius:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+.left details { margin-bottom:8px; border-radius:8px; overflow:hidden; }
+.left details > summary { padding:6px 8px; margin:0; cursor:pointer; font-weight:700; border-bottom:1px solid rgba(0,0,0,0.02); border-radius:6px; display:list-item; list-style: none; }
+.left details > .sectionInner { padding:var(--detail-pad); border-radius:6px; }
+
+/* section tinting */
+.left details[data-section="img"] > summary { background: rgba(255,102,153,0.12); color:#b21f55; }
+.left details[data-section="img"] > .sectionInner { background: rgba(255,102,153,0.06); border:1px solid rgba(255,102,153,0.06); }
+
+.left details[data-section="size"] > summary { background: rgba(0,187,221,0.12); color:#007b9c; }
+.left details[data-section="size"] > .sectionInner { background: rgba(0,187,221,0.06); border:1px solid rgba(0,187,221,0.05); }
+
+.left details[data-section="filter"] > summary { background: rgba(102,187,106,0.12); color:#2e7d32; }
+.left details[data-section="filter"] > .sectionInner { background: rgba(102,187,106,0.06); border:1px solid rgba(102,187,106,0.05); }
+
+.left details[data-section="palette"] > summary { background: rgba(255,119,34,0.12); color:#b85a00; }
+.left details[data-section="palette"] > .sectionInner { background: rgba(255,119,34,0.06); border:1px solid rgba(255,119,34,0.05); }
+
+.left details[data-section="view"] > summary { background: rgba(0,119,221,0.12); color:#005fa8; }
+.left details[data-section="view"] > .sectionInner { background: rgba(0,119,221,0.06); border:1px solid rgba(0,119,221,0.05); }
+
+.left details[data-section="export"] > summary { background: rgba(153,102,255,0.12); color:#6a32b8; }
+.left details[data-section="export"] > .sectionInner { background: rgba(153,102,255,0.06); border:1px solid rgba(153,102,255,0.04); }
+
+label{display:block;font-weight:700;margin:6px 0 6px;font-size:.95rem;}
+.small{font-size:.85rem;color:var(--muted);}
+.fileButton{display:inline-block;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:#fff;color:var(--accent);cursor:pointer;font-weight:700;}
+.input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:#fff;}
+textarea{width:100%;min-height:110px;font-family:ui-monospace,Menlo,Consolas,monospace;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);box-sizing:border-box;resize:vertical;line-height:20px;font-size:13px;background:#fff;}
+.formRow{display:flex;gap:8px;align-items:center;}
+.formCol{flex:1}
+button{padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:var(--accent);color:#fff;cursor:pointer;}
+button.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06);}
+.palettePreview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.swatch{width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;}
+
+/* right */
+.canvasHeaders{display:flex;gap:12px;margin-bottom:6px;}
+.canvasHeader{flex:1;font-weight:700;text-align:center;padding:8px 10px;border-radius:6px;background:linear-gradient(180deg,#fff,#fff7fb);border:1px solid rgba(0,0,0,0.03);color:var(--accent);}
+.dstArea{flex:1;display:flex;gap:8px;align-items:stretch;justify-content:stretch;overflow:hidden;min-height:0;}
+.panel{flex:1;display:flex;flex-direction:column;border-radius:6px;border:1px solid rgba(0,0,0,0.03);background:#fff;padding:4px;overflow:hidden;min-height:0;min-width:0;}
+.canvasWrapper{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px;border-radius:4px;background:#fff;position:relative;min-height:0;}
+canvas.srcCanvas{display:block;max-width:100%;max-height:100%;width:auto;height:auto;border-radius:6px;border:1px solid rgba(0,0,0,0.03);background:repeating-conic-gradient(#fff5f7 0% 25%, #fff 0% 50%) 50% / 16px 16px;image-rendering:pixelated;}
+canvas#dst{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:6px;background:transparent;image-rendering:pixelated;display:block;}
+
+/* box footer */
+.boxFooter{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  padding:10px;
+  border-top:1px solid rgba(0,0,0,0.02);
+  background:#fff;
+  margin-top:10px;
+  border-radius:6px;
+  font-size:13px;
+  color:var(--muted);
+}
+.instructions{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px;background:rgba(255,255,255,0.95);border-radius:6px;margin-top:8px;width:100%;color:var(--muted);line-height:1.35;}
+
+/* slider: make full width and ticks aligned */
+.scaleRow{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.scaleLabel{width:40px;font-size:13px;}
+.scaleWrap{flex:1;display:flex;flex-direction:column;gap:6px;width:100%;}
+.scaleSlider{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: 14px;
+  background: transparent;
+  cursor: pointer;
+  width:100%;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+.scaleSlider::-webkit-slider-runnable-track{height:6px;border-radius:4px;background:rgba(0,0,0,0.06);}
+.scaleSlider::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:18px;height:18px;margin-top:-6px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.12);}
+.scaleSlider::-moz-range-track{height:6px;border-radius:4px;background:rgba(0,0,0,0.06);}
+.scaleSlider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.12);}
+
+.scaleInfo{width:120px;font-size:13px;text-align:right;color:var(--muted);}
+.scaleTicks{position:relative;height:22px;width:100%;}
+.scaleTicks .tickline{position:absolute;left:0;right:0;top:10px;height:2px;background:rgba(0,0,0,0.04);border-radius:2px;}
+.scaleTicks .marks{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:0 6px;}
+.scaleTicks .marks .mark{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);}
+.scaleTicks .marks .mark.active{background:var(--accent);color:#fff;}
+.hiddenInput{display:none;}
+.tooltip{position:fixed;pointer-events:none;z-index:9999;background:rgba(43,22,32,0.88);color:#fff;padding:6px 8px;border-radius:6px;font-size:13px;font-family:monospace;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.12);}
+/* 編集フィルター内の行スタイル：奇数行は薄いグレー、各行に区切り線 */
+.left details[data-section="filter"] > .sectionInner > div{
+  padding:10px 8px;
+  border-radius:4px;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.left details[data-section="filter"] > .sectionInner > div:nth-child(odd){
+  background: #e0e0e4; /* 少し濃いグレーに変更 */
+}
+.left details[data-section="filter"] > .sectionInner > div:last-child{ border-bottom: none; }
+.left details[data-section="filter"] > .sectionInner > div{ border-bottom:1px solid rgba(0,0,0,0.08); }
+.paletteRow{display:flex;gap:8px;align-items:center;padding:4px;border-radius:6px;border:1px solid #fafafa;background:#fff;position:relative;margin-bottom:6px;}
+.paletteName{font-size:13px;padding:6px;border-radius:6px;border:1px solid #eee;background:#fbfbfb;height:34px;box-sizing:border-box;}
+.paletteHexInput{flex:1;padding:6px;border-radius:6px;border:1px solid #ddd;font-family:monospace;height:34px;box-sizing:border-box;}
+.paletteSwatchBtn{width:36px;height:36px;border-radius:6px;border:1px solid #ccc;cursor:pointer;position:relative;overflow:visible;display:inline-flex;align-items:center;justify-content:center;}
+.swatchBadge{position:absolute;right:0;bottom:0;transform:translate(30%,30%);font-size:10px;padding:2px 6px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.2);background:rgba(0,0,0,0.65);color:#fff;}
+
+/* recent palettes */
+.recentRow{display:flex;gap:8px;margin-top:8px;}
+.recentBtn{display:flex;align-items:center;gap:6px;padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;cursor:pointer;}
+.recentSwatch{width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,0.06);}
+
+/* preset palette buttons */
+.presetPaletteBtn{padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);background:#fff;color:#333;font-size:12px;cursor:pointer;transition:all 0.2s;font-weight:500;}
+.presetPaletteBtn:hover{background:rgba(255,102,153,0.08);border-color:rgba(255,102,153,0.3);transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,0.06);}
+.presetPaletteBtn:active{transform:translateY(0);box-shadow:none;}
+
+/* GIFs in footer */
+.statusGif{width:32px;height:32px;display:inline-block;vertical-align:middle;margin-right:6px;}
+.statusText{font-weight:700;color:var(--accent);font-size:13px;}
+</style>
+</head>
+<body>
+<header>
+  <div id="headerStatus" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.04);margin-right:12px;">
+    <img id="headerIdleGif" class="statusGif" src="idle.gif" alt="待機中" style="display:inline-block;">
+    <img id="headerProcessingGif" class="statusGif" src="processing.gif" alt="処理中" style="display:none;">
+    <img id="headerDoneGif" class="statusGif" src="done.gif" alt="完了" style="display:none;">
+    <span id="headerStatusText" class="statusText">待機中</span>
+  </div>
+  <h1>ドット絵パレット変換</h1>
+  <nav class="tabNav" style="display:flex;gap:4px;margin-left:auto;">
+    <button class="tabBtn active" data-tab="img">画像管理</button>
+    <button class="tabBtn" data-tab="size">出力設定</button>
+    <button class="tabBtn" data-tab="palette">パレット設定</button>
+    <button class="tabBtn" data-tab="view">表示設定</button>
+    <button class="tabBtn" data-tab="export">その他</button>
+  </nav>
+  <div style="display:flex;align-items:center;gap:8px;margin-left:12px;">
+    <button id="toggleSrcBtn" class="secondary" title="元画像の表示/非表示を切り替え">元画像を非表示</button>
+    <button id="helpBtn" class="secondary" title="使い方 / キー操作">使い方</button>
+    <button id="kbdBtn" class="secondary" title="キーボード操作">キーボード操作</button>
+  </div>
+</header>
+
+
+<div class="container" role="main">
+  <aside class="left" aria-label="コントロール">
+
+    <details open data-section="img" style="display:block;">
+      <summary style="display:none;">画像管理（選択・変換・保存）</summary>
+      <div class="sectionInner">
+        <label for="file">画像を選択またはドラッグ&ドロップ</label>
+        <input id="file" type="file" accept="image/*" class="hiddenInput" />
+        <div id="dropArea" style="border:2px dashed rgba(255,102,153,0.3);border-radius:8px;padding:24px;text-align:center;background:rgba(255,102,153,0.05);cursor:pointer;margin-top:8px;transition:all 0.2s;">
+          <div style="font-size:2rem;margin-bottom:8px;color:rgba(255,102,153,0.6);">📁</div>
+          <div style="font-weight:600;color:#b21f55;margin-bottom:4px;">ファイルを選択またはここにドロップ</div>
+          <div class="small" style="color:var(--muted);">対応形式: PNG, JPG, JPEG, GIF, WEBP, BMP</div>
+        </div>
+        <div id="fileInfo" class="small" style="margin-top:8px;color:var(--muted);">未選択</div>
+
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button id="download" class="secondary" disabled>PNGをダウンロード</button>
+          <button id="exportSvg" class="secondary" title="SVGでダウンロード">SVGで保存</button>
+        </div>
+
+        <!-- Auto-reduce and seed settings -->
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.08);">
+          <label>自動減色機能（画像から色を抽出）</label>
+          <div class="formRow" style="align-items:center;margin-top:8px;">
+            <div style="flex:1;">
+              <label for="autoReduceColorCount" class="small" style="margin-bottom:4px;display:block;">色数</label>
+              <input id="autoReduceColorCount" class="input" type="number" value="32" min="1" max="256" />
+            </div>
+            <button id="autoReduceBtn" style="align-self:flex-end;">自動減色</button>
+          </div>
+          <div class="small" style="margin-top:6px;color:var(--muted)">エッジ・ハイライトを意識した色抽出でゲーム向けドット絵を生成します。</div>
+        
+          <div style="margin-top:10px;border-top:1px solid rgba(0,0,0,0.04);padding-top:10px;">
+            <label>減色シード（任意）</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="seedInput" class="input" type="number" placeholder="自動(画像由来)" style="flex:1" />
+              <button id="applySeedBtn" class="secondary" style="padding:6px 8px;">シードを設定</button>
+              <button id="randomSeedBtn" class="secondary" style="padding:6px 8px;">ランダムシード</button>
+            </div>
+            <div class="small" style="margin-top:6px;color:var(--muted)">空欄のままにすると画像由来のシードを使用します。</div>
+          </div>
+        </div>
+
+        <!-- status moved to header -->
+
+        
+      </div>
+    </details>
+
+    <!-- 出力サイズはフィルター上部へ移動しました -->
+    <details open data-section="size" style="display:none;">
+      <summary style="display:none;">出力設定</summary>
+      <div class="sectionInner">
+        <!-- Filters moved from 編集フィルター -->
+        <div style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:8px;gap:8px;">
+          <button id="resetAllFiltersBtn" class="small" style="padding:6px 8px;font-size:12px;color:white;">すべてリセット</button>
+        </div>
+
+        <!-- 出力サイズ（px） -->
+        <div style="margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+          <div style="flex:1;">
+            <label class="small" style="margin-bottom:4px;">出力サイズ（px）</label>
+            <div class="formRow" style="align-items:flex-start;">
+              <div style="flex:1;">
+                <label for="outWidth" class="small" style="margin-bottom:4px;">横</label>
+                <input id="outWidth" class="input formCol" type="number" value="0" min="0" />
+              </div>
+              <div style="flex:1;">
+                <label for="outHeight" class="small" style="margin-bottom:4px;">縦</label>
+                <input id="outHeight" class="input formCol" type="number" value="0" min="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dot Scale -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label for="dotScaleSlider">ドットの粗さ</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="dotScaleValue">100%</span>
+              <input id="dotScaleNumber" type="number" value="100" min="4" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetDotScaleBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="dotScaleSlider" type="range" min="100" max="5000" step="100" value="2500" style="width:100%;" />
+          <div class="small" style="margin-top:6px;color:var(--muted)">目安：縮小対象画像の正方形ドット領域ピクセル数。大きいほど粗くなります。</div>
+        </div>
+
+        <!-- Edge Strength -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label for="edgeStrengthSlider">エッジ強調度</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="edgeStrengthValue">100%</span>
+              <input id="edgeStrengthNumber" type="number" value="100" min="0" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetEdgeStrengthBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="edgeStrengthSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+          <div class="small" style="margin-top:6px;color:var(--muted)">エッジ（輪郭）を強調する度合い。大きいほどエッジがはっきりします。</div>
+        </div>
+
+        <!-- Contrast -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <label for="contrastSlider">コントラスト</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="contrastValue">100%</span>
+              <input id="contrastNumber" type="number" value="100" min="0" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetContrastBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="contrastSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Brightness -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <label for="brightnessSlider">明度</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="brightnessValue">100%</span>
+              <input id="brightnessNumber" type="number" value="100" min="0" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetBrightnessBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="brightnessSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Hue -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <label for="hueSlider">色相</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="hueValue">0°</span>
+              <input id="hueNumber" type="number" value="0" min="-180" max="180" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetHueBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="hueSlider" type="range" min="-180" max="180" step="1" value="0" style="width:100%;" />
+        </div>
+
+        <!-- Saturation -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <label for="saturationSlider">彩度</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="saturationValue">100%</span>
+              <input id="saturationNumber" type="number" value="100" min="0" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetSaturationBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="saturationSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Luminance -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <label for="luminanceSlider">輝度</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="luminanceValue">100%</span>
+              <input id="luminanceNumber" type="number" value="100" min="0" max="200" step="1" style="width:90px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+              <button id="resetLuminanceBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+            </div>
+          </div>
+          <input id="luminanceSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Dither controls -->
+        <div style="margin-top:12px;border-top:1px solid rgba(0,0,0,0.04);padding-top:12px;">
+          <label style="display:flex;align-items:center;gap:8px">
+            <input id="ditherCheckbox" name="ditherCheckbox" type="checkbox" checked> dither（誤差拡散）
+          </label>
+
+          <div style="margin-top:10px;">
+            <label for="ditherPattern">ディザーパターン</label>
+            <select id="ditherPattern" class="input" style="max-width:200px;margin-top:4px;">
+              <option value="basic" selected>デフォルト</option>
+              <option value="check">チェック</option>
+              <option value="ichimatsu">市松模様</option>
+              <option value="tile">タイル</option>
+              <option value="vertical">たてじま</option>
+              <option value="horizontal">よこじま</option>
+              <option value="diagonalUp">斜めじま（右上向き）</option>
+              <option value="diagonalDown">斜めじま（右下向き）</option>
+              <option value="mesh">メッシュ</option>
+              <option value="halftone">ハーフトーン</option>
+            </select>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <label for="ditherStrengthSlider">ディザー強度</label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="ditherStrengthValue">100%</span>
+                <input id="ditherStrengthNumber" type="number" value="100" min="0" max="200" step="1" style="width:70px;padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);" />
+                <button id="resetDitherStrengthBtn" class="small" style="padding:2px 6px;font-size:11px;color:white;">リセット</button>
+              </div>
+            </div>
+            <input id="ditherStrengthSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+          </div>
+        </div>
+
+
+      </div>
+    </details>
+
+<!-- 編集フィルター section deleted - controls moved to 出力設定 -->
+
+    <details open data-section="palette" style="display:none;">
+      <summary style="display:none;">パレット設定</summary>
+      <div class="sectionInner">
+
+        <div style="margin-top:0;padding-bottom:10px;">
+          <label>プリセットパレット</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-top:8px;">
+            <button class="presetPaletteBtn" data-preset="hot">🔥 ホット</button>
+            <button class="presetPaletteBtn" data-preset="cool">❄️ クール</button>
+            <button class="presetPaletteBtn" data-preset="pastel">🌸 パステル</button>
+            <button class="presetPaletteBtn" data-preset="vivid">⚡ ビビッド</button>
+            <button class="presetPaletteBtn" data-preset="earth">🌲 アース</button>
+            <button class="presetPaletteBtn" data-preset="mono">◼️ モノクロ</button>
+            <button class="presetPaletteBtn" data-preset="retro">🕹️ レトロ</button>
+            <button class="presetPaletteBtn" data-preset="neon">🌆 ネオン</button>
+            <button class="presetPaletteBtn" data-preset="japanese">🎌 和風</button>
+            <button class="presetPaletteBtn" data-preset="cyber">🤖 サイバー</button>
+          </div>
+          <div class="small" style="margin-top:6px;color:var(--muted)">プリセットを選ぶと自動で変換されます。</div>
+        </div>
+
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.04);">
+          <label>パレット（#RRGGBB を改行・カンマ・スペースで区切り可）</label>
+          <div style="border:1px solid rgba(0,0,0,0.04);border-radius:8px;padding:6px;background:#fff">
+            <textarea id="paletteInput" spellcheck="false">#000000
+#ffffff
+#ff004d
+#ffa300
+#ffe34c
+#00e436
+#29adff
+#83769c</textarea>
+            <div id="palettePreview" class="palettePreview" aria-hidden="false"></div>
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+              <div class="small" style="color:var(--muted)">以下のパレットで変換</div>
+              <button id="applyPaletteBtn">このパレットで変換</button>
+            </div>
+            <div class="small" style="margin-top:6px;color:var(--muted)">使用色数: <span id="usedColorCount">-</span></div>
+          </div>
+          <div id="paletteEditor" class="paletteEditor" aria-label="パレット編集領域"></div>
+          <div class="small" style="margin-top:8px;color:var(--muted)">各色に名前をつけると、ツールチップに表示されます。HEXを編集しても名前は保持されます。</div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <label>最近使ったパレット（最大3件）</label>
+          <div class="recentRow" id="recentRow"></div>
+          <div class="small" style="margin-top:6px;color:var(--muted)">現在のパレットで変換すると自動保存されます。</div>
+        </div>
+
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button id="exportJson" class="secondary">パレットをJSONでダウンロード</button>
+          <input id="importJson" type="file" accept="application/json" class="hiddenInput" />
+          <label for="importJson" class="fileButton" style="padding:8px 10px;border-radius:8px;background:#fff;color:var(--accent);">JSONを読み込む…</label>
+        </div>
+
+      </div>
+    </details>
+
+    <details open data-section="view" style="display:none;">
+      <summary style="display:none;">表示設定</summary>
+      <div class="sectionInner">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <label for="showNumber" style="display:flex;align-items:center;gap:8px"><input id="showNumber" name="showNumber" type="checkbox" checked> マウスオーバーで詳細</label>
+          <label for="borderCheckbox" style="display:flex;align-items:center;gap:8px"><input id="borderCheckbox" name="borderCheckbox" type="checkbox"> ボーダー表示（コントラスト固定）</label>
+        </div>
+        <div class="small" style="margin-top:8px;color:var(--muted)">ディザに関する設定は「編集フィルター」内で行えます。</div>
+      </div>
+    </details>
+
+    <details open data-section="export" style="display:none;">
+      <summary style="display:none;">その他（近似アルゴリズム / 透過）</summary>
+      <div class="sectionInner">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <label for="useLab" style="display:flex;align-items:center;gap:8px"><input id="useLab" name="useLab" type="checkbox" checked> CIE Lab（近似）</label>
+          <label for="keepAlpha" style="display:flex;align-items:center;gap:8px"><input id="keepAlpha" name="keepAlpha" type="checkbox" checked> 透過を保持</label>
+          <label for="keepAspectHeader" style="display:flex;align-items:center;gap:8px"><input id="keepAspectHeader" name="keepAspectHeader" type="checkbox" checked> 縦横比を維持（出力設定）</label>
+        </div>
+        <div class="small" style="margin-top:8px;color:var(--muted)">CIE Lab をオンにすると色の近さを知覚差に基づいて評価します。透過保持をオンにすると透明ピクセルは置換されません。</div>
+      </div>
+    </details>
+
+  </aside>
+
+  <section class="right" aria-label="プレビュー">
+    <!-- canvas headers removed to simplify UI -->
+
+    <div class="dstArea" style="height:calc(100% - 56px);">
+      <div class="panel" id="srcPanel">
+        <div class="canvasWrapper" id="srcWrapper">
+            <canvas id="src" class="srcCanvas" aria-label="元画像キャンバス"></canvas>
+          </div>
+      </div>
+
+      <div class="panel" id="dstPanel">
+        <div class="canvasWrapper" id="dstWrapper" tabindex="0">
+          <canvas id="dst" aria-label="変換後キャンバス"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="tooltip" class="tooltip" style="display:none"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", ()=> {
+  // DOM refs
+  const fileInput = document.getElementById("file");
+  const fileInfo = document.getElementById("fileInfo");
+  const srcC = document.getElementById("src");
+  const dstC = document.getElementById("dst");
+  const srcWrapper = document.getElementById("srcWrapper");
+  const dstWrapper = document.getElementById("dstWrapper");
+  const runBtn = document.getElementById("run");
+  const dlBtn = document.getElementById("download");
+  const exportSvgBtn = document.getElementById("exportSvg");
+  const paletteInput = document.getElementById("paletteInput");
+  const palettePreview = document.getElementById("palettePreview");
+  const paletteEditor = document.getElementById("paletteEditor");
+  const usedColorCountEl = document.getElementById("usedColorCount");
+  const outW = document.getElementById("outWidth");
+  const outH = document.getElementById("outHeight");
+  const keepAspect = document.getElementById("keepAspectHeader");
+  const applyPaletteBtn = document.getElementById("applyPaletteBtn");
+  const dotScale = document.getElementById("dotScaleSlider");
+  const dotScaleInfo = document.getElementById("dotScaleValue");
+  const edgeStrengthSlider = document.getElementById("edgeStrengthSlider");
+  const edgeStrengthNumber = document.getElementById("edgeStrengthNumber");
+  const edgeStrengthValue = document.getElementById("edgeStrengthValue");
+  const scaleMarks = document.getElementById("scaleMarks");
+  const showNumber = document.getElementById("showNumber");
+  const borderCheckbox = document.getElementById("borderCheckbox");
+  const ditherCheckbox = document.getElementById("ditherCheckbox");
+  const ditherPatternSelect = document.getElementById("ditherPattern");
+  const ditherStrengthSlider = document.getElementById("ditherStrengthSlider");
+  const ditherStrengthNumber = document.getElementById("ditherStrengthNumber");
+  const ditherStrengthValue = document.getElementById("ditherStrengthValue");
+  const exportJsonBtn = document.getElementById("exportJson");
+  const importJsonInput = document.getElementById("importJson");
+  // median filter UI removed
+  const useLabInput = document.getElementById("useLab");
+  const keepAlphaInput = document.getElementById("keepAlpha");
+  const recentRow = document.getElementById("recentRow");
+  const helpBtn = document.getElementById("helpBtn");
+  const kbdBtn = document.getElementById("kbdBtn");
+  const autoReduceBtn = document.getElementById("autoReduceBtn");
+  const autoReduceColorCount = document.getElementById("autoReduceColorCount");
+
+  const idleGif = document.getElementById("headerIdleGif");
+  const processingGif = document.getElementById("headerProcessingGif");
+  const doneGif = document.getElementById("headerDoneGif");
+  const statusText = document.getElementById("headerStatusText");
+  const dotScaleNumber = document.getElementById("dotScaleNumber");
+  const contrastNumber = document.getElementById("contrastNumber");
+  const brightnessNumber = document.getElementById("brightnessNumber");
+  const hueNumber = document.getElementById("hueNumber");
+  const saturationNumber = document.getElementById("saturationNumber");
+  const luminanceNumber = document.getElementById("luminanceNumber");
+  const tooltip = document.getElementById("tooltip");
+
+  // state
+  let srcImageData = null, srcW=0, srcH=0, originalAspect=1;
+  let lastRecoloredImage = null, offscreen = null;
+  let camera = { zoom:1, centerX:0, centerY:0 };
+  let lastViewport = null;
+  const MIN_ZOOM = 1, MAX_ZOOM = 200;
+  const wheelFactor = 1.12;
+
+  // palette / names / recent
+  function parsePalette(text){ const parts = (text||"").trim().split(/[\r\n,; ]+/).map(x=>x.trim()).filter(x=>/^#?[0-9a-fA-F]{6}$/.test(x)); return parts.map(h=> h.startsWith("#") ? h.toUpperCase() : ("#"+h).toUpperCase()); }
+  function hexNormalize(h){ h=(h||"").trim().toUpperCase(); if(!h) return null; if(!h.startsWith("#")) h="#"+h; return /^#[0-9A-F]{6}$/.test(h) ? h : null; }
+  function hexToRgbObj(hex){ const s=(hex||"#000000").replace("#",""); return { r: parseInt(s.slice(0,2),16), g: parseInt(s.slice(2,4),16), b: parseInt(s.slice(4,6),16), a:255 }; }
+  function rgbToHex(c){ const h=(n)=>n.toString(16).padStart(2,"0").toUpperCase(); return `#${h(c.r)}${h(c.g)}${h(c.b)}`; }
+
+  let currentHexList = parsePalette(paletteInput.value || "");
+  let paletteNames = new Array(currentHexList.length).fill("");
+  let hexToName = {};
+  function ensureNamesSize(n){ while(paletteNames.length < n) paletteNames.push(""); if(paletteNames.length > n) paletteNames.length = n; }
+  function rebuildHexToName(){ hexToName = {}; for(let i=0;i<currentHexList.length;i++){ const h=currentHexList[i]; if(!h) continue; const nm=(paletteNames[i]||"").trim(); if(nm) hexToName[h]=nm; } }
+
+  // Lab helpers
+  function srgbToLinear(v){ v/=255; return v<=0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); }
+  function rgbToXyz(r,g,b){ const R=srgbToLinear(r), G=srgbToLinear(g), B=srgbToLinear(b); return { x:R*0.4124564 + G*0.3575761 + B*0.1804375, y:R*0.2126729 + G*0.7151522 + B*0.0721750, z:R*0.0193339 + G*0.1191920 + B*0.9503041 }; }
+  function xyzToLab(x,y,z){ const Xn=0.95047, Yn=1.00000, Zn=1.08883; const fx=f(x/Xn), fy=f(y/Yn), fz=f(z/Zn); return { L:116*fy-16, a:500*(fx-fy), b:200*(fy-fz) }; function f(t){ return t>0.008856 ? Math.cbrt(t) : (7.787*t + 16/116); } }
+  function rgbToLab(r,g,b){ const {x,y,z}=rgbToXyz(r,g,b); return xyzToLab(x,y,z); }
+  function labDist2(a,b){ 
+    // Lab 色空間での距離（大文字対応版）
+    const dL = (a.L || a.l) - (b.L || b.l);
+    const da = a.a - b.a;
+    const db = (a.b || a.bb) - (b.b || b.bb);
+    return dL*dL + da*da + db*db;
+  }
+  function rgbDist2(a,b){ const dr=a.r-b.r, dg=a.g-b.g, db=a.b-b.b; return dr*dr+dg*dg+db*db; }
+
+  // RGB ↔ HSL conversion
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    return { h, s, l };
+  }
+  function hslToRgb(h, s, l) {
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+    };
+  }
+
+  // フィルター関数
+  let filterState = {
+    contrast: 100,      // 0-200, default 100
+    brightness: 100,    // 0-200, default 100
+    hue: 0,             // -180 to 180, default 0
+    saturation: 100,    // 0-200, default 100
+    luminance: 100      // 0-200, default 100
+  };
+
+  // ユーザーが設定するシード（未設定なら null）
+  let userSeed = null;
+
+  function applyFilters(imageData) {
+    if (!imageData) return null;
+    const data = new Uint8ClampedArray(imageData.data);
+    const len = data.length;
+    
+    for (let i = 0; i < len; i += 4) {
+      let r = data[i], g = data[i+1], b = data[i+2];
+      
+      // 1. Contrast
+      const contrastFactor = filterState.contrast / 100;
+      r = Math.round((r - 128) * contrastFactor + 128);
+      g = Math.round((g - 128) * contrastFactor + 128);
+      b = Math.round((b - 128) * contrastFactor + 128);
+      
+      // 2. Brightness
+      const brightnessFactor = (filterState.brightness - 100);
+      r = Math.round(r + brightnessFactor * 2.55);
+      g = Math.round(g + brightnessFactor * 2.55);
+      b = Math.round(b + brightnessFactor * 2.55);
+      
+      // 3. Hue, Saturation, Luminance (requires RGB→HSL→RGB conversion)
+      const hsl = rgbToHsl(r, g, b);
+      
+      // Hue shift
+      if (filterState.hue !== 0) {
+        hsl.h += filterState.hue / 360;
+        if (hsl.h < 0) hsl.h += 1;
+        if (hsl.h > 1) hsl.h -= 1;
+      }
+      
+      // Saturation adjust
+      hsl.s *= (filterState.saturation / 100);
+      hsl.s = Math.max(0, Math.min(1, hsl.s));
+      
+      // Luminance adjust
+      hsl.l *= (filterState.luminance / 100);
+      hsl.l = Math.max(0, Math.min(1, hsl.l));
+      
+      const rgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+      r = Math.max(0, Math.min(255, rgb.r));
+      g = Math.max(0, Math.min(255, rgb.g));
+      b = Math.max(0, Math.min(255, rgb.b));
+      
+      data[i] = r;
+      data[i+1] = g;
+      data[i+2] = b;
+    }
+    
+    // median filter removed
+
+    // Edge enhancement (unobtrusive): use simple neighbor-based edge detection
+    try{
+      const es = (typeof edgeStrengthSlider !== 'undefined' && edgeStrengthSlider) ? (parseInt(edgeStrengthSlider.value,10) || 100) : 100;
+      if(es !== 100){
+        const w = imageData.width, h = imageData.height;
+        const out = new Uint8ClampedArray(data); // copy
+        const factor = (es - 100) / 100; // positive => enhance, negative => soften
+        for(let y = 1; y < h-1; y++){
+          for(let x = 1; x < w-1; x++){
+            const i = (y * w + x) * 4;
+            const r = data[i], g = data[i+1], b = data[i+2];
+            const lum = 0.299*r + 0.587*g + 0.114*b;
+            // four-neighbor average
+            const ni = ((y-1)*w + x)*4; const ri = data[ni], gi = data[ni+1], bi = data[ni+2]; const lumN = 0.299*ri + 0.587*gi + 0.114*bi;
+            const si = ((y+1)*w + x)*4; const rs = data[si], gs = data[si+1], bs = data[si+2]; const lumS = 0.299*rs + 0.587*gs + 0.114*bs;
+            const wi = (y*w + (x-1))*4; const rw = data[wi], gw = data[wi+1], bw = data[wi+2]; const lumW = 0.299*rw + 0.587*gw + 0.114*bw;
+            const ei = (y*w + (x+1))*4; const re = data[ei], ge = data[ei+1], be = data[ei+2]; const lumE = 0.299*re + 0.587*ge + 0.114*be;
+            const neighAvg = (lumN + lumS + lumW + lumE) / 4;
+            const edgeVal = lum - neighAvg; // positive when center brighter than neighbors
+            const add = edgeVal * factor;
+            const lumC = lum || 1;
+            // distribute add proportionally to channels
+            out[i] = Math.max(0, Math.min(255, Math.round(out[i] + (out[i] / lumC) * add)));
+            out[i+1] = Math.max(0, Math.min(255, Math.round(out[i+1] + (out[i+1] / lumC) * add)));
+            out[i+2] = Math.max(0, Math.min(255, Math.round(out[i+2] + (out[i+2] / lumC) * add)));
+          }
+        }
+        // copy back
+        for(let k=0;k<data.length;k++) data[k]=out[k];
+      }
+    }catch(e){ /* fail silently */ }
+
+    return new ImageData(data, imageData.width, imageData.height);
+  }
+
+  // median filter removed
+
+
+  // UI: palette preview/editor
+  function refreshPalettePreview(list){
+    palettePreview.innerHTML="";
+    list.forEach((hex,i)=>{
+      const c = hexToRgbObj(hex);
+      const d = document.createElement("div");
+      d.className="swatch";
+      d.style.background = hex;
+      d.style.color = ((0.299*c.r + 0.587*c.g + 0.114*c.b) > 180) ? "#000" : "#fff";
+      d.textContent = i+1;
+      palettePreview.appendChild(d);
+    });
+    updateUsedColorCount();
+  }
+
+  function countUsedColors(){
+    if(!lastRecoloredImage) return null;
+    const data = lastRecoloredImage.data;
+    const paletteSet = new Set(currentHexList.map(hex => {
+      const c = hexToRgbObj(hex);
+      return (c.r << 16) | (c.g << 8) | c.b;
+    }));
+    const usedSet = new Set();
+    let usedInPalette = 0;
+    for(let i=0;i<data.length;i+=4){
+      if(data[i+3] === 0) continue;
+      const key = (data[i] << 16) | (data[i+1] << 8) | data[i+2];
+      if(!usedSet.has(key)){
+        usedSet.add(key);
+        if(paletteSet.has(key)) usedInPalette++;
+      }
+    }
+    return { total: usedSet.size, inPalette: usedInPalette, outPalette: usedSet.size - usedInPalette };
+  }
+
+  function updateUsedColorCount(){
+    if(!usedColorCountEl) return;
+    const stats = countUsedColors();
+    if(!stats){
+      usedColorCountEl.textContent = "-";
+      return;
+    }
+    usedColorCountEl.textContent = `${stats.total}（パレット内:${stats.inPalette} / 外:${stats.outPalette}）`;
+  }
+
+  // 選択された色をハイライト表示
+  let highlightedColorIndex = -1;
+
+  function highlightColorInImage(colorIndex){
+    highlightedColorIndex = highlightedColorIndex === colorIndex ? -1 : colorIndex;
+    drawViewport();
+  }
+
+  function buildPaletteEditor(list){
+    paletteEditor.innerHTML="";
+    ensureNamesSize(list.length);
+    for(let idx=0; idx<list.length; idx++){
+      const hex = list[idx];
+      const row = document.createElement("div"); row.className="paletteRow";
+      const left = document.createElement("div"); left.style.width="44px";
+      const swBtn = document.createElement("button"); swBtn.className="paletteSwatchBtn"; swBtn.style.background=hex; swBtn.title=`色 ${idx+1}`;
+      const badge = document.createElement("span"); badge.className="swatchBadge"; badge.textContent = `#${idx+1}`;
+      swBtn.appendChild(badge);
+      left.appendChild(swBtn);
+
+      const right = document.createElement("div"); right.style.flex="1"; right.style.display="flex"; right.style.flexDirection="column"; right.style.gap="4px";
+      const nameInput = document.createElement("input"); nameInput.type="text"; nameInput.className="paletteName"; nameInput.value = paletteNames[idx] || ""; nameInput.placeholder = `色${idx+1} 名称`;
+      nameInput.name = `pname_${idx}`; nameInput.setAttribute("aria-label", `色${idx+1} の名前`);
+      const hexRow = document.createElement("div"); hexRow.style.display="flex"; hexRow.style.gap="8px"; hexRow.style.alignItems="center";
+      const colorPicker = document.createElement("input"); colorPicker.type="color"; colorPicker.value = hex; colorPicker.name = `picker_${idx}`; colorPicker.setAttribute("aria-label", `色${idx+1} カラーピッカー`);
+      const hexInput = document.createElement("input"); hexInput.type="text"; hexInput.className="paletteHexInput"; hexInput.value = hex; hexInput.style.flex="1"; hexInput.name = `hex_${idx}`; hexInput.setAttribute("aria-label", `色${idx+1} HEX`);
+
+      nameInput.addEventListener("input",(ev)=>{ paletteNames[idx]=ev.target.value; const h=currentHexList[idx]; if(h){ if(paletteNames[idx].trim()) hexToName[h]=paletteNames[idx].trim(); else delete hexToName[h]; } });
+      swBtn.addEventListener("click", ()=>{ highlightColorInImage(idx); });
+
+      function setHex(newHex){
+        const n = hexNormalize(newHex); if(!n) return;
+        colorPicker.value = n; hexInput.value = n; swBtn.style.background = n;
+        currentHexList[idx] = n;
+        rebuildHexToName();
+        paletteInput.value = currentHexList.join("\n");
+        refreshPalettePreview(currentHexList);
+        const col2 = hexToRgbObj(n); const lum2 = (0.299*col2.r + 0.587*col2.g + 0.114*col2.b);
+        if(lum2 > 180){ badge.style.background = "rgba(0,0,0,0.12)"; badge.style.color = "#000"; } else { badge.style.background = "rgba(0,0,0,0.65)"; badge.style.color = "#fff"; }
+      }
+      colorPicker.addEventListener("input",(ev)=> setHex(ev.target.value));
+      hexInput.addEventListener("change",(ev)=> setHex(ev.target.value));
+
+      hexRow.appendChild(colorPicker); hexRow.appendChild(hexInput);
+      right.appendChild(nameInput); right.appendChild(hexRow);
+      row.appendChild(left); row.appendChild(right);
+      paletteEditor.appendChild(row);
+    }
+    rebuildHexToName();
+  }
+
+  // ゲーム向けドット絵用の色抽出（多様性重視の Median Cut）
+  // 簡易ハッシュ（FNV-1a 風）を用いて画像から 32bit シードを作る
+  function hashImageData32(imageData){
+    if(!imageData || !imageData.data) return 2166136261;
+    let h = 2166136261 >>> 0;
+    const d = imageData.data;
+    // 全ピクセルを使うと確実だが時間がかかる可能性があるので、ステップを使ってサンプリング
+    const step = Math.max(1, Math.floor(d.length / 65536)); // 上限約64KB参照
+    for(let i = 0; i < d.length; i += 4 * step){
+      h ^= d[i]; h = Math.imul(h, 16777619) >>> 0;
+      h ^= d[i+1]; h = Math.imul(h, 16777619) >>> 0;
+      h ^= d[i+2]; h = Math.imul(h, 16777619) >>> 0;
+      // skip alpha to avoid minor noise
+    }
+    return h >>> 0;
+  }
+
+  // Mulberry32: 高速で使いやすい決定論的 PRNG
+  function mulberry32(seed){
+    let a = seed >>> 0;
+    return function(){
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ゲーム向けドット絵用の色抽出（多様性重視の Median Cut）
+  function extractColorsGameQuality(imageData, targetColors){
+    if(!imageData || targetColors <= 0) return [];
+    
+    const data = imageData.data;
+    const w = imageData.width;
+    const h = imageData.height;
+    
+    // ステップ1: 画像全体から均一にサンプリング
+    const pixels = [];
+    
+    for(let i = 0; i < data.length; i += 4){
+      if(data[i+3] > 0){
+        pixels.push({
+          r: data[i],
+          g: data[i+1],
+          b: data[i+2]
+        });
+      }
+    }
+    
+    if(pixels.length === 0) return ["#000000"];
+    if(pixels.length <= targetColors){
+      return pixels.map(p => rgbToHex(p));
+    }
+    
+    // ステップ2: 高度な Median Cut（色空間の多様性を重視）
+    function medianCutDiversity(pixelList, targetCount){
+      if(pixelList.length === 0) return [];
+      if(pixelList.length <= targetCount) return pixelList;
+      if(targetCount <= 1){
+        // 平均色を計算
+        let sumR = 0, sumG = 0, sumB = 0;
+        for(let p of pixelList){
+          sumR += p.r;
+          sumG += p.g;
+          sumB += p.b;
+        }
+        return [{
+          r: Math.round(sumR / pixelList.length),
+          g: Math.round(sumG / pixelList.length),
+          b: Math.round(sumB / pixelList.length)
+        }];
+      }
+      
+      // RGB 各チャネルの範囲を計算
+      let minR = 255, maxR = 0;
+      let minG = 255, maxG = 0;
+      let minB = 255, maxB = 0;
+      
+      for(let p of pixelList){
+        minR = Math.min(minR, p.r); maxR = Math.max(maxR, p.r);
+        minG = Math.min(minG, p.g); maxG = Math.max(maxG, p.g);
+        minB = Math.min(minB, p.b); maxB = Math.max(maxB, p.b);
+      }
+      
+      const rangeR = maxR - minR;
+      const rangeG = maxG - minG;
+      const rangeB = maxB - minB;
+      
+      // 最も範囲が大きいチャネルでソート（色空間を最大分割）
+      let sortChannel;
+      if(rangeR >= rangeG && rangeR >= rangeB){
+        sortChannel = (p) => p.r;
+      } else if(rangeG >= rangeB){
+        sortChannel = (p) => p.g;
+      } else {
+        sortChannel = (p) => p.b;
+      }
+      
+      pixelList.sort((a, b) => sortChannel(a) - sortChannel(b));
+      
+      // 中央値で分割（単純二分割で多様性を確保）
+      const mid = Math.floor(pixelList.length / 2);
+      const left = medianCutDiversity(pixelList.slice(0, mid), Math.ceil(targetCount / 2));
+      const right = medianCutDiversity(pixelList.slice(mid), Math.floor(targetCount / 2));
+      
+      return left.concat(right);
+    }
+    
+    // Median Cut 実行
+    const colors = medianCutDiversity(pixels, targetColors);
+    
+    // ステップ3: 色数調整
+    let finalColors = colors.slice(0, targetColors);
+    
+    // 重複排除（似た色を統合）
+    finalColors = finalColors.filter((c, idx) => {
+      return !finalColors.slice(0, idx).find(prev =>
+        Math.abs(c.r - prev.r) <= 20 &&
+        Math.abs(c.g - prev.g) <= 20 &&
+        Math.abs(c.b - prev.b) <= 20
+      );
+    });
+    
+    // 不足分を補充（色空間から均等にサンプリング）
+    // ここで画像由来のシードを使った決定論的なランダムを使うことで
+    // 同一画像では常に同じ補充順になるようにする
+    let rnd = Math.random;
+    try{
+      let seed;
+      if(typeof userSeed === 'number' && !Number.isNaN(userSeed)){
+        seed = userSeed >>> 0;
+      } else {
+        seed = hashImageData32(imageData);
+      }
+      rnd = mulberry32(seed);
+    }catch(e){ rnd = Math.random; }
+
+    while(finalColors.length < targetColors && pixels.length > 0){
+      const idx = Math.floor(rnd() * pixels.length);
+      const p = pixels[idx];
+      if(!finalColors.find(c => 
+        Math.abs(c.r - p.r) <= 25 && 
+        Math.abs(c.g - p.g) <= 25 && 
+        Math.abs(c.b - p.b) <= 25
+      )){
+        finalColors.push(p);
+      }
+      pixels.splice(idx, 1);
+    }
+    
+    // HEX 変換
+    const palette = finalColors.map(c => rgbToHex(c));
+    
+    return palette.length > 0 ? palette : ["#000000"];
+  }
+
+  // 自動減色ボタンのハンドラ
+  // ====== palette extraction & update helper ======
+  function updatePaletteFromSourceImage(colorCount = 16) {
+    if(!srcImageData){ return false; }
+    try {
+      // To avoid freezing on large images, perform filter+extraction on a downscaled copy.
+      // Choose a reasonable max side (pixels) for extraction.
+      const MAX_SIDE = 320; // ~0.1M pixels at 320x320 — fast for color extraction
+      const srcW0 = srcC.width || srcImageData.width;
+      const srcH0 = srcC.height || srcImageData.height;
+      const scale = Math.min(1, MAX_SIDE / Math.max(1, Math.max(srcW0, srcH0)));
+      const tmpW = Math.max(1, Math.round(srcW0 * scale));
+      const tmpH = Math.max(1, Math.round(srcH0 * scale));
+
+      const tmp = document.createElement('canvas'); tmp.width = tmpW; tmp.height = tmpH;
+      const tctx = tmp.getContext('2d'); tctx.imageSmoothingEnabled = true;
+      // draw scaled source (use srcC which holds the original image canvas)
+      try{
+        tctx.drawImage(srcC, 0, 0, srcW0, srcH0, 0, 0, tmpW, tmpH);
+      }catch(e){
+        // fallback: draw from ImageData
+        const s = document.createElement('canvas'); s.width = srcImageData.width; s.height = srcImageData.height;
+        s.getContext('2d').putImageData(srcImageData,0,0);
+        tctx.drawImage(s,0,0,srcImageData.width,srcImageData.height,0,0,tmpW,tmpH);
+      }
+
+      let imageDataForExtraction = tctx.getImageData(0,0,tmpW,tmpH);
+
+      const isFiltered = filterState.contrast !== 100 || filterState.brightness !== 100 || 
+                        filterState.hue !== 0 || filterState.saturation !== 100 || filterState.luminance !== 100;
+      if (isFiltered) {
+        // apply filters on the downscaled image (fast)
+        imageDataForExtraction = applyFilters(imageDataForExtraction);
+        if (!imageDataForExtraction) return false;
+      }
+
+      const palette = extractColorsGameQuality(imageDataForExtraction, colorCount);
+      if(palette.length === 0) return false;
+
+      paletteInput.value = palette.join("\n");
+      currentHexList = parsePalette(paletteInput.value || "");
+      paletteNames = new Array(currentHexList.length).fill("");
+      ensureNamesSize(currentHexList.length);
+      refreshPalettePreview(currentHexList);
+      buildPaletteEditor(currentHexList);
+      return true;
+    } catch(err) {
+      console.error("Palette update failed:", err);
+      return false;
+    }
+  }
+
+  autoReduceBtn.addEventListener("click", ()=>{
+    if(!srcImageData){ alert("画像を読み込んでください"); return; }
+    const colorCount = Math.max(1, Math.min(256, parseInt(autoReduceColorCount.value, 10) || 32));
+    autoReduceBtn.disabled = true;
+    autoReduceBtn.textContent = "抽出中…";
+    
+    setTimeout(()=>{
+      try{
+        if(updatePaletteFromSourceImage(colorCount)) {
+          autoReduceBtn.disabled = false;
+          autoReduceBtn.textContent = "自動減色";
+          
+          // 自動でドット絵を生成
+          setTimeout(() => {
+            doProcess();
+          }, 50);
+        } else {
+          alert("色の抽出に失敗しました");
+          autoReduceBtn.disabled = false;
+          autoReduceBtn.textContent = "自動減色";
+        }
+      } catch(err){
+        console.error(err);
+        alert("色の抽出中にエラーが発生しました: " + (err && err.message ? err.message : err));
+        autoReduceBtn.disabled = false;
+        autoReduceBtn.textContent = "自動減色";
+      }
+    }, 10);
+  });
+
+  // recent palettes (localStorage)
+  function loadRecentPalettes(){
+    try{
+      const raw = localStorage.getItem(RECENT_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveRecentPalettes(arr){
+    try{ localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0,3))); }catch(e){}
+  }
+  function pushRecentPalette(hexArr){
+    if(!Array.isArray(hexArr)||hexArr.length===0) return;
+    const raw = loadRecentPalettes();
+    const serialized = hexArr.join("|");
+    const filtered = raw.filter(r=> r.join("|") !== serialized);
+    filtered.unshift(hexArr);
+    saveRecentPalettes(filtered);
+    renderRecent();
+  }
+  function renderRecent(){
+    recentRow.innerHTML="";
+    const raw = loadRecentPalettes();
+    for(let i=0;i<raw.length && i<3;i++){
+      const arr = raw[i];
+      const btn = document.createElement("button");
+      btn.className="recentBtn";
+      btn.title = `最近のパレット ${i+1}`;
+      const sw = document.createElement("div"); sw.className="recentSwatch"; sw.style.background=arr[0]||"#000";
+      const label = document.createElement("div"); label.className="small"; label.textContent = `${arr.length} 色`;
+      btn.appendChild(sw); btn.appendChild(label);
+      btn.addEventListener("click", ()=> {
+        paletteInput.value = arr.join("\n");
+        currentHexList = parsePalette(paletteInput.value || "");
+        ensureNamesSize(currentHexList.length);
+        refreshPalettePreview(currentHexList);
+        buildPaletteEditor(currentHexList);
+      });
+      recentRow.appendChild(btn);
+    }
+  }
+
+  // initial palette build
+  currentHexList = parsePalette(paletteInput.value || "");
+  ensureNamesSize(currentHexList.length);
+  refreshPalettePreview(currentHexList);
+  buildPaletteEditor(currentHexList);
+  renderRecent();
+
+  // シード入力 UI のイベント（出力設定内）
+  const seedInputEl = document.getElementById("seedInput");
+  const applySeedBtnEl = document.getElementById("applySeedBtn");
+  const randomSeedBtnEl = document.getElementById("randomSeedBtn");
+  function currentAutoReduceCount(){ return Math.max(1, Math.min(256, parseInt(autoReduceColorCount.value, 10) || 32)); }
+  if(applySeedBtnEl){
+    applySeedBtnEl.addEventListener("click", ()=>{
+      const raw = seedInputEl ? String(seedInputEl.value || "").trim() : "";
+      if(raw === ""){
+        userSeed = null;
+        if(!srcImageData) return alert('シードをクリアしました（画像由来のシードを使用します）。');
+        updatePaletteFromSourceImage(currentAutoReduceCount());
+        setTimeout(()=>doProcess(), 50);
+        return;
+      }
+      const v = parseInt(raw, 10);
+      if(isNaN(v)) { alert('有効な数値シードを入力してください'); return; }
+      userSeed = v >>> 0;
+      if(!srcImageData) return alert('シードを設定しました（画像が未読込）。');
+      updatePaletteFromSourceImage(currentAutoReduceCount());
+      setTimeout(()=>doProcess(), 50);
+    });
+  }
+  if(randomSeedBtnEl){
+    randomSeedBtnEl.addEventListener("click", ()=>{
+      try{
+        const a = new Uint32Array(1); window.crypto.getRandomValues(a); userSeed = a[0] >>> 0;
+      }catch(e){ userSeed = Math.floor(Math.random() * 0x100000000) >>> 0; }
+      if(seedInputEl) seedInputEl.value = String(userSeed);
+      if(!srcImageData) return alert('ランダムシードを生成しました（画像が未読込）。');
+      updatePaletteFromSourceImage(currentAutoReduceCount());
+      setTimeout(()=>doProcess(), 50);
+    });
+  }
+
+  paletteInput.addEventListener("input", ()=>{
+    const oldNames = paletteNames.slice(0);
+    currentHexList = parsePalette(paletteInput.value || "");
+    ensureNamesSize(currentHexList.length);
+    for(let i=0;i<Math.min(oldNames.length, paletteNames.length); i++){
+      if(!paletteNames[i]) paletteNames[i] = oldNames[i];
+    }
+    refreshPalettePreview(currentHexList);
+    buildPaletteEditor(currentHexList);
+  });
+
+  // Preset palettes
+  const presetPalettes = {
+    hot: {
+      name: "ホット（暖色系）",
+      colors: ["#FF0000", "#FF4500", "#FF6347", "#FF7F50", "#FFA500", "#FFB347", "#FFCC00", "#FFD700", "#FFA07A", "#FF8C00", "#DC143C", "#B22222"]
+    },
+    cool: {
+      name: "クール（寒色系）",
+      colors: ["#0000FF", "#1E90FF", "#4169E1", "#4682B4", "#5F9EA0", "#6495ED", "#00BFFF", "#87CEEB", "#87CEFA", "#ADD8E6", "#B0E0E6", "#AFEEEE"]
+    },
+    pastel: {
+      name: "パステル",
+      colors: ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E0BBE4", "#FFDFD3", "#FEC8D8", "#D4F1F4", "#C9E4DE", "#F7D9C4", "#FADADD"]
+    },
+    vivid: {
+      name: "ビビッド",
+      colors: ["#FF0080", "#FF00FF", "#8000FF", "#0080FF", "#00FFFF", "#00FF80", "#80FF00", "#FFFF00", "#FF8000", "#FF0000", "#FFFFFF", "#000000"]
+    },
+    earth: {
+      name: "アースカラー（自然色）",
+      colors: ["#8B4513", "#A0522D", "#BC8F8F", "#CD853F", "#D2691E", "#DEB887", "#F4A460", "#D2B48C", "#8FBC8F", "#6B8E23", "#556B2F", "#2F4F4F"]
+    },
+    mono: {
+      name: "モノクローム",
+      colors: ["#000000", "#1A1A1A", "#333333", "#4D4D4D", "#666666", "#808080", "#999999", "#B3B3B3", "#CCCCCC", "#E6E6E6", "#F2F2F2", "#FFFFFF"]
+    },
+    retro: {
+      name: "レトロゲーム（8bit風）",
+      colors: ["#000000", "#FFFFFF", "#880000", "#AAFFEE", "#CC44CC", "#00CC55", "#0000AA", "#EEEE77", "#DD8855", "#664400", "#FF7777", "#333333", "#777777", "#AAFF66", "#0088FF", "#BBBBBB"]
+    },
+    neon: {
+      name: "ネオン",
+      colors: ["#FF10F0", "#FF1493", "#FF6EC7", "#FF00FF", "#00FFFF", "#00FF00", "#39FF14", "#FFFF00", "#FFA500", "#FF4500", "#000000", "#1A0033"]
+    },
+    japanese: {
+      name: "和風",
+      colors: ["#DC143C", "#FF69B4", "#FFB6C1", "#F0E68C", "#90EE90", "#20B2AA", "#4682B4", "#9370DB", "#DDA0DD", "#F5DEB3", "#2F4F4F", "#000000"]
+    },
+    cyber: {
+      name: "サイバーパンク",
+      colors: ["#00FFFF", "#FF00FF", "#0080FF", "#FF0080", "#8000FF", "#00FF80", "#FFFF00", "#FF8000", "#000033", "#330033", "#003333", "#000000"]
+    }
+  };
+
+  // Preset palette button handlers
+  const presetBtns = document.querySelectorAll('.presetPaletteBtn');
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      const presetKey = btn.getAttribute('data-preset');
+      const preset = presetPalettes[presetKey];
+      if(!preset){ alert('プリセットが見つかりません'); return; }
+      
+      // Update palette
+      currentHexList = preset.colors.slice();
+      paletteInput.value = currentHexList.join('\n');
+      ensureNamesSize(currentHexList.length);
+      refreshPalettePreview(currentHexList);
+      buildPaletteEditor(currentHexList);
+      
+      // Auto convert if image is loaded
+      if(srcImageData){
+        try{ doProcess(); }catch(e){ console.error(e); }
+      }
+    });
+  });
+
+  // パレット設定から直接変換を実行するボタン
+  if(applyPaletteBtn){
+    applyPaletteBtn.addEventListener("click", ()=>{
+      if(!currentHexList || currentHexList.length === 0){ alert("パレットが空です"); return; }
+      // 更新して即時変換
+      refreshPalettePreview(currentHexList);
+      buildPaletteEditor(currentHexList);
+      // doProcess は変換の主関数（画像未読み込み時は doProcess 側でアラートされます）
+      try{ doProcess(); }catch(e){ console.error(e); alert('変換実行中にエラーが発生しました: ' + (e && e.message?e.message:e)); }
+    });
+  }
+
+  // export/import JSON
+  exportJsonBtn.addEventListener("click", ()=>{
+    const data = { hex: currentHexList.slice(0), names: paletteNames.slice(0) };
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download="palette.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
+  importJsonInput.addEventListener("change",(ev)=>{
+    const f = ev.target.files?.[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=> {
+      try{
+        const obj = JSON.parse(String(r.result));
+        if(!obj || !Array.isArray(obj.hex)) { alert("不正なJSONです。{hex:[...], names:[...]} 形式を指定してください。"); return; }
+        currentHexList = obj.hex.map(h=>(typeof h==="string")?(h.startsWith("#")?h.toUpperCase():("#"+h).toUpperCase()):null).filter(Boolean);
+        paletteNames = Array.isArray(obj.names) ? obj.names.slice(0) : new Array(currentHexList.length).fill("");
+        paletteInput.value = currentHexList.join("\n");
+        ensureNamesSize(currentHexList.length);
+        refreshPalettePreview(currentHexList);
+        buildPaletteEditor(currentHexList);
+        alert("JSONを読み込みました。");
+      }catch(e){ alert("JSONの読み込みに失敗しました: " + e.message); }
+    };
+    r.onerror = ()=> { alert("ファイルの読み込みに失敗しました"); };
+    r.readAsText(f);
+    importJsonInput.value = "";
+  });
+
+  // Drag and drop support for image input
+  const dropArea = document.getElementById('dropArea');
+  if(dropArea){
+    dropArea.addEventListener('click', ()=> fileInput.click());
+    dropArea.addEventListener('dragover', (e)=>{ e.preventDefault(); dropArea.style.background='rgba(255,102,153,0.15)'; dropArea.style.borderColor='rgba(255,102,153,0.5)'; });
+    dropArea.addEventListener('dragleave', (e)=>{ e.preventDefault(); dropArea.style.background='rgba(255,102,153,0.05)'; dropArea.style.borderColor='rgba(255,102,153,0.3)'; });
+    dropArea.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      dropArea.style.background='rgba(255,102,153,0.05)';
+      dropArea.style.borderColor='rgba(255,102,153,0.3)';
+      const files = e.dataTransfer.files;
+      if(files && files.length > 0){
+        const file = files[0];
+        if(file.type.match(/image.*/)){
+          fileInput.files = e.dataTransfer.files;
+          fileInput.dispatchEvent(new Event('change'));
+        } else {
+          alert('画像ファイルを選択してください（PNG, JPG, GIF, WEBP, BMP）');
+        }
+      }
+    });
+  }
+
+  // image load / display
+  fileInput.addEventListener("change", (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      srcW = img.naturalWidth; srcH = img.naturalHeight;
+      originalAspect = srcW / srcH;
+      srcC.width = srcW; srcC.height = srcH;
+      const sctx = srcC.getContext("2d"); sctx.imageSmoothingEnabled=false;
+      sctx.clearRect(0,0,srcW,srcH);
+      sctx.drawImage(img,0,0);
+      try{ srcImageData = sctx.getImageData(0,0,srcW,srcH); } catch(e){ srcImageData = null; }
+      outW.value = srcW; outH.value = srcH;
+      fileInfo.textContent = `${f.name} — ${srcW}×${srcH}`;
+      resetView();
+      // source canvas: ensure CSS sizing is applied and layout updated
+      adjustSrcCssSize();
+      applySliderToSize();
+      // Auto-reduce colors on image load
+      setTimeout(()=>{
+        autoReduceBtn.click();
+      }, 150);
+    };
+    img.onerror = ()=> { URL.revokeObjectURL(url); alert("画像の読み込みに失敗しました"); };
+    img.src = url;
+  });
+
+  // keepAspect sync
+  let ignoreSizeSync=false;
+  outW.addEventListener("input", ()=>{
+    if(ignoreSizeSync) return;
+    if(keepAspect.checked && srcW && srcH){
+      const w = parseInt(outW.value,10) || 0;
+      if(w>0){ ignoreSizeSync=true; outH.value = Math.max(1, Math.round(w / originalAspect)); ignoreSizeSync=false; }
+    }
+  });
+  outH.addEventListener("input", ()=>{
+    if(ignoreSizeSync) return;
+    if(keepAspect.checked && srcW && srcH){
+      const h = parseInt(outH.value,10) || 0;
+      if(h>0){ ignoreSizeSync=true; outW.value = Math.max(1, Math.round(h * originalAspect)); ignoreSizeSync=false; }
+    }
+  });
+
+  // adjust src canvas CSS for fit (no zoom/pan)
+  function adjustSrcCssSize(){
+    if(!srcC || !srcC.width || !srcC.height) return;
+    // Let CSS handle sizing via max-width / max-height; remove inline sizing so canvas fits container
+    srcC.style.width = "";
+    srcC.style.height = "";
+    try{ srcWrapper.scrollLeft = 0; srcWrapper.scrollTop = 0; }catch(e){}
+  }
+
+  function updateSrcView(){
+    // kept for compatibility — simply ensure sizing is applied
+    adjustSrcCssSize();
+  }
+
+  // slider marks (no longer needed for continuous scale)
+  function buildScaleMarks(){}
+  function updateScaleMarks(){}
+  buildScaleMarks();
+
+  // dotScale value: 100-5000 (direct pixel size)
+  // Calculate output size based on dotScale in pixels
+  function calculateOutputSizeFromDotScale() {
+    if(!srcW||!srcH) return;
+    // dotScale is the target dot size in pixels
+    // outW, outH should scale the image down so that pixels become dotScale sized
+    const dotPixelSize = parseInt(dotScale.value, 10) || 2500;
+    // Approximate: output size = source size / (dotPixelSize / 100)
+    // We aim for an output where each output pixel represents ~dotPixelSize pixels in the source
+    const scaleFactor = Math.max(1, Math.min(10, 5000 / dotPixelSize)); // roughly convert to a scaling factor
+    const newW = Math.max(1, Math.round(srcW / scaleFactor));
+    const newH = Math.max(1, Math.round(srcH / scaleFactor));
+    ignoreSizeSync = true;
+    outW.value = newW;
+    outH.value = newH;
+    ignoreSizeSync = false;
+    adjustSrcCssSize();
+  }
+
+  function applySliderToSize() {
+    calculateOutputSizeFromDotScale();
+  }
+  
+  let dotScaleUpdateTimeout = null;
+  function triggerDotScaleReprocess() {
+    if (dotScaleUpdateTimeout) clearTimeout(dotScaleUpdateTimeout);
+    dotScaleUpdateTimeout = setTimeout(() => {
+      if (!srcImageData) return;
+      doProcess();
+    }, 150);
+  }
+  
+  function onDotScaleChange() {
+    const value = parseInt(dotScale.value, 10);
+    const percent = Math.round(value / 25);
+    dotScaleInfo.textContent = percent + "%";
+    if(dotScaleNumber) dotScaleNumber.value = percent;
+    updateScaleMarks();
+    applySliderToSize();
+    triggerDotScaleReprocess();
+  }
+  dotScale.addEventListener("input", onDotScaleChange);
+  onDotScaleChange();
+
+  // status UI helpers
+  function showIdle(){ idleGif.style.display="inline-block"; processingGif.style.display="none"; doneGif.style.display="none"; statusText.style.display="inline-block"; statusText.textContent="待機中"; }
+  function showProcessing(){ idleGif.style.display="none"; processingGif.style.display="inline-block"; doneGif.style.display="none"; statusText.style.display="inline-block"; statusText.textContent="変換中…"; }
+  function showDonePersistent(){ idleGif.style.display="none"; processingGif.style.display="none"; doneGif.style.display="inline-block"; statusText.style.display="inline-block"; statusText.textContent="変換完了"; }
+
+  // conversion: with optional dithering (Floyd-Steinberg)
+  function doProcess(){
+    if(!srcC.width||!srcC.height){ alert("画像を読み込んでください"); return; }
+    // preserve previous viewport state so filter changes don't reset zoom/center
+    const prevViewportState = offscreen ? { zoom: camera.zoom, centerX: camera.centerX, centerY: camera.centerY, width: offscreen.width, height: offscreen.height } : null;
+    const baseW = Math.max(1, parseInt(outW.value,10) || srcC.width);
+    const baseH = Math.max(1, parseInt(outH.value,10) || srcC.height);
+    const targetW = Math.max(1, Math.round(baseW)), targetH = Math.max(1, Math.round(baseH));
+    const paletteObjs = currentHexList.map(h=>hexToRgbObj(h));
+    if(paletteObjs.length===0){ alert("パレットが空です"); showDonePersistent(); return; }
+
+    showProcessing();
+    setTimeout(()=>{
+      try{
+        const tmp = document.createElement("canvas"); tmp.width=targetW; tmp.height=targetH;
+        const tctx = tmp.getContext("2d"); tctx.imageSmoothingEnabled=false;
+        tctx.drawImage(srcC,0,0,srcC.width,srcC.height,0,0,targetW,targetH);
+        let id = tctx.getImageData(0,0,targetW,targetH);
+        
+        // Apply filters if any are not default
+        const edgeStrength = edgeStrengthSlider ? parseInt(edgeStrengthSlider.value,10) : 100;
+        const isFiltered = filterState.contrast !== 100 || filterState.brightness !== 100 || 
+                          filterState.hue !== 0 || filterState.saturation !== 100 || filterState.luminance !== 100 || edgeStrength !== 100;
+        if (isFiltered) {
+          id = applyFilters(id);
+          if (!id) { alert("フィルター適用に失敗しました"); showDonePersistent(); return; }
+        }
+        
+        const data = id.data;
+
+        const useLab = useLabInput.checked;
+        const keepAlpha = keepAlphaInput.checked;
+        const dither = ditherCheckbox.checked;
+
+        // simple nearest-color mapping (all palette colors used)
+        const paletteLab = useLab ? paletteObjs.map(c=>{
+          const lab = rgbToLab(c.r,c.g,c.b);
+          // キー名を統一（L/a/b）
+          return { L: lab.L, a: lab.a, b: lab.b };
+        }) : null;
+
+        if(!dither){
+          // simple nearest-color mapping
+          for(let i=0;i<data.length;i+=4){
+            const a=data[i+3]; if(keepAlpha&&a===0) continue;
+            const r=data[i], g=data[i+1], b=data[i+2];
+            let bestIdx=0, bestDist=Infinity;
+            if(useLab){
+              const lab = rgbToLab(r,g,b);
+              for(let j=0;j<paletteObjs.length;j++){ const d=labDist2(lab,paletteLab[j]); if(d<bestDist){ bestDist=d; bestIdx=j; } }
+            } else {
+              for(let j=0;j<paletteObjs.length;j++){ const d=rgbDist2({r,g,b},paletteObjs[j]); if(d<bestDist){ bestDist=d; bestIdx=j; } }
+            }
+            const pc = paletteObjs[bestIdx];
+            data[i]=pc.r; data[i+1]=pc.g; data[i+2]=pc.b; data[i+3]=pc.a;
+          }
+        } else {
+          // ======= Dither with pattern and strength =======
+          const w = id.width, h = id.height;
+          const buf = new Float32Array(w*h*4);
+          for(let i=0;i<data.length;i++) buf[i] = data[i];
+          
+          // Get dither settings
+          const ditherPattern = ditherPatternSelect ? ditherPatternSelect.value : 'basic';
+          const ditherStrength = ditherStrengthSlider ? parseInt(ditherStrengthSlider.value, 10) / 100 : 1.0;
+          
+          // Pattern threshold functions: return a threshold modifier (-0.5 to 0.5 range) for ordered dithering
+          function getPatternThreshold(x, y, pattern) {
+            switch(pattern) {
+                case 'check': return ((x + y) % 2 === 0) ? 0.25 : -0.25;
+              case 'ichimatsu': return ((Math.floor(x/2) + Math.floor(y/2)) % 2 === 0) ? 0.3 : -0.3;
+              case 'tile': {
+                const tx = x % 4, ty = y % 4;
+                const tileMatrix = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+                return (tileMatrix[ty][tx] / 16 - 0.5);
+              }
+              case 'vertical': return (x % 2 === 0) ? 0.3 : -0.3;
+              case 'horizontal': return (y % 2 === 0) ? 0.3 : -0.3;
+              case 'diagonalUp': return ((x + y) % 3 === 0) ? 0.35 : (((x + y) % 3 === 1) ? 0 : -0.35);
+              case 'diagonalDown': return ((x - y + 1000) % 3 === 0) ? 0.35 : (((x - y + 1000) % 3 === 1) ? 0 : -0.35);
+              case 'mesh': return ((x % 3 === 0) || (y % 3 === 0)) ? 0.3 : -0.2;
+              case 'halftone': {
+                const cx = (x % 4) - 1.5, cy = (y % 4) - 1.5;
+                const dist = Math.sqrt(cx*cx + cy*cy) / 2.12;
+                return (dist - 0.5) * 0.8;
+              }
+              case 'basic':
+              default: return 0; // Floyd-Steinberg only, no ordered pattern
+            }
+          }
+          
+          for(let y=0;y<h;y++){
+            for(let x=0;x<w;x++){
+              const off = (y*w + x)*4;
+              const a = Math.round(buf[off+3]);
+              if(keepAlpha && a===0){
+                buf[off+0]=0; buf[off+1]=0; buf[off+2]=0; buf[off+3]=0;
+                continue;
+              }
+              
+              // Apply pattern threshold before quantization
+              const patternOffset = getPatternThreshold(x, y, ditherPattern) * 64 * ditherStrength;
+              const r = Math.max(0, Math.min(255, Math.round(buf[off+0] + patternOffset)));
+              const g = Math.max(0, Math.min(255, Math.round(buf[off+1] + patternOffset)));
+              const b = Math.max(0, Math.min(255, Math.round(buf[off+2] + patternOffset)));
+              
+              // find nearest palette color
+              let bestIdx=0, bestDist=Infinity;
+              if(useLab){
+                const lab = rgbToLab(r,g,b);
+                const normalizedLab = { L: lab.L, a: lab.a, b: lab.b };
+                for(let j=0;j<paletteObjs.length;j++){ const d = labDist2(normalizedLab, paletteLab[j]); if(d<bestDist){ bestDist=d; bestIdx=j; } }
+              } else {
+                for(let j=0;j<paletteObjs.length;j++){ const d = rgbDist2({r,g,b}, paletteObjs[j]); if(d<bestDist){ bestDist=d; bestIdx=j; } }
+              }
+              const pc = paletteObjs[bestIdx];
+              
+              // set pixel to nearest color
+              buf[off+0]=pc.r; buf[off+1]=pc.g; buf[off+2]=pc.b; buf[off+3]=255;
+              
+              // compute error (from original buffer value, not pattern-adjusted)
+              const origR = Math.max(0, Math.min(255, Math.round(buf[off+0] - pc.r + r)));
+              const er = (buf[off+0] - pc.r) !== 0 ? (r - patternOffset - pc.r) : 0;
+              const eg = (buf[off+1] - pc.g) !== 0 ? (g - patternOffset - pc.g) : 0;
+              const eb = (buf[off+2] - pc.b) !== 0 ? (b - patternOffset - pc.b) : 0;
+              
+              // Floyd-Steinberg error diffusion (scaled by strength)
+              const delta = Math.sqrt(bestDist || 0);
+              const level = parseInt(dotScale.value, 10);
+              const baseFactor = (level <= 2) ? 0.04 : 0.12;
+              const scaleDelta = 60;
+              const adaptiveFactor = (baseFactor + (1 - baseFactor) * Math.min(1, delta / scaleDelta)) * ditherStrength;
+              const coeffs = { right: 7/16 * adaptiveFactor, below: 5/16 * adaptiveFactor, diag: 1/16 * adaptiveFactor, left: 3/16 * adaptiveFactor };
+              
+              if(x+1 < w){
+                let o = off + 4;
+                buf[o+0] += er * coeffs.right; buf[o+1] += eg * coeffs.right; buf[o+2] += eb * coeffs.right;
+              }
+              if(x-1 >=0 && y+1 < h){
+                let o = off + (w-1)*4;
+                buf[o+0] += er * coeffs.left; buf[o+1] += eg * coeffs.left; buf[o+2] += eb * coeffs.left;
+              }
+              if(y+1 < h){
+                let o = off + w*4;
+                buf[o+0] += er * coeffs.below; buf[o+1] += eg * coeffs.below; buf[o+2] += eb * coeffs.below;
+              }
+              if(x+1 < w && y+1 < h){
+                let o = off + (w+1)*4;
+                buf[o+0] += er * coeffs.diag; buf[o+1] += eg * coeffs.diag; buf[o+2] += eb * coeffs.diag;
+              }
+            }
+          }
+          
+          // copy back rounded values
+          for(let i=0;i<data.length;i+=4){
+            data[i] = Math.max(0, Math.min(255, Math.round(buf[i])));
+            data[i+1] = Math.max(0, Math.min(255, Math.round(buf[i+1])));
+            data[i+2] = Math.max(0, Math.min(255, Math.round(buf[i+2])));
+            data[i+3] = 255;
+          }
+
+          // despeckle pass for very small dot sizes to remove isolated salt-and-pepper noise
+          if(parseInt(dotScale.value, 10) <= 2){
+            const w2 = id.width, h2 = id.height;
+            const src = new Uint8ClampedArray(data);
+            const out = new Uint8ClampedArray(src);
+            for(let y=1;y<h2-1;y++){
+              for(let x=1;x<w2-1;x++){
+                const off = (y*w2 + x)*4;
+                const r0 = src[off], g0 = src[off+1], b0 = src[off+2];
+                const counts = new Map();
+                for(let ny=-1; ny<=1; ny++){
+                  for(let nx=-1; nx<=1; nx++){
+                    if(nx===0 && ny===0) continue;
+                    const oi = ((y+ny)*w2 + (x+nx))*4;
+                    const key = (src[oi]<<16) | (src[oi+1]<<8) | src[oi+2];
+                    counts.set(key, (counts.get(key)||0) + 1);
+                  }
+                }
+                let maxKey = null, maxCount = 0;
+                for(const [k,v] of counts){ if(v>maxCount){ maxCount=v; maxKey=k; } }
+                if(maxCount >= 5){
+                  const mr = (maxKey >> 16) & 0xFF;
+                  const mg = (maxKey >> 8) & 0xFF;
+                  const mb = maxKey & 0xFF;
+                  if(!(Math.abs(r0-mr)===0 && Math.abs(g0-mg)===0 && Math.abs(b0-mb)===0)){
+                    out[off]=mr; out[off+1]=mg; out[off+2]=mb; out[off+3]=255;
+                  }
+                }
+              }
+            }
+            for(let i=0;i<data.length;i++) data[i]=out[i];
+          }
+        }
+
+        lastRecoloredImage = id;
+        offscreen = document.createElement("canvas");
+        offscreen.width = lastRecoloredImage.width; offscreen.height = lastRecoloredImage.height;
+        const offctx = offscreen.getContext("2d"); offctx.imageSmoothingEnabled=false;
+        offctx.putImageData(lastRecoloredImage,0,0);
+
+        // If there was a previous viewport, preserve zoom/center (scale center if image size changed)
+        if(prevViewportState){
+          camera.zoom = prevViewportState.zoom || 1;
+          try{
+            const sx = prevViewportState.width > 0 ? (offscreen.width / prevViewportState.width) : 1;
+            const sy = prevViewportState.height > 0 ? (offscreen.height / prevViewportState.height) : 1;
+            camera.centerX = Math.round((prevViewportState.centerX || offscreen.width/2) * sx);
+            camera.centerY = Math.round((prevViewportState.centerY || offscreen.height/2) * sy);
+          }catch(e){ camera.centerX = offscreen.width/2; camera.centerY = offscreen.height/2; }
+        } else {
+          camera.zoom = 1; camera.centerX = offscreen.width/2; camera.centerY = offscreen.height/2;
+        }
+        drawViewport();
+        dlBtn.disabled = false;
+        updateUsedColorCount();
+        // save current palette into recent
+        pushRecentPalette(currentHexList.slice(0));
+        console.log("doProcess: finished", offscreen.width, offscreen.height);
+        showDonePersistent();
+      }catch(err){
+        console.error(err);
+        alert("変換中にエラーが発生しました: " + (err && err.message ? err.message : err));
+        showIdle();
+      }
+    }, 20);
+  }
+
+  if(runBtn){
+    runBtn.addEventListener("click", ()=>{ runBtn.disabled=true; showProcessing(); try{ doProcess(); } finally { setTimeout(()=>{ runBtn.disabled=false; }, 300); } });
+  }
+
+  // SVG export
+  exportSvgBtn.addEventListener("click", ()=>{
+    if(!lastRecoloredImage) { alert("変換結果がありません"); return; }
+    const w = lastRecoloredImage.width, h=lastRecoloredImage.height;
+    // build rects
+    let svg = `<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" shape-rendering="crispEdges">\n`;
+    const d = lastRecoloredImage.data;
+    for(let y=0;y<h;y++){
+      let row = "";
+      for(let x=0;x<w;x++){
+        const off = (y*w + x)*4;
+        const a = d[off+3];
+        if(a===0) continue;
+        const hex = rgbToHex({r:d[off], g:d[off+1], b:d[off+2]});
+        row += `<rect x="${x}" y="${y}" width="1" height="1" fill="${hex}"/>`;
+      }
+      if(row) svg += row + "\n";
+    }
+    svg += "</svg>";
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "recolored.svg"; a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  // draw viewport
+  function drawViewport(){
+    const rect = dstWrapper.getBoundingClientRect();
+    const vw = Math.max(1, rect.width), vh = Math.max(1, rect.height);
+    const dpr = window.devicePixelRatio || 1;
+    dstC.width = Math.round(vw * dpr); dstC.height = Math.round(vh * dpr);
+    const ctx = dstC.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,vw,vh);
+
+    if(!offscreen || !lastRecoloredImage) return;
+
+    const imgW = offscreen.width, imgH = offscreen.height;
+    const sw = Math.max(1, imgW / camera.zoom);
+    const sh = Math.max(1, imgH / camera.zoom);
+    let sx = camera.centerX - sw/2, sy = camera.centerY - sh/2;
+    sx = Math.max(0, Math.min(imgW - sw, sx)); sy = Math.max(0, Math.min(imgH - sh, sy));
+
+    const scaleX = vw / sw, scaleY = vh / sh;
+    const scaleDest = Math.min(scaleX, scaleY);
+    const destW = sw * scaleDest, destH = sh * scaleDest;
+    const destX = (vw - destW) / 2, destY = (vh - destH) / 2;
+
+    ctx.imageSmoothingEnabled = false;
+    
+    // ハイライト色がある場合は、その色のみを表示
+    if(highlightedColorIndex >= 0 && highlightedColorIndex < currentHexList.length){
+      const highlightedHex = currentHexList[highlightedColorIndex];
+      const highlightedRgb = hexToRgbObj(highlightedHex);
+      
+      // マスク画像を作成（ハイライト色のみ抽出）
+      const maskCanvas = document.createElement("canvas");
+      maskCanvas.width = lastRecoloredImage.width;
+      maskCanvas.height = lastRecoloredImage.height;
+      const maskCtx = maskCanvas.getContext("2d");
+      const maskImageData = maskCtx.createImageData(lastRecoloredImage.width, lastRecoloredImage.height);
+      const maskData = maskImageData.data;
+      const imgData = lastRecoloredImage.data;
+      
+      for(let i = 0; i < imgData.length; i += 4){
+        if(Math.abs(imgData[i] - highlightedRgb.r) <= 2 &&
+           Math.abs(imgData[i+1] - highlightedRgb.g) <= 2 &&
+           Math.abs(imgData[i+2] - highlightedRgb.b) <= 2){
+          maskData[i] = imgData[i];
+          maskData[i+1] = imgData[i+1];
+          maskData[i+2] = imgData[i+2];
+          maskData[i+3] = 255;
+        } else {
+          maskData[i] = maskData[i+1] = maskData[i+2] = 128;
+          maskData[i+3] = 80;
+        }
+      }
+      maskCtx.putImageData(maskImageData, 0, 0);
+      ctx.drawImage(maskCanvas, sx, sy, sw, sh, destX, destY, destW, destH);
+    } else {
+      ctx.drawImage(offscreen, sx, sy, sw, sh, destX, destY, destW, destH);
+    }
+
+    if(borderCheckbox.checked){
+      drawBordersViewport(ctx, lastRecoloredImage, sx, sy, sw, sh, destX, destY, destW, destH);
+    }
+
+    lastViewport = { sx, sy, sw, sh, destX, destY, destW, destH, vw, vh };
+  }
+
+  function drawBordersViewport(ctx,imgData,sx,sy,sw,sh,destX,destY,destW,destH){
+    const pixelSize = destW / sw;
+    const startX = Math.max(0, Math.floor(sx));
+    const endX = Math.min(imgData.width, Math.ceil(sx + sw));
+    const startY = Math.max(0, Math.floor(sy));
+    const endY = Math.min(imgData.height, Math.ceil(sy + sh));
+    if(pixelSize >= 6){
+      const baseWidth = Math.max(0.5, 1 / pixelSize);
+      ctx.save();
+      ctx.lineWidth = baseWidth * 2.2; ctx.strokeStyle = "rgba(255,255,255,0.75)";
+      for(let x=startX;x<=endX;x++){ const screenX = destX + ((x - sx) / sw) * destW + 0.5; ctx.beginPath(); ctx.moveTo(screenX,destY); ctx.lineTo(screenX,destY+destH); ctx.stroke(); }
+      for(let y=startY;y<=endY;y++){ const screenY = destY + ((y - sy) / sh) * destH + 0.5; ctx.beginPath(); ctx.moveTo(destX,screenY); ctx.lineTo(destX+destW,screenY); ctx.stroke(); }
+      ctx.lineWidth = baseWidth * 0.9; ctx.strokeStyle = "rgba(0,0,0,0.45)";
+      for(let x=startX;x<=endX;x++){ const screenX = destX + ((x - sx) / sw) * destW + 0.5; ctx.beginPath(); ctx.moveTo(screenX,destY); ctx.lineTo(screenX,destY+destH); ctx.stroke(); }
+      for(let y=startY;y<=endY;y++){ const screenY = destY + ((y - sy) / sh) * destH + 0.5; ctx.beginPath(); ctx.moveTo(destX,screenY); ctx.lineTo(destX+destW,screenY); ctx.stroke(); }
+      ctx.restore();
+    } else {
+      ctx.save(); ctx.lineWidth = Math.max(0.35, 0.9 * (pixelSize/6)); ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      for(let y=startY;y<endY;y++){ for(let x=startX;x<endX;x++){
+        if(x+1<imgData.width && !pixelEquals(imgData,x,y,x+1,y)){ const sxpos = destX + ((x+1 - sx)/sw)*destW; const y0 = destY + ((y - sy)/sh)*destH; const y1 = destY + ((y+1 - sy)/sh)*destH; ctx.beginPath(); ctx.moveTo(sxpos,y0); ctx.lineTo(sxpos,y1); ctx.stroke(); }
+        if(y+1<imgData.height && !pixelEquals(imgData,x,y,x,y+1)){ const sypos = destY + ((y+1 - sy)/sh)*destH; const x0 = destX + ((x - sx)/sw)*destW; const x1 = destX + ((x+1 - sx)/sw)*destW; ctx.beginPath(); ctx.moveTo(x0,sypos); ctx.lineTo(x1,sypos); ctx.stroke(); }
+      } }
+      ctx.restore();
+      ctx.save(); ctx.lineWidth=Math.max(0.18,0.6*(pixelSize/6)); ctx.strokeStyle="rgba(0,0,0,0.45)";
+      for(let y=startY;y<endY;y++){ for(let x=startX;x<endX;x++){
+        if(x+1<imgData.width && !pixelEquals(imgData,x,y,x+1,y)){ const sxpos = destX + ((x+1 - sx)/sw)*destW; const y0 = destY + ((y - sy)/sh)*destH; const y1 = destY + ((y+1 - sy)/sh)*destH; ctx.beginPath(); ctx.moveTo(sxpos,y0); ctx.lineTo(sxpos,y1); ctx.stroke(); }
+        if(y+1<imgData.height && !pixelEquals(imgData,x,y,x,y+1)){ const sypos = destY + ((y+1 - sy)/sh)*destH; const x0 = destX + ((x - sx)/sw)*destW; const x1 = destX + ((x+1 - sx)/sw)*destW; ctx.beginPath(); ctx.moveTo(x0,sypos); ctx.lineTo(x1,sypos); ctx.stroke(); }
+      } }
+      ctx.restore();
+    }
+  }
+
+  function pixelEquals(imgData,x1,y1,x2,y2){
+    if(x2<0||y2<0||x2>=imgData.width||y2>=imgData.height) return false;
+    const off1 = (y1*imgData.width + x1)*4;
+    const off2 = (y2*imgData.width + x2)*4;
+    return imgData.data[off1]===imgData.data[off2] && imgData.data[off1+1]===imgData.data[off2+1] && imgData.data[off1+2]===imgData.data[off2+2] && imgData.data[off1+3]===imgData.data[off2+3];
+  }
+
+  // tooltip on hover showing palette index/name/hex and coords
+  dstWrapper.addEventListener("mousemove",(ev)=>{
+    if(!lastRecoloredImage || !showNumber.checked || !lastViewport){ tooltip.style.display="none"; return; }
+    const rect = dstWrapper.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const { sx, sy, sw, sh, destX, destY, destW, destH } = lastViewport;
+    if(mx<destX||my<destY||mx>destX+destW||my>destY+destH){ tooltip.style.display="none"; return; }
+    const imgX = sx + ((mx - destX)/destW)*sw;
+    const imgY = sy + ((my - destY)/destH)*sh;
+    const ix = Math.floor(imgX), iy = Math.floor(imgY);
+    if(ix<0||iy<0||ix>=lastRecoloredImage.width||iy>=lastRecoloredImage.height){ tooltip.style.display="none"; return; }
+    const off = (iy*lastRecoloredImage.width + ix)*4;
+    const r=lastRecoloredImage.data[off], g=lastRecoloredImage.data[off+1], b=lastRecoloredImage.data[off+2], a=lastRecoloredImage.data[off+3];
+    if(a===0){ tooltip.innerHTML = `透明 (${ix},${iy})`; } else {
+      const hex = rgbToHex({r,g,b});
+      let palIndex=-1;
+      for(let k=0;k<currentHexList.length;k++){ if(currentHexList[k]===hex){ palIndex=k; break; } }
+      let labelText="(パレット外)";
+      if(palIndex>=0){ const nm=(paletteNames[palIndex]||"").trim(); labelText = nm ? nm : `色${palIndex+1}`; } else if(hexToName[hex]) labelText = hexToName[hex];
+      tooltip.innerHTML = `${labelText} ${hex} (${ix},${iy})`;
+    }
+    tooltip.style.display="block";
+    let left = ev.clientX + 12, top = ev.clientY + 12;
+    if(left + 260 > window.innerWidth) left = ev.clientX - 260 - 12;
+    tooltip.style.left = left + "px"; tooltip.style.top = top + "px";
+  });
+  dstWrapper.addEventListener("mouseleave", ()=> tooltip.style.display="none");
+
+  // wheel zoom (keep cursor point stable)
+  dstWrapper.addEventListener("wheel",(ev)=>{
+    if(!offscreen) return;
+    ev.preventDefault();
+    const before = clientToImageCoord(ev.clientX, ev.clientY);
+    const imgXBefore = before ? before.imgX : camera.centerX;
+    const imgYBefore = before ? before.imgY : camera.centerY;
+    const factor = ev.deltaY < 0 ? wheelFactor : 1/wheelFactor;
+    const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.zoom * factor));
+    const imgW = offscreen.width, imgH = offscreen.height;
+    const swNew = Math.max(1, imgW / newZoom);
+    const shNew = Math.max(1, imgH / newZoom);
+    const rect = dstWrapper.getBoundingClientRect();
+    const vw = Math.max(1, rect.width), vh = Math.max(1, rect.height);
+    const scaleDest = Math.min(vw / swNew, vh / shNew);
+    const destW = swNew * scaleDest; const destH = shNew * scaleDest;
+    const destX = (vw - destW) / 2; const destY = (vh - destH) / 2;
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const ux = destW > 0 ? (mx - destX) / destW : 0.5;
+    const uy = destH > 0 ? (my - destY) / destH : 0.5;
+    const uxClamped = Math.max(0, Math.min(1, ux)), uyClamped = Math.max(0, Math.min(1, uy));
+    const sxNew = imgXBefore - uxClamped * swNew;
+    const syNew = imgYBefore - uyClamped * shNew;
+    camera.zoom = newZoom;
+    camera.centerX = sxNew + swNew/2;
+    camera.centerY = syNew + shNew/2;
+    camera.centerX = Math.max(swNew/2, Math.min(imgW - swNew/2, camera.centerX));
+    camera.centerY = Math.max(shNew/2, Math.min(imgH - shNew/2, camera.centerY));
+    drawViewport();
+  }, { passive:false });
+
+  // source zoom/pan removed: wheel on source does nothing
+
+  // source pan handlers removed
+
+  function clientToImageCoord(clientX, clientY){
+    if(!lastViewport) return null;
+    const rect = dstWrapper.getBoundingClientRect();
+    const mx = clientX - rect.left, my = clientY - rect.top;
+    const { sx, sy, sw, sh, destX, destY, destW, destH } = lastViewport;
+    if(mx < destX || my < destY || mx > destX + destW || my > destY + destH) return null;
+    const imgX = sx + ((mx - destX) / destW) * sw;
+    const imgY = sy + ((my - destY) / destH) * sh;
+    return { imgX, imgY, sx, sy, sw, sh, destX, destY, destW, destH };
+  }
+
+  // pan: Space / Ctrl + drag or touch drag
+  let isPanning=false, panStart=null, spaceDown=false;
+  window.addEventListener("keydown",(ev)=>{ if(ev.code==="Space"){ spaceDown=true; ev.preventDefault && ev.preventDefault(); }});
+  window.addEventListener("keyup",(ev)=>{ if(ev.code==="Space"){ spaceDown=false; }});
+  dstWrapper.addEventListener("mousedown",(ev)=>{
+    if(ev.button===0 && (spaceDown || ev.ctrlKey || ev.metaKey) && offscreen){
+      ev.preventDefault();
+      isPanning=true;
+      panStart = { clientX:ev.clientX, clientY:ev.clientY, centerX:camera.centerX, centerY:camera.centerY, viewport:lastViewport ? Object.assign({}, lastViewport) : null };
+      dstWrapper.style.cursor="grabbing";
+    }
+  });
+  window.addEventListener("mousemove",(ev)=>{
+    if(!isPanning || !offscreen || !panStart) return;
+    ev.preventDefault();
+    if(!panStart.viewport) return;
+    const { sw, destW, sh, destH } = panStart.viewport;
+    const dx = ev.clientX - panStart.clientX, dy = ev.clientY - panStart.clientY;
+    const moveX = -dx * (sw / destW), moveY = -dy * (sh / destH);
+    camera.centerX = panStart.centerX + moveX; camera.centerY = panStart.centerY + moveY;
+    const imgW=offscreen.width, imgH=offscreen.height;
+    const swNow = Math.max(1, imgW/camera.zoom), shNow=Math.max(1,imgH/camera.zoom);
+    camera.centerX = Math.max(swNow/2, Math.min(imgW - swNow/2, camera.centerX));
+    camera.centerY = Math.max(shNow/2, Math.min(imgH - shNow/2, camera.centerY));
+    drawViewport();
+  });
+  window.addEventListener("mouseup",(ev)=>{ if(isPanning){ isPanning=false; panStart=null; dstWrapper.style.cursor="default"; } });
+
+  // keyboard shortcuts (+ / - for zoom)
+  window.addEventListener("keydown",(ev)=>{
+    if(ev.key === "+" || ev.key === "="){ // zoom in
+      if(offscreen){ camera.zoom = Math.min(MAX_ZOOM, camera.zoom * 1.2); drawViewport(); }
+    } else if(ev.key === "-"){ if(offscreen){ camera.zoom = Math.max(MIN_ZOOM, camera.zoom / 1.2); drawViewport(); } }
+  });
+
+  // pointer/touch pinch & pan
+  const pointers = new Map();
+  let initialPinch = null;
+  dstWrapper.addEventListener("pointerdown",(ev)=>{
+    dstWrapper.setPointerCapture(ev.pointerId);
+    pointers.set(ev.pointerId, ev);
+    if(pointers.size === 2){
+      const pts = Array.from(pointers.values());
+      initialPinch = { a: pts[0], b: pts[1], zoom: camera.zoom, centerX: camera.centerX, centerY: camera.centerY };
+    }
+  });
+  dstWrapper.addEventListener("pointermove",(ev)=>{
+    if(!pointers.has(ev.pointerId)) return;
+    pointers.set(ev.pointerId, ev);
+    if(pointers.size === 1){
+      // single-finger drag => pan
+      if(initialPinch) return;
+      const p = pointers.values().next().value;
+      if(p && p.pressure !== 0 && offscreen){
+        // compute delta from last event
+        // For simplicity, track last pointer pos in panStart
+      }
+    } else if(pointers.size === 2 && initialPinch && offscreen){
+      const pts = Array.from(pointers.values());
+      const p0 = pts[0], p1 = pts[1];
+      function dist(a,b){ const dx=a.clientX-b.clientX, dy=a.clientY-b.clientY; return Math.hypot(dx,dy); }
+      const initialDist = dist(initialPinch.a, initialPinch.b);
+      const nowDist = dist(p0,p1);
+      const factor = nowDist / Math.max(1, initialDist);
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, initialPinch.zoom * factor));
+      // compute center in client coords
+      const cx = (p0.clientX + p1.clientX)/2, cy = (p0.clientY + p1.clientY)/2;
+      // convert center to image coords before and after to keep focus stable
+      const before = clientToImageCoord(cx, cy);
+      const imgXBefore = before ? before.imgX : camera.centerX;
+      const imgYBefore = before ? before.imgY : camera.centerY;
+      const imgW = offscreen.width, imgH = offscreen.height;
+      const swNew = Math.max(1, imgW / newZoom);
+      const shNew = Math.max(1, imgH / newZoom);
+      const rect = dstWrapper.getBoundingClientRect();
+      const vw = Math.max(1, rect.width), vh = Math.max(1, rect.height);
+      const scaleDest = Math.min(vw / swNew, vh / shNew);
+      const destW = swNew * scaleDest; const destH = shNew * scaleDest;
+      const destX = (vw - destW)/2; const destY = (vh - destH)/2;
+      const mx = cx - rect.left, my = cy - rect.top;
+      const ux = destW > 0 ? (mx - destX) / destW : 0.5; const uy = destH > 0 ? (my - destY) / destH : 0.5;
+      const uxClamped = Math.max(0, Math.min(1, ux)), uyClamped = Math.max(0, Math.min(1, uy));
+      const sxNew = imgXBefore - uxClamped * swNew;
+      const syNew = imgYBefore - uyClamped * shNew;
+      camera.zoom = newZoom;
+      camera.centerX = sxNew + swNew/2;
+      camera.centerY = syNew + shNew/2;
+      camera.centerX = Math.max(swNew/2, Math.min(imgW - swNew/2, camera.centerX));
+      camera.centerY = Math.max(shNew/2, Math.min(imgH - shNew/2, camera.centerY));
+      drawViewport();
+    }
+  });
+  dstWrapper.addEventListener("pointerup",(ev)=>{ pointers.delete(ev.pointerId); initialPinch = null; dstWrapper.releasePointerCapture(ev.pointerId); });
+  dstWrapper.addEventListener("pointercancel",(ev)=>{ pointers.delete(ev.pointerId); initialPinch = null; });
+
+  // double click reset
+  dstWrapper.addEventListener("dblclick", ()=>{ if(offscreen){ camera.zoom=1; camera.centerX = offscreen.width/2; camera.centerY = offscreen.height/2; drawViewport(); } });
+
+  // download PNG
+  dlBtn.addEventListener("click", ()=>{
+    if(!offscreen) return;
+    const c = document.createElement("canvas"); c.width = offscreen.width; c.height = offscreen.height;
+    const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled=false; ctx.drawImage(offscreen,0,0);
+    c.toBlob(blob=>{ const a=document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "recolored.png"; a.click(); URL.revokeObjectURL(a.href); }, "image/png");
+  });
+
+  function resetView(){ lastRecoloredImage = null; offscreen = null; camera = { zoom:1, centerX:0, centerY:0 }; dstC.width=dstC.height=0; lastViewport=null; tooltip.style.display='none'; dlBtn.disabled=true; updateUsedColorCount(); showIdle(); }
+  new ResizeObserver(()=>{ adjustSrcCssSize(); drawViewport(); }).observe(srcWrapper);
+  new ResizeObserver(()=>{ drawViewport(); }).observe(dstWrapper);
+  window.addEventListener("resize", ()=>{ adjustSrcCssSize(); drawViewport(); });
+
+  // Filter sliders event listeners
+  let filterUpdateTimeout = null;
+
+  function updateFilterSliderDisplay() {
+    document.getElementById("contrastValue").textContent = filterState.contrast + "%";
+    document.getElementById("brightnessValue").textContent = filterState.brightness + "%";
+    document.getElementById("hueValue").textContent = filterState.hue + "°";
+    document.getElementById("saturationValue").textContent = filterState.saturation + "%";
+    document.getElementById("luminanceValue").textContent = filterState.luminance + "%";
+    if(contrastNumber) contrastNumber.value = filterState.contrast;
+    if(brightnessNumber) brightnessNumber.value = filterState.brightness;
+    if(hueNumber) hueNumber.value = filterState.hue;
+    if(saturationNumber) saturationNumber.value = filterState.saturation;
+    if(luminanceNumber) luminanceNumber.value = filterState.luminance;
+  }
+
+  function triggerFilteredReprocess() {
+    if (filterUpdateTimeout) clearTimeout(filterUpdateTimeout);
+    filterUpdateTimeout = setTimeout(() => {
+      if (!srcImageData) return;
+      // Apply filters to source image
+      const filtered = applyFilters(srcImageData);
+      if (!filtered) return;
+      // Auto-generate new palette from filtered image (use current color count setting)
+      const colorCount = Math.max(1, Math.min(256, parseInt(autoReduceColorCount.value, 10) || 16));
+      updatePaletteFromSourceImage(colorCount);
+      // Regenerate dot art with filtered image
+      doProcess();
+    }, 200);
+  }
+
+  // DotScale slider (handled by onDotScaleChange which is wired earlier)
+
+  // Contrast slider
+  document.getElementById("contrastSlider").addEventListener("input", (ev) => {
+    filterState.contrast = Math.max(0, Math.min(200, parseInt(ev.target.value, 10)));
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  // allow numeric input for contrast
+  if(contrastNumber){
+    contrastNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      filterState.contrast = v;
+      document.getElementById("contrastSlider").value = v;
+      updateFilterSliderDisplay();
+      triggerFilteredReprocess();
+    });
+  }
+
+  // Brightness slider
+  document.getElementById("brightnessSlider").addEventListener("input", (ev) => {
+    filterState.brightness = Math.max(0, Math.min(200, parseInt(ev.target.value, 10)));
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  if(brightnessNumber){
+    brightnessNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      filterState.brightness = v;
+      document.getElementById("brightnessSlider").value = v;
+      updateFilterSliderDisplay();
+      triggerFilteredReprocess();
+    });
+  }
+
+  // Hue slider
+  document.getElementById("hueSlider").addEventListener("input", (ev) => {
+    filterState.hue = Math.max(-180, Math.min(180, parseInt(ev.target.value, 10)));
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  if(hueNumber){
+    hueNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 0;
+      v = Math.max(-180, Math.min(180, v));
+      filterState.hue = v;
+      document.getElementById("hueSlider").value = v;
+      updateFilterSliderDisplay();
+      triggerFilteredReprocess();
+    });
+  }
+
+  // Saturation slider
+  document.getElementById("saturationSlider").addEventListener("input", (ev) => {
+    filterState.saturation = Math.max(0, Math.min(200, parseInt(ev.target.value, 10)));
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  if(saturationNumber){
+    saturationNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      filterState.saturation = v;
+      document.getElementById("saturationSlider").value = v;
+      updateFilterSliderDisplay();
+      triggerFilteredReprocess();
+    });
+  }
+
+  // Luminance slider
+  document.getElementById("luminanceSlider").addEventListener("input", (ev) => {
+    filterState.luminance = Math.max(0, Math.min(200, parseInt(ev.target.value, 10)));
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  if(luminanceNumber){
+    luminanceNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      filterState.luminance = v;
+      document.getElementById("luminanceSlider").value = v;
+      updateFilterSliderDisplay();
+      triggerFilteredReprocess();
+    });
+  }
+
+  // Reset individual sliders
+  document.getElementById("resetDotScaleBtn").addEventListener("click", () => {
+    dotScale.value = 2500;
+    onDotScaleChange();
+  });
+
+  // numeric input for dot scale
+  if(dotScaleNumber){
+    dotScaleNumber.addEventListener('input', (e)=>{
+      let p = parseInt(e.target.value,10);
+      if(isNaN(p)) p = 100;
+      p = Math.max(4, Math.min(200, p));
+      const v = Math.round(p * 25);
+      dotScale.value = v;
+      onDotScaleChange();
+    });
+  }
+
+  // Edge strength handlers
+  if(edgeStrengthSlider){
+    edgeStrengthSlider.addEventListener('input', ()=>{
+      const v = parseInt(edgeStrengthSlider.value,10) || 100;
+      if(edgeStrengthValue) edgeStrengthValue.textContent = v + "%";
+      if(edgeStrengthNumber) edgeStrengthNumber.value = v;
+      // apply edge strength effect by triggering reprocess immediately
+      if(srcImageData) doProcess();
+    });
+  }
+  // median filter event hooks removed
+  if(edgeStrengthNumber){
+    edgeStrengthNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value,10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      if(edgeStrengthSlider) edgeStrengthSlider.value = v;
+      if(edgeStrengthValue) edgeStrengthValue.textContent = v + "%";
+      if(srcImageData) doProcess();
+    });
+  }
+  const resetEdgeBtn = document.getElementById('resetEdgeStrengthBtn');
+  if(resetEdgeBtn){ 
+    resetEdgeBtn.addEventListener('click', ()=>{ 
+      if(edgeStrengthSlider) edgeStrengthSlider.value = 100; 
+      if(edgeStrengthNumber) edgeStrengthNumber.value = 100; 
+      if(edgeStrengthValue) edgeStrengthValue.textContent = '100%'; 
+      if(srcImageData) doProcess(); 
+    }); 
+  }
+
+  document.getElementById("resetContrastBtn").addEventListener("click", () => {
+    filterState.contrast = 100;
+    document.getElementById("contrastSlider").value = 100;
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  document.getElementById("resetBrightnessBtn").addEventListener("click", () => {
+    filterState.brightness = 100;
+    document.getElementById("brightnessSlider").value = 100;
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  document.getElementById("resetHueBtn").addEventListener("click", () => {
+    filterState.hue = 0;
+    document.getElementById("hueSlider").value = 0;
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  document.getElementById("resetSaturationBtn").addEventListener("click", () => {
+    filterState.saturation = 100;
+    document.getElementById("saturationSlider").value = 100;
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  document.getElementById("resetLuminanceBtn").addEventListener("click", () => {
+    filterState.luminance = 100;
+    document.getElementById("luminanceSlider").value = 100;
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+  });
+
+  // Reset all filters
+  document.getElementById("resetAllFiltersBtn").addEventListener("click", () => {
+    // Reset dotScale
+    dotScale.value = 2500;
+    onDotScaleChange();
+
+    // Reset filters
+    filterState.contrast = 100;
+    filterState.brightness = 100;
+    filterState.hue = 0;
+    filterState.saturation = 100;
+    filterState.luminance = 100;
+
+    document.getElementById("contrastSlider").value = 100;
+    document.getElementById("brightnessSlider").value = 100;
+    document.getElementById("hueSlider").value = 0;
+    document.getElementById("saturationSlider").value = 100;
+    document.getElementById("luminanceSlider").value = 100;
+
+    updateFilterSliderDisplay();
+    triggerFilteredReprocess();
+    // reset median filter
+    // medianFilterSelect reset removed
+  });
+
+  // ======= Dither pattern & strength event handlers =======
+  function updateDitherStrengthDisplay() {
+    if(ditherStrengthValue) ditherStrengthValue.textContent = (ditherStrengthSlider ? ditherStrengthSlider.value : 100) + '%';
+    if(ditherStrengthNumber && ditherStrengthSlider) ditherStrengthNumber.value = ditherStrengthSlider.value;
+  }
+  
+  if(ditherPatternSelect){
+    ditherPatternSelect.addEventListener('change', ()=>{
+      if(srcImageData && ditherCheckbox.checked) doProcess();
+    });
+  }
+  
+  if(ditherStrengthSlider){
+    ditherStrengthSlider.addEventListener('input', ()=>{
+      updateDitherStrengthDisplay();
+      if(srcImageData && ditherCheckbox.checked) doProcess();
+    });
+  }
+  
+  if(ditherStrengthNumber){
+    ditherStrengthNumber.addEventListener('input', (e)=>{
+      let v = parseInt(e.target.value, 10);
+      if(isNaN(v)) v = 100;
+      v = Math.max(0, Math.min(200, v));
+      if(ditherStrengthSlider) ditherStrengthSlider.value = v;
+      updateDitherStrengthDisplay();
+      if(srcImageData && ditherCheckbox.checked) doProcess();
+    });
+  }
+  
+  const resetDitherStrengthBtn = document.getElementById('resetDitherStrengthBtn');
+  if(resetDitherStrengthBtn){
+    resetDitherStrengthBtn.addEventListener('click', ()=>{
+      if(ditherStrengthSlider) ditherStrengthSlider.value = 100;
+      if(ditherStrengthNumber) ditherStrengthNumber.value = 100;
+      updateDitherStrengthDisplay();
+      if(srcImageData && ditherCheckbox.checked) doProcess();
+    });
+  }
+  
+  // Update display on load
+  updateDitherStrengthDisplay();
+  // initialize edge strength display
+  if(edgeStrengthValue) edgeStrengthValue.textContent = (edgeStrengthSlider ? edgeStrengthSlider.value : 100) + "%";
+  if(edgeStrengthNumber && edgeStrengthSlider) edgeStrengthNumber.value = edgeStrengthSlider.value;
+
+  // help buttons
+  helpBtn.addEventListener("click", ()=> {
+    alert("【ドット絵コンバーター 使い方】\n\n【基本操作】\n① 「ファイルを選択」ボタンから画像を読み込みます\n② 出力設定で出力サイズを指定（縦横比保持チェックあり）\n③ 「ドット粗さ」スライダーでドットサイズを調整\n④ 左側のパレットから色を選ぶ（「自動減色」で最適パレットを抽出可能）\n⑤ 「変換する」ボタンで変換実行\n\n【機能説明】\n・自動減色：画像からゲーム向けの最適パレットを自動抽出（色数指定可能）\n・パレット色クリック：その色がどこで使われているかをハイライト表示\n・ボーダー表示：ドット境界を白線で表示（チェックボンで切替）\n・dither：誤差拡散ディザリング（色数が少ないときに使用推奨）\n\n【出力形式】\n・PNG：透明度対応、背景保持\n・SVG：ベクトル形式、拡大しても劣化なし");
+  });
+  kbdBtn.addEventListener("click", ()=> {
+    alert("キーボード操作：\nSpace を押しながらドラッグ：パン\nCtrl / ⌘ を押しながらドラッグ：パン\n+ / =：ズームイン\n-：ズームアウト\nダブルクリック：ビューをリセット（1:1に戻る）\n\nモバイル：ピンチでズーム、一本指でドラッグしてパン可能です。");
+  });
+
+  // ======= Toggle source image visibility =======
+  const toggleSrcBtn = document.getElementById('toggleSrcBtn');
+  const srcPanel = document.getElementById('srcPanel');
+  const dstPanel = document.getElementById('dstPanel');
+  const srcHeader = document.getElementById('srcHeader');
+  let srcVisible = true;
+
+  function updateSrcVisibility() {
+    if (srcVisible) {
+      srcPanel.style.display = '';
+      if (srcHeader) srcHeader.style.display = '';
+      dstPanel.style.flex = '1';
+      toggleSrcBtn.textContent = '元画像を非表示';
+    } else {
+      srcPanel.style.display = 'none';
+      if (srcHeader) srcHeader.style.display = 'none';
+      // enlarge destination panel when source is hidden
+      dstPanel.style.flex = '2';
+      toggleSrcBtn.textContent = '元画像を表示';
+    }
+    // redraw viewport to adjust to new size
+    setTimeout(() => drawViewport(), 50);
+  }
+
+  toggleSrcBtn.addEventListener('click', () => {
+    srcVisible = !srcVisible;
+    updateSrcVisibility();
+  });
+
+  // ======= Tab navigation =======
+  const tabBtns = document.querySelectorAll('.tabBtn');
+  const sections = document.querySelectorAll('.left details[data-section]');
+  
+  function switchTab(tabName) {
+    // Update button active state
+    tabBtns.forEach(btn => {
+      if (btn.dataset.tab === tabName) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    
+    // Show/hide sections
+    sections.forEach(section => {
+      if (section.dataset.section === tabName) {
+        section.style.display = 'block';
+      } else {
+        section.style.display = 'none';
+      }
+    });
+  }
+  
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+    });
+  });
+  
+  // Initialize with first tab
+  switchTab('img');
+
+  // init
+  dlBtn.disabled = true;
+  showIdle();
+  console.log("初期化完了（完全版）");
+});
+</script>
+</body>
+</html>
+
