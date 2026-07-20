@@ -151,14 +151,14 @@
                 <label class="hl-label" style="margin-bottom: 0.6rem;">転送先URL<span class="hl-label__required">必須</span></label>
                 <div class="rg-input-row">
                     <input type="url" id="targetUrl" class="hl-input rg-url-input" placeholder="https://example.com" autocomplete="off">
-                    <hl-button id="pasteBtn" variant="secondary" icon="📋">貼り付け</hl-button>
+                    <hl-button id="pasteBtn" variant="secondary" icon="file">貼り付け</hl-button>
                 </div>
-                <hl-button id="genBtn" block icon="⚙️">HTMLを生成</hl-button>
+                <hl-button id="genBtn" block icon="gear">HTMLを生成</hl-button>
             </div>
 
             <div id="outputArea">
                 <hl-tabs>
-                    <div class="hl-tab-panel" data-label="⚡ シームレス">
+                    <div class="hl-tab-panel" data-label=" シームレス">
                         <p class="hl-content-text" style="margin-bottom: 0;">ページを開くとほぼ即時に自動転送します。古い端末でも動作しやすい最小構成です。</p>
                         <div class="rg-code-wrapper">
                             <div class="rg-code-header">
@@ -168,12 +168,12 @@
                             <pre class="rg-code-pre"><code id="code-1" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
                         </div>
                         <div class="rg-actions">
-                            <hl-button class="dl-btn" data-target="code-1" icon="⬇️">ダウンロード</hl-button>
-                            <hl-button class="pv-btn" data-target="code-1" variant="secondary" icon="👁️">プレビュー</hl-button>
+                            <hl-button class="dl-btn" data-target="code-1" icon="⬇">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-1" variant="secondary" icon="">プレビュー</hl-button>
                         </div>
                     </div>
 
-                    <div class="hl-tab-panel" data-label="🖱️ ボタン">
+                    <div class="hl-tab-panel" data-label=" ボタン">
                         <p class="hl-content-text" style="margin-bottom: 0;">自動転送せず、ユーザーがボタンを押したときに移動する案内ページを生成します。</p>
                         <div class="rg-code-wrapper">
                             <div class="rg-code-header">
@@ -183,12 +183,12 @@
                             <pre class="rg-code-pre"><code id="code-2" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
                         </div>
                         <div class="rg-actions">
-                            <hl-button class="dl-btn" data-target="code-2" icon="⬇️">ダウンロード</hl-button>
-                            <hl-button class="pv-btn" data-target="code-2" variant="secondary" icon="👁️">プレビュー</hl-button>
+                            <hl-button class="dl-btn" data-target="code-2" icon="⬇">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-2" variant="secondary" icon="">プレビュー</hl-button>
                         </div>
                     </div>
 
-                    <div class="hl-tab-panel" data-label="⏱️ 待機付き">
+                    <div class="hl-tab-panel" data-label=" 待機付き">
                         <div class="rg-sec-wrap">
                             <input type="number" id="waitSec" class="hl-input rg-sec-input" value="5" min="1" max="60"> 秒後に自動で転送します
                         </div>
@@ -200,8 +200,8 @@
                             <pre class="rg-code-pre"><code id="code-3" class="rg-code-content is-empty">上のURLを入力して「HTMLを生成」を押してください</code></pre>
                         </div>
                         <div class="rg-actions">
-                            <hl-button class="dl-btn" data-target="code-3" icon="⬇️">ダウンロード</hl-button>
-                            <hl-button class="pv-btn" data-target="code-3" variant="secondary" icon="👁️">プレビュー</hl-button>
+                            <hl-button class="dl-btn" data-target="code-3" icon="⬇">ダウンロード</hl-button>
+                            <hl-button class="pv-btn" data-target="code-3" variant="secondary" icon="">プレビュー</hl-button>
                         </div>
                     </div>
                 </hl-tabs>

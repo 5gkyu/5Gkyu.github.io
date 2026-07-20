@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>色に名前をつけるということ | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/note/color-and-design/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <meta property="og:title" content="色に名前をつけるということ | Halcyon - 5Gkyu">
+  <meta property="og:description" content="人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/note/color-and-design/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .article-meta {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .article-meta__date {
+      font-size: 0.82rem;
+      color: var(--clr-brown);
+      opacity: 0.5;
+      font-weight: 700;
+    }
+    .article-meta__badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.75rem;
+      border-radius: 50px;
+      background: rgba(154, 176, 143, 0.15);
+      color: var(--clr-sage);
+      border: 1px solid rgba(154, 176, 143, 0.3);
+    }
+
+    .color-swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem 0.3rem 0.5rem;
+      border-radius: 8px;
+      background: rgba(106, 86, 74, 0.04);
+      border: 1px solid rgba(106, 86, 74, 0.1);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+    }
+    .color-swatch__dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .color-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Note"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Note" level2-url="/archive/note/"
+        current="色に名前をつけるということ">
+      </hl-breadcrumb>
+
+      <page-title>色に名前をつけるということ</page-title>
+
+      <div class="article-meta">
+        <span class="article-meta__date">2026.05.17</span>
+        <span class="article-meta__badge">考察</span>
+      </div>
+
+      <div class="hl-content-text">
+
+        <p>「この青は何色ですか」と問われたとき、あなたはなんと答えるだろう。コバルトブルー、スカイブルー、セルリアン、ターコイズ。あるいは「空色」や「瑠璃色」。そして今やわたしたちには、<code>#4169E1</code> という選択肢もある。</p>
+
+        <hl-lead><p>色に名前をつけること——それは人間が太古から続けてきた、きわめて不思議な行為だ。光の波長という物理現象を言語に翻訳し、他者と共有しようとする試み。その積み重なりが文化になり、時代を越えて変化してきた。現代のWebデザインという文脈において、その行為はどんな意味を持つのか。今日はそのことを、少し遠回りしながら考えてみたい。</p></hl-lead>
+
+        <h2 id="language-and-color">言語が色を「作る」</h2>
+
+        <p>色は光の連続したスペクトルである。虹の色は本来、どこで区切れているわけではない。にもかかわらず、日本語話者は「赤・橙・黄・緑・青・藍・紫」と7色を認識し、英語話者は "red, orange, yellow, green, blue, indigo, violet" と数える。これは偶然ではなく、言語が知覚そのものに影響を与えているという仮説がある。</p>
+
+        <p>言語学の分野で「サピア＝ウォーフ仮説」と呼ばれるこの考え方は、「言語の構造が話者の思考や認知に影響を与える」というものだ。色に関して言えば、その言語に色名が多いほど、話者はより細かく色の差異を認識できる——という傾向が実験でも示されている<hl-fn num="1"></hl-fn>。</p>
+
+        <hl-quote source="Ludwig Wittgenstein, 『論理哲学論考』">
+          <p>わたしの言語の限界は、わたしの世界の限界を意味する。</p>
+        </hl-quote>
+
+        <p>ウィトゲンシュタインのこの一節は、しばしば誤解される。「言語がなければ概念が存在しない」と読まれがちだが、彼が言いたかったのはより繊細なことだ——語りえないものについては、沈黙しなければならない。色の名前を持たないことは、その色を感じないことではない。ただ、それについて<em>語れない</em>だけである。</p>
+
+        <h2 id="color-code">カラーコードという哲学</h2>
+
+        <p>Webの世界では、色は16進数の記号で表される。</p>
+
+        <hl-code lang="CSS">
+:root {
+  --clr-sage:       #9AB08F;  /* セージグリーン  穏やかさ・自然 */
+  --clr-peach:      #EEAFA1;  /* ピーチ         ぬくもり・親しみ */
+  --clr-dusty-blue: #92B5BC;  /* ダスティーブルー 静けさ・知性 */
+  --clr-cream:      #FBF6EA;  /* クリーム        やわらかさ・余白 */
+  --clr-brown:      #6A564A;  /* ブラウン         落ち着き・信頼 */
+}
+        </hl-code>
+
+        <hl-figure caption="Halcyon デザインシステムのカラーパレット。左からセージグリーン・ピーチ・ダスティーブルー・クリーム・ブラウン。各色には名前と感情的ニュアンスが与えられている。">
+          <div style="display:flex;border-radius:10px;overflow:hidden;height:64px;">
+            <div style="flex:1;background:#9AB08F;" title="セージグリーン"></div>
+            <div style="flex:1;background:#EEAFA1;" title="ピーチ"></div>
+            <div style="flex:1;background:#92B5BC;" title="ダスティーブルー"></div>
+            <div style="flex:1;background:#FBF6EA;outline:1px solid rgba(0,0,0,0.08);outline-offset:-1px;" title="クリーム"></div>
+            <div style="flex:1;background:#6A564A;" title="ブラウン"></div>
+          </div>
+        </hl-figure>
+
+        <p>これはこのサイト「Halcyon」で定義しているカラーパレットだ。一見すると無機質な記号の羅列だが、よく見ると面白いことに気づく。<code>#9AB08F</code> というセージグリーンは、その数字が穏やかさを「持っている」わけではない。しかし、画面に出力された瞬間、それは確かに穏やかさを「持つ」ものになる。</p>
+
+        <hl-alert type="info">
+          <p>カラーコードは「色そのもの」ではなく、ディスプレイへの<strong>命令文</strong>です。モニターの種類・キャリブレーション・周囲の光によって、同じコードでも見え方は変わります。</p>
+        </hl-alert>
+
+        <p>つまりカラーコードとは、「この光を出力せよ」という命令であり、出力された結果として人間が受け取る「感覚」は、コードが直接持っているものではない。この非対称性——記号と、記号が呼び起こす感覚のズレ——は、記号論が長年議論してきた問いそのものだ。</p>
+
+        <h2 id="naming-tradition">色名という文化の蓄積</h2>
+
+        <p>日本の伝統色の名前には、名付けた時代の感性が剔まれている。単に色を識別するための記号ではなく、その色を見た人間の詩的な直観が言語になったものだ。</p>
+
+        <hl-compare left-label="日本語の伝統色名" right-label="カラーコード（16進数）">
+          <div slot="left">
+            <p>「萌黄」「瑠璃色」「撒子色」——名前そのものが詩であり、文化の記憶だ。植物、空、花……自然からの借り物の言葉が、色に物語を与える。曖昧さが豊かさになる。</p>
+          </div>
+          <div slot="right">
+            <p><code>#B0CA71</code>、<code>#2E5894</code>——数字は厳密で、世界中の誰でも同じ色を再現できる。しかしその記号からは、文化の記憶は何も伝わらない。</p>
+          </div>
+        </hl-compare>
+
+        <hl-tabs>
+          <div class="hl-tab-panel" data-label="植物から生まれた色">
+            <div class="hl-content-text">
+              <p>日本の色名の多くは植物から来ている。植物染料が日常にあった時代、色と自然は切り離せなかった。名前を聞いただけで風景が浮かぶような、詩的な命名の文化がある。</p>
+              <div class="color-row">
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#B0CA71;"></span>萌黄（もえぎ）</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#88B04B;"></span>若草色</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#CC99A2;"></span>撫子色（なでしこいろ）</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#F2A0A1;"></span>桃色</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#7BA05B;"></span>草色</span>
+              </div>
+              <p>「萌黄（もえぎ）」は春に芽吹く若草の色。「撫子（なでしこ）」は花の名前そのものが色になった。源氏物語など平安文学にも多くの色名が登場し、貴族たちが重ね着の配色に込めた美意識の痕跡が、名前の中に生きている。</p>
+            </div>
+          </div>
+          <div class="hl-tab-panel" data-label="空・海・鉱石から">
+            <div class="hl-content-text">
+              <p>天然の鉱物や空・海の色も、日本の色名の豊かな源泉だ。宇宙的なスケールや稀少性が色名に「格」を与えている。</p>
+              <div class="color-row">
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#2E5894;"></span>瑠璃色（るりいろ）</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#6EB5C0;"></span>水色</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#008B8B;"></span>青磁色（せいじいろ）</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#5C6BC0;"></span>勝色（かちいろ）</span>
+              </div>
+              <p>「瑠璃（るり）」はラピスラズリという鉱石の和名。深く神秘的なその青は、古来から貴重品とされてきた。「勝色」は濃い藍色で、武士が戦に臨む際に縁起を担いで用いたとされる。色の名前に、人々の祈りや信仰が宿っている。</p>
+            </div>
+          </div>
+          <div class="hl-tab-panel" data-label="現代に生まれた色名">
+            <div class="hl-content-text">
+              <p>色名は過去のものだけではない。現代のデザインやファッションの文脈でも新しい色名は生まれ続けている。</p>
+              <div class="color-row">
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#9AB08F;"></span>セージグリーン</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#C0775E;"></span>テラコッタ</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#92B5BC;"></span>ダスティーブルー</span>
+                <span class="color-swatch"><span class="color-swatch__dot" style="background:#C9A98A;"></span>ミルクティーブラウン</span>
+              </div>
+              <p>「セージグリーン」「テラコッタ」「ミルクティーブラウン」——これらはインテリアやファッションの文脈で広まった現代の色名だ。英語由来のものが多く、カタカナ表記が「ちょっとおしゃれ」なニュアンスを帯びさせる。言語の変化は色名にも表れている。</p>
+            </div>
+          </div>
+        </hl-tabs>
+
+        <h2 id="qualia">見ているものは同じか</h2>
+
+        <p>さらに根本的な問いがある。あなたが「赤」と呼ぶものと、わたしが「赤」と呼ぶものは、本当に同じ感覚なのだろうか。</p>
+
+        <hl-chat char="A" align="left">
+          <p>ねえ、「赤」って感じたとき、頭の中にどんな色が浮かぶ？</p>
+        </hl-chat>
+        <hl-chat char="B" align="right">
+          <p>え、普通に赤でしょ。信号の赤とかポストの赤とか……。</p>
+        </hl-chat>
+        <hl-chat char="A" align="left">
+          <p>でも「感じてる色」は同じかな、ってこと。わたしが見てる赤と、あなたが見てる赤が、脳の中で同じ体験かどうか確かめようがなくない？</p>
+        </hl-chat>
+        <hl-chat char="B" align="right">
+          <p>……確かに。その問いって哲学でなんか名前あったっけ。</p>
+        </hl-chat>
+        <hl-chat char="A" align="left">
+          <p>「クオリア」って呼ばれてる。感覚の主観的な質のこと。原理的に証明できないんだよね。</p>
+        </hl-chat>
+
+        <p>「クオリア（qualia）」とは、意識のある存在が持つ主観的な感覚の質のことだ<hl-fn num="2"></hl-fn>。赤を見たときの「あの感じ」、コーヒーを飲んだときの「あの苦み」——それらが自分以外の人に同じように感じられているかどうかは、原理的に確かめることができない。</p>
+
+        <p>カラーコード <code>#FF0000</code> は万人に同じ光を出力するが、その光を受け取った脳が作り出す「赤さ」の体験は、もしかすると人によって異なるかもしれない。だとしたら、わたしたちが「同じ色の名前」で会話できていることは、かなり奇跡的なことではないだろうか。</p>
+
+        <h2 id="web-design">Webデザインと色の命名</h2>
+
+        <p>こうした背景を踏まえると、Webデザインにおける色の扱い方も少し違って見えてくる。デザイナーが色に名前をつけるとき——<code>--clr-sage</code>、<code>--color-primary</code>、<code>--accent-warm</code>——それは単なる変数名ではない。その色に込めた<strong>意図</strong>と<strong>感情</strong>を、チームや未来の自分に伝えるための言語だ。</p>
+
+        <hl-step>
+          <hl-step-item num="1" title="色の「役割」を先に決める">
+            「この色はどんな感情を呼び起こしたいのか」を先に決める。色を選んでから名前をつけるのではなく、役割から逆算する。「穏やかさ・安心感」なら彩度を抑えたグリーン系、「ぬくもり・親しみ」なら茶系やサーモンピンクが候補に浮かぶ。
+          </hl-step-item>
+          <hl-step-item num="2" title="名前に意味を持たせる">
+            <code>color1</code>、<code>color2</code> のような無意味な名前は避ける。<code>--clr-sage</code>（セージ：薬草・癒し）のように、その色のニュアンスが名前から伝わると、コードを読むだけで色が想起できる。変数名はコメントである、という意識が大事だ。
+          </hl-step-item>
+          <hl-step-item num="3" title="使用ルールをセットで決める">
+            名前だけでは不十分で、「いつ使うか」のルールが必要だ。「アクセントカラーは強調要素にのみ使う」「背景色は白とクリームの2種類に限定する」といった制約が、デザインの一貫性を生む。
+          </hl-step-item>
+          <hl-step-item num="4" title="使ってみて調整する">
+            どんなに理論的に正しくても、実際の画面で見るまでわからないことがある。作ったカラーパレットを実際のコンポーネントに当てはめ、違和感があれば名前ごと見直す勇気を持つ。
+          </hl-step-item>
+        </hl-step>
+
+        <hl-alert type="warning">
+          <p>色には文化差があります。たとえば「白」は日本では喪に服す場でも用いられますが、西洋では純粋さの象徴です。グローバルなサービスを作る際は、ターゲット地域の色のコンテキストを確認しましょう。</p>
+        </hl-alert>
+
+        <h2 id="conclusion">名前をつけることの意味</h2>
+
+        <p>色に名前をつけることは、世界を分節化することだ。連続した光のスペクトルに境界線を引き、「これ」と「あれ」を区別する行為。その行為が積み重なって文化になり、言語になる。</p>
+
+        <p>Webの世界では、その境界線がピクセルとコードで引かれる。<code>#9AB08F</code> という記号が「セージグリーン」という名前を得た瞬間、それは単なる数字ではなく、ある感情の<em>住所</em>になる。</p>
+
+        <p>だから色に名前をつけることは、単なる管理の都合ではない。それは、世界をどのように見るか——あるいはどのように見せたいか——の表明だ。あなたがデザインで選ぶ色の名前には、あなた自身の感性と哲学が宿っている。</p>
+
+        <hl-accordion title="補足：色覚多様性について">
+          <p>この記事では「色を見る」ことを自明のものとして書きましたが、実際には色覚の多様性があります。日本人男性の約5%、女性の約0.2%が、何らかの色覚多様性を持つとされています。</p>
+          <p>Webデザインにおいては、色だけで情報を伝えないこと（形・テキスト・アイコンを併用する）が重要です。色名の哲学を楽しみながら、アクセシビリティへの配慮も忘れずにいたいところです。</p>
+        </hl-accordion>
+
+        <h2 id="references">参考文献・注記</h2>
+
+        <hl-cite
+          title="論理哲学論考（Tractatus Logico-Philosophicus）"
+          author="Ludwig Wittgenstein"
+          year="1921（邦訳: 岩波文庫, 2003）">
+        </hl-cite>
+
+        <hl-cite
+          title="Basic Color Terms: Their Universality and Evolution"
+          author="Brent Berlin, Paul Kay"
+          publisher="University of California Press"
+          year="1969">
+        </hl-cite>
+
+        <hl-footnotes label="注記">
+          <hl-fn-item num="1">サピア＝ウォーフ仮説には「強い版」（言語が思考を完全に決定する）と「弱い版」（言語が思考に影響を与える）がある。現代言語学では弱い版が広く支持されており、色知覚への言語の影響は実験的にも観察されている。</hl-fn-item>
+          <hl-fn-item num="2">哲学者デイヴィッド・チャーマーズが「意識のむずかしい問題（The Hard Problem of Consciousness）」として定式化した。身体・脳と主観的意識の関係を問う論点の中心にある。</hl-fn-item>
+        </hl-footnotes>
+
+      </div>
+
+      <hl-share></hl-share>
+
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-profile></hl-profile>
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
+
+</body>
+</html>

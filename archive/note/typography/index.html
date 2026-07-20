@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webタイポグラフィ入門 | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説します。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/note/typography/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <meta property="og:title" content="Webタイポグラフィ入門 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説します。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/note/typography/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .article-meta {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .article-meta__date {
+      font-size: 0.82rem;
+      color: var(--clr-brown);
+      opacity: 0.5;
+      font-weight: 700;
+    }
+    .article-meta__badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.75rem;
+      border-radius: 50px;
+      background: rgba(146, 181, 188, 0.15);
+      color: var(--clr-dusty-blue);
+      border: 1px solid rgba(146, 181, 188, 0.3);
+    }
+
+    .font-demo-row { display: flex; flex-direction: column; gap: 1rem; }
+    .font-demo { padding: 1.2rem 1.4rem; border-radius: 10px; background: rgba(106, 86, 74, 0.03); border: 1px solid rgba(106, 86, 74, 0.08); }
+    .font-demo__text { font-size: 1.35rem; line-height: 1.6; color: var(--clr-brown); margin-bottom: 0.4rem; }
+    .font-demo__label { font-size: 0.75rem; font-weight: 700; opacity: 0.45; color: var(--clr-brown); letter-spacing: 0.04em; }
+
+    .type-scale { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.4rem; background: rgba(106, 86, 74, 0.03); border-radius: 12px; border: 1px solid rgba(106, 86, 74, 0.08); }
+    .type-scale__row { display: flex; align-items: baseline; gap: 1.2rem; }
+    .type-scale__label { font-size: 0.72rem; font-weight: 700; opacity: 0.4; color: var(--clr-brown); min-width: 3.8rem; flex-shrink: 0; font-family: monospace; }
+    .type-scale__text { color: var(--clr-brown); line-height: 1.4; }
+
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Note"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Note" level2-url="/archive/note/"
+        current="Webタイポグラフィ入門">
+      </hl-breadcrumb>
+
+      <page-title>Webタイポグラフィ入門</page-title>
+
+      <div class="article-meta">
+        <span class="article-meta__date">2026.05.17</span>
+        <span class="article-meta__badge">ガイド</span>
+      </div>
+
+      <div class="hl-content-text">
+
+        <hl-lead>
+          <p>「なんとなく読みにくい」「なんとなくダサい」——Webサイトを見ていてそう感じるとき、その原因の多くはタイポグラフィにある。フォントの選択・サイズ・行間・文字間隔。これらをコントロールできるだけで、デザインのクオリティは段違いに変わる。本記事では、Webデザインにおけるタイポグラフィの基礎を体系的に解説する。</p>
+        </hl-lead>
+
+        <h2 id="what-is-typography">タイポグラフィとは何か</h2>
+
+        <p>タイポグラフィ（typography）とは、文字を使ったコミュニケーションを視覚的に最適化する技術・技法の総称だ。単に「フォントを選ぶこと」ではなく、サイズ・行間・文字間隔・カラー・配置など、文字に関わるあらゆる視覚要素を統合的にコントロールする考え方を指す。</p>
+
+        <p>活版印刷の時代から始まったタイポグラフィの歴史は、デジタルの時代に入っても本質的には変わっていない。「読む人のために文字を整える」——その目的は一貫している。</p>
+
+        <h3 id="font-vs-typeface">フォントとタイプフェイスの違い</h3>
+
+        <p>日常会話ではほぼ同義に使われるが、厳密には区別がある。<strong>タイプフェイス（typeface）</strong>はデザインそのもの——つまり「Noto Sans JP」というデザインのこと。<strong>フォント（font）</strong>は、そのタイプフェイスの特定のウェイト・サイズの実装のことだ。「Noto Sans JP Bold 16px」が「フォント」に相当する。</p>
+
+        <hl-alert type="info">
+          <p>現代のWeb開発では「フォント」と「タイプフェイス」を区別することはほとんどない。CSSの <code>font-family</code> プロパティもタイプフェイスを指している。混用して問題ない。</p>
+        </hl-alert>
+
+        <h2 id="font-categories">フォントの種類を知る</h2>
+
+        <p>フォントには大きく分けてセリフ体・サンセリフ体・等幅フォント・手書き体の4種類がある。Webデザインで主に使うのは最初の3つだ。それぞれの特徴を理解することが、適切な選択の第一歩になる。</p>
+
+        <h3 id="serif">セリフ体（明朝系）</h3>
+
+        <p>文字の端に「セリフ」と呼ばれる小さな飾りが付いているフォント。日本語の明朝体に相当する。伝統的・格調・信頼感といった印象を与え、長文の印刷物では可読性が高い。スクリーン表示では低解像度環境で読みにくくなることがあるが、Retinaディスプレイが普及した現在は改善されている。</p>
+
+        <p>代表例: Times New Roman、Georgia、游明朝、ヒラギノ明朝、Noto Serif JP</p>
+
+        <h3 id="sans-serif">サンセリフ体（ゴシック系）</h3>
+
+        <p>セリフのない、シンプルな字形のフォント。日本語のゴシック体に相当する。モダン・クリーン・読みやすいという印象を与え、スクリーン表示との相性が非常に良い。Webデザインではサンセリフ体が主流だ。</p>
+
+        <p>代表例: Helvetica、Roboto、Inter、Noto Sans JP、游ゴシック、ヒラギノ角ゴ</p>
+
+        <h3 id="monospace">等幅フォント（モノスペース）</h3>
+
+        <p>すべての文字が同じ横幅を持つフォント。コードや数値を並べたとき列が揃うため、プログラムのソースコードや技術文書に使われる。Webでは主に <code>&lt;code&gt;</code> や <code>&lt;pre&gt;</code> 要素に適用する。</p>
+
+        <p>代表例: Courier New、Fira Code、Source Code Pro、JetBrains Mono</p>
+
+        <hl-figure caption="セリフ体・サンセリフ体・等幅フォントの字形比較。同じテキストでも印象が大きく異なる。">
+          <div class="font-demo-row">
+            <div class="font-demo">
+              <div class="font-demo__text" style="font-family: 'Georgia', 'Times New Roman', serif;">The quick brown fox jumps. 読みやすい文章を作るために。</div>
+              <div class="font-demo__label">セリフ体 — Georgia</div>
+            </div>
+            <div class="font-demo">
+              <div class="font-demo__text" style="font-family: -apple-system, 'BlinkMacSystemFont', 'Helvetica Neue', sans-serif;">The quick brown fox jumps. 読みやすい文章を作るために。</div>
+              <div class="font-demo__label">サンセリフ体 — System UI</div>
+            </div>
+            <div class="font-demo">
+              <div class="font-demo__text" style="font-family: 'Courier New', monospace; font-size: 1.1rem; letter-spacing: 0.02em;">The quick brown fox jumps. 読みやすい文章を。</div>
+              <div class="font-demo__label">等幅フォント — Courier New</div>
+            </div>
+          </div>
+        </hl-figure>
+
+        <h2 id="web-fonts">Webフォントの仕組み</h2>
+
+        <p>Webフォントとは、ユーザーのデバイスにインストールされていなくても、サーバーから配信されて表示できるフォントのことだ。CSSの <code>@font-face</code> ルールによって実現される。</p>
+
+        <hl-code lang="CSS">
+/* @font-face の基本構文 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('/fonts/myfont.woff2') format('woff2'),
+       url('/fonts/myfont.woff')  format('woff');
+  font-weight: 400;
+  font-style: normal;
+  /* フォント読み込み中にフォールバックフォントを表示 */
+  font-display: swap;
+}
+        </hl-code>
+
+        <p><code>font-display: swap</code> は重要な設定だ。フォントの読み込みが遅い場合に代替フォントを先に表示することで、ページがフォント読み込みでフリーズする現象（FOIT: Flash of Invisible Text）を防ぐ<hl-fn num="1"></hl-fn>。</p>
+
+        <p>現代ではWOFF2形式が標準となっており、高い圧縮率でファイルサイズを小さく保てる。ほぼすべてのモダンブラウザがサポートしている。</p>
+
+        <h2 id="google-fonts">Google Fontsを使う</h2>
+
+        <p>Google Fontsは無料で使えるWebフォントサービスで、1,500以上のフォントが揃っている。サーバーへの配信もGoogleが行うため、自前でフォントファイルをホストする必要がない。個人・商用問わず無料で利用できる点も大きな魅力だ。</p>
+
+        <h3 id="japanese-fonts">日本語フォントの選択</h3>
+
+        <p>日本語フォントは文字数が多い（数万文字）ため、英語フォントと比べてファイルサイズが格段に大きい。Google Fontsでは日本語フォントもサブセット化（必要な文字だけを含む）して配信されるが、それでも英語フォントよりは重い。使いたい場面を絞って採用するのがポイントだ。</p>
+
+        <hl-compare left-label="フォント名" right-label="特徴・向いている場面">
+          <div slot="left">
+            <p><strong>Noto Sans JP</strong></p>
+            <p><strong>Noto Serif JP</strong></p>
+            <p><strong>M PLUS 1p</strong></p>
+            <p><strong>Zen Maru Gothic</strong></p>
+            <p><strong>Shippori Mincho</strong></p>
+          </div>
+          <div slot="right">
+            <p>読みやすさと汎用性の最高バランス。最もよく使われる</p>
+            <p>格式ある印象の明朝体。ブログ・コラム向き</p>
+            <p>柔らかく親しみやすいゴシック体。カジュアルな場面に</p>
+            <p>丸みのある字形。子ども向け・ポップなデザインに</p>
+            <p>本文向けの美しい明朝体。長文読書体験を重視する記事に</p>
+          </div>
+        </hl-compare>
+
+        <h3 id="performance">パフォーマンスの最適化</h3>
+
+        <p>Google Fontsを使う際は読み込みパフォーマンスへの配慮が必要だ。最適化されていないと、フォントの読み込みがページ表示をブロックしてしまう。</p>
+
+        <hl-code lang="HTML">
+<!-- 推奨: preconnect + display=swap の組み合わせ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet">
+        </hl-code>
+
+        <hl-alert type="warning">
+          <p>フォントのウェイトを必要以上に読み込まないよう注意してください。<code>wght@100..900</code>（全ウェイト）は非常に重くなります。実際に使うウェイトだけを指定しましょう。</p>
+        </hl-alert>
+
+        <h2 id="size-and-line-height">フォントサイズと行間</h2>
+
+        <p>タイポグラフィで最も影響が大きいのが、フォントサイズと行間の設定だ。この2つが正しく設定されているだけで、同じフォントでも「プロっぽい」印象になる。逆に言えば、ここがずれているとどんな高品質なフォントを使っても読みにくい。</p>
+
+        <h3 id="readable-guidelines">読みやすさの数値ガイドライン</h3>
+
+        <p>長年の研究と実践から導き出された、読みやすさのためのガイドラインを紹介する。</p>
+
+        <hl-step>
+          <hl-step-item num="1" title="本文フォントサイズ: 16px 以上">
+            スマートフォンのブラウザは16px未満のフォントを自動拡大する場合がある。本文には <code>font-size: 1rem</code>（=16px）以上を設定するのが基本だ。長文を読ませる記事やブログでは <code>1.0625rem</code>（17px）〜 <code>1.125rem</code>（18px）がより読みやすい。
+          </hl-step-item>
+          <hl-step-item num="2" title="行間（line-height）: 1.6〜1.8">
+            本文の行間は <code>1.6</code> 〜 <code>1.8</code> が適切とされている。日本語は漢字の密度が高いため、英語テキストよりやや広めの行間が読みやすい。見出しには <code>1.2</code> 〜 <code>1.4</code> が適切で、本文と同じ値を使うと間延びして見える。
+          </hl-step-item>
+          <hl-step-item num="3" title="1行の文字数: 30〜40字（日本語）">
+            1行に収める文字数が多すぎると、行の折り返し追跡が難しくなる。日本語では1行30〜40字、英語では60〜75文字が読みやすい幅の目安だ。CSSでは <code>max-width: 40em</code> や <code>max-width: 70ch</code> などで制御できる。
+          </hl-step-item>
+          <hl-step-item num="4" title="コントラスト比: 4.5:1 以上">
+            テキストと背景のコントラスト比はアクセシビリティ基準（WCAG AA）で4.5:1以上が求められる<hl-fn num="2"></hl-fn>。Chrome DevToolsのアクセシビリティパネルや専用ツールで確認する習慣をつけよう。
+          </hl-step-item>
+        </hl-step>
+
+        <hl-figure caption="タイプスケールの例。各サイズの比率を一定に保つことで、統一感のある視覚的階層が生まれる。">
+          <div class="type-scale">
+            <div class="type-scale__row">
+              <span class="type-scale__label">2rem</span>
+              <span class="type-scale__text" style="font-size:2rem;font-weight:700;color:var(--clr-brown);">大見出し（h1）</span>
+            </div>
+            <div class="type-scale__row">
+              <span class="type-scale__label">1.5rem</span>
+              <span class="type-scale__text" style="font-size:1.5rem;font-weight:700;color:var(--clr-brown);">中見出し（h2）</span>
+            </div>
+            <div class="type-scale__row">
+              <span class="type-scale__label">1.2rem</span>
+              <span class="type-scale__text" style="font-size:1.2rem;font-weight:700;color:var(--clr-brown);">小見出し（h3）</span>
+            </div>
+            <div class="type-scale__row">
+              <span class="type-scale__label">1rem</span>
+              <span class="type-scale__text" style="font-size:1rem;color:var(--clr-brown);">本文テキスト。読みやすさと情報密度のバランスが取れた基準サイズ。</span>
+            </div>
+            <div class="type-scale__row">
+              <span class="type-scale__label">0.85rem</span>
+              <span class="type-scale__text" style="font-size:0.85rem;opacity:0.65;color:var(--clr-brown);">補足・キャプション・注釈。メインの情報から一歩引いた存在感で。</span>
+            </div>
+          </div>
+        </hl-figure>
+
+        <h2 id="font-pairing">フォントのペアリング</h2>
+
+        <p>複数のフォントを組み合わせるペアリングは、タイポグラフィの応用技術だ。見出しと本文に異なるフォントを使うことで、視覚的なリズムと階層感が生まれる。ただし組み合わせが多すぎると散漫な印象になる。<strong>1ページに使うフォントは2〜3種類まで</strong>を原則とする。</p>
+
+        <h3 id="heading-body">見出しと本文の組み合わせ</h3>
+
+        <p>一般的なペアリングのパターンは「コントラストを持たせる」か「同系統でまとめる」かの2種類だ。どちらが正解ということはなく、サイトの目的やトーンに合わせて選ぶ。</p>
+
+        <hl-compare left-label="コントラスト型（異なる系統を組み合わせる）" right-label="ハーモニー型（同系統でまとめる）">
+          <div slot="left">
+            <p>見出し: セリフ体（格調・個性）<br>本文: サンセリフ体（読みやすさ）</p>
+            <p>例: Noto Serif JP × Noto Sans JP<br>　　游明朝 × 游ゴシック</p>
+            <p>見出しに個性を出しつつ、本文は読みやすく保つ。メリハリのある紙面になる。</p>
+          </div>
+          <div slot="right">
+            <p>見出し + 本文: 同じファミリーのウェイト違い</p>
+            <p>例: Noto Sans JP 700 × Noto Sans JP 400</p>
+            <p>フォントを1種類に絞り、太さだけで階層を表現する。シンプルで失敗がない。</p>
+          </div>
+        </hl-compare>
+
+        <hl-tabs>
+          <div class="hl-tab-panel" data-label="日本語ペアリング例">
+            <div class="hl-content-text">
+              <ul>
+                <li><strong>Noto Serif JP × Noto Sans JP</strong> — 同じNotoファミリーなので字形が調和しやすい。ブログ・コラム向き</li>
+                <li><strong>游明朝 × 游ゴシック</strong> — 日本語向けに設計された上品なペア。読書体験を重視する記事に</li>
+                <li><strong>Zen Maru Gothic × M PLUS 1p</strong> — 親しみやすい同系統の丸ゴシック。カジュアルなサービスに</li>
+              </ul>
+            </div>
+          </div>
+          <div class="hl-tab-panel" data-label="英語ペアリング例">
+            <div class="hl-content-text">
+              <ul>
+                <li><strong>Playfair Display × Lato</strong> — エレガントなセリフ × 読みやすいサンセリフ。ファッション・ライフスタイル系に定番</li>
+                <li><strong>Montserrat × Source Serif 4</strong> — 幾何学的サンセリフ × 読みやすい明朝。テック系ブログに人気</li>
+                <li><strong>Inter × Inter</strong> — 1種類をウェイト違いで使いまわす。シンプルで失敗がない</li>
+              </ul>
+            </div>
+          </div>
+          <div class="hl-tab-panel" data-label="避けたい組み合わせ">
+            <div class="hl-content-text">
+              <ul>
+                <li><strong>似た系統のフォントを2種類</strong> — ArilaとHelveticaのように「なぜ混在している?」と感じさせる組み合わせは避ける</li>
+                <li><strong>手書き体を本文に使う</strong> — 手書きフォントは読みにくく、数行以上の本文には不向き。装飾的な見出しに限定する</li>
+                <li><strong>3種類以上を組み合わせる</strong> — 意図のない多フォント混在はデザインの一貫性を損なう</li>
+              </ul>
+            </div>
+          </div>
+        </hl-tabs>
+
+        <h2 id="css-implementation">CSSでの実装</h2>
+
+        <p>概念を理解したら、実際のCSSでどう実装するかを見ていこう。保守性と一貫性を保つための実装パターンを紹介する。</p>
+
+        <h3 id="font-stack">font-family スタック</h3>
+
+        <p><code>font-family</code> プロパティには複数のフォントをカンマ区切りで指定できる。先頭から順に「このフォントが使えるか」を確認し、使えるものが適用される仕組みだ。最後に必ずジェネリックファミリー（<code>serif</code>、<code>sans-serif</code>）を指定しておく。</p>
+
+        <hl-code lang="CSS">
+/* 日本語サイト向けのモダンなフォントスタック */
+body {
+  font-family:
+    'Noto Sans JP',               /* Webフォント (Google Fonts) */
+    'Hiragino Sans',              /* macOS / iOS */
+    'Hiragino Kaku Gothic ProN',
+    'Yu Gothic Medium',           /* Windows 10+ */
+    'Yu Gothic',
+    'Meiryo',
+    sans-serif;
+}
+
+/* コードブロック用 */
+code, pre {
+  font-family:
+    'JetBrains Mono',
+    'Fira Code',
+    'Source Code Pro',
+    'Consolas',                   /* Windows */
+    'Monaco',                     /* macOS */
+    monospace;
+}
+        </hl-code>
+
+        <h3 id="css-variables">CSS変数でのタイポグラフィ管理</h3>
+
+        <p>フォントに関する設定はCSS変数にまとめておくと、サイト全体の一貫性を保ちやすく、変更も容易になる。カラーパレットと同じ <code>:root</code> にまとめて定義するのが一般的だ。</p>
+
+        <hl-code lang="CSS">
+:root {
+  /* フォントファミリー */
+  --font-main: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* タイプスケール */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  2rem;       /* 32px */
+
+  /* 行間 */
+  --leading-tight:  1.3;
+  --leading-normal: 1.7;
+  --leading-loose:  1.9;
+}
+
+/* 使用例 */
+body {
+  font-family: var(--font-main);
+  font-size:   var(--text-base);
+  line-height: var(--leading-normal);
+}
+        </hl-code>
+
+        <hl-alert type="info">
+          <p>タイポグラフィのCSS変数はカラーパレットと同じ <code>:root</code> にまとめて定義すると管理しやすい。色・サイズ・間隔・フォントを変数化してシステム化する手法は「デザイントークン」と呼ばれ、大規模プロジェクトでも標準的な考え方となっている。</p>
+        </hl-alert>
+
+        <h2 id="variable-fonts">バリアブルフォントの活用</h2>
+
+        <p>バリアブルフォント（variable fonts）は、ウェイト・幅・斜体などの軸を連続的に変化させられる新しい形式のフォントだ。通常であれば Regular・Bold・Light と3ファイル必要なところを、1ファイルで対応できる。</p>
+
+        <hl-code lang="CSS">
+/* バリアブルフォントの使用例 */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.woff2') format('woff2-variations');
+  font-weight: 100 900;  /* 使用できるウェイトの範囲 */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ウェイトをアニメーションさせることも可能 */
+.hover-weight {
+  font-variation-settings: 'wght' 400;
+  transition: font-variation-settings 0.3s ease;
+}
+.hover-weight:hover {
+  font-variation-settings: 'wght' 700;
+}
+        </hl-code>
+
+        <p>Google Fontsの多くのフォントはすでにバリアブルフォント形式で配信されている。<code>wght@400;700</code> と個別指定するより、<code>wght@400..700</code> と範囲指定した方がキャッシュ効率が良くなる場合もある。</p>
+
+        <h2 id="accessibility">アクセシビリティとフォント</h2>
+
+        <p>タイポグラフィはアクセシビリティに直接影響する。「すべてのユーザーに読みやすい文字を届ける」という意識が、良いタイポグラフィの根底にある。</p>
+
+        <hl-step>
+          <hl-step-item num="1" title="絶対単位ではなく相対単位を使う">
+            <code>font-size: 16px</code> と書くと、ユーザーがブラウザの文字サイズを大きく設定しても反映されない。<code>font-size: 1rem</code> のような相対単位を使うことで、ユーザーの設定を尊重できる。<code>px</code> は使わない、という原則を守ろう。
+          </hl-step-item>
+          <hl-step-item num="2" title="コントラスト比を確保する">
+            背景色とテキスト色のコントラスト比がWCAG AAレベルの4.5:1を満たしているか確認する。18px以上の大きな文字・太字テキストは3:1でもよい。確認には Chrome DevTools のアクセシビリティパネルや「Colour Contrast Analyser」が便利だ。
+          </hl-step-item>
+          <hl-step-item num="3" title="フォントサイズを小さくしすぎない">
+            補足テキストでも <code>0.75rem</code>（12px）以下は避けたい。視力に不安のあるユーザーが読めなくなるだけでなく、モバイルでタップ操作もしにくくなる。
+          </hl-step-item>
+          <hl-step-item num="4" title="行の長さを制限する">
+            横幅を制限しないと、広いモニターで1行が非常に長くなってしまう。<code>max-width: 70ch</code> 程度の制限を本文コンテナに設けることで、すべてのユーザーに読みやすい行長を保てる。
+          </hl-step-item>
+        </hl-step>
+
+        <h2 id="common-mistakes">よくある失敗と対処法</h2>
+
+        <p>Webタイポグラフィでよく見かける失敗パターンをまとめた。自分のサイトを見直すチェックリストとしても活用してほしい。</p>
+
+        <hl-accordion title=" 行間が狭すぎて読みにくい">
+          <p>デフォルトの <code>line-height: 1.2</code> 程度では、日本語テキストは非常に詰まって見える。本文には最低でも <code>1.6</code>、読み物コンテンツなら <code>1.75</code> 〜 <code>1.9</code> を設定しよう。</p>
+          <p>逆に見出しの行間が広すぎるケースも多い。見出しは <code>1.2</code> 〜 <code>1.4</code> で十分だ。</p>
+        </hl-accordion>
+
+        <hl-accordion title=" フォントを使いすぎている">
+          <p>「カジュアルな部分にはポップなフォント」「コードにはモノスペース」「タイトルに英語フォント」……と増やしていくと、すぐに4〜5種類になる。原則として<strong>2種類まで</strong>に絞り、ウェイトのバリエーションで階層を表現する方が整って見える。</p>
+        </hl-accordion>
+
+        <hl-accordion title=" px で固定してしまっている">
+          <p>フォントサイズを <code>px</code> で固定すると、ユーザーのブラウザ設定を無視することになる。<code>rem</code> を基本単位とし、レイアウトの都合で <code>em</code> を使い分けると良い。</p>
+        </hl-accordion>
+
+        <hl-accordion title=" 本文の横幅を制限していない">
+          <p>フルワイドで横に長い文章は非常に読みにくい。本文コンテナには <code>max-width: 40rem</code> 〜 <code>70ch</code> 程度の制限をかけよう。<code>ch</code> 単位は「0の文字幅を1とした単位」で、文字数ベースで幅を指定できる。</p>
+        </hl-accordion>
+
+        <hl-accordion title=" 日本語テキストに italic を使っている">
+          <p>日本語フォントには本来のイタリック体が存在しない。ブラウザが強制的に斜体に変換する「フェイクイタリック」は字形が崩れる。日本語テキストで強調したい場合は太字や色の変化を使おう。</p>
+        </hl-accordion>
+
+        <h2 id="summary">まとめ</h2>
+
+        <p>タイポグラフィは地味に見えて、デザインの印象を決定的に左右する要素だ。今日紹介した内容を振り返ると:</p>
+
+        <ul>
+          <li>フォントには<strong>セリフ・サンセリフ・等幅</strong>の3種類があり、それぞれ用途が異なる</li>
+          <li>Webフォントは <code>@font-face</code> と <code>font-display: swap</code> を正しく設定する</li>
+          <li>本文は <strong>16px以上・行間1.6以上</strong> が読みやすさの基準</li>
+          <li>フォントは<strong>2〜3種類まで</strong>に絞り、ウェイトで階層を作る</li>
+          <li>CSS変数でタイポグラフィをシステム化すると保守しやすい</li>
+          <li>アクセシビリティのために<strong>remを使い・コントラストを確保</strong>する</li>
+        </ul>
+
+        <hl-quote source="Jan Tschichold, 『新しいタイポグラフィ』（1928）">
+          <p>タイポグラフィの目的は伝達だ。装飾は副産物に過ぎない。</p>
+        </hl-quote>
+
+        <p>最初から完璧を目指す必要はない。まず本文の行間とフォントサイズを見直すだけで、見違えるほど読みやすくなる。一つずつ整えていこう。</p>
+
+        <h2 id="references">参考文献・注記</h2>
+
+        <hl-cite
+          title="Web Content Accessibility Guidelines (WCAG) 2.1"
+          author="W3C"
+          publisher="World Wide Web Consortium"
+          year="2018"
+          url="https://www.w3.org/TR/WCAG21/"
+          accessed="2026.05.17">
+        </hl-cite>
+
+        <hl-cite
+          title="Thinking with Type: A Critical Guide for Designers, Writers, Editors, and Students"
+          author="Ellen Lupton"
+          publisher="Princeton Architectural Press"
+          year="2010（第2版）">
+        </hl-cite>
+
+        <hl-cite
+          title="The Anatomy of Type: A Graphic Guide to 100 Typefaces"
+          author="Stephen Coles"
+          publisher="Harper Design"
+          year="2012">
+        </hl-cite>
+
+        <hl-footnotes label="注記">
+          <hl-fn-item num="1">FOITとは "Flash of Invisible Text" の略。フォント読み込み中にテキストが一瞬消える現象。<code>font-display: swap</code> を使うと代わりにFOUT（Flash of Unstyled Text）が起きるが、コンテンツが読めるためユーザー体験は向上する。</hl-fn-item>
+          <hl-fn-item num="2">WCAG 2.1 達成基準 1.4.3「コントラスト（最低限）」に定められる。Level AA が一般的な目標水準。大きな文字（18pt以上または太字14pt以上）は3:1が基準となる。</hl-fn-item>
+        </hl-footnotes>
+
+      </div>
+
+      <hl-share></hl-share>
+
+    </div>
+
+    <aside class="hl-layout-sidebar">
+        <hl-profile></hl-profile>
+              <div class="sidebar-sticky">
+
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
+
+</body>
+</html>

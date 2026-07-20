@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
   <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
 
-  <meta property="og:title" content="X DMボタン作成 | Halcyon - 5Gkyu">
+  <meta property="og:title" content="X DMリンク作成 | Halcyon - 5Gkyu">
   <meta property="og:description" content="相手の数値IDを指定してXのDM作成リンクを生成します。">
   <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
   <meta property="og:url" content="https://5gkyu.github.io/archive/app/x/dm/">
@@ -20,7 +21,13 @@
   <meta property="og:site_name" content="Halcyon">
   <meta name="twitter:card" content="summary_large_image">
 
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+  </style>
 
   <style>
     .xd-textarea {
@@ -39,10 +46,12 @@
       box-sizing: border-box;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     .xd-textarea:focus {
       border-color: var(--clr-sage);
       box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
     }
+
     .xd-check {
       display: flex;
       align-items: center;
@@ -57,6 +66,7 @@
       color: var(--clr-brown);
       cursor: pointer;
     }
+
     .xd-check input[type="checkbox"] {
       width: 1.1rem;
       height: 1.1rem;
@@ -64,6 +74,7 @@
       cursor: pointer;
       flex-shrink: 0;
     }
+
     .xd-output {
       margin-top: 1.2rem;
       padding: 1rem 1.2rem;
@@ -77,12 +88,14 @@
       color: var(--clr-brown);
       min-height: 2.8rem;
     }
+
     .xd-actions {
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
       margin-top: 1.2rem;
     }
+
     .xd-hint {
       font-size: 0.8rem;
       color: var(--clr-brown);
@@ -90,6 +103,7 @@
       line-height: 1.55;
       margin-top: 0.5rem;
     }
+
     .xd-example-img {
       width: 100%;
       height: auto;
@@ -98,6 +112,7 @@
       margin-top: 0.8rem;
       display: block;
     }
+
     .xd-step {
       margin-top: 1.5rem;
       padding: 1.2rem 1.4rem;
@@ -105,6 +120,7 @@
       border: 1px solid rgba(154, 176, 143, 0.2);
       border-radius: 16px;
     }
+
     .xd-step ol {
       margin: 0.8rem 0 0 1.2rem;
       padding: 0;
@@ -112,26 +128,33 @@
       color: var(--clr-brown);
       line-height: 1.8;
     }
-    .xd-step li { margin-bottom: 1rem; }
+
+    .xd-step li {
+      margin-bottom: 1rem;
+    }
+
     .xd-warn {
       color: #a03030;
       font-weight: 700;
       font-size: 0.82rem;
       margin-top: 0.5rem;
     }
-    .sidebar-sticky { position: sticky; top: 100px; }
+
+    .sidebar-sticky {
+      position: sticky;
+      top: 100px;
+    }
   </style>
 </head>
+
 <body>
 
   <site-header site-name="X DMボタン作成"></site-header>
 
   <hl-layout cols="2" class="fluffy-entry delay-1">
     <div class="hl-layout-main">
-      <hl-breadcrumb
-        current="X DMボタン作成"
-        level1-name="Archive" level1-url="/archive/"
-        level2-name="App" level2-url="/archive/app/">
+      <hl-breadcrumb current="X DMボタン作成" level1-name="Archive" level1-url="/archive/" level2-name="App"
+        level2-url="/archive/app/">
       </hl-breadcrumb>
 
       <page-title>X DM機能用リンク作成</page-title>
@@ -140,13 +163,15 @@
         プロフィールやサイトなどに設置することで、クリックした人が指定されたアカウント宛のDM画面を直接開けるようになります。
       </p>
 
-      <p class="xd-warn" style="margin-top: 0; margin-bottom: 1.2rem;">※2026/5/16現在、PC環境からはDMのテキスト自動入力が動作しない場合があります。（スマホアプリからは正常に動作します）</p>
+      <p class="xd-warn" style="margin-top: 0; margin-bottom: 1.2rem;">
+        ※2026/5/16現在、PC環境からはDMのテキスト自動入力が動作しない場合があります。（スマホアプリからは正常に動作します）</p>
 
       <section-heading id="actual-example">実物例</section-heading>
       <hl-alert style="margin-bottom: 1.5rem;">
         生成されたURLにアクセスすると、直接DM送信画面が開きます。
         <div style="margin-top: 1rem;">
-          <a href="https://x.com/messages/compose?recipient_id=1422097522986602505&text=%E3%83%9E%E3%83%9E%0A%E5%AD%90%E7%8C%AB%20%0A%E7%B4%A0%E6%89%8B%E3%81%A7%E3%81%99%0A%E5%A4%9C%E5%AF%9D%E3%82%8B%E3%82%88%0A%E8%BB%BD%E3%81%84%E3%82%A4%E3%83%AB%E3%82%AB%0A%E3%81%BE%E3%81%95%E3%81%8B%E9%80%86%E3%81%95%E3%81%BE%0A%E9%85%A2%E8%B1%9A%E3%81%AB%E4%BC%BC%E3%81%9F%E3%83%96%E3%82%B9%0A%E7%A7%81%E8%B2%A0%E3%81%91%E3%81%BE%E3%81%97%E3%81%9F%E3%82%8F%0A%E6%AE%B5%E3%80%85%E3%81%A8%E8%B7%B3%E3%82%93%E3%81%A0%E3%82%93%E3%81%A0%0A%E6%96%B0%E5%B1%85%E3%81%AB%E3%83%9D%E3%83%8B%E3%83%A7%E7%A6%81%E6%AD%A2%0A%E4%BB%BB%E5%A4%A9%E5%A0%82%E3%80%81%E3%81%86%E3%81%A9%E3%82%93%E5%BA%97%E3%81%AB%0A%E3%81%AA%E3%82%93%E3%81%A6%E5%B0%BB%E3%80%81%E3%83%97%E3%83%AA%E3%83%97%E3%83%AA%E3%81%97%E3%81%A6%E3%82%93%E3%81%AA%0A%E3%82%BA%E3%83%A9%E3%81%A8%E3%83%90%E3%83%AC%E3%81%A6%E3%82%82%E3%80%81%E3%83%A2%E3%83%86%E3%82%8C%E3%81%B0%E5%8F%96%E3%82%89%E3%81%9A%0A%E3%83%80%E3%83%A1%E3%80%81%E9%A7%84%E4%BD%9C%E3%82%86%E3%81%88%E6%B6%88%E3%81%88%E3%82%86%E3%81%8F%E3%81%95%E3%81%A0%E3%82%81%E3%81%A0" target="_blank" class="hl-btn hl-btn--primary">
+          <a href="https://x.com/messages/compose?recipient_id=1422097522986602505&text=%E3%83%9E%E3%83%9E%0A%E5%AD%90%E7%8C%AB%20%0A%E7%B4%A0%E6%89%8B%E3%81%A7%E3%81%99%0A%E5%A4%9C%E5%AF%9D%E3%82%8B%E3%82%88%0A%E8%BB%BD%E3%81%84%E3%82%A4%E3%83%AB%E3%82%AB%0A%E3%81%BE%E3%81%95%E3%81%8B%E9%80%86%E3%81%95%E3%81%BE%0A%E9%85%A2%E8%B1%9A%E3%81%AB%E4%BC%BC%E3%81%9F%E3%83%96%E3%82%B9%0A%E7%A7%81%E8%B2%A0%E3%81%91%E3%81%BE%E3%81%97%E3%81%9F%E3%82%8F%0A%E6%AE%B5%E3%80%85%E3%81%A8%E8%B7%B3%E3%82%93%E3%81%A0%E3%82%93%E3%81%A0%0A%E6%96%B0%E5%B1%85%E3%81%AB%E3%83%9D%E3%83%8B%E3%83%A7%E7%A6%81%E6%AD%A2%0A%E4%BB%BB%E5%A4%A9%E5%A0%82%E3%80%81%E3%81%86%E3%81%A9%E3%82%93%E5%BA%97%E3%81%AB%0A%E3%81%AA%E3%82%93%E3%81%A6%E5%B0%BB%E3%80%81%E3%83%97%E3%83%AA%E3%83%97%E3%83%AA%E3%81%97%E3%81%A6%E3%82%93%E3%81%AA%0A%E3%82%BA%E3%83%A9%E3%81%A8%E3%83%90%E3%83%AC%E3%81%A6%E3%82%82%E3%80%81%E3%83%A2%E3%83%86%E3%82%8C%E3%81%B0%E5%8F%96%E3%82%89%E3%81%9A%0A%E3%83%80%E3%83%A1%E3%80%81%E9%A7%84%E4%BD%9C%E3%82%86%E3%81%88%E6%B6%88%E3%81%88%E3%82%86%E3%81%8F%E3%81%95%E3%81%A0%E3%82%81%E3%81%A0"
+            target="_blank" class="hl-btn hl-btn--primary">
             実物例のDM画面を開く
           </a>
         </div>
@@ -158,7 +183,8 @@
         <label class="hl-label" for="recipient_id" style="margin-bottom: 0.5rem;">
           送信対象としたいアカウントのID（数値）<span class="hl-label__required">必須</span>
         </label>
-        <input id="recipient_id" type="text" inputmode="numeric" class="hl-input" placeholder="例: 123456789（数値のみ）" autocomplete="off">
+        <input id="recipient_id" type="text" inputmode="numeric" class="hl-input" placeholder="例: 123456789（数値のみ）"
+          autocomplete="off">
 
         <label class="hl-label" for="dm_text" style="margin-top: 1.2rem; margin-bottom: 0.5rem;">DM本文（任意）</label>
         <textarea id="dm_text" class="xd-textarea" placeholder="事前入力する本文"></textarea>
@@ -170,8 +196,8 @@
       </div>
 
       <div class="xd-actions">
-        <hl-button id="make_btn" icon="📋">DMリンクを生成</hl-button>
-        <hl-button id="open_btn" variant="secondary" icon="↗">新しいタブで開く</hl-button>
+        <hl-button id="make_btn" icon="file">DMリンクを生成</hl-button>
+        <hl-button id="open_btn" variant="secondary" icon="">新しいタブで開く</hl-button>
       </div>
 
       <p class="xd-hint">生成形式: https://x.com/messages/compose?recipient_id=...&amp;text=...</p>
@@ -272,4 +298,5 @@
     })();
   </script>
 </body>
+
 </html>

@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes" />
+  <title>KyuLink</title>
+  <meta name="description" content="きゅーがよく使うリンクまとめ" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="Halcyon">
+  <meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="5gkyu">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@5gkyu">
+  <meta name="twitter:title" content="Halcyon">
+  <meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
+  <meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
+
+  <!-- Theme color (スマホ枠色) -->
+  <meta name="theme-color" content="#ff6b8a" />
+  <meta name="msapplication-TileColor" content="#ff6b8a" />
+
+  <link rel="stylesheet" href="style.css?v=20260419a">
+  <!-- Load Google Fonts for additional font options -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=DotGothic16&family=M+PLUS+Rounded+1c&family=Kosugi+Maru&family=Yomogi&family=Noto+Sans+JP:wght@400;700&display=swap"
+    rel="stylesheet">
+  <!-- ローディング中のちらつき防止 -->
+  <style id="kyulink-fouc">
+    body>*:not(#kyulink-loading) {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+  </style>
+  <style>
+    /* When add/edit modal is open, disable FAB */
+    body.modal-add-open .fab {
+      display: none !important;
+    }
+
+    /* Prevent body from scrolling when modal open */
+    body.modal-add-open {
+      overflow: hidden;
+    }
+
+    /* Ensure main content sits below the fixed header (uses --hdr-h set by script) */
+    .wrap {
+      box-sizing: border-box;
+      padding-top: calc(var(--hdr-h, 72px) + 16px);
+    }
+  </style>
+  <script>
+    (function () {
+      let lastH = 0;
+      let scheduled = false;
+      function updateHeaderHeight() {
+        try {
+          const header = document.querySelector('header.card');
+          if (!header) return;
+          const h = header.offsetHeight || 0;
+          if (h === lastH) return;
+          lastH = h;
+          document.documentElement.style.setProperty('--hdr-h', h + 'px');
+        } catch (e) { console.warn('updateHeaderHeight failed', e) }
+      }
+      function scheduleUpdate() { if (scheduled) return; scheduled = true; requestAnimationFrame(() => { scheduled = false; updateHeaderHeight(); }); }
+      updateHeaderHeight();
+      window.addEventListener('resize', scheduleUpdate);
+      window.addEventListener('orientationchange', scheduleUpdate);
+      if (window.visualViewport) {
+        try {
+          visualViewport.addEventListener('resize', scheduleUpdate);
+          // avoid reacting to visualViewport.scroll to prevent layout thrash on mobile
+        } catch (e) { }
+      }
+      window.addEventListener('load', () => setTimeout(scheduleUpdate, 120));
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- Fuka Animation (ローディングアイコン用) -->
+  <script src="/components/fuka-animation.js"></script>
+
+  <!-- KyuLink ローディング画面 -->
+  <div id="kyulink-loading">
+    <div class="kyulink-loading-inner">
+      <div class="kyulink-loading-logo-wrap">
+        <div class="kyulink-loading-spinner"></div>
+        <img src="https://5gkyu.github.io/icon/apple-touch-icon.png" alt="logo" class="kyulink-loading-img">
+      </div>
+      <div class="kyulink-loading-title">KyuLink</div>
+      <div class="kyulink-loading-bar-wrap">
+        <div class="kyulink-loading-bar-track">
+          <div class="kyulink-loading-bar-fill" id="kyulinkLoadingBar"></div>
+        </div>
+      </div>
+      <div class="kyulink-loading-msg" id="kyulinkLoadingMsg">読み込み中…</div>
+    </div>
+  </div>
+  <div class="wrap">
+    <header class="card" role="banner">
+      <div class="top-row">
+        <!-- Fukaの表示スペース用のスペーサー -->
+        <div style="width: 44px; flex-shrink: 0;"></div>
+        <div class="search" aria-hidden="false" style="flex:1;min-width:0;margin:0;position:relative;">
+          <input id="q" aria-label="検索" placeholder="検索" autocomplete="off" style="padding-right: 80px;" />
+          <div style="position:absolute; right:12px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px; pointer-events:auto;">
+            <button id="clearSearchBtn" aria-label="検索をクリア" style="display:none; width:20px; height:20px; border-radius:50%; border:none; background:rgba(128,128,128,0.2); color:inherit; font-size:14px; cursor:pointer; align-items:center; justify-content:center; padding:0;" title="一括削除">&times;</button>
+            <div class="icon" id="countText" style="font-size:12px;opacity:0.8;position:static;transform:none;">0 件</div>
+          </div>
+        </div>
+
+        <button id="topEditModeBtn" class="small-btn" style="flex-shrink:0;margin-left:8px;display:none;">編集</button>
+
+        <div id="authRight" style="flex-shrink:0;z-index:1010;">
+          <div class="user-info-row" id="userInfoBtn" title="ユーザー設定">
+            <div class="user-mini-avatar" id="userMiniAvatar"><svg viewBox="0 0 24 24" fill="currentColor" style="width:100%;height:100%;padding:2px;box-sizing:border-box;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+            <span class="user-info-text" id="userInfoText">ユーザー: ゲスト</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator (Fuka and Pino) -->
+      <div id="kyu-scroll-indicator" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; z-index: 150; pointer-events: none;">
+        <img src="https://5gkyu.github.io/icon/Fuka_header.png" id="charLogoBtn" alt="KyuLink キャラクター" title="KyuLink キャラクター" role="button" tabindex="0" draggable="false" oncontextmenu="return false;"
+          style="
+            position: absolute; 
+            left: 0px; 
+            bottom: -20px; 
+            width: 40px; 
+            height: auto; 
+            z-index: 5;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            pointer-events: auto;
+            cursor: pointer;
+          ">
+        <div id="kyu-scroll-vine" style="height: 100%; background: var(--accent-1); width: 0%; border-radius: 0 3px 3px 0; transition: width 0.1s ease-out; position: relative; box-shadow: 0 0 8px var(--accent-1);">
+          <!-- left: max() と calc() を使い、左端(Fukaの膝)と右端(画面端)の両方で位置が破綻しないように調整 -->
+          <img src="https://5gkyu.github.io/icon/Pino_header.png" id="kyu-header-bird" alt="" draggable="false" oncontextmenu="return false;"
+            style="position: absolute; left: max(20px, calc(100% - 8px)); margin-left: -10px; transform: scaleX(-1); bottom: -1px; width: 18px; height: auto; transition: transform 0.2s ease-out; filter: drop-shadow(0 4px 6px rgba(106, 86, 74, 0.2)); z-index: 10;">
+        </div>
+      </div>
+    </header>
+
+    <div class="content-row">
+      <!-- Left Sidebar (Desktop only) -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section sidebar-layout-section">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button id="sidebarLayoutBtnPhone" class="small-btn layout-toggle-btn" data-value="list"
+              type="button">スマートフォン</button>
+            <button id="sidebarLayoutBtnDesktop" class="small-btn layout-toggle-btn" data-value="grid"
+              type="button">タブレット/PC</button>
+          </div>
+          <select id="sidebarLayout" aria-label="サイドバーレイアウト" style="display:none;">
+            <option value="list">リスト</option>
+            <option value="grid">グリッド</option>
+          </select>
+        </div>
+        <div class="sidebar-section">
+          <div class="primary-tags" id="primaryTags"
+            style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:12px;"></div>
+          <button id="sidebarMoreTagsBtn" class="open-btn"
+            style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom: 12px;">その他のタグ</button>
+
+          <button id="sidebarHubBtn" class="open-btn" type="button"
+            style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">ハブ</button>
+        </div>
+      </aside>
+
+      <main>
+        <div class="list" id="list"></div>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- Mobile Menu Modal -->
+  <div class="modal" id="mobileMenuModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="panel" role="document">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;">メニュー</h3>
+        <button id="closeMobileMenuModal" class="small-btn" type="button">閉じる</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="primary-tags" id="mobilePrimaryTags"
+          style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin: 0 8px 16px 8px;"></div>
+        <button id="mobileMoreTagsBtn" class="open-btn"
+          style="width:100%; max-width:272px; margin:0 auto; display:flex; justify-content:center; align-items:center;">その他のタグ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for adding a bookmark -->
+  <div class="modal" id="addModal" role="dialog" aria-modal="true">
+    <div class="panel" role="document" aria-labelledby="addTitle">
+      <h3 id="addTitle">ブックマークを追加</h3>
+
+      <div class="form-row">
+        <div class="label-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <label style="margin:0">URL（必須）</label>
+          <button id="copyAddUrlBtn" class="small-btn" type="button" title="URL をコピー">コピー</button>
+        </div>
+        <div class="form-inline" style="margin-top:6px">
+          <div style="flex:1;min-width:0;">
+            <input id="addUrl" type="url" aria-label="追加するURL" placeholder="https://example.com"
+              style="width:100%;box-sizing:border-box" />
+          </div>
+          <button id="pasteUrlBtn" class="small-btn" type="button">URL</button>
+          <button id="pasteJsonBtn" class="small-btn" type="button">JSON/JS</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>タイトル</label>
+        <input id="addTitleInput" type="text" aria-label="タイトル" placeholder="取得します…" />
+      </div>
+
+      <div class="form-row" id="addIconRow" style="display:none;" aria-hidden="true">
+        <label>アイコン URL（任意）</label>
+        <input id="addIcon" type="url" aria-label="アイコンURL" placeholder="任意：アイコン URL （省略可）" />
+      </div>
+      <div class="form-row">
+        <label>Grid 用画像 URL（任意）</label>
+        <input id="addGridImage" type="url" aria-label="グリッド画像URL" placeholder="任意：og:image カード画像 URL （省略可）" />
+      </div>
+      <div class="form-row">
+        <label>List 用画像 URL（任意）</label>
+        <input id="addListImage" type="url" aria-label="リスト画像URL" placeholder="任意：favicon 等 URL （省略可）" />
+      </div>
+      <div class="form-row">
+        <label>説明（任意）</label>
+        <textarea id="addDesc" rows="2" aria-label="サイトの説明" placeholder="サイトの説明"></textarea>
+      </div>
+
+
+      <div class="form-row">
+        <label>タグ（カンマ区切り、任意）</label>
+        <input id="addTags" type="text" aria-label="タグ" placeholder="例: ツール,ブログ,仕事" list="tagSuggestions"
+          autocomplete="off" />
+        <datalist id="tagSuggestions"></datalist>
+        <div id="quickTagsContainer" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+      </div>
+
+      <div
+        style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;align-items:center;padding:0 12px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="deleteInModal" class="small-btn" type="button"
+            style="background:#e74c3c;color:#fff;border-color:#e74c3c;">削除</button>
+          <button id="refreshImagesBtn" class="small-btn" type="button"
+            style="background:#3498db;color:#fff;border-color:#3498db;">画像更新</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center">
+          <button id="cancelAdd" class="small-btn" type="button">キャンセル</button>
+          <button id="saveAdd" class="open-btn" type="button">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for full tag selection -->
+  <div class="modal" id="tagModal" role="dialog" aria-modal="true">
+    <div class="panel">
+      <h3>タグで絞り込む</h3>
+      <div style="margin-bottom:8px"><input id="tagSearch" aria-label="タグ検索" placeholder="タグ検索…"
+          style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+      </div>
+      <div class="tags-grid" id="modalTags"></div>
+      <div style="margin-top:12px;text-align:right"><button id="closeModal" class="small-btn" type="button">閉じる</button></div>
+    </div>
+  </div>
+
+
+  <!-- modal for view mode selection -->
+  <div class="modal" id="viewModeModal" role="dialog" aria-modal="true">
+    <div class="panel" role="document" style="max-width:360px;">
+      <h3 style="margin-top:0;">表示サイズ</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="vmode" value="small"> 小</label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="vmode" value="medium">
+          中</label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="viewModeCancel" class="small-btn" type="button">キャンセル</button>
+        <button id="viewModeSave" class="open-btn" type="button">適用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 一般ユーザー用詳細モーダル（閲覧のみ） -->
+  <div class="modal" id="detailModal" role="dialog" aria-modal="true">
+    <div class="panel" role="document" aria-labelledby="detailTitle">
+      <h3 id="detailTitle">ブックマーク詳細</h3>
+
+      <div class="form-row">
+        <label>タイトル</label>
+        <div class="detail-value" id="detailTitleText"
+          style="padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;user-select:text;"></div>
+      </div>
+
+      <div class="form-row">
+        <label>URL</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="detail-value" id="detailUrl"
+            style="padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;word-break:break-all;user-select:text;min-width:0;flex:1;">
+          </div>
+          <button id="copyDetailUrlBtn" class="small-btn" type="button" title="URL をコピー">コピー</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>説明</label>
+        <div class="detail-value" id="detailDesc"
+          style="padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;min-height:40px;user-select:text;white-space:pre-wrap;">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>タグ</label>
+        <div class="detail-value" id="detailTags"
+          style="padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;user-select:text;"></div>
+      </div>
+
+      <div style="display:flex;justify-content:center;margin-top:16px;">
+        <button id="closeDetailModal" class="small-btn" type="button">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ユーザー設定モーダル -->
+  <div class="modal" id="userSettingsModal" role="dialog" aria-modal="true">
+    <div class="panel" role="document" style="max-width:400px;">
+      <h3 style="text-align:center;">ユーザー設定</h3>
+      <div style="text-align:center;margin:16px 0;">
+        <div class="user-avatar-large" id="userAvatarLarge"><svg viewBox="0 0 24 24" fill="currentColor" style="width:100%;height:100%;padding:4px;box-sizing:border-box;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <input type="file" id="avatarUploadInput" aria-label="アバターアップロード" accept="image/*" style="display:none" />
+        <button id="uploadAvatarBtn" class="small-btn" style="margin-top:12px;">アイコンを変更</button>
+      </div>
+      <div id="loginSection" style="margin-top:16px;">
+        <p style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px;">Googleでログインするとデータが同期されます</p>
+        <button id="googleSignInBtn2" class="open-btn"
+          style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+            style="width:18px;height:18px;">
+          Googleでログイン
+        </button>
+      </div>
+      <div id="logoutSection" style="display:none;margin-top:16px;">
+        <p id="loggedInEmail" style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px;"></p>
+        <button id="signOutBtn2" class="small-btn"
+          style="width:100%;background:#e74c3c;color:#fff;border-color:#e74c3c;">ログアウト</button>
+      </div>
+      <!-- 表示設定: view size と sort をここに移動 -->
+      <div style="margin-top:12px;">
+        <div class="form-row" style="margin-bottom:6px">
+          <label style="font-weight:700">表示設定</label>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <div id="settingsSortRow" style="display:flex;align-items:center;gap:8px;">
+              <label style="min-width:80px;">並び順:</label>
+              <select id="sortSelect" aria-label="並び順">
+                <option value="custom">手動（カスタム）</option>
+                <option value="alpha_en_asc">名前順（昇順）</option>
+                <option value="alpha_en_desc">名前順（降順）</option>
+                <option value="date-new">新着</option>
+                <option value="date-old">古い</option>
+              </select>
+            </div>
+
+            <div id="settingsViewSizeRow" style="display:flex;align-items:center;gap:8px;">
+              <label style="min-width:80px;">表示サイズ:</label>
+              <select id="viewSizeSelect" aria-label="表示サイズ">
+                <option value="small">小</option>
+                <option value="medium">中</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Appearance: Theme selector -->
+      <div style="margin-top:12px;">
+        <div class="form-row" style="margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="min-width:80px;font-weight:700">Theme:</label>
+            <select id="themeSelect" aria-label="テーマ" style="padding:8px;border-radius:8px;min-width:160px;">
+              <option value="awake">Awake</option>
+              <option value="muse">Muse</option>
+              <option value="eof">EOF</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <label style="min-width:80px;font-weight:700">フォント:</label>
+            <select id="fontSelect" aria-label="フォント" style="padding:8px;border-radius:8px;min-width:160px;">
+              <option value="notojp">Noto Sans JP（既定）</option>
+              <option value="dotgothic16">DotGothic16</option>
+              <option value="mplus">M PLUS Rounded 1c</option>
+              <option value="kosugi">Kosugi Maru</option>
+              <option value="yomogi">Yomogi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid column count selector -->
+      <div id="gridColsSettingRow" style="margin-top:8px;">
+        <div class="form-row" style="margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="min-width:80px;font-weight:700">カラム数:</label>
+            <select id="gridColsSelect" aria-label="グリッド列数" style="padding:8px;border-radius:8px;min-width:160px;">
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:20px;">
+        <!-- OGP プロキシ設定 UI は非表示（デフォルトで Worker を利用） -->
+        <button id="closeUserSettingsModal" class="small-btn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK（compat）: これを一度だけ読み込む -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Firebase読み込み完了後にローディング画面を解除 -->
+  <script>
+    (function () {
+      var bar = document.getElementById('kyulinkLoadingBar');
+      var msg = document.getElementById('kyulinkLoadingMsg');
+      var loading = document.getElementById('kyulink-loading');
+      var fouc = document.getElementById('kyulink-fouc');
+      var progress = 0;
+
+      function setProgress(p) {
+        progress = Math.min(p, 100);
+        if (bar) bar.style.width = progress + '%';
+      }
+
+      // Firebase SDKの存在チェック
+      if (typeof firebase !== 'undefined' && firebase.app) {
+        setProgress(60);
+        if (msg) msg.textContent = 'データを準備中…';
+      }
+
+      // ローディング解除関数
+      window._kyulinkFinishLoading = function () {
+        setProgress(100);
+        if (msg) msg.textContent = '完了！';
+        setTimeout(function () {
+          if (loading) {
+            loading.classList.add('is-out');
+            setTimeout(function () {
+              loading.remove();
+            }, 500);
+          }
+          if (fouc) fouc.remove();
+        }, 300);
+      };
+
+      // フォールバック: 8秒経ってもロードが終わらない場合は強制解除
+      setTimeout(function () {
+        if (document.getElementById('kyulink-loading')) {
+          window._kyulinkFinishLoading();
+        }
+      }, 8000);
+    })();
+  </script>
+
+  <!-- 外部スクリプト本体 -->
+  <script src="linklocal.js?v=20260419a" defer></script>
+
+  <script>
+    // オーナーであれば常に右下にFABを表示する（mobile Safariのsafe-area考慮）
+    (function () {
+      const fab = document.getElementById('openAdd');
+      if (!fab) return;
+
+      function applyVisible(visible) {
+        try {
+          if (visible) {
+            fab.style.display = 'flex';
+            fab.setAttribute('aria-hidden', 'false');
+          } else {
+            fab.style.display = 'none';
+            fab.setAttribute('aria-hidden', 'true');
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      // 初期は非表示、linklocal.js 側でグローバル変数 `isReadOnlyMode` を設定します。
+      applyVisible(false);
+
+      // 変化をポーリングで監視（linklocal.js の処理が完了したら反映される）
+      let last;
+      const iv = setInterval(() => {
+        let v;
+        try {
+          if (typeof isReadOnlyMode === 'boolean') v = isReadOnlyMode; // top-level let を参照
+          else if (typeof window.isReadOnlyMode === 'boolean') v = window.isReadOnlyMode; // もし var で公開されている場合
+        } catch (e) { v = undefined; }
+        if (typeof v === 'boolean' && v !== last) {
+          last = v;
+          // オーナーなら編集可能 (= false の場合) として表示
+          applyVisible(!v);
+          // 値が確定したらポーリングは不要
+          clearInterval(iv);
+        }
+      }, 250);
+
+      // バックアップ: 30秒後に強制停止
+      setTimeout(() => clearInterval(iv), 30000);
+    })();
+  </script>
+
+
+
+
+  <!-- Bottom Navigation for Mobile -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bottom-nav-btn" id="bottomHubBtn" type="button">
+      <img src="https://5gkyu.github.io/icon/hub.png" alt="ハブ"
+        style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box;" />
+    </button>
+    <button class="bottom-nav-btn" id="bottomTagsBtn" type="button">
+      <img src="https://5gkyu.github.io/icon/tag.png" alt="タグ"
+        style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box;" />
+    </button>
+    <button class="bottom-nav-btn" id="bottomAddBtn" type="button">
+      <img src="https://5gkyu.github.io/icon/add.png" alt="追加"
+        style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box;" />
+    </button>
+    <button class="bottom-nav-btn" id="bottomSearchBtn" type="button">
+      <img src="https://5gkyu.github.io/icon/search.png" alt="検索"
+        style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box;" />
+    </button>
+  </nav>
+
+  <!-- Hub Modal -->
+  <div class="modal" id="hubModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="panel hub-panel" role="document">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3 style="margin:0;">ハブ</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="hubCreateBtn" class="small-btn" type="button" style="display:none;">＋ 作成</button>
+          <button id="closeHubModal" class="small-btn" type="button">閉じる</button>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 12px;">デバイス間でテキストを受け渡すハブです。</p>
+      <div id="hubList" class="hub-list"></div>
+    </div>
+  </div>
+
+  <!-- Hub Create Modal -->
+  <div class="modal" id="hubCreateModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="panel" role="document" style="max-width:400px;">
+      <h3 id="hubCreateTitle">ハブを作成</h3>
+      <div class="form-row">
+        <label>ルーム名（任意）</label>
+        <input id="hubNameInput" type="text" aria-label="ハブの名前" placeholder="例: 個人用" />
+      </div>
+      <div class="form-row">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;">テキスト（必須）</label>
+          <button id="hubTextPasteBtn" class="small-btn" type="button" style="font-size:13px;padding:6px 12px;">
+            クリップボードからペースト</button>
+        </div>
+        <textarea id="hubTextInput" rows="5" aria-label="ハブの内容" placeholder="共有テキストなど..."
+          style="width:100%;box-sizing:border-box;"></textarea>
+      </div>
+      <div class="form-row">
+        <label>パスワード（必須）</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input id="hubPasswordInput" type="text" aria-label="パスワード（任意）" placeholder="任意パスワード" class="hub-pw-masked"
+            autocomplete="new-password" style="flex:1;" />
+          <button id="hubPasswordToggle" class="small-btn" type="button" style="flex-shrink:0;">表示</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+        <button id="hubCreateCancel" class="small-btn" type="button">キャンセル</button>
+        <button id="hubCreateSave" class="open-btn" type="button">作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hub View Modal (password prompt + text display) -->
+  <div class="modal" id="hubViewModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="panel" role="document" style="max-width:420px;">
+      <h3 id="hubViewTitle">ハブを表示</h3>
+      <div id="hubViewPasswordSection">
+        <div class="form-row">
+          <label>パスワードを入力</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input id="hubViewPasswordInput" type="text" aria-label="パスワード" placeholder="パスワード" class="hub-pw-masked"
+              autocomplete="off" style="flex:1;" />
+            <button id="hubViewPasswordToggle" class="small-btn" type="button" style="flex-shrink:0;">表示</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+          <button id="hubViewCancel" class="small-btn" type="button">閉じる</button>
+          <button id="hubViewUnlock" class="open-btn" type="button">解錠</button>
+        </div>
+      </div>
+      <div id="hubViewTextSection" style="display:none;">
+        <div class="hub-text-display" id="hubViewTextContent"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+          <button id="hubViewCopyBtn" class="small-btn" type="button">コピー</button>
+          <button id="hubViewCloseBtn" class="small-btn" type="button">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.HL_SKIP_LOADING = true;
+    window.HL_SKIP_STYLES = true;
+
+    // Pino Scroll Indicator Logic
+    (function() {
+      let lastScroll = 0;
+      let ticking = false;
+
+      function updateScroll(target) {
+        let el = target;
+        if (!el || el === document || el === window) {
+          el = document.documentElement;
+        }
+        
+        // サイドバーやモーダル内のスクロールは無視する
+        if (el.closest && (el.closest('.sidebar') || el.closest('.modal'))) {
+          ticking = false;
+          return;
+        }
+        
+        // スクロール量の取得
+        let scrollTop = el.scrollTop || window.scrollY || document.body.scrollTop || 0;
+        let scrollHeight = el.scrollHeight || document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+        let clientHeight = el.clientHeight || window.innerHeight || 0;
+        
+        let height = scrollHeight - clientHeight;
+        let scrolled = height > 0 ? (scrollTop / height) * 100 : 0;
+        
+        // もし計算結果が0でも、windowがスクロールしている可能性があるためのフォールバック
+        if (height <= 0) {
+          scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+          height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          scrolled = height > 0 ? (scrollTop / height) * 100 : 0;
+        }
+        
+        // 100%を超えないようにクランプ
+        scrolled = Math.min(Math.max(scrolled, 0), 100);
+        
+        const vine = document.getElementById('kyu-scroll-vine');
+        const bird = document.getElementById('kyu-header-bird');
+        
+        if (vine) vine.style.width = scrolled + '%';
+        
+        if (bird) {
+          if (scrollTop > lastScroll) { bird.style.transform = 'scaleX(-1)'; }
+          else if (scrollTop < lastScroll) { bird.style.transform = 'scaleX(1)'; }
+        }
+        lastScroll = scrollTop;
+        ticking = false;
+      }
+
+      // capture: true を指定して、どの要素のスクロールイベントも確実に拾う
+      document.addEventListener('scroll', (e) => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => updateScroll(e.target));
+          ticking = true;
+        }
+      }, { passive: true, capture: true });
+      
+      // 初期状態でも実行
+      window.addEventListener('load', () => setTimeout(() => updateScroll(document), 100));
+    })();
+  </script>  <!-- SortableJS (Drag & Drop) -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+</body>
+
+</html>

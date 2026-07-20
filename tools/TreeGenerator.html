@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Tree Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.5) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.5) 0, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], input[type="number"] {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .options-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .radio-label, .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .btn-upload {
+            display: block;
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(167, 139, 250, 0.1));
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            color: var(--accent);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(167, 139, 250, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .output-section {
+            position: relative;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .output-section.visible {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .output-header h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .btn-copy {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-copy:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-copy.copied {
+            background: var(--success);
+        }
+
+        pre {
+            background: #0b1120;
+            border: 1px solid var(--card-border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        pre::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            color: var(--accent);
+            display: none;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Directory Tree Generator</h1>
+            <p class="subtitle">インストール不要。ブラウザでフォルダを選ぶだけでツリーを生成します。</p>
+        </div>
+
+        <div class="controls">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="excludeInput">除外リスト (ワイルドカード `*` 対応)</label>
+                    <input type="text" id="excludeInput" value=".git, node_modules, .DS_Store, .next, dist, *.log">
+                </div>
+                <div class="input-group">
+                    <label for="maxDepthInput">最大表示階層 (空欄で無制限)</label>
+                    <input type="number" id="maxDepthInput" placeholder="例: 2" min="1">
+                </div>
+            </div>
+
+            <div class="options-group">
+                <div class="input-group">
+                    <label>出力形式</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="outputFormat" value="ascii" checked> ASCIIツリー
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="outputFormat" value="mermaid"> Mermaidグラフ
+                        </label>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-left: auto;">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showSizeCheckbox">
+                        ファイルサイズを表示する
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-upload-wrapper">
+            <div class="btn-upload" id="uploadLabel">
+                <svg style="width:24px;height:24px;vertical-align:middle;margin-right:8px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" />
+                </svg>
+                ツリー化するフォルダを選択
+            </div>
+            <input type="file" id="folderInput" webkitdirectory directory multiple>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">ツリーを生成中...</p>
+        </div>
+
+        <div class="output-section" id="outputSection">
+            <div class="output-header">
+                <h2>生成結果</h2>
+                <button class="btn-copy" id="copyBtn">
+                    <svg style="width:18px;height:18px" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+                    </svg>
+                    Copy to Clipboard
+                </button>
+            </div>
+            <pre id="treeOutput"></pre>
+        </div>
+    </div>
+
+    <script>
+        const folderInput = document.getElementById('folderInput');
+        const excludeInput = document.getElementById('excludeInput');
+        const maxDepthInput = document.getElementById('maxDepthInput');
+        const outputSection = document.getElementById('outputSection');
+        const treeOutput = document.getElementById('treeOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const loading = document.getElementById('loading');
+        const showSizeCheckbox = document.getElementById('showSizeCheckbox');
+        const formatRadios = document.getElementsByName('outputFormat');
+
+        let nodeIdCounter = 0;
+
+        folderInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length === 0) return;
+
+            outputSection.classList.remove('visible');
+            loading.style.display = 'block';
+            
+            setTimeout(() => {
+                generateTree(files);
+            }, 50);
+        });
+
+        // ワイルドカードを正規表現に変換する関数
+        function matchPattern(name, pattern) {
+            // エスケープ処理しつつ、* を .* に、? を . に変換
+            const regexStr = '^' + pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$';
+            return new RegExp(regexStr).test(name);
+        }
+
+        function isExcluded(name, excludes) {
+            for (const ex of excludes) {
+                if (matchPattern(name, ex)) return true;
+            }
+            return false;
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function generateTree(files) {
+            const excludes = excludeInput.value.split(',').map(s => s.trim()).filter(s => s);
+            const maxDepth = maxDepthInput.value ? parseInt(maxDepthInput.value, 10) : Infinity;
+            const showSize = showSizeCheckbox.checked;
+            
+            let outputFormat = 'ascii';
+            for (const radio of formatRadios) {
+                if (radio.checked) outputFormat = radio.value;
+            }
+
+            // ツリー構造の構築
+            // 構造: { type: 'dir', children: { ... } } または { type: 'file', size: 1234 }
+            const treeObj = { type: 'dir', children: {} };
+            let rootFolderName = "";
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const pathParts = file.webkitRelativePath.split('/');
+                
+                if (!rootFolderName) rootFolderName = pathParts[0];
+
+                // ディレクトリごとの除外チェック
+                let skip = false;
+                for (const part of pathParts) {
+                    if (isExcluded(part, excludes)) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) continue;
+
+                let currentLevel = treeObj.children;
+                for (let j = 1; j < pathParts.length; j++) {
+                    const part = pathParts[j];
+                    const isFile = j === pathParts.length - 1;
+
+                    if (!currentLevel[part]) {
+                        if (isFile) {
+                            currentLevel[part] = { type: 'file', size: file.size };
+                        } else {
+                            currentLevel[part] = { type: 'dir', children: {} };
+                        }
+                    }
+                    if (!isFile) {
+                        currentLevel = currentLevel[part].children;
+                    }
+                }
+            }
+
+            let resultString = '';
+            if (outputFormat === 'ascii') {
+                resultString = rootFolderName + '/\n';
+                resultString += buildAsciiTree(treeObj.children, '', 1, maxDepth, showSize);
+            } else if (outputFormat === 'mermaid') {
+                nodeIdCounter = 0;
+                resultString = 'graph TD\n';
+                const rootId = 'N' + (nodeIdCounter++);
+                resultString += `  ${rootId}["${rootFolderName}/"]\n`;
+                resultString += buildMermaidTree(treeObj.children, rootId, 1, maxDepth, showSize);
+            }
+
+            treeOutput.textContent = resultString;
+            loading.style.display = 'none';
+            outputSection.classList.add('visible');
+            
+            copyBtn.innerHTML = '<svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg> Copy to Clipboard';
+            copyBtn.classList.remove('copied');
+        }
+
+        function buildAsciiTree(nodeChildren, prefix, currentDepth, maxDepth, showSize) {
+            if (!nodeChildren) return '';
+
+            const keys = Object.keys(nodeChildren).sort((a, b) => {
+                const aIsDir = nodeChildren[a].type === 'dir';
+                const bIsDir = nodeChildren[b].type === 'dir';
+                if (aIsDir && !bIsDir) return -1;
+                if (!aIsDir && bIsDir) return 1;
+                return a.localeCompare(b);
+            });
+
+            let out = '';
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                const item = nodeChildren[key];
+                const isLast = i === keys.length - 1;
+                const isDir = item.type === 'dir';
+
+                const branch = isLast ? '└── ' : '├── ';
+                
+                let displayName = key + (isDir ? '/' : '');
+                if (!isDir && showSize) {
+                    displayName += ` (${formatSize(item.size)})`;
+                }
+
+                out += prefix + branch + displayName + '\n';
+
+                if (isDir) {
+                    if (currentDepth < maxDepth) {
+                        const nextPrefix = prefix + (isLast ? '    ' : '│   ');
+                        out += buildAsciiTree(item.children, nextPrefix, currentDepth + 1, maxDepth, showSize);
+                    } else if (Object.keys(item.children).length > 0) {
+                        const nextPrefix = prefix + (isLast ? '    ' : '│   ');
+                        out += nextPrefix + '└── ...\n';
+                    }
+                }
+            }
+            return out;
+        }
+
+        function buildMermaidTree(nodeChildren, parentId, currentDepth, maxDepth, showSize) {
+            if (!nodeChildren) return '';
+
+            const keys = Object.keys(nodeChildren).sort((a, b) => {
+                const aIsDir = nodeChildren[a].type === 'dir';
+                const bIsDir = nodeChildren[b].type === 'dir';
+                if (aIsDir && !bIsDir) return -1;
+                if (!aIsDir && bIsDir) return 1;
+                return a.localeCompare(b);
+            });
+
+            let out = '';
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                const item = nodeChildren[key];
+                const isDir = item.type === 'dir';
+
+                let displayName = key + (isDir ? '/' : '');
+                if (!isDir && showSize) {
+                    displayName += ` (${formatSize(item.size)})`;
+                }
+
+                const myId = 'N' + (nodeIdCounter++);
+                out += `  ${myId}["${displayName}"]\n`;
+                out += `  ${parentId} --> ${myId}\n`;
+
+                if (isDir) {
+                    if (currentDepth < maxDepth) {
+                        out += buildMermaidTree(item.children, myId, currentDepth + 1, maxDepth, showSize);
+                    } else if (Object.keys(item.children).length > 0) {
+                        const dotsId = 'N' + (nodeIdCounter++);
+                        out += `  ${dotsId}["..."]\n`;
+                        out += `  ${myId} -.-> ${dotsId}\n`;
+                    }
+                }
+            }
+            return out;
+        }
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(treeOutput.textContent).then(() => {
+                copyBtn.innerHTML = '<svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg> Copied!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg> Copy to Clipboard';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

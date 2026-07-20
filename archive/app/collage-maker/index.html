@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
     <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
-    
+
     <meta property="og:title" content="画像コラージュ作成 | Halcyon - 5Gkyu">
     <meta property="og:description" content="複数の画像を一枚に美しく織り上げる画像コラージュツール。">
     <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
@@ -20,60 +21,205 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <!-- JS読み込み前の画面隠蔽（チラつき防止） -->
-    <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-</style>
+    <style id="fouc-prevent">
+        body {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            background-color: #FBF6EA !important;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 
     <style>
         :root {
-            --clr-cream:       #FBF6EA;
-            --clr-sage:        #9AB08F;
-            --clr-peach:       #EEAFA1;
-            --clr-dusty-blue:  #92B5BC;
-            --clr-brown:       #6A564A;
+            --clr-cream: #FBF6EA;
+            --clr-sage: #9AB08F;
+            --clr-peach: #EEAFA1;
+            --clr-dusty-blue: #92B5BC;
+            --clr-brown: #6A564A;
         }
 
         /* ============================================================
            CollageMaker 専用スタイル
         ============================================================ */
-        * { box-sizing: border-box; max-width: 100%; }
-
-        .hl-input, .hl-select {
-            padding: 0.8rem 1rem; border-radius: 8px; border: 1.5px solid rgba(106, 86, 74, 0.15); font-family: var(--font-main); color: var(--clr-brown); background: #fff; font-size: 0.9rem; width: 100%; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        * {
+            box-sizing: border-box;
+            max-width: 100%;
         }
-        .hl-input:focus, .hl-select:focus { border-color: var(--clr-sage); box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2); }
-        
-        .settings-panel { display: flex; flex-direction: column; gap: 1.2rem; }
-        .setting-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .setting-group label { font-size: 0.85rem; font-weight: 700; color: var(--clr-sage); }
-        
-        .custom-inputs { display: none; gap: 8px; align-items: center; margin-top: 0.2rem; flex-wrap: wrap; }
-        .custom-inputs.active { display: flex; }
-        .custom-inputs input { flex: 1; min-width: 60px; }
-        .custom-inputs span { color: var(--clr-brown); font-weight: 700; white-space: nowrap; }
+
+        .hl-input,
+        .hl-select {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(106, 86, 74, 0.15);
+            font-family: var(--font-main);
+            color: var(--clr-brown);
+            background: #fff;
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hl-input:focus,
+        .hl-select:focus {
+            border-color: var(--clr-sage);
+            box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
+        }
+
+        .settings-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .setting-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--clr-sage);
+        }
+
+        .custom-inputs {
+            display: none;
+            gap: 8px;
+            align-items: center;
+            margin-top: 0.2rem;
+            flex-wrap: wrap;
+        }
+
+        .custom-inputs.active {
+            display: flex;
+        }
+
+        .custom-inputs input {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .custom-inputs span {
+            color: var(--clr-brown);
+            font-weight: 700;
+            white-space: nowrap;
+        }
 
         /* プレビューエリア */
         .preview-area {
-            position: relative; width: 100%; background: rgba(255, 255, 255, 0.5); border-radius: 20px; border: 2px dashed rgba(106, 86, 74, 0.2); padding: 1.5rem; box-sizing: border-box; min-height: 350px; max-height: 70vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            border: 2px dashed rgba(106, 86, 74, 0.2);
+            padding: 1.5rem;
+            box-sizing: border-box;
+            min-height: 350px;
+            max-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        .preview-area.has-image { min-height: unset; }
-        .preview-area.is-dragover { border-color: var(--clr-sage); background: rgba(154, 176, 143, 0.12); }
-        .preview-area::before { content: "タップ・ドロップで画像を追加"; position: absolute; color: var(--clr-brown); opacity: 0.4; font-weight: 700; font-size: 0.9rem; z-index: 0; pointer-events: none; transition: opacity 0.3s; }
-        .preview-area.has-image::before { opacity: 0; }
-        .preview-area:not(.has-image) { cursor: pointer; }
-        
-        canvas { display: none; }
 
-        #imageWrapper { position: relative; max-width: 100%; max-height: calc(70vh - 3rem); display: none; z-index: 1; align-items: center; justify-content: center; }
-        
-        #resultImage { max-width: 100%; max-height: calc(70vh - 3rem); width: auto; height: auto; display: block; margin: 0 auto; border-radius: 0; box-shadow: none; outline: 2px dashed rgba(106, 86, 74, 0.35); background: repeating-conic-gradient(#e0d8cc 0% 25%, #f5f0e8 0% 50%) 0 0 / 16px 16px; cursor: pointer; transition: filter 0.2s ease; min-width: 16px; min-height: 16px; }
-        #resultImage:hover { filter: brightness(0.95); }
+        .preview-area.has-image {
+            min-height: unset;
+        }
+
+        .preview-area.is-dragover {
+            border-color: var(--clr-sage);
+            background: rgba(154, 176, 143, 0.12);
+        }
+
+        .preview-area::before {
+            content: "タップ・ドロップで画像を追加";
+            position: absolute;
+            color: var(--clr-brown);
+            opacity: 0.4;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .preview-area.has-image::before {
+            opacity: 0;
+        }
+
+        .preview-area:not(.has-image) {
+            cursor: pointer;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        #imageWrapper {
+            position: relative;
+            max-width: 100%;
+            max-height: calc(70vh - 3rem);
+            display: none;
+            z-index: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #resultImage {
+            max-width: 100%;
+            max-height: calc(70vh - 3rem);
+            width: auto;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 0;
+            box-shadow: none;
+            outline: 2px dashed rgba(106, 86, 74, 0.35);
+            background: repeating-conic-gradient(#e0d8cc 0% 25%, #f5f0e8 0% 50%) 0 0 / 16px 16px;
+            cursor: pointer;
+            transition: filter 0.2s ease;
+            min-width: 16px;
+            min-height: 16px;
+        }
+
+        #resultImage:hover {
+            filter: brightness(0.95);
+        }
 
         .canvas-delete-btn {
-            position: absolute; width: 32px; height: 32px; background-color: var(--clr-brown); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 10;
-            transform: translate(-50%, -50%); transition: transform 0.2s ease, background-color 0.2s ease; display: none;
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: var(--clr-brown);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            display: none;
         }
-        .canvas-delete-btn:hover { transform: translate(-50%, -50%) scale(1.15); background-color: var(--clr-peach); }
+
+        .canvas-delete-btn:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            background-color: var(--clr-peach);
+        }
 
         /* サイズインジケーター */
         .size-indicator {
@@ -90,11 +236,21 @@
             z-index: 5;
             white-space: nowrap;
             width: max-content;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             letter-spacing: 0.05em;
         }
-        .size-indicator.top-indicator { top: -32px; left: 50%; transform: translateX(-50%); }
-        .size-indicator.left-indicator { left: -32px; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); }
+
+        .size-indicator.top-indicator {
+            top: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .size-indicator.left-indicator {
+            left: -32px;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+        }
 
         /* サイドバー追従用のラッパー */
         .sidebar-sticky {
@@ -105,10 +261,15 @@
             gap: 1.5rem;
             height: max-content;
         }
-        .sidebar-sticky .hl-sidebar-block { margin-bottom: 0; }
+
+        .sidebar-sticky .hl-sidebar-block {
+            margin-bottom: 0;
+        }
 
         /* スマホ専用プロフィール（デスクトップでは非表示） */
-        .cm-mobile-profile { display: none; }
+        .cm-mobile-profile {
+            display: none;
+        }
 
         /* 保存ボタン（プレビュー下・常時インライン） */
         #saveBtnContainer {
@@ -120,63 +281,88 @@
             display: none;
             margin-top: 1.2rem;
             padding: 1.2rem;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 16px;
-            border: 1.5px solid rgba(106,86,74,0.1);
+            border: 1.5px solid rgba(106, 86, 74, 0.1);
         }
-        .cm-mobile-settings .settings-panel { gap: 1rem; }
+
+        .cm-mobile-settings .settings-panel {
+            gap: 1rem;
+        }
 
         @media (max-width: 860px) {
+
             /* このページはhl-layoutにエントリーアニメーションがあり、fixed要素の基準が崩れることがあるため打ち消す */
             hl-layout.fluffy-entry {
                 transform: none !important;
                 animation: none !important;
                 opacity: 1 !important;
             }
+
             /* hl-layoutのスタッキングコンテキストを解除することで、
                hl-app-sheetのz-indexがルートコンテキストに直接適用される */
             hl-layout {
                 z-index: auto !important;
             }
+
             .hl-layout-sidebar {
                 display: block !important;
             }
+
             /* サイドバーのプロフィールは非表示（メインに表示する） */
-            .hl-layout-sidebar > hl-profile {
+            .hl-layout-sidebar>hl-profile {
                 display: none !important;
             }
-            .cm-btn-row { flex-wrap: nowrap !important; }
-            .cm-btn-caption { display: none !important; }
+
+            .cm-btn-row {
+                flex-wrap: nowrap !important;
+            }
+
+            .cm-btn-caption {
+                display: none !important;
+            }
 
             /* スマホ専用プロフィール表示 */
-            .cm-mobile-profile { display: block; margin-top: 1.5rem; }
+            .cm-mobile-profile {
+                display: block;
+                margin-top: 1.5rem;
+            }
 
             /* スマホでは hl-app-sheet のトグルボタンを非表示にする */
-            .hl-app-sheet-header-btn { display: none !important; }
+            .hl-app-sheet-header-btn {
+                display: none !important;
+            }
 
             /* スマホ専用インライン設定パネルを表示 */
-            .cm-mobile-settings { display: block; }
+            .cm-mobile-settings {
+                display: block;
+            }
 
 
         }
-    
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-</style>
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
+
 <body>
 
     <site-header site-name="画像コラージュ作成"></site-header>
 
     <hl-layout cols="2" class="fluffy-entry delay-1">
-        
+
         <!-- ==========================================
              左側：メインエディタ
         =========================================== -->
         <div class="hl-layout-main">
-            <!-- ★ パンくずリストを追加 (Archive > App > CollageMaker) -->
-            <hl-breadcrumb 
-                level1-name="Archive" level1-url="/archive/" 
-                level2-name="App" level2-url="/archive/app/" 
+            <!--  パンくずリストを追加 (Archive > App > CollageMaker) -->
+            <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="App" level2-url="/archive/app/"
                 current="画像コラージュ作成">
             </hl-breadcrumb>
 
@@ -186,16 +372,19 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <input type="file" id="imageInput" accept="image/jpeg, image/png, image/webp, image/gif, image/svg+xml, image/bmp" multiple style="display: none;">
+                <input type="file" id="imageInput"
+                    accept="image/jpeg, image/png, image/webp, image/gif, image/svg+xml, image/bmp" multiple
+                    style="display: none;">
                 <hl-button id="resetBtn" variant="secondary" icon="">リセット</hl-button>
-                <span style="font-size: 0.75rem; color: var(--clr-brown); opacity: 0.6; font-weight: 700;">JPG ・ PNG ・ WebP ・ GIF ・ SVG ・ BMP ｜ プレビューエリアをタップまたはドロップで画像を追加</span>
+                <span style="font-size: 0.75rem; color: var(--clr-brown); opacity: 0.6; font-weight: 700;">JPG ・ PNG ・
+                    WebP ・ GIF ・ SVG ・ BMP ｜ プレビューエリアをタップまたはドロップで画像を追加</span>
             </div>
 
             <hl-tabs>
                 <!-- タブ1: プレビュー -->
                 <div class="hl-tab-panel" data-label="プレビュー表示">
                     <hl-alert style="margin-bottom: 0.8rem;">
-                        💡 プレビュー上の画像をタップして、削除や入れ替えができます
+                        <hl-icon name="lightbulb"></hl-icon> プレビュー上の画像をタップして、削除や入れ替えができます
                     </hl-alert>
                     <div class="preview-area" id="previewArea">
                         <canvas id="previewCanvas"></canvas>
@@ -203,18 +392,18 @@
                             <div id="sizeIndicatorTop" class="size-indicator top-indicator"></div>
                             <div id="sizeIndicatorLeft" class="size-indicator left-indicator"></div>
                             <img id="resultImage" alt="生成された画像">
-                            <div id="canvasDeleteBtn" class="canvas-delete-btn" title="画像を削除">✕</div>
+                            <div id="canvasDeleteBtn" class="canvas-delete-btn" title="画像を削除"></div>
                         </div>
                     </div>
                     <div id="saveBtnContainer" style="display: none; margin-top: 1rem;">
-                        <hl-button id="saveBtn" icon="📥" block>画像を保存</hl-button>
+                        <hl-button id="saveBtn" icon="" block>画像を保存</hl-button>
                     </div>
 
                     <!-- スマホ専用インライン設定パネル -->
                     <div class="cm-mobile-settings" id="mobileSettings">
                         <div class="settings-panel">
                             <div class="setting-group">
-                                <label>📐 サイズ</label>
+                                <label><hl-icon name="ruler"></hl-icon> サイズ</label>
                                 <select id="sizePreset_m" class="hl-select">
                                     <option value="1200,630">OGP画像 (1200x630)</option>
                                     <option value="1280,670">note 見出し画像 (1280x670)</option>
@@ -231,20 +420,22 @@
                                 </div>
                             </div>
                             <div class="setting-group">
-                                <label>🔲 レイアウト</label>
+                                <label><hl-icon name="layout"></hl-icon> レイアウト</label>
                                 <select id="layoutPreset_m" class="hl-select">
                                     <option value="1,1">画像を追加してください</option>
                                     <option value="custom">カスタム行列指定...</option>
                                 </select>
                                 <div class="custom-inputs" id="customGridInputs_m">
-                                    <input type="number" id="customRows_m" class="hl-input" value="2" min="1" placeholder="行">
+                                    <input type="number" id="customRows_m" class="hl-input" value="2" min="1"
+                                        placeholder="行">
                                     <span>行 x</span>
-                                    <input type="number" id="customCols_m" class="hl-input" value="2" min="1" placeholder="列">
+                                    <input type="number" id="customCols_m" class="hl-input" value="2" min="1"
+                                        placeholder="列">
                                     <span>列</span>
                                 </div>
                             </div>
                             <div class="setting-group">
-                                <label>🖼️ 配置方法</label>
+                                <label><hl-icon name="image"></hl-icon> 配置方法</label>
                                 <select id="fitMode_m" class="hl-select">
                                     <option value="cover">中央で切り抜き (Cover)</option>
                                     <option value="contain">全体を表示 (Contain)</option>
@@ -252,7 +443,7 @@
                                 </select>
                             </div>
                             <div class="setting-group">
-                                <label>💾 保存フォーマット</label>
+                                <label><hl-icon name="floppy-disk"></hl-icon> 保存フォーマット</label>
                                 <select id="exportFormat_m" class="hl-select">
                                     <option value="image/png">PNG (.png) - 高画質</option>
                                     <option value="image/jpeg">JPEG (.jpg) - 軽量</option>
@@ -290,23 +481,19 @@
                 <hl-profile></hl-profile>
             </div>
         </div>
-        
+
         <!-- ==========================================
              右側：サイドバー設定
         =========================================== -->
         <aside class="hl-layout-sidebar">
+            <hl-profile></hl-profile>
             <div class="sidebar-sticky" style="position: sticky; top: 100px;">
-                <hl-profile></hl-profile>
-                <hl-toc></hl-toc>
-            </div>
 
-            <hl-app-sheet label="コラージュ設定">
-
-                <hl-sidebar-box title="コラージュ設定" icon="⚙️">
+                <hl-sidebar-box title="コラージュ設定" icon="gear">
                     <div class="settings-panel">
-                        
+
                         <div class="setting-group">
-                            <label>📐 サイズ</label>
+                            <label><hl-icon name="ruler"></hl-icon> サイズ</label>
                             <select id="sizePreset" class="hl-select">
                                 <option value="1200,630">OGP画像 (1200x630)</option>
                                 <option value="1280,670">note 見出し画像 (1280x670)</option>
@@ -324,7 +511,7 @@
                         </div>
 
                         <div class="setting-group">
-                            <label>🔲 レイアウト (自動計算)</label>
+                            <label><hl-icon name="layout"></hl-icon> レイアウト (自動計算)</label>
                             <select id="layoutPreset" class="hl-select">
                                 <option value="1,1">画像を追加してください</option>
                                 <option value="custom">カスタム行列指定...</option>
@@ -338,7 +525,7 @@
                         </div>
 
                         <div class="setting-group">
-                            <label>🖼️ 画像の配置方法</label>
+                            <label><hl-icon name="image"></hl-icon> 画像の配置方法</label>
                             <select id="fitMode" class="hl-select">
                                 <option value="cover">中央で切り抜き (Cover)</option>
                                 <option value="contain">全体を表示 (Contain)</option>
@@ -347,7 +534,7 @@
                         </div>
 
                         <div class="setting-group" style="margin-top: 0.5rem;">
-                            <label>💾 保存フォーマット</label>
+                            <label><hl-icon name="floppy-disk"></hl-icon> 保存フォーマット</label>
                             <select id="exportFormat" class="hl-select">
                                 <option value="image/png">PNG (.png) - 高画質</option>
                                 <option value="image/jpeg">JPEG (.jpg) - 軽量</option>
@@ -357,7 +544,7 @@
 
                     </div>
                 </hl-sidebar-box>
-            </hl-app-sheet>
+            </div>
         </aside>
     </hl-layout>
 
@@ -376,7 +563,7 @@
         const leftIndicator = document.getElementById('sizeIndicatorLeft');
         const canvasDeleteBtn = document.getElementById('canvasDeleteBtn');
         const ctx = canvas.getContext('2d');
-        
+
         const saveBtnContainer = document.getElementById('saveBtnContainer');
         const saveBtn = document.getElementById('saveBtn');
 
@@ -421,7 +608,7 @@
 
             const optsArray = Array.from(layoutPreset.options);
             const found = optsArray.some(opt => opt.value === currentVal);
-            
+
             if (found) {
                 layoutPreset.value = currentVal;
             } else {
@@ -437,38 +624,38 @@
         // ===============================================================
         // モバイル設定パネルとデスクトップ設定の双方向同期
         // ===============================================================
-        const sizePreset_m      = document.getElementById('sizePreset_m');
-        const layoutPreset_m    = document.getElementById('layoutPreset_m');
-        const fitMode_m         = document.getElementById('fitMode_m');
-        const exportFormat_m    = document.getElementById('exportFormat_m');
+        const sizePreset_m = document.getElementById('sizePreset_m');
+        const layoutPreset_m = document.getElementById('layoutPreset_m');
+        const fitMode_m = document.getElementById('fitMode_m');
+        const exportFormat_m = document.getElementById('exportFormat_m');
         const customSizeInputs_m = document.getElementById('customSizeInputs_m');
         const customGridInputs_m = document.getElementById('customGridInputs_m');
-        const customW_m         = document.getElementById('customW_m');
-        const customH_m         = document.getElementById('customH_m');
-        const customRows_m      = document.getElementById('customRows_m');
-        const customCols_m      = document.getElementById('customCols_m');
+        const customW_m = document.getElementById('customW_m');
+        const customH_m = document.getElementById('customH_m');
+        const customRows_m = document.getElementById('customRows_m');
+        const customCols_m = document.getElementById('customCols_m');
 
         // モバイル→デスクトップへ値を伝播してcanvasを更新
         function syncFromMobile(source) {
-            if (source === sizePreset_m)   { sizePreset.value   = sizePreset_m.value; }
+            if (source === sizePreset_m) { sizePreset.value = sizePreset_m.value; }
             if (source === layoutPreset_m) { layoutPreset.value = layoutPreset_m.value; }
-            if (source === fitMode_m)      { fitMode.value      = fitMode_m.value; }
+            if (source === fitMode_m) { fitMode.value = fitMode_m.value; }
             if (source === exportFormat_m) { exportFormat.value = exportFormat_m.value; }
-            if (source === customW_m)      { customW.value      = customW_m.value; }
-            if (source === customH_m)      { customH.value      = customH_m.value; }
-            if (source === customRows_m)   { customRows.value   = customRows_m.value; }
-            if (source === customCols_m)   { customCols.value   = customCols_m.value; }
+            if (source === customW_m) { customW.value = customW_m.value; }
+            if (source === customH_m) { customH.value = customH_m.value; }
+            if (source === customRows_m) { customRows.value = customRows_m.value; }
+            if (source === customCols_m) { customCols.value = customCols_m.value; }
         }
 
         // デスクトップ→モバイルへ値を同期（updateLayoutOptions後など）
         function syncToMobile() {
-            sizePreset_m.value      = sizePreset.value;
-            fitMode_m.value         = fitMode.value;
-            exportFormat_m.value    = exportFormat.value;
-            customW_m.value         = customW.value;
-            customH_m.value         = customH.value;
-            customRows_m.value      = customRows.value;
-            customCols_m.value      = customCols.value;
+            sizePreset_m.value = sizePreset.value;
+            fitMode_m.value = fitMode.value;
+            exportFormat_m.value = exportFormat.value;
+            customW_m.value = customW.value;
+            customH_m.value = customH.value;
+            customRows_m.value = customRows.value;
+            customCols_m.value = customCols.value;
             // layoutPreset_m は updateLayoutOptions_m で別途更新
             customSizeInputs_m.classList.toggle('active', sizePreset.value === 'custom');
             customGridInputs_m.classList.toggle('active', layoutPreset.value === 'custom');
@@ -531,7 +718,7 @@
                 updateCanvas();
             });
         });
-        
+
         exportFormat.addEventListener('change', () => { syncToMobile(); });
 
         [customW, customH, customRows, customCols].forEach(el => {
@@ -539,7 +726,7 @@
         });
 
         resetBtn.addEventListener('click', () => {
-            if(confirm("すべての画像をクリアしますか？")) {
+            if (confirm("すべての画像をクリアしますか？")) {
                 imageObjects = [];
                 selectedId = null;
                 updateLayoutOptions(0);
@@ -548,7 +735,7 @@
                 imageWrapper.style.display = 'none';
                 previewArea.classList.remove('has-image');
                 saveBtnContainer.style.display = 'none';
-                if(window.HlToast) HlToast.show('🗑️ リセットしました');
+                if (window.HlToast) HlToast.show('<hl-icon name="trash"></hl-icon> リセットしました');
             }
         });
 
@@ -565,7 +752,7 @@
             updateLayoutOptions_m(imageObjects.length);
             syncToMobile();
             updateCanvas();
-            if(window.HlToast) HlToast.show('📸 画像を追加しました');
+            if (window.HlToast) HlToast.show('<hl-icon name="image"></hl-icon> 画像を追加しました');
 
             const tabsBtns = document.querySelectorAll('.hl-tabs-btn');
             if (tabsBtns[0]) tabsBtns[0].click();
@@ -617,22 +804,22 @@
 
         resultImage.addEventListener('click', (e) => {
             if (imageObjects.length === 0) return;
-            
+
             const rect = resultImage.getBoundingClientRect();
             const px = (e.clientX - rect.left) / rect.width;
             const py = (e.clientY - rect.top) / rect.height;
-            
+
             const c = Math.floor(px * currentDrawCols);
             const r = Math.floor(py * currentDrawRows);
             const idx = r * currentDrawCols + c;
 
             if (idx < imageObjects.length) {
                 const targetId = imageObjects[idx].id;
-                
-                if (selectedId === null) { 
-                    selectedId = targetId; 
-                } else if (selectedId === targetId) { 
-                    selectedId = null; 
+
+                if (selectedId === null) {
+                    selectedId = targetId;
+                } else if (selectedId === targetId) {
+                    selectedId = null;
                 } else {
                     const idx1 = imageObjects.findIndex(o => o.id === selectedId);
                     const idx2 = imageObjects.findIndex(o => o.id === targetId);
@@ -652,7 +839,7 @@
                 updateLayoutOptions_m(imageObjects.length);
                 syncToMobile();
                 updateCanvas();
-                if(imageObjects.length === 0) {
+                if (imageObjects.length === 0) {
                     imageWrapper.style.display = 'none';
                     previewArea.classList.remove('has-image');
                     saveBtnContainer.style.display = 'none';
@@ -692,7 +879,7 @@
 
             imageObjects.forEach((obj, i) => {
                 if (i >= currentDrawRows * currentDrawCols) return;
-                
+
                 const r = Math.floor(i / currentDrawCols);
                 const c = i % currentDrawCols;
                 const dx = c * cellW;
@@ -708,12 +895,12 @@
                     } else {
                         scale = Math.min(cellW / img.width, cellH / img.height);
                     }
-                    
+
                     const sw = cellW / scale;
                     const sh = cellH / scale;
                     const sx = (img.width - sw) / 2;
                     const sy = (img.height - sh) / 2;
-                    
+
                     ctx.save();
                     ctx.beginPath();
                     ctx.rect(dx, dy, cellW, cellH);
@@ -736,7 +923,7 @@
             resultImage.src = canvas.toDataURL('image/png');
             imageWrapper.style.display = 'flex';
             previewArea.classList.add('has-image');
-            
+
             if (selectedId !== null) {
                 const idx = imageObjects.findIndex(o => o.id === selectedId);
                 if (idx !== -1) {
@@ -744,7 +931,7 @@
                     const c = idx % currentDrawCols;
                     const leftPercent = ((c + 1) / currentDrawCols) * 100;
                     const topPercent = (r / currentDrawRows) * 100;
-                    
+
                     canvasDeleteBtn.style.left = `${leftPercent}%`;
                     canvasDeleteBtn.style.top = `${topPercent}%`;
                     canvasDeleteBtn.style.display = 'flex';
@@ -754,13 +941,13 @@
             } else {
                 canvasDeleteBtn.style.display = 'none';
             }
-            
+
             if (imageObjects.length >= 1) {
                 saveBtnContainer.style.display = 'block';
             }
         }
 
-        // ★ 保存時のファイル名の接頭辞を「collagemaker_」に変更
+        //  保存時のファイル名の接頭辞を「collagemaker_」に変更
         function getFormattedFileName(ext) {
             const d = new Date();
             const yyyy = d.getFullYear();
@@ -803,10 +990,10 @@
                 exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
                 exportCtx.drawImage(canvas, 0, 0);
                 dataUrl = exportCanvas.toDataURL(format, 0.9);
-          } else if (format === 'image/webp') {
-              dataUrl = canvas.toDataURL(format, 0.9);
+            } else if (format === 'image/webp') {
+                dataUrl = canvas.toDataURL(format, 0.9);
             } else {
-              dataUrl = canvas.toDataURL(format);
+                dataUrl = canvas.toDataURL(format);
             }
 
             const filename = getFormattedFileName(ext);
@@ -817,7 +1004,7 @@
             a.click();
             document.body.removeChild(a);
 
-            if (window.HlToast) HlToast.show(`📥 ${filename} を保存しました`);
+            if (window.HlToast) HlToast.show(` ${filename} を保存しました`);
 
             selectedId = prevSelectedId;
             updateCanvas();
@@ -828,14 +1015,5 @@
         });
     </script>
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-

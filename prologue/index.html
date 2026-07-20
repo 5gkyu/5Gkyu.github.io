@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prologue | Halcyon - 5Gkyu</title>
+<meta name="description" content="Where the world falls silent, we found our own halcyon days." />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+<link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+<meta property="og:title" content="Prologue | Halcyon - 5Gkyu">
+<meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+<meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+<meta property="og:url" content="https://5gkyu.github.io/prologue/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Halcyon">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@5gkyu">
+<meta name="twitter:title" content="Halcyon">
+<meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
+<meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Yomogi&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: transparent;
+            color: #8C7E6C;
+            font-family: 'Caveat', 'Yomogi', cursive;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 背景動画（ここにblurをかける）*/
+        #bg-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            filter: blur(20px);
+        }
+
+        #bg-tint {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 252, 239, 0.562);
+            z-index: -1;
+        }
+
+        /* 空中の光の粒（旧：コールドプレス紙テクスチャ） */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            /* 光の粒のようなキラキラ感を細かく散らす */
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 250, 230, 0.4) 1px, transparent 2px),
+                radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.6) 1.5px, transparent 2px),
+                radial-gradient(circle at 40% 80%, rgba(240, 255, 250, 0.5) 1px, transparent 2px),
+                radial-gradient(circle at 85% 70%, rgba(255, 250, 220, 0.8) 2px, transparent 3px),
+                radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+            background-size: 150px 150px;
+            opacity: 0.4;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            z-index: 0;
+        }
+
+        /* 落ち葉・花びらCanvas */
+        #petals-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+            filter: blur(1.5px);
+            opacity: 0.7;
+        }
+
+        /* 演出4: 呼吸する背景 */
+        #breath-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 65%, rgba(255,255,255,0.6) 0%, transparent 60%);
+            animation: breathe 4.8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.2; transform: scale(1);    }
+            50%       { opacity: 0.7; transform: scale(1.08); }
+        }
+
+        /* 演出8: 星 */
+        #stars-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* 演出8: 朝焼け */
+        #dawn-overlay {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 35%;
+            background: linear-gradient(to top, rgba(255,182,193,0.30), rgba(255,210,160,0.12), transparent);
+            opacity: 0;
+            transition: opacity 4s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* 演出10: フェードアウト */
+        #whiteout-overlay {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 3s ease;
+        }
+
+        /* テキスト層 */
+        #app {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+        }
+
+        #stage {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #text-display {
+            width: min(560px, 85vw);
+            text-align: center;
+            line-height: 2.6;
+            font-size: clamp(16px, 2.5vw, 24px);
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+
+        @media (max-width: 600px) {
+            #text-display {
+                font-size: clamp(20px, 5.5vw, 26px);
+            }
+        }
+
+        /* 筆書き行 */
+        .brush-line {
+            display: block;
+            color: #6B8E23;
+            letter-spacing: 0.05em;
+            /* 蒸発・入場アニメーション用 */
+            transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
+        }
+
+        /* 筆書き単語: clip-path で左から右へ解放される（折り返しの先走りを防ぐ） */
+        .brush-word {
+            display: inline-block;
+            clip-path: inset(0 100% 0 0);
+        }
+
+        .brush-line.scenario {
+            color: #3D8E9E;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <video id="bg-video" src="https://5gkyu.github.io/icon/Fuka.mp4" autoplay muted loop playsinline preload="auto"></video>
+    <div id="bg-tint"></div>
+
+    <div id="breath-overlay"></div>
+    <canvas id="petals-canvas"></canvas>
+    <canvas id="stars-canvas"></canvas>
+    <div id="dawn-overlay"></div>
+    <div id="whiteout-overlay"></div>
+
+    <div id="app">
+        <div id="stage">
+            <div id="text-display"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 設定変数 =====
+
+        // --- リダイレクト ---
+        const REDIRECT_ENABLED = false;
+        // true にすると最後にリンク集へ遷移。テスト中は false のまま。
+
+        const TARGET_URL = "https://5gkyu.github.io/KyuLink/?tag=Kyu";
+
+        // --- 筆書き速度 ---
+        const BRUSH_SPEED = 50;
+        // 1文字あたりの描画時間(ms)。増やすとゆっくり、減らすと速く筆が走る。
+
+        const BRUSH_EASE = 'linear';
+        // 筆アニメーションの加速カーブ。'linear' で一定速、'ease-in-out' = 0.42,0,0.58,1 など。
+
+        const LINE_PAUSE = 600;
+        // 1行書き終わった後の間(ms)。増やすと余韻が長くなる。
+
+        const TEXT_SHIFT_DURATION = 550;
+        // 1行追加時に全体が上へスライドする時間(ms)。
+
+        const TEXT_SHIFT_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+        // モバイルでもカクつきにくい、減速寄りのイージング。
+
+        // --- 動画フォーカス ---
+        const VIDEO_FOCUS_DURATION = 7500;
+        // 動画のぼかしが完全に解けるまでの時間(ms)。
+
+        const VIDEO_FOCUS_TRIGGER = "One step toward our halcyon days.";
+        // このアウトロ行が表示されるタイミングで動画のblur解除を開始する。
+        // outroLines の中の行テキストと完全一致させること。
+
+        const CLEAR_HOLD = 600;
+        // 動画が完全に鮮明になってからフェードアウトまでの待機(ms)。
+
+        // --- ホワイトアウト ---
+        const WHITEOUT_DURATION = 3000;
+        // 画面がクリーム色に染まるまでの時間(ms)。
+
+        // --- その他 ---
+        const BOOT_DELAY = 1000;
+        // ページ読み込み後、演出が始まるまでの待機(ms)。
+
+        const DEBUG_HOUR = null;
+        // 時刻デバッグ用。null なら実時刻。数字(0〜23)で上書き可。2→深夜(星)、5→早朝(朝焼け)
+
+        const MAX_LINES = 8;
+        // 画面に同時表示する最大行数。超えたら最古の行を蒸発させる（演出7）。
+
+        // ===================
+
+        const introLines = [
+            "Stepping away from the daily grind...",
+            "Seeking a quiet corner in the afternoon warmth.",
+            "A faint murmur fades into the silence."
+        ];
+
+        const outroLines = [
+            "The silence deepens within the afternoon stillness.",
+            "Gathering the fragile moments...",
+            "Three silent dots lingering at the end of an inner dialogue...",
+            "Two eyes stirring from a sweet reverie.",
+            "One step toward our halcyon days."
+        ];
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const bgVideo     = document.getElementById('bg-video');
+
+        // 動画が止まったこと（原因）を検知・デバッグするためのリスナー
+        ['pause', 'waiting', 'stalled', 'suspend', 'abort', 'error'].forEach(evt => {
+            bgVideo.addEventListener(evt, (e) => {
+                console.warn(`[Video Event] ${evt} - 動画が止まりました (hidden: ${document.hidden})`);
+                // 画面裏に隠れていないのに何らかの理由で止まった場合は即座に叩き起こす
+                if (!document.hidden && evt === 'pause') {
+                    bgVideo.play().catch(err => console.error('[Play failed]', err));
+                }
+            });
+        });
+        
+        // 更に確実にするための「監視タイマー（ウォッチドッグ）」
+        // ブラウザがイベントすら吐かずにフリーズさせた場合、1秒ごとに強制生存確認をする
+        setInterval(() => {
+            if (!document.hidden && bgVideo.paused) {
+                console.error('[Watchdog] 動画が停止しているのを検知。強制再開します。');
+                bgVideo.play().catch(() => {});
+            }
+        }, 1000);
+
+        // ページが復帰したときにも再生を確認
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && bgVideo.paused) {
+                bgVideo.play().catch(() => {});
+            }
+        });
+
+        // iOSの低電力モードや、ユーザーの拡大縮小等で一時的にブラウザが動画を止めた場合の対策：
+        // 画面のどこかをタップ/クリックした瞬間に、停止していれば強制的に再開させる
+        function forcePlayVideo() {
+            if (bgVideo.paused) {
+                bgVideo.play().catch(() => {});
+            }
+        }
+        // リスナーを外し続けると2回目以降の停止(拡大やスワイプ起因)に対応できないため、外さない
+        document.addEventListener('click', forcePlayVideo);
+        document.addEventListener('touchstart', forcePlayVideo, { passive: true });
+        document.addEventListener('touchend', forcePlayVideo, { passive: true });
+        window.addEventListener('resize', forcePlayVideo); // リサイズ・拡大縮小時にも強制再開
+
+        // PCブラウザの拡大縮小（Ctrl + ホイール / Ctrl + +/-）を無効化する
+        function preventZoom(e) {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }
+        document.addEventListener('wheel', preventZoom, { passive: false });
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) {
+                e.preventDefault();
+            }
+        });
+
+        const textDisplay = document.getElementById('text-display');
+
+        function startVideoFocus() {
+            bgVideo.style.transition = `filter ${VIDEO_FOCUS_DURATION}ms ease`;
+            bgVideo.style.filter     = 'blur(0px)';
+        }
+
+        // 折り返しを考慮した視覚的な行数を返す
+        function getVisualLineCount(element) {
+            const lh = parseFloat(getComputedStyle(textDisplay).lineHeight);
+            if (!lh || isNaN(lh)) return 1;
+            return Math.max(1, Math.round(element.offsetHeight / lh));
+        }
+
+        function getTotalVisualLines() {
+            let total = 0;
+            textDisplay.querySelectorAll('.brush-line:not(.evaporating)').forEach(el => {
+                total += getVisualLineCount(el);
+            });
+            return total;
+        }
+
+        // 2フレーム境界を挟んでから transform を開始し、モバイルでのジャンプを抑える
+        async function animateTextShift(shiftY) {
+            if (Math.abs(shiftY) < 0.5) return;
+
+            const from = `translate3d(0, ${shiftY}px, 0)`;
+            const to = 'translate3d(0, 0, 0)';
+
+            textDisplay.style.transition = 'none';
+            textDisplay.style.transform = from;
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+            textDisplay.style.transition = `transform ${TEXT_SHIFT_DURATION}ms ${TEXT_SHIFT_EASE}`;
+            textDisplay.style.transform = to;
+        }
+
+        // 筆書き演出: 単語ごとに左から右へスーッと浮かび上がらせる
+        function brushLine(text, isScenario = false) {
+            return new Promise(async resolve => {
+                const toRemove = [];
+
+                // 視覚的な行数（折り返し含む）が上限を超えそうなら最古行を蒸発予定にマーク
+                while (getTotalVisualLines() >= MAX_LINES) {
+                    const oldest = textDisplay.querySelector('.brush-line:not(.evaporating)');
+                    if (!oldest) break;
+                    oldest.classList.add('evaporating');
+                    // heightアニメーションを廃止し、最後にFLIPで全体のみ滑らかに移動させる
+                    oldest.style.transition = 'opacity 0.6s ease, filter 0.6s ease, transform 0.6s ease';
+                    oldest.style.opacity = '0';
+                    oldest.style.filter = 'blur(8px)';
+                    oldest.style.transform = 'translate3d(0, -20px, 0)';
+                    toRemove.push(oldest);
+                }
+
+                if (toRemove.length > 0) {
+                    await sleep(600); // 蒸発アニメーションを待つ
+                }
+
+                // --- FLIPアニメーション計算用 ---
+                // 更新前に、基準となる要素のY座標（消えない最も古い行）を記録
+                const refNode = textDisplay.querySelector('.brush-line:not(.evaporating)');
+                let prevRefY = 0;
+                let prevH = 0;
+                
+                if (refNode) {
+                    prevRefY = refNode.getBoundingClientRect().top;
+                } else {
+                    prevH = textDisplay.offsetHeight;
+                }
+
+                // 蒸発した要素を一括でDOM削除
+                toRemove.forEach(el => el.remove());
+
+                // 単語を新規作成
+                const lineSpan = document.createElement('span');
+                lineSpan.className = isScenario ? 'brush-line scenario' : 'brush-line';
+                lineSpan.style.opacity = '0';
+
+                // \n を考慮して単語スパンを構築（強制改行には <br> を挿入）
+                const wordSpans = [];
+                const segments = text.split('\n');
+                segments.forEach((seg, si) => {
+                    if (si > 0) lineSpan.appendChild(document.createElement('br'));
+                    const words = seg.split(' ');
+                    words.forEach((word, wi) => {
+                        const ws = document.createElement('span');
+                        ws.className = 'brush-word';
+                        ws.textContent = word;
+                        lineSpan.appendChild(ws);
+                        if (wi < words.length - 1) lineSpan.appendChild(document.createTextNode(' '));
+                        wordSpans.push(ws);
+                    });
+                });
+
+                // DOM構造を一気に更新（古いものを消した状態の上に新しいものを追加）
+                textDisplay.appendChild(lineSpan);
+
+                // 追加＆削除後のY座標を測定し、ズレ分(shiftY)を計算
+                let shiftY = 0;
+                if (refNode) {
+                    const newRefY = refNode.getBoundingClientRect().top;
+                    shiftY = prevRefY - newRefY; // 動いた分だけ逆方向へシフト
+                } else {
+                    shiftY = (textDisplay.offsetHeight - prevH) / 2;
+                }
+
+                // テキストコンテナをスムーズに上シフト（削除と追加の差分を一発で吸収）
+                await animateTextShift(shiftY);
+
+                // 行をフェードイン
+                lineSpan.style.transition = 'opacity 0.35s ease';
+                lineSpan.style.opacity = '1';
+                await sleep(350);
+
+                // 単語アニメーション（1単語ずつ順番に）
+                const totalDuration = Math.max(600, text.length * BRUSH_SPEED);
+                const wordReveal = totalDuration / Math.max(1, wordSpans.length);
+
+                for (let i = 0; i < wordSpans.length; i++) {
+                    wordSpans[i].style.transition = `clip-path ${wordReveal}ms ${BRUSH_EASE}`;
+                    wordSpans[i].style.clipPath   = 'inset(0 0% 0 0)';
+                    await sleep(wordReveal);
+                }
+
+                resolve();
+            });
+        }
+
+        async function brushLines(lines, isScenario = false) {
+            for (const line of lines) {
+                await brushLine(line, isScenario);
+                await sleep(LINE_PAUSE);
+            }
+        }
+
+        // 演出8: 時間同期
+        function applyTimeSync() {
+            const hour = DEBUG_HOUR !== null ? DEBUG_HOUR : new Date().getHours();
+            if (hour >= 23 || hour <= 3) {
+                initStars();
+            } else if (hour >= 4 && hour <= 6) {
+                document.getElementById('dawn-overlay').style.opacity = '1';
+            }
+        }
+
+        function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            const stars = Array.from({ length: 180 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.4 + 0.2,
+                base:  Math.random() * 0.5 + 0.15,
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.35 + Math.random() * 0.8
+            }));
+            const t0 = performance.now();
+            function draw(t) {
+                const elapsed = (t - t0) / 1000;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(s => {
+                    const a = s.base + 0.22 * Math.sin(elapsed * s.speed + s.phase);
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    
+                    // 光の表現を茶色/ゴールド系から、白っぽく発光するイメージに変更
+                    ctx.fillStyle = `rgba(255, 252, 230, ${Math.max(0, a)})`;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = `rgba(255, 255, 255, ${Math.max(0, a * 0.5)})`;
+                    
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        }
+
+        async function fadeOut() {
+            document.getElementById('whiteout-overlay').style.opacity = '1';
+            await sleep(WHITEOUT_DURATION);
+        }
+
+        async function main() {
+            await document.fonts.ready;
+            applyTimeSync();
+            await sleep(BOOT_DELAY);
+
+            let scenario;
+            try {
+                const res  = await fetch('scenarios.json');
+                const data = await res.json();
+                const arr  = data.scenarios;
+                scenario   = arr[Math.floor(Math.random() * arr.length)];
+            } catch {
+                scenario = [
+                    "A fragment of thought drifts through the silence.",
+                    "It carries no origin, no destination.",
+                    "Only the weight of a quiet moment."
+                ];
+            }
+
+            await brushLines(introLines);
+            await sleep(600);
+
+            await brushLines(scenario, true);
+            await sleep(400);
+
+            // アウトロ: VIDEO_FOCUS_TRIGGER の行でblur解除開始
+            for (const line of outroLines) {
+                if (line === VIDEO_FOCUS_TRIGGER) {
+                    startVideoFocus();
+                }
+                await brushLine(line);
+                await sleep(LINE_PAUSE);
+            }
+            await sleep(600);
+
+            const elapsed = (introLines.length + scenario.length + outroLines.length) * LINE_PAUSE + BOOT_DELAY;
+            const remaining = VIDEO_FOCUS_DURATION - elapsed;
+            if (remaining > 0) await sleep(remaining);
+
+            await sleep(CLEAR_HOLD);
+            await fadeOut();
+
+            if (REDIRECT_ENABLED) {
+                window.location.href = TARGET_URL;
+            }
+        }
+
+        main();
+
+        // ===== 天使の羽・光の粒 =====
+        (function () {
+            const canvas = document.getElementById('petals-canvas');
+            const ctx    = canvas.getContext('2d');
+
+            // 羽根3種 + 光の粒1種
+            const SHAPES = [
+                { type: 'feather', size: 13 },
+                { type: 'feather', size: 10 },
+                { type: 'feather', size:  8 },
+                { type: 'spark',   size:  3 },
+            ];
+
+            // 羽根の色: 純白〜クリーム白〜淡い金
+            const FEATHER_COLORS = [
+                'rgba(255,255,255,A)',
+                'rgba(255,253,240,A)',
+                'rgba(240,240,255,A)',
+                'rgba(255,248,220,A)',
+            ];
+
+            function rand(min, max) { return Math.random() * (max - min) + min; }
+
+            function resize() {
+                canvas.width  = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const COUNT = 22;
+            const particles = [];
+
+            function createParticle(startAtTop) {
+                const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                const colorTemplate = FEATHER_COLORS[Math.floor(Math.random() * FEATHER_COLORS.length)];
+                return {
+                    x:            rand(0, canvas.width),
+                    y:            startAtTop ? rand(-100, -10) : rand(-canvas.height, 0),
+                    size:         rand(s.size * 0.8, s.size * 1.5),
+                    colorTpl:     colorTemplate,
+                    type:         s.type,
+                    speed:        rand(0.4, 1.2),
+                    drift:        rand(-0.3, 0.3),
+                    angle:        rand(-0.3, 0.3),   // 羽根は縦向きに近い角度で落ちる
+                    spin:         rand(-0.008, 0.008),
+                    sway:         rand(0.4, 1.0),
+                    swaySpeed:    rand(0.008, 0.02),
+                    swayOffset:   rand(0, Math.PI * 2),
+                    opacity:      rand(0.45, 0.80),
+                };
+            }
+
+            for (let i = 0; i < COUNT; i++) particles.push(createParticle(false));
+
+            // 羽根の形: 先が尖った非対称な涙型（天使の羽根1枚）
+            function drawFeather(size, color) {
+                // 発光エフェクト
+                ctx.shadowBlur  = 10;
+                ctx.shadowColor = 'rgba(255,255,255,0.7)';
+
+                // 羽根本体（非対称ベジェ）
+                ctx.beginPath();
+                ctx.moveTo(0, -size);
+                ctx.bezierCurveTo( size * 0.55, -size * 0.4,  size * 0.45,  size * 0.6, 0,  size);
+                ctx.bezierCurveTo(-size * 0.2,   size * 0.6, -size * 0.15, -size * 0.4, 0, -size);
+                ctx.fillStyle = color;
+                ctx.fill();
+
+                // 中央の羽軸（中心線）
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.9);
+                ctx.lineTo(0,  size * 0.85);
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth   = 0.6;
+                ctx.stroke();
+
+                // 細い羽枝（横の繊維感）
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth   = 0.4;
+                const steps = 5;
+                for (let i = 0; i < steps; i++) {
+                    const t  = (i / steps) * 1.6 - 0.8;
+                    const fy = t * size;
+                    const fw = (0.5 - Math.abs(t) * 0.3) * size * 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(0, fy);
+                    ctx.lineTo(fw, fy + size * 0.08);
+                    ctx.stroke();
+                }
+            }
+
+            // 光の粒: ぼんやり光る円
+            function drawSpark(size, color) {
+                ctx.shadowBlur  = 14;
+                ctx.shadowColor = 'rgba(255,255,255,0.9)';
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const now = performance.now() * 0.001;
+                particles.forEach(p => {
+                    p.y     += p.speed;
+                    p.x     += p.drift + Math.sin(now * p.swaySpeed * 60 + p.swayOffset) * p.sway;
+                    p.angle += p.spin;
+                    if (p.y > canvas.height + 30) Object.assign(p, createParticle(true));
+
+                    const color = p.colorTpl.replace('A', p.opacity.toFixed(2));
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.globalAlpha = 1; // shadowのためglobalAlphaは1固定、color側でopacity管理
+                    if (p.type === 'feather') drawFeather(p.size, color);
+                    else                      drawSpark(p.size, color);
+                    ctx.restore();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

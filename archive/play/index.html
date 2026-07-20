@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Play | Halcyon - 5Gkyu</title>
   
-  <meta name="description" content="5Gkyuのゲームプレイ記録・攻略メモ一覧。ブロスタなどストラテジー系を中心にまとめています。">
+  <meta name="description" content="5GkyuのWebブラウザで遊べるゲームやパズルなどのコンテンツ一覧。">
   <link rel="canonical" href="https://5gkyu.github.io/archive/play/">
 
   <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
@@ -14,35 +14,27 @@
   <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
 
   <meta property="og:title" content="Play | Halcyon - 5Gkyu">
-  <meta property="og:description" content="5Gkyuのゲーム攻略・パズル・遊びの記録。">
+  <meta property="og:description" content="5GkyuのWebブラウザで遊べるゲームやパズルなどのコンテンツ一覧。">
   <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
   <meta property="og:url" content="https://5gkyu.github.io/archive/play/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Halcyon">
   <meta name="twitter:card" content="summary_large_image">
 
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-</style>
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
 
   <style>
-    :root {
-      --clr-cream:       #FBF6EA;
-      --clr-sage:        #9AB08F;
-      --clr-peach:       #EEAFA1;
-      --clr-dusty-blue:  #92B5BC;
-      --clr-brown:       #6A564A;
-    }
-    
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-</style>
+  </style>
 </head>
 <body>
 
   <site-header site-name="Play"></site-header>
 
   <hl-layout cols="2" class="fluffy-entry delay-1">
-
+    <!-- ==========================================
+         メインコンテンツ
+    =========================================== -->
     <div class="hl-layout-main">
 
       <hl-breadcrumb
@@ -51,14 +43,16 @@
       </hl-breadcrumb>
       <page-title>Play</page-title>
 
-      <p class="hl-content-text" style="margin-bottom: 2.5rem;">ゲームのプレイ記録や攻略メモです。ストラテジー系を中心にまとめています。</p>
+      <p class="hl-content-text" style="margin-bottom: 2.5rem;">ブラウザで遊べるゲームやパズルなどのコンテンツです。</p>
 
       <hl-archive-search target="sections-container"></hl-archive-search>
 
       <div id="sections-container"></div>
 
     </div>
-
+     <!-- ==========================================
+         サイドバー/TOC
+    =========================================== -->
     <aside class="hl-layout-sidebar">
       <div class="sidebar-sticky" style="position: sticky; top: 100px;">
         <hl-profile></hl-profile>
@@ -68,12 +62,10 @@
 
   </hl-layout>
 
-  <site-footer copy="5Gkyu"></site-footer>
+  
+  <site-footer copy="5Gkyu Play"></site-footer>
   <script src="/components/components.js"></script>
   <script src="/archive/archive-loader.js"></script>
   <script>loadArchiveSections('play', 'sections-container');</script>
 </body>
 </html>
-
-
-

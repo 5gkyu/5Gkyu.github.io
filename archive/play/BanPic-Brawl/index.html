@@ -2579,10 +2579,12 @@
             backface-visibility: hidden;
         }
 
-        .character-card:hover:not(.banned):not(.picked) {
-            transform: scale(1.1);
-            border-color: var(--warning-color);
-            z-index: 10;
+        @media (hover: hover) {
+            .character-card:hover:not(.banned):not(.picked) {
+                transform: scale(1.1);
+                border-color: var(--warning-color);
+                z-index: 10;
+            }
         }
 
         .character-card.selected {
@@ -5335,12 +5337,7 @@
                     }
                 });
 
-                // ホストが切断したらルームを削除する（onDisconnect）
-                try {
-                    await onDisconnect(child(newRoomRef, 'meta')).remove();
-                } catch (err) {
-                    console.warn('onDisconnect remove 設定失敗:', err);
-                }
+
 
                 // ホストのハートビート（lastSeen）を設定
                 try {
@@ -5448,15 +5445,7 @@
                     console.warn('clearRoomExpiry error (guest join):', err);
                 }
 
-                // ゲストが切断したら guest 情報をクリアする
-                try {
-                    await onDisconnect(child(roomRef, 'meta/guestId')).remove();
-                    await onDisconnect(child(roomRef, 'meta/guestName')).remove();
-                    await onDisconnect(child(roomRef, 'meta/guestAvatar')).remove();
-                    await onDisconnect(child(roomRef, 'meta/guestLastSeen')).remove();
-                } catch (err) {
-                    console.warn('ゲスト onDisconnect 設定失敗:', err);
-                }
+
 
                 // ゲストのハートビート（guestLastSeen）を設定
                 try {
@@ -6284,6 +6273,8 @@
                 if (!slot) return;
                 slot.classList.remove('filled');
                 slot.classList.add('empty');
+                slot.onclick = null;
+                slot.style.cursor = '';
                 // pick-orderバッジを保持
                 const existingOrder = slot.querySelector('.pick-order');
                 const orderHTML = existingOrder ? existingOrder.outerHTML : '';
@@ -6372,6 +6363,8 @@
                             leftSlots[i].innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
                             leftSlots[i].classList.add('selected');
                             leftSlots[i].classList.remove('empty');
+                            leftSlots[i].onclick = () => selectCharacter(charId);
+                            leftSlots[i].style.cursor = 'pointer';
                         }
                     });
                 } else if (phase.startsWith('pic')) {

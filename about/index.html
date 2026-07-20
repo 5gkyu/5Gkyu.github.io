@@ -1,0 +1,500 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="5Gkyuのプロフィールと、創作サイト「Halcyon」についてのご案内。">
+  <link rel="canonical" href="https://5gkyu.github.io/about/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="About | Halcyon - 5Gkyu">
+  <meta property="og:description" content="5Gkyuのプロフィールと、サイトについて。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/about/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    :root {
+      --clr-cream:       #FBF6EA;
+      --clr-sage:        #9AB08F;
+      --clr-peach:       #EEAFA1;
+      --clr-dusty-blue:  #92B5BC;
+      --clr-brown:       #6A564A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Aboutページ専用の装飾 */
+    .about-profile { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; background: rgba(255,255,255,0.6); padding: 1.5rem; border-radius: 24px; border: 1.5px solid rgba(154, 176, 143, 0.3); }
+    .about-icon { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 15px rgba(106,86,74,0.1); }
+    .about-name { font-size: 1.4rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 0.2rem; }
+    .about-aliases { font-size: 0.8rem; font-weight: 700; color: var(--clr-sage); letter-spacing: 0.05em; }
+
+    @media (max-width: 600px) {
+      .about-profile { flex-direction: column; text-align: center; }
+    }
+
+    /* ギアカード グリッド */
+    .gear-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .gear-item {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1.5px solid rgba(154, 176, 143, 0.28);
+      border-radius: 18px;
+      padding: 1.4rem 1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .gear-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(106, 86, 74, 0.09);
+    }
+    .gear-item__icon { font-size: 2rem; line-height: 1; }
+    .gear-item__name { font-size: 0.88rem; font-weight: 700; color: var(--clr-brown); line-height: 1.35; }
+    .gear-item__label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--clr-sage);
+      background: rgba(154, 176, 143, 0.12);
+      border: 1px solid rgba(154, 176, 143, 0.3);
+      border-radius: 20px;
+      padding: 0.1em 0.7em;
+      letter-spacing: 0.04em;
+    }
+    .gear-item__note {
+      font-size: 0.76rem;
+      color: var(--clr-brown);
+      opacity: 0.58;
+      line-height: 1.55;
+    }
+    .gear-thumb { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; display: block; }
+    .gear-item figure { width: 100%; margin: 0; }
+    .gear-item figure .gear-item__name { margin-top: 0.6rem; }
+    @media (max-width: 600px) {
+      .gear-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .sidebar-sticky { position: sticky; top: 100px; }
+
+    /* Favorites — タグ / チップ形式 */
+    .hl-item-group {
+      margin-bottom: 1rem;
+    }
+    .hl-item-group:last-child { margin-bottom: 0; }
+    .hl-item-group__label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--clr-sage);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+      opacity: 0.85;
+    }
+    .hl-item-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .hl-item {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--clr-brown);
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(154, 176, 143, 0.28);
+      border-radius: 20px;
+      padding: 0.22em 0.85em;
+      line-height: 1.6;
+      white-space: nowrap;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .hl-item:hover {
+      background: rgba(154, 176, 143, 0.14);
+      border-color: rgba(154, 176, 143, 0.55);
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="About"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb current="About"></hl-breadcrumb>
+      <page-title>About</page-title>
+
+      <!-- プロフィールセクション -->
+      <section class="hl-section" style="margin-top: 2rem;">
+        <section-heading>Profile</section-heading>
+
+        <div class="hl-content-text">
+          <p>ゲームのときは「QueenKyu」、そのほかの活動では「5Gkyu」や「Kyu」を使っています。</p>
+          <p style="margin-top: 1em;">
+            アイデアを考えて形にするのが好きで、字・絵・コードなど手段は問いません。
+            デジタルイラストは指描きで、クリーンな線画やモノクロームの表現を好みます。
+          </p>
+        </div>
+      </section>
+
+      <!-- サイトコンセプト -->
+      <section class="hl-section">
+        <section-heading>About Halcyon</section-heading>
+        <div class="hl-content-text">
+          <p>「Halcyon（ハルシオン）」は、穏やかで平和な時間を意味する言葉です。<br>
+            制作物や考えたことを置いておくための、個人サイトです。</p>
+        </div>
+      </section>
+
+      <!-- ギア -->
+      <section class="hl-section">
+        <section-heading>My Gear</section-heading>
+        <p class="hl-content-text" style="margin-bottom: 1.5rem;">普段の活動で使っている環境・道具の一覧です。</p>
+
+        <hl-tabs>
+
+          <!--  開発 -->
+          <div class="hl-tab-panel" data-label=" 開発">
+            <div class="gear-grid">
+              <div class="gear-item">
+                <div class="gear-item__icon">🪟</div>
+                <div class="gear-item__name">Windows 11</div>
+                <div class="gear-item__label">OS</div>
+                <div class="gear-item__note">メインの開発PC環境</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">VS Code</div>
+                <div class="gear-item__label">エディタ</div>
+                <div class="gear-item__note">メインのコードエディタ</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Vanilla JS / HTML / CSS</div>
+                <div class="gear-item__label">言語</div>
+                <div class="gear-item__note">フレームワーク不要のシンプルなWeb構築</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">GitHub Copilot</div>
+                <div class="gear-item__label">AI アシスタント</div>
+                <div class="gear-item__note">コーディング補助に活用</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">GitHub Pages</div>
+                <div class="gear-item__label">ホスティング</div>
+                <div class="gear-item__note">Githubを無料サーバーだと認識してる</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Python</div>
+                <div class="gear-item__label">言語（基礎）</div>
+                <div class="gear-item__note">必要に応じて</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Java</div>
+                <div class="gear-item__label">言語（基礎）</div>
+                <div class="gear-item__note">覚えたけどほぼ使わない</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">iOS</div>
+                <div class="gear-item__label">OS</div>
+                <div class="gear-item__note">モバイル環境の動作確認・日常使い</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Cloudflare Workers</div>
+                <div class="gear-item__label">Serverless</div>
+                <div class="gear-item__note">エッジコンピューティング、API、プロキシ</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Firebase</div>
+                <div class="gear-item__label">BaaS / 認証</div>
+                <div class="gear-item__note">ユーザー認証や簡単なバックエンド</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon">🪨</div>
+                <div class="gear-item__name">Obsidian</div>
+                <div class="gear-item__label">ノート</div>
+                <div class="gear-item__note">メモ整理</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Google Chrome</div>
+                <div class="gear-item__label">ブラウザ</div>
+                <div class="gear-item__note">拡張機能・UIのテスト環境</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Brave</div>
+                <div class="gear-item__label">ブラウザ</div>
+                <div class="gear-item__note">広告ブロックやプライバシー保護に特化</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Vite</div>
+                <div class="gear-item__label">ビルドツール</div>
+                <div class="gear-item__note">爆速な開発サーバーとバンドラー</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"><hl-icon name="palette"></hl-icon></div>
+                <div class="gear-item__name">Figma</div>
+                <div class="gear-item__label">デザインツール</div>
+                <div class="gear-item__note">UIモックやカラーシステムの設計</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon">🟢</div>
+                <div class="gear-item__name">Node.js</div>
+                <div class="gear-item__label">ランタイム</div>
+                <div class="gear-item__note">ツール実行・ローカルサーバー</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- <hl-icon name="palette"></hl-icon> イラスト -->
+          <div class="hl-tab-panel" data-label="<hl-icon name="palette"></hl-icon> イラスト">
+            <div class="gear-grid">
+              <div class="gear-item">
+                <figure>
+                  <img src="https://picsum.photos/seed/ipad/640/400" alt="iPad Pro 11 inch" class="gear-thumb" draggable="false" oncontextmenu="return false;">
+                  <figcaption class="gear-item__name">iPad Pro 11 inch</figcaption>
+                </figure>
+                <div class="gear-item__label">デバイス</div>
+                <div class="gear-item__note">メインの制作端末（描画・編集に使用）</div>
+              </div>
+              <div class="gear-item">
+                <figure>
+                  <img src="https://picsum.photos/seed/ibis/640/400" alt="ibisPaint" class="gear-thumb" draggable="false" oncontextmenu="return false;">
+                  <figcaption class="gear-item__name">ibisPaint</figcaption>
+                </figure>
+                <div class="gear-item__label">アプリ</div>
+                <div class="gear-item__note">キャラクターイラスト制作に使用</div>
+              </div>
+              <div class="gear-item">
+                <figure>
+                  <img src="https://picsum.photos/seed/finger/640/400" alt="指で描く" class="gear-thumb" draggable="false" oncontextmenu="return false;">
+                  <figcaption class="gear-item__name">指</figcaption>
+                </figure>
+                <div class="gear-item__label">入力</div>
+                <div class="gear-item__note">ペンを使わず指のみで描画するスタイル</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">VN</div>
+                <div class="gear-item__label">アプリ</div>
+                <div class="gear-item__note">シンプルで使いやすい動画エディタ</div>
+              </div>
+            </div>
+          </div>
+
+          <!--  デバイス -->
+          <div class="hl-tab-panel" data-label=" デバイス">
+            <div class="gear-grid">
+              <div class="gear-item">
+                <div class="gear-item__icon">🪟</div>
+                <div class="gear-item__name">Windows 11 PC</div>
+                <div class="gear-item__label">PC</div>
+                <div class="gear-item__note">開発・PCゲームのメイン環境</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">iPad Pro 11 inch</div>
+                <div class="gear-item__label">タブレット</div>
+                <div class="gear-item__note">イラスト・動画編集・ゲームに使用</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon">�</div>
+                <div class="gear-item__name">iPhone 14 Pro</div>
+                <div class="gear-item__label">スマートフォン</div>
+                <div class="gear-item__note">外出先のゲームや日常使いに</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Kindle Paperwhite</div>
+                <div class="gear-item__label">電子書籍リーダー</div>
+                <div class="gear-item__note">ゲームサブ端末と化してる</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Raspberry Pi 5</div>
+                <div class="gear-item__label">シングルボードPC</div>
+                <div class="gear-item__note">持ってるだけ</div>
+              </div>
+            </div>
+          </div>
+
+          <!--  ゲーム -->
+          <div class="hl-tab-panel" data-label=" ゲーム">
+            <div class="gear-grid">
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Windows 11</div>
+                <div class="gear-item__label">PC</div>
+                <div class="gear-item__note">PCゲーム</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon">�</div>
+                <div class="gear-item__name">iPad Pro 11 inch</div>
+                <div class="gear-item__label">タブレット</div>
+                <div class="gear-item__note">モバイルゲームは大体iPadProが最強</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">iPhone 14 Pro</div>
+                <div class="gear-item__label">スマートフォン</div>
+                <div class="gear-item__note">モンストだけ</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Nintendo Switch</div>
+                <div class="gear-item__label">ゲーム機</div>
+                <div class="gear-item__note">オフラインのみ</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Discord</div>
+                <div class="gear-item__label">コミュニケーション</div>
+                <div class="gear-item__note">通話や情報共有</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Steam</div>
+                <div class="gear-item__label">プラットフォーム</div>
+                <div class="gear-item__note">アドベンチャーやピクセルアートのゲームを発掘</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">GameSir T4 Pro</div>
+                <div class="gear-item__label">コントローラー</div>
+                <div class="gear-item__note">有線無線両対応</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">ホリ クラシックコントローラー</div>
+                <div class="gear-item__label">コントローラー</div>
+                <div class="gear-item__note">有線</div>
+              </div>
+            </div>
+          </div>
+
+          <!--  ガジェット -->
+          <div class="hl-tab-panel" data-label=" ガジェット">
+            <div class="gear-grid">
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">EarPods</div>
+                <div class="gear-item__label">有線イヤホン</div>
+                <div class="gear-item__note">Apple純正。シンプルで安心の使い心地</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Sleeping Earbuds Z30</div>
+                <div class="gear-item__label">ワイヤレスイヤホン</div>
+                <div class="gear-item__note">就寝時向けの超小型イヤーバッド</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">GRFD-TWS T39</div>
+                <div class="gear-item__label">ワイヤレスイヤホン</div>
+                <div class="gear-item__note">コンパクトなTWSイヤホン</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Lomicall Signature M650</div>
+                <div class="gear-item__label">マウス</div>
+                <div class="gear-item__note">コンパクトなワイヤレスマウス（静音・快適な操作）</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"><hl-icon name="ruler"></hl-icon></div>
+                <div class="gear-item__name">Lomicall Stand</div>
+                <div class="gear-item__label">スタンド</div>
+                <div class="gear-item__note">iPad等を安定して立てられるアルミ製スタンド</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Anker PowerCore 20000</div>
+                <div class="gear-item__label">モバイルバッテリー</div>
+                <div class="gear-item__note">大容量で長時間の外出も安心</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Anker 65W USB-C Hub</div>
+                <div class="gear-item__label">ハブ</div>
+                <div class="gear-item__note">USB-C・HDMIなど7ポートのPC拡張に</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Belkin MagSafe充電器</div>
+                <div class="gear-item__label">ワイヤレス充電</div>
+                <div class="gear-item__note">iPhone・AirPodsをまとめてスマート充電</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Keychron K3 Pro</div>
+                <div class="gear-item__label">キーボード</div>
+                <div class="gear-item__note">薄型75%レイアウトのメカニカルキーボード</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"><hl-icon name="lightbulb"></hl-icon></div>
+                <div class="gear-item__name">Elgato Key Light Mini</div>
+                <div class="gear-item__label">照明</div>
+                <div class="gear-item__note">通話・撮影時の顔周りを均一に照らす</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"></div>
+                <div class="gear-item__name">Logicool C920n</div>
+                <div class="gear-item__label">ウェブカメラ</div>
+                <div class="gear-item__note">FHD対応。通話や録画にクリアな映像</div>
+              </div>
+              <div class="gear-item">
+                <div class="gear-item__icon"><hl-icon name="floppy-disk"></hl-icon></div>
+                <div class="gear-item__name">Samsung T7 SSD</div>
+                <div class="gear-item__label">外付けSSD</div>
+                <div class="gear-item__note">高速・コンパクトなデータ持ち運びに</div>
+              </div>
+            </div>
+          </div>
+
+        </hl-tabs>
+      </section>
+
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <div class="sidebar-sticky">
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="/components/components.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="1990年の誕生から現代まで。ブラウザの歴史、レンダリングエンジンの仕組み、Chrome・Firefox・Safari・Edgeなど現役ブラウザを徹底比較するガイド。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/note/browser/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <meta property="og:title" content="ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド | Halcyon - 5Gkyu">
+  <meta property="og:description" content="1990年の誕生から現代まで。ブラウザの歴史、レンダリングエンジンの仕組み、Chrome・Firefox・Safari・Edgeなど現役ブラウザを徹底比較するガイド。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/note/browser/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .article-meta {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .article-meta__date {
+      font-size: 0.82rem;
+      color: var(--clr-brown);
+      opacity: 0.5;
+      font-weight: 700;
+    }
+    .article-meta__badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.75rem;
+      border-radius: 50px;
+      background: rgba(154, 176, 143, 0.15);
+      color: var(--clr-sage);
+      border: 1px solid rgba(154, 176, 143, 0.3);
+    }
+
+    .sidebar-sticky { position: sticky; top: 100px; }
+
+    /* ブラウザ年表タイムライン */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      border-left: 2px solid rgba(154, 176, 143, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+    .timeline__item {
+      position: relative;
+    }
+    .timeline__item::before {
+      content: '';
+      position: absolute;
+      left: calc(-2rem - 5px);
+      top: 0.3rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--clr-sage);
+    }
+    .timeline__year {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--clr-sage);
+      margin-bottom: 0.25rem;
+    }
+    .timeline__title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      margin-bottom: 0.2rem;
+    }
+    .timeline__desc {
+      font-size: 0.85rem;
+      color: var(--clr-brown);
+      opacity: 0.75;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Note"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Note" level2-url="/archive/note/"
+        current="ブラウザのすべて">
+      </hl-breadcrumb>
+
+      <page-title>ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド</page-title>
+
+      <div class="article-meta">
+        <span class="article-meta__date">2026.05.18</span>
+        <span class="article-meta__badge">ガイド</span>
+      </div>
+
+      <div class="hl-content-text">
+
+        <hl-chat char="A" align="left">ねえ、ブラウザって Chrome しか使ったことないんだけど……他のブラウザって何が違うの？</hl-chat>
+        <hl-chat char="E" align="right">私も昔は Internet Explorer しか知らなかったな。今はいろいろあるよね。</hl-chat>
+        <hl-chat char="A" align="left">IE！ なつかしい名前！ あれってもうないんだっけ？</hl-chat>
+        <hl-chat char="C" align="right">2022年に正式サポート終了よ。ブラウザは30年以上の歴史があって、いくつもの「戦争」を経て今の形になっている。順番に説明しましょうか。</hl-chat>
+
+        <hl-lead><p>毎日何気なく使っているウェブブラウザ。あなたが今この記事を読んでいるのも、ブラウザがあってこそだ。1990年にティム・バーナーズ＝リーが世界初のブラウザを生み出してから30年以上——この小さなアプリケーションが、インターネットそのものの形を変えてきた。歴史、仕組み、そして現在使えるブラウザを網羅的に解説する。</p></hl-lead>
+
+        <h2 id="what-is-browser">ブラウザとは何か</h2>
+
+        <p>ウェブブラウザ（Web Browser）は、インターネット上のウェブページを取得・表示するためのアプリケーションだ。「ブラウズ（browse）」には「ざっと眺める・拾い読みする」という意味があり、ウェブを自由に渡り歩けることが名前の由来になっている。</p>
+
+        <p>ブラウザが行っていることを大まかにまとめると次の3段階だ。</p>
+
+        <ul>
+          <li><strong>取得（Fetch）</strong>：URLを手がかりにサーバーへHTTPリクエストを送り、HTML・CSS・JavaScript などのファイルを受け取る。</li>
+          <li><strong>解析（Parse）</strong>：受け取ったコードを解析し、ページの構造（DOM）とスタイル（CSSOM）を構築する。</li>
+          <li><strong>表示（Render）</strong>：構築した情報をもとに画面に描画する。この処理を担うのが「レンダリングエンジン」だ。</li>
+        </ul>
+
+        <p>現代のブラウザはさらに、JavaScript エンジン・ネットワーク処理・セキュリティサンドボックス・開発者ツールなどを内包した、数千万行規模の巨大ソフトウェアに成長している。</p>
+
+        <h2 id="history">ブラウザの歴史</h2>
+
+        <p>ブラウザの歴史は、インターネットの普及史とほぼ重なっている。主要なターニングポイントを時系列で追ってみよう。</p>
+
+        <div class="timeline">
+          <div class="timeline__item">
+            <div class="timeline__year">1990年</div>
+            <div class="timeline__title">WorldWideWeb（後の Nexus）── 最初のブラウザ</div>
+            <div class="timeline__desc">ティム・バーナーズ＝リーが NeXT コンピューター上で開発した世界初のブラウザ兼エディター。閲覧だけでなくページの編集もできた。一般公開はされず研究用途に留まった。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">1993年</div>
+            <div class="timeline__title">NCSA Mosaic ── 普及の火付け役</div>
+            <div class="timeline__desc">イリノイ大学の学生マーク・アンドリーセンらが開発。画像をテキストとインラインで表示できる初のブラウザとして爆発的に普及し、ウェブをビジュアルメディアに変えた。Windows・Mac・Unix に対応し一般ユーザーが使える最初のブラウザとなった。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">1994年</div>
+            <div class="timeline__title">Netscape Navigator ── 商用ブラウザ時代の幕開け</div>
+            <div class="timeline__desc">Mosaic を生み出したアンドリーセンが創業した Netscape Communications がリリース。使いやすさと高速な描画で瞬く間に市場シェア90%以上を獲得。JavaScript の誕生（1995年）も Netscape が牽引した。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">1995年</div>
+            <div class="timeline__title">Internet Explorer ── Microsoft 参戦・第一次ブラウザ戦争</div>
+            <div class="timeline__desc">Windows 95 に同梱される形で登場。当初は Mosaic をライセンスしたもので機能的に劣っていたが、Windows との統合というアドバンテージを武器に猛追。1990年代後半には「ブラウザ戦争」と呼ばれる激しいシェア争いが展開された。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">1998〜2002年</div>
+            <div class="timeline__title">IE の天下とNetscape の終焉</div>
+            <div class="timeline__desc">Windows への無料バンドルという強みを活かし IE がシェアを逆転。2001年の IE 6 は技術的にも高水準でNetscape は事実上の敗退。Netscape は Mozilla として組織を再編しオープンソース化した。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">2004年</div>
+            <div class="timeline__title">Mozilla Firefox ── 第二次ブラウザ戦争の始まり</div>
+            <div class="timeline__desc">Mozilla から生まれた Firefox 1.0 がリリース。拡張機能・タブブラウジング・高速描画を武器に IE 一強時代へ挑戦した。オープンソースコミュニティの力で急速にシェアを拡大し、ウェブ標準への準拠を業界全体に意識させた。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">2003年</div>
+            <div class="timeline__title">Safari ── Apple のブラウザ登場</div>
+            <div class="timeline__desc">Mac OS X 向けに Apple がリリース。WebKit エンジンを独自に開発し、2007年の iPhone 登場とともにモバイルブラウジングの標準になった。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">2008年</div>
+            <div class="timeline__title">Google Chrome ── 現代ブラウザの頂点へ</div>
+            <div class="timeline__desc">Google が WebKit をベースに開発したブラウザとして登場。V8 JavaScript エンジンによる圧倒的な実行速度・マルチプロセスアーキテクチャによる安定性・Google サービスとの連携を武器に急成長。2012年には世界シェアトップとなり今日に至る。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">2015年</div>
+            <div class="timeline__title">Microsoft Edge ── IE の後継</div>
+            <div class="timeline__desc">Windows 10 に同梱された IE の後継ブラウザ。当初は独自の EdgeHTML エンジンを採用していたが、2020年に Chromium（Chrome のオープンソース版）ベースへ全面移行。現在は Chrome とほぼ同等の互換性を持ちながら Microsoft 独自機能を追加している。</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__year">2022年</div>
+            <div class="timeline__title">Internet Explorer 完全終了</div>
+            <div class="timeline__desc">2022年6月15日、27年の歴史に幕。Edge への完全移行が完了し、Windows Update で IE が無効化された。</div>
+          </div>
+        </div>
+
+        <hl-chat char="A" align="left">Netscape って Firefox の前身だったんだ！ 知らなかった……。</hl-chat>
+        <hl-chat char="E" align="right">私が初めてネットを触った頃は IE 全盛期だったな。あの頃は「ブラウザ＝IE」って感じだったよ。</hl-chat>
+        <hl-chat char="C" align="right">IE はかつて世界シェア95%を超えたこともあったのよ。ただそれが問題でもあって、競争がなくなると技術革新が止まる。IE 6 は長い間ほぼ更新されず、ウェブ標準への対応が遅れて開発者を苦しめ続けた。</hl-chat>
+        <hl-chat char="A" align="left">競争って大事なんだね……。</hl-chat>
+
+        <h2 id="engine">レンダリングエンジンとは</h2>
+
+        <p>ブラウザの「頭脳」にあたるのがレンダリングエンジンだ。HTML・CSS を解釈して画面に描画する処理を担う。現在主流のエンジンは3種類に絞られている。</p>
+
+        <hl-table head="エンジン,開発元,採用ブラウザ,備考" body="Blink,Google,Chrome / Edge / Opera / Brave / Vivaldi / Samsung Internet,2013年に WebKit からフォーク。現在最も広く使われている|Gecko,Mozilla,Firefox,オープンソース。プライバシー重視の実装が特徴|WebKit,Apple,Safari (macOS/iOS),iOS のすべてのブラウザは WebKit の使用が義務付けられている"></hl-table>
+
+        <p>Blink は Chrome の急成長とともに採用ブラウザが激増し、現在ではデスクトップ・モバイルを合わせたブラウザ市場の80%以上を占める<hl-fn num="1"></hl-fn>。この「Blink 一強」状態は、かつての IE 一強と同じ構造的リスクをはらんでいるとして、ウェブ標準コミュニティで懸念されている。</p>
+
+        <p>なお JavaScript の実行は別の「JavaScript エンジン」が担っており、Chrome の <strong>V8</strong>・Firefox の <strong>SpiderMonkey</strong>・Safari の <strong>JavaScriptCore</strong> が代表例だ。</p>
+
+        <h2 id="current-browsers">現役ブラウザ一覧</h2>
+
+        <h3 id="chrome">Google Chrome</h3>
+
+        <p>2024年時点で世界シェア約65%を誇るデファクトスタンダード<hl-fn num="1"></hl-fn>。Blink + V8 の組み合わせで高速な JavaScript 実行を実現している。Google アカウントとのシームレスな同期、豊富な拡張機能エコシステムが強み。一方でメモリ消費の多さとプライバシー面の懸念（Google へのデータ収集）が指摘される。</p>
+
+        <h3 id="firefox">Mozilla Firefox</h3>
+
+        <p>非営利団体 Mozilla Foundation が開発・維持するオープンソースブラウザ。Gecko エンジン採用で Blink 一強に対抗できる数少ないブラウザだ。強力なプライバシー保護（強化型トラッキング防止）・高いカスタマイズ性が特徴。世界シェアは約3%まで落ちているが、ウェブの多様性を守るために根強いユーザーが支えている。</p>
+
+        <h3 id="safari">Apple Safari</h3>
+
+        <p>macOS・iOS・iPadOS のデフォルトブラウザ。WebKit エンジンを採用し Apple デバイスとの統合が最適化されている。消費電力の低さ・Intelligent Tracking Prevention によるプライバシー保護が強み。iOS では他社ブラウザも内部的に WebKit を使用することが義務付けられているため、iPhone 上では事実上すべてのブラウザが Safari のレンダリングエンジンを使っている。</p>
+
+        <h3 id="edge">Microsoft Edge</h3>
+
+        <p>Windows 10/11 のデフォルトブラウザ。2020年に Chromium ベースへ移行し、Chrome とほぼ同等の互換性を持つ。Copilot（AI アシスタント）との統合・縦型タブ・コレクション機能など独自の生産性向上機能を搭載している。Windows ユーザーには自然な選択肢の一つだ。</p>
+
+        <h3 id="opera">Opera</h3>
+
+        <p>1996年から続く老舗ブラウザ。現在は Chromium ベース。無料 VPN・広告ブロック内蔵・サイドバーに SNS や Spotify への直接アクセスを搭載するなど、機能面で個性を出している。2016年に中国のコンソーシアムに買収されたため、プライバシーに敏感なユーザーからは注意が必要とされる。</p>
+
+        <h3 id="brave">Brave</h3>
+
+        <p>元 Mozilla CEO のブレンダン・アイクが設立した Brave Software が開発。Chromium ベースながら広告・トラッカーを標準でブロックし、代わりに Brave 独自の広告プラットフォームによる報酬モデルを採用している。プライバシーを最優先するユーザーに人気が高い。</p>
+
+        <h3 id="vivaldi">Vivaldi</h3>
+
+        <p>元 Opera 創業者らが設立した Vivaldi Technologies が開発。Chromium ベース。タブのタイリング・メモ機能・コマンドチェーン・細かいカスタマイズ性など、パワーユーザー向けの機能が詰め込まれている。「自分だけのブラウザ」を作りたいユーザーに最適だ。</p>
+
+        <h3 id="tor">Tor Browser</h3>
+
+        <p>Firefox をベースに匿名通信ネットワーク「Tor」を組み込んだブラウザ。IPアドレスの隠蔽・閲覧履歴の完全非保存・フィンガープリント対策を標準で実装している。通信は Tor ネットワークを3段階中継するため速度は遅いが、プライバシーを最大限に高めたい場合の選択肢だ。</p>
+
+        <hl-table head="ブラウザ,エンジン,開発元,シェア目安,強み" body="Chrome,Blink,Google,約65%,速度・拡張機能・Google連携|Safari,WebKit,Apple,約19%,省電力・Apple連携・プライバシー|Edge,Blink,Microsoft,約5%,Copilot統合・生産性機能|Firefox,Gecko,Mozilla,約3%,プライバシー・カスタマイズ性|Opera,Blink,Opera Software,約3%,VPN内蔵・SNS統合|Brave,Blink,Brave Software,約3%,広告ブロック・プライバシー重視|Vivaldi,Blink,Vivaldi Technologies,〜1%,高カスタマイズ・パワーユーザー向け|Tor Browser,Gecko,Tor Project,〜1%,匿名性・完全プライバシー"></hl-table>
+
+        <hl-chat char="E" align="left">Brave って名前は知ってたけど、元 Mozilla の人が作ってたんだ！</hl-chat>
+        <hl-chat char="C" align="right">JavaScript を作ったブレンダン・アイクよ。ウェブの歴史に何度も登場する人物ね。</hl-chat>
+        <hl-chat char="A" align="left">えっ、JavaScript 作った人がブラウザも作ってるの！？ すごい……。</hl-chat>
+
+        <h2 id="mobile">モバイルブラウザ</h2>
+
+        <p>スマートフォンの普及により、モバイルのウェブ閲覧はデスクトップを上回るようになっている。モバイルにおけるブラウザシェアは、Safari（iOS の圧倒的シェア）と Chrome Android が二分する構図だ。</p>
+
+        <hl-alert type="info">
+          <p>iPhone・iPad（iOS/iPadOS）では App Store のポリシーにより、すべてのブラウザアプリが Apple の WebKit エンジンを使用することが義務付けられている。Chrome for iOS をインストールしても、内部のレンダリングは Safari と同じエンジンを使っている。2024年以降、EU のデジタル市場法（DMA）の影響でこの制約の緩和が進んでいる。</p>
+        </hl-alert>
+
+        <h2 id="how-to-choose">どのブラウザを選ぶべきか</h2>
+
+        <p>「最強のブラウザ」は存在しない。何を重視するかによって最適解は変わる。</p>
+
+        <ul>
+          <li><strong>とにかく速く・互換性重視</strong>なら → <strong>Chrome</strong> または <strong>Edge</strong></li>
+          <li><strong>Apple デバイスユーザーで省電力重視</strong>なら → <strong>Safari</strong></li>
+          <li><strong>プライバシーを最優先</strong>したいなら → <strong>Firefox</strong> または <strong>Brave</strong></li>
+          <li><strong>カスタマイズ性を極めたい</strong>なら → <strong>Vivaldi</strong></li>
+          <li><strong>完全な匿名性</strong>が必要なら → <strong>Tor Browser</strong></li>
+        </ul>
+
+        <p>また、複数のブラウザを用途ごとに使い分けることも有効だ。たとえば「日常の調査は Chrome、プライベートな閲覧は Firefox」のように分けると、クッキー・セッション・パスワードを分離でき、セキュリティと利便性を両立しやすい。</p>
+
+        <hl-chat char="A" align="left">私、ずっと Chrome だけだったけど、Firefox も入れてみようかな。</hl-chat>
+        <hl-chat char="E" align="right">私はスマホは Safari、パソコンは Edge にしてる。Windows だから自然とそうなった感じ。</hl-chat>
+        <hl-chat char="C" align="left">大事なのは「ひとつのブラウザがすべてを握っている状態」を避けること。技術の多様性はウェブ全体の健全性を保つためにも必要よ。</hl-chat>
+
+        <hl-footnotes label="注記">
+          <hl-fn-item num="1">ブラウザシェアのデータは StatCounter Global Stats（gs.statcounter.com）2024年4月時点の数値を参照。地域・デバイス・計測方法によって数値は異なる。</hl-fn-item>
+        </hl-footnotes>
+
+      </div>
+
+      <hl-share></hl-share>
+
+    </div>
+
+    <aside class="hl-layout-sidebar">
+      <hl-profile></hl-profile>
+      <div class="sidebar-sticky">
+        <hl-toc></hl-toc>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
+
+</body>
+</html>

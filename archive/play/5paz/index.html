@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Erosion Gomoku（エロージョン五目）</title>
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    :root {
+      --game-border: rgba(154, 176, 143, 0.32);
+      --game-card:   rgba(255, 255, 255, 0.86);
+    }
+
+    body {
+      background: var(--clr-cream, #FBF6EA);
+      color: var(--clr-brown, #6A564A);
+      font-family: var(--font-main, 'Zen Maru Gothic', Georgia, serif);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 100vh;
+      padding-top: 64px; /* site-header は position:fixed なのでオフセット */
+    }
+
+    /* ── ゲーム状態バブル（Fukaの上に固定表示） ── */
+    /* ── キャラクターステージ（画面下部に固定） ── */
+    #chara-stage {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(260px, 42vw, 440px);
+      pointer-events: none;
+      z-index: 20;
+      user-select: none;
+    }
+    #chara-bubbles {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 6%;
+      gap: 4%;
+      margin-bottom: 3px;
+    }
+    .chara-bubble {
+      background: var(--game-card);
+      border: 1px solid var(--game-border);
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      color: var(--clr-brown, #6A564A);
+      max-width: 44%;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(106, 86, 74, 0.10);
+      position: relative;
+      white-space: nowrap;
+    }
+    .chara-bubble.visible { display: inline-flex; }
+    #bubble-left::after {
+      content: '';
+      position: absolute;
+      top: 100%; right: 12px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgba(255, 255, 255, 0.9);
+    }
+    #bubble-right::after {
+      content: '';
+      position: absolute;
+      top: 100%; left: 12px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgba(255, 255, 255, 0.9);
+    }
+    #chara-img-wrap {
+      overflow: hidden;
+      height: clamp(140px, 20vh, 220px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    #chara-img {
+      width: 100%;
+      display: block;
+      -webkit-user-drag: none;
+    }
+    #ai-depth-label {
+      font-size: 0.75em;
+      color: rgba(106, 86, 74, 0.45);
+    }
+
+    /* ── ゲームラッパー ── */
+    #game-wrap {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0.5rem 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    #top-controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    /* page-title 下マージン縮小 */
+    .hl-page-title-underline { margin-bottom: 0.6rem !important; }
+
+    #status-bar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      background: var(--game-card);
+      border: 1px solid var(--game-border);
+      border-radius: 10px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      width: 100%;
+    }
+    .player-info { display: flex; align-items: center; gap: 6px; }
+    .stone-icon {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .stone-icon.dew { background: var(--clr-dusty-blue, #92B5BC); border: 1px solid rgba(146,181,188,0.5); }
+    .stone-icon.bud { background: var(--clr-peach, #EEAFA1);      border: 1px solid rgba(238,175,161,0.5); }
+    .active-player   { color: var(--clr-brown, #6A564A); font-weight: 700; }
+    .inactive-player { color: rgba(106, 86, 74, 0.4); }
+    #turn-indicator  { font-size: 0.74rem; color: var(--clr-sage, #9AB08F); min-width: 70px; text-align: center; }
+    #total-moves     { font-size: 0.70rem; color: rgba(106, 86, 74, 0.5); }
+
+    #canvas-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: crosshair;
+      position: relative;
+      width: 100%;
+    }
+    #board-canvas {
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(106, 86, 74, 0.18);
+      max-width: 100%;
+    }
+
+    .petal {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50% 0 50% 0;
+      animation: petalFall 0.9s ease-out forwards;
+    }
+    @keyframes petalFall {
+      0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translate(var(--px),var(--py)) rotate(var(--pr)) scale(0.2); opacity: 0; }
+    }
+
+    #message {
+      height: 1.3em;
+      font-size: 0.85rem;
+      color: var(--clr-brown, #6A564A);
+      font-weight: 700;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    #btn-menu {
+      padding: 7px 22px;
+      font-size: 0.8rem;
+    }
+    /* ── メニューモーダル ── */
+    #menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(106, 86, 74, 0.38);
+      z-index: 150;
+      align-items: center;
+      justify-content: center;
+    }
+    #menu-overlay.open { display: flex; }
+    #menu-modal {
+      background: var(--clr-cream, #FBF6EA);
+      border: 1px solid var(--game-border);
+      border-radius: 16px;
+      width: min(360px, 92vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(106, 86, 74, 0.15);
+    }
+    .menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--game-border);
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+      font-size: 0.9rem;
+    }
+    #menu-close {
+      background: none;
+      border: none;
+      color: var(--clr-sage, #9AB08F);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
+    }
+    #menu-close:hover { color: var(--clr-brown, #6A564A); background: none; }
+    .menu-body {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .menu-body button {
+      width: 100%;
+      text-align: left;
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+    #review-controls {
+      display: none;
+      margin-top: 6px;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #review-turn-label {
+      color: var(--clr-sage, #9AB08F);
+      font-size: 0.95em;
+      line-height: 32px;
+      min-width: 80px;
+      text-align: center;
+    }
+    button {
+      background: var(--game-card);
+      color: var(--clr-brown, #6A564A);
+      border: 1px solid var(--game-border);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 0.76rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    button:hover    { background: rgba(154, 176, 143, 0.14); border-color: rgba(154, 176, 143, 0.6); }
+    button:disabled { opacity: 0.4; cursor: default; }
+    #legend {
+      font-size: 0.60rem;
+      color: rgba(106, 86, 74, 0.5);
+      text-align: center;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    /* ── チュートリアルモーダル ── */
+    #tutorial-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(106, 86, 74, 0.38);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #tutorial-overlay.open { display: flex; }
+
+    #tutorial-modal {
+      background: var(--clr-cream, #FBF6EA);
+      border: 1px solid var(--game-border);
+      border-radius: 16px;
+      width: min(640px, 96vw);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(106, 86, 74, 0.15);
+    }
+
+    #tut-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--game-border);
+      flex-shrink: 0;
+    }
+    #tut-title {
+      font-size: 1rem;
+      color: var(--clr-brown, #6A564A);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    #tut-close {
+      background: none;
+      border: none;
+      color: var(--clr-sage, #9AB08F);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+    }
+    #tut-close:hover { color: var(--clr-brown, #6A564A); background: none; }
+
+    #tut-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 0 2px;
+      flex-shrink: 0;
+    }
+    .tut-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--game-border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .tut-dot.active { background: var(--clr-sage, #9AB08F); }
+
+    #tut-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .tut-page        { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .tut-page.active { display: flex; }
+
+    .tut-chara-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 10px 16px 6px;
+      flex-shrink: 0;
+    }
+    .tut-chara-img {
+      width: 72px; height: 96px;
+      object-fit: contain;
+      object-position: bottom;
+      flex-shrink: 0;
+    }
+    .tut-bubble {
+      background: var(--game-card);
+      border: 1px solid var(--game-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      color: var(--clr-brown, #6A564A);
+      line-height: 1.6;
+      flex: 1;
+      position: relative;
+    }
+    .tut-bubble::before {
+      content: '';
+      position: absolute;
+      left: -8px; top: 50%;
+      transform: translateY(-50%);
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-right: 8px solid var(--game-border);
+    }
+    .tut-bubble::after {
+      content: '';
+      position: absolute;
+      left: -6px; top: 50%;
+      transform: translateY(-50%);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-right: 7px solid rgba(255, 255, 255, 0.9);
+    }
+    .tut-bubble strong:first-child {
+      color: var(--clr-sage, #9AB08F);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.88rem;
+    }
+    .tut-bubble strong { color: var(--clr-sage, #9AB08F); }
+    .tut-bubble em { font-style: italic; }
+
+    .tut-canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+      min-height: 0;
+    }
+    .tut-canvas {
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(106, 86, 74, 0.10);
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    #tut-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 12px;
+      border-top: 1px solid var(--game-border);
+      flex-shrink: 0;
+    }
+    #tut-footer button { padding: 5px 20px; font-size: 0.80rem; }
+    #tut-page-num { font-size: 0.76rem; color: var(--clr-sage, #9AB08F); }
+  </style>
+</head>
+<body>
+  <site-header site-name="Play"></site-header>
+
+  <div id="game-wrap">
+    <hl-breadcrumb
+      level1-name="Archive" level1-url="/archive/"
+      level2-name="Play" level2-url="/archive/play/"
+      current="エロージョン五目">
+    </hl-breadcrumb>
+    <page-title>エロージョン五目</page-title>
+
+    <div id="top-controls">
+      <div id="status-bar">
+        <div class="player-info" id="p0-info">
+          <span class="stone-icon dew"></span>
+          <span id="p0-name">あなた（朝露）</span>
+          <span id="p0-moves">0手</span>
+        </div>
+        <div id="turn-indicator">← 手番</div>
+        <div class="player-info" id="p1-info">
+          <span class="stone-icon bud"></span>
+          <span id="p1-name">CPU（花芽）</span>
+          <span id="p1-moves">0手</span>
+        </div>
+        <div id="total-moves">合計: 0 / 200手</div>
+      </div>
+
+      <div id="legend">
+        石の数字 = 残り寿命（全体ターンベース，最大 24）&nbsp;紅 = 残り 5 以下&nbsp;橙 = 残り 10 以下<br>
+        緑背景 = 前ターン消滅石の腐食影響範囲
+      </div>
+
+      <button id="btn-menu"> メニュー・設定</button>
+      <div id="review-controls">
+        <button id="btn-review-prev"> 1手戻る</button>
+        <span id="review-turn-label"></span>
+        <button id="btn-review-next">1手進む </button>
+        <button id="btn-review-exit"> 終了</button>
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <canvas id="board-canvas"></canvas>
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+  <!-- キャラクターステージ（画面下部に固定） -->
+  <div id="chara-stage">
+    <div id="chara-bubbles">
+      <div id="bubble-left" class="chara-bubble" aria-live="polite"></div>
+      <div id="bubble-right" class="chara-bubble" aria-live="polite"></div>
+    </div>
+    <div id="chara-img-wrap">
+      <img src="erosion.png" id="chara-img" alt="対局中のキャラクター" draggable="false">
+    </div>
+  </div>
+  <!-- infp-panel（JS互換用・非表示） -->
+  <div id="infp-panel" class="infp-idle" aria-hidden="true" style="display:none">
+    <span id="infp-icon"></span>
+    <span id="infp-label">あなたの番です…</span>
+    <span id="ai-depth-label"></span>
+  </div>
+
+  <!-- ═══ メニューモーダル ═══ -->
+  <div id="menu-overlay">
+    <div id="menu-modal">
+      <div class="menu-header">
+        <span> メニュー・設定</span>
+        <button id="menu-close" title="閉じる"></button>
+      </div>
+      <div class="menu-body">
+        <button id="btn-reset"> 最初から</button>
+        <button id="btn-toggle-side">あなた: 先攻</button>
+        <button id="btn-toggle-strength">強さ: 標準</button>
+        <button id="btn-cpu-battle"> CPU対戦観戦</button>
+        <button id="btn-load-epgn"> 棋譜を読む</button>
+        <input type="file" id="input-epgn" accept=".txt" style="display:none">
+        <button id="btn-toggle-life">寿命表示: ON</button>
+        <button id="btn-matta" disabled>待った</button>
+        <button id="btn-help"> あそびかた</button>
+        <button id="btn-download-log" style="display:none;"> 棋譜を保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ チュートリアルモーダル ═══ -->
+  <div id="tutorial-overlay">
+    <div id="tutorial-modal">
+      <!-- ヘッダ -->
+      <div id="tut-header">
+        <span id="tut-title"> あそびかた</span>
+        <button id="tut-close" title="閉じる"></button>
+      </div>
+      <!-- ページドット -->
+      <div id="tut-dots">
+        <div class="tut-dot active" data-page="0"></div>
+        <div class="tut-dot" data-page="1"></div>
+        <div class="tut-dot" data-page="2"></div>
+      </div>
+      <!-- ボディ -->
+      <div id="tut-body">
+
+        <!-- ページ1: 五目並べ基本 -->
+        <div class="tut-page active" id="tut-p0">
+          <div class="tut-chara-row">
+            <img src="tutorial.png" alt="INFPちゃん" class="tut-chara-img" onerror="this.style.visibility='hidden'">
+            <div class="tut-bubble">
+              <strong> 基本ルール</strong>
+              交互に石を置いて、<em>縦・横・斜め</em>のいずれかに<br>
+              <strong>5個並べた方が勝ち</strong>です。<br>
+              盤面は 15×15 マス。先手はあなた（朝露）です。
+            </div>
+          </div>
+          <div class="tut-canvas-wrap">
+            <canvas class="tut-canvas" id="tut-c0" width="240" height="240"></canvas>
+          </div>
+        </div>
+
+        <!-- ページ2: 寿命ルール -->
+        <div class="tut-page" id="tut-p1">
+          <div class="tut-chara-row">
+            <img src="tutorial.png" alt="INFPちゃん" class="tut-chara-img" onerror="this.style.visibility='hidden'">
+            <div class="tut-bubble">
+              <strong> 寿命ルール</strong>
+              置いた石には寿命 <strong>LIFE = 24</strong> が与えられます。<br>
+              <em>毎ターン、盤上の全石の寿命が 1 ずつ減り</em>、<br>
+              0 になった石は<strong>消滅</strong>します。
+            </div>
+          </div>
+          <div class="tut-canvas-wrap">
+            <canvas class="tut-canvas" id="tut-c1" width="240" height="240"></canvas>
+          </div>
+        </div>
+
+        <!-- ページ3: 腐食ルール -->
+        <div class="tut-page" id="tut-p2">
+          <div class="tut-chara-row">
+            <img src="tutorial.png" alt="INFPちゃん" class="tut-chara-img" onerror="this.style.visibility='hidden'">
+            <div class="tut-bubble">
+              <strong> 腐食ルール</strong>
+              石が消滅すると、隣接する<em>相手の石</em>の寿命を<br>
+              追加で <strong>−2</strong> します（腐食）。<br>
+              消滅連鎖を狙って戦略を立てよう！
+            </div>
+          </div>
+          <div class="tut-canvas-wrap">
+            <canvas class="tut-canvas" id="tut-c2" width="240" height="240"></canvas>
+          </div>
+        </div>
+
+      </div><!-- #tut-body -->
+
+      <!-- フッタ -->
+      <div id="tut-footer">
+        <button id="tut-prev"> 前へ</button>
+        <span id="tut-page-num">1 / 3</span>
+        <button id="tut-next">次へ </button>
+      </div>
+    </div><!-- #tutorial-modal -->
+  </div><!-- #tutorial-overlay -->
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="../../../components/components.js"></script>
+  <script>
+    // ─── 定数 ────────────────────────────────────────────
+    const BOARD_SIZE  = 15;
+    const LIFETIME    = 24;
+    const MAX_TOTAL   = 200;
+    const EROSION_AMT = 2;
+
+    // ─── Canvas & 動的サイズ ──────────────────────────────
+    const canvas = document.getElementById('board-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    let CELL, PAD, CSIZE;
+
+    function calcBoardSize() {
+      const wrapEl = document.getElementById('game-wrap');
+      const ww = wrapEl ? wrapEl.getBoundingClientRect().width : window.innerWidth;
+      let maxSize;
+      if (window.innerWidth >= 768) {
+        // PC/タブレット: 高さも考慮して1画面に収まるよう縮小
+        const maxByH = Math.floor(window.innerHeight * 0.56);
+        maxSize = Math.min(ww - 8, maxByH, 560);
+      } else {
+        maxSize = ww - 8;
+      }
+      const size = Math.max(Math.min(maxSize, 640), 240);
+      CELL  = Math.floor(size / BOARD_SIZE);
+      PAD   = Math.round(CELL * 0.14);
+      CSIZE = PAD * 2 + BOARD_SIZE * CELL;
+      canvas.width  = CSIZE;
+      canvas.height = CSIZE;
+    }
+
+    // マスの中心座標（整数ピクセルに丸めて貨増行レンダリングを防ぐ）
+    function gx(c) { return Math.round(PAD + c * CELL + CELL / 2); }
+    function gy(r) { return Math.round(PAD + r * CELL + CELL / 2); }
+
+    // ─── 状態 ─────────────────────────────────────────────
+    let board       = [];
+    let current     = 0;
+    let moveCount   = [0, 0];
+    let gameOver    = false;
+    let showLife    = true;
+    let lastExpired = [];
+    let lastPlaced  = null;  // { r, c, player } — 直前に置かれた石
+    let winCells    = [];   // 勝利の5セル
+    let gameMode    = 'pvp'; // 'pvp' = 人間 vs CPU, 'cvc' = CPU vs CPU
+    let playerSide  = 0;     // pvpモードで人間が操作するプレイヤー番号（0=先攻, 1=後攻）
+    let winAnimRafId = null;
+    let winAnimStartMs = 0;
+    let winPetalLastMs = 0;
+    let gameLog     = [];   // 分析用棋譜データ
+    let posHistory  = {};
+    let boardHistory = []; // 待った用スナップショット
+
+    function initBoard() {
+      board = Array.from({ length: BOARD_SIZE }, () =>
+        Array(BOARD_SIZE).fill(null)
+      );
+      current     = 0;
+      moveCount   = [0, 0];
+      gameOver    = false;
+      lastExpired = [];
+      lastPlaced  = null;
+      posHistory  = {};
+      winCells    = [];
+      gameLog     = [];
+      boardHistory = [];
+      document.getElementById('btn-matta').disabled = true;
+      document.getElementById('btn-download-log').style.display = 'none';
+      if (winAnimRafId) { cancelAnimationFrame(winAnimRafId); winAnimRafId = null; }
+      setMessage('');
+      document.getElementById('ai-depth-label').textContent = '';
+      updateStatus();
+      drawBoard();
+    }
+
+    // ─── スナップショット（待った用）─────────────────────────
+    function saveSnapshot() {
+      boardHistory.push({
+        board:       board.map(row => row.map(cell => cell ? { ...cell } : null)),
+        current,
+        moveCount:   moveCount.slice(),
+        lastExpired: lastExpired.slice(),
+        lastPlaced:  lastPlaced ? { ...lastPlaced } : null,
+        winCells:    winCells.slice(),
+        gameLog:     JSON.parse(JSON.stringify(gameLog)),
+        posHistory:  { ...posHistory },
+        gameOver
+      });
+      document.getElementById('btn-matta').disabled = false;
+    }
+
+    function restoreSnapshot(snap) {
+      board       = snap.board.map(row => row.map(cell => cell ? { ...cell } : null));
+      current     = snap.current;
+      moveCount   = snap.moveCount.slice();
+      lastExpired = snap.lastExpired.slice();
+      lastPlaced  = snap.lastPlaced ? { ...snap.lastPlaced } : null;
+      winCells    = snap.winCells.slice();
+      gameLog     = JSON.parse(JSON.stringify(snap.gameLog));
+      posHistory  = { ...snap.posHistory };
+      gameOver    = snap.gameOver;
+      if (winAnimRafId) { cancelAnimationFrame(winAnimRafId); winAnimRafId = null; }
+    }
+
+    // ─── 局面シリアライズ ──────────────────────────────────
+    function serializeBoard() {
+      const cells = [];
+      for (let r = 0; r < BOARD_SIZE; r++)
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          const cell = board[r][c];
+          if (cell) cells.push(`${r},${c},${cell.player},${cell.life}`);
+        }
+      return `${current};${cells.join(';')}`;
+    }
+
+    // ─── 5連判定（勝利セル配列を返す。なければnull） ──────────────
+    function checkFive(player) {
+      const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          if (!board[r][c] || board[r][c].player !== player) continue;
+          for (const [dr, dc] of dirs) {
+            const cells = [[r, c]];
+            let nr = r+dr, nc = c+dc;
+            while (nr>=0 && nr<BOARD_SIZE && nc>=0 && nc<BOARD_SIZE
+                   && board[nr][nc] && board[nr][nc].player === player) {
+              cells.push([nr, nc]); nr += dr; nc += dc;
+            }
+            if (cells.length >= 5) return cells.slice(0, 5);
+          }
+        }
+      }
+      return null;
+    }
+
+    // ─── ターン処理 ───────────────────────────────────────
+    function placeStone(r, c) {
+      if (gameOver) return;
+      if (board[r][c] !== null) return;
+
+      // pvpモードでプレイヤーが打つ直前にスナップショット保存
+      if (gameMode === 'pvp' && current === playerSide) saveSnapshot();
+
+      const p = current;
+      const turnLog = {
+        turn: moveCount[0] + moveCount[1] + 1,
+        player: p,
+        move: { r, c },
+        expired: [],
+        eroded: []
+      };
+
+      // 1. 石を置く（全体ターン数の寄命 = LIFETIME）
+      board[r][c] = { player: p, life: LIFETIME };
+      lastPlaced  = { r, c, player: p };
+      moveCount[p]++;
+
+      // 2. 新設石以外の全石の寿命 -1（全体ターンベース）
+      const expiredNow = [];
+      for (let i = 0; i < BOARD_SIZE; i++)
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          if (i === r && j === c) continue; // 新設石はスキップ
+          const cell = board[i][j];
+          if (cell) {
+            cell.life--;
+            if (cell.life <= 0) expiredNow.push({ r: i, c: j, player: cell.player, reason: 'lifespan' });
+          }
+        }
+      turnLog.expired.push(...expiredNow);
+
+      // 3. 腐食の波動（連鎖消滅は腐食なし）
+      const forceExpired = [];
+      for (const pos of expiredNow) {
+        board[pos.r][pos.c] = null;
+        applyErosion(pos.r, pos.c, 1 - pos.player, forceExpired, turnLog.eroded);
+      }
+      for (const pos of forceExpired) {
+        board[pos.r][pos.c] = null;
+        turnLog.expired.push(pos);
+      }
+
+      lastExpired = expiredNow;
+      gameLog.push(turnLog);
+
+      // 腐食が発生した場合、花びらエフェクトとキャラクター演出
+      if (expiredNow.length > 0) {
+        for (const pos of expiredNow) {
+          spawnPetals(gx(pos.c), gy(pos.r));
+        }
+        if (p !== playerSide) setInfpState('erosion'); // INFPちゃんの石が散って相手を腐食
+      }
+
+      // 4. 勝利判定
+      const pCells  = checkFive(p);
+      const opCells = checkFive(1 - p);
+
+      if (pCells || opCells) {
+        gameOver = true;
+        winCells = pCells || opCells;
+        const winner = (pCells && opCells) ? p : pCells ? p : 1 - p;
+        const names  = gameMode === 'cvc'
+          ? ['CPU-α（朝露）', 'CPU-β（花芽）']
+          : playerSide === 0
+            ? ['あなた（朝露）', 'INFPちゃん（花芽）']
+            : ['INFPちゃん（朝露）', 'あなた（花芽）'];
+        const reason = (!pCells && opCells) ? '（オウンゴール）' : '';
+        setMessage(` ${names[winner]} の勝利！${reason}`);
+        if (gameMode !== 'cvc') setInfpState(winner !== playerSide ? 'win' : 'lose');
+        updateStatus();
+        drawBoard();
+        startWinAnimation();
+        showDownloadGameLog(winner);
+        return;
+      }
+
+      // 5. 200手上限
+      if (moveCount[0] + moveCount[1] >= MAX_TOTAL) {
+        gameOver = true;
+        setMessage(' 引き分け（200手に到達）');
+        if (gameMode !== 'cvc') setInfpState('draw');
+        updateStatus();
+        drawBoard();
+        showDownloadGameLog(-1);
+        return;
+      }
+
+      // 6. 手番交代 → 反復局面チェック
+      current = 1 - p;
+      const state = serializeBoard();
+      posHistory[state] = (posHistory[state] || 0) + 1;
+      if (posHistory[state] >= 3) {
+        gameOver = true;
+        setMessage(' 引き分け（同一局面3回）');
+        if (gameMode !== 'cvc') setInfpState('draw');
+        updateStatus();
+        drawBoard();
+        showDownloadGameLog(-1);
+        return;
+      }
+
+      updateStatus();
+      drawBoard();
+
+      // プレイヤーが四連（リーチ）を作った場合、INFPちゃんが緊張
+      if (gameMode !== 'cvc' && current !== playerSide && !gameOver && p === playerSide) {
+        if (countMaxLine(playerSide) >= 4) setInfpState('tension');
+      }
+
+      // 7. CPU の手番
+      if (!gameOver && (current !== playerSide || gameMode === 'cvc')) scheduleCpu();
+    }
+
+    // プレイヤーの最長連続数を返す（緊張演出用）
+    function countMaxLine(player) {
+      let max = 0;
+      const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          if (!board[r][c] || board[r][c].player !== player) continue;
+          for (const [dr, dc] of dirs) {
+            let cnt = 1, nr = r+dr, nc = c+dc;
+            while (nr>=0 && nr<BOARD_SIZE && nc>=0 && nc<BOARD_SIZE
+                   && board[nr][nc] && board[nr][nc].player === player) {
+              cnt++; nr+=dr; nc+=dc;
+            }
+            if (cnt > max) max = cnt;
+          }
+        }
+      }
+      return max;
+    }
+
+    function applyErosion(r, c, targetPlayer, forceExpiredOut, erodedList) {
+      const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+      for (const [dr, dc] of dirs) {
+        const nr = r+dr, nc = c+dc;
+        if (nr<0 || nr>=BOARD_SIZE || nc<0 || nc>=BOARD_SIZE) continue;
+        const cell = board[nr][nc];
+        if (cell && cell.player === targetPlayer) {
+          cell.life -= EROSION_AMT;
+          if (erodedList) erodedList.push({ r: nr, c: nc, player: targetPlayer, remains: Math.max(0, cell.life) });
+          if (cell.life <= 0) forceExpiredOut.push({ r: nr, c: nc, player: targetPlayer, reason: 'erosion' });
+        }
+      }
+    }
+
+    // ─── AI（Web Worker）──────────────────────────────
+    // CPU強さ設定: 'A' = 標準(深さ6/5秒), 'B' = 強(深さ12/制限なし)
+    let cpuStrength  = 'A';
+    const CPU_CONFIGS = {
+      A: { maxDepth: 6,  budgetMs: 7000 },
+      B: { maxDepth: 10, budgetMs: 1000   }, // budgetMs=0 → 時間制限なし
+    };
+    const AI_MIN_MS      = 700;  // 勝ち確定時もこの時間は待つ
+    const NUM_WORKERS    = Math.min(8, Math.max(1, navigator.hardwareConcurrency || 2));
+    let aiThinkStart     = 0;
+    let aiWorkers        = [];   // 並列Workerプール
+    let aiWorker         = null; // 後方互換用エイリアス（aiWorkers[0]）
+    let pendingResults   = [];   // 各Workerからの結果収集用
+
+    function initWorker() {
+      // 既存のWorkerを全て終了
+      for (const w of aiWorkers) w.terminate();
+      aiWorkers = [];
+      pendingResults = [];
+
+      for (let id = 0; id < NUM_WORKERS; id++) {
+        const w = new Worker('ai-worker.js');
+        w.onerror = (err) => {
+          console.error('AI Worker error:', err);
+          canvas.style.pointerEvents = '';
+          current = playerSide;
+          setInfpState('idle');
+          updateStatus();
+        };
+        w.onmessage = (e) => {
+          pendingResults.push(e.data);
+          if (pendingResults.length < NUM_WORKERS) return; // 全員揃うまで待機
+
+          // 全Worker結果から最高スコアの手を選ぶ
+          let best = pendingResults[0];
+          for (const res of pendingResults) {
+            if (res.r === -1) continue; // 担当なし
+            if (best.r === -1 || res.score > best.score) best = res;
+          }
+          pendingResults = [];
+
+          const waited = Date.now() - aiThinkStart;
+          let delay = Math.max(0, AI_MIN_MS - waited);
+          if (gameMode === 'cvc' && best.fast) delay = 0;
+
+          setTimeout(() => {
+            canvas.style.pointerEvents = '';
+            if (gameMode !== 'cvc') setInfpState('placing');
+            const d = best.completedDepth;
+            if (d) document.getElementById('ai-depth-label').textContent = `深さ ${d} 読み`;
+            if (!gameOver && (current !== playerSide || gameMode === 'cvc')) placeStone(best.r, best.c);
+          }, delay);
+        };
+        aiWorkers.push(w);
+      }
+      aiWorker = aiWorkers[0]; // 後方互換用
+    }
+
+    function scheduleCpu() {
+      aiThinkStart = Date.now();
+      canvas.style.pointerEvents = 'none';
+      pendingResults = [];
+      if (gameMode !== 'cvc') setInfpState('thinking');
+      const board2d = board.map(row =>
+        row.map(cell => cell ? { player: cell.player, life: cell.life } : null)
+      );
+      const cfg = CPU_CONFIGS[cpuStrength] || CPU_CONFIGS.A;
+      const payload = {
+        board2d,
+        moveCount: moveCount.slice(),
+        current,
+        budgetMs: cfg.budgetMs,
+        maxDepth: cfg.maxDepth,
+        gameMode,
+        totalWorkers: NUM_WORKERS,
+      };
+      aiWorkers.forEach((w, id) => w.postMessage({ ...payload, workerId: id }));
+    }
+
+    // ─── 描画 ─────────────────────────────────────────────
+    function drawBoard() {
+      // ────── 盤面全体の背景 ──────
+      // 温かい苔色のラジアルグラデーション
+      const bg = ctx.createRadialGradient(
+        CSIZE*0.5, CSIZE*0.4, CSIZE*0.05,
+        CSIZE*0.5, CSIZE*0.55, CSIZE*0.72
+      );
+      bg.addColorStop(0,   '#BFD4B0');
+      bg.addColorStop(0.5, '#9AB08F');
+      bg.addColorStop(1,   '#7A9870');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, CSIZE, CSIZE);
+
+      // 盤面の案外枚
+      ctx.fillStyle = 'rgba(106,86,74,0.38)';
+      ctx.fillRect(0, 0, CSIZE, CSIZE);
+      ctx.fillStyle = bg;
+      ctx.fillRect(PAD, PAD, BOARD_SIZE * CELL, BOARD_SIZE * CELL);
+
+      // ────── 各マスを色分けで塗る ──────
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          const cx = PAD + c * CELL;
+          const cy = PAD + r * CELL;
+          const light = (r + c) % 2 === 0;
+          ctx.fillStyle = light ? '#a8bf98' : '#96ae88';
+          ctx.fillRect(cx, cy, CELL, CELL);
+          // 微小な草のノイズスポット
+          if ((r * 7 + c * 13) % 5 === 0) {
+            const dot = ctx.createRadialGradient(
+              cx + CELL*0.4, cy + CELL*0.55, 0,
+              cx + CELL*0.4, cy + CELL*0.55, CELL*0.35
+            );
+            dot.addColorStop(0, 'rgba(154,176,143,0.16)');
+            dot.addColorStop(1, 'rgba(154,176,143,0)');
+            ctx.fillStyle = dot;
+            ctx.fillRect(cx, cy, CELL, CELL);
+          }
+        }
+      }
+
+      // ────── マスの枚 ──────
+      ctx.strokeStyle = 'rgba(106,86,74,0.40)';
+      ctx.lineWidth = Math.max(CELL * 0.05, 1);
+      for (let r = 0; r <= BOARD_SIZE; r++) {
+        ctx.beginPath();
+        ctx.moveTo(PAD, PAD + r * CELL);
+        ctx.lineTo(PAD + BOARD_SIZE * CELL, PAD + r * CELL);
+        ctx.stroke();
+      }
+      for (let c = 0; c <= BOARD_SIZE; c++) {
+        ctx.beginPath();
+        ctx.moveTo(PAD + c * CELL, PAD);
+        ctx.lineTo(PAD + c * CELL, PAD + BOARD_SIZE * CELL);
+        ctx.stroke();
+      }
+      // ハイライト線
+      ctx.strokeStyle = 'rgba(251,246,234,0.12)';
+      ctx.lineWidth = Math.max(CELL * 0.025, 0.5);
+      for (let r = 0; r <= BOARD_SIZE; r++) {
+        ctx.beginPath();
+        ctx.moveTo(PAD - 0.5, PAD + r * CELL - 0.5);
+        ctx.lineTo(PAD + BOARD_SIZE * CELL - 0.5, PAD + r * CELL - 0.5);
+        ctx.stroke();
+      }
+      for (let c = 0; c <= BOARD_SIZE; c++) {
+        ctx.beginPath();
+        ctx.moveTo(PAD + c * CELL - 0.5, PAD - 0.5);
+        ctx.lineTo(PAD + c * CELL - 0.5, PAD + BOARD_SIZE * CELL - 0.5);
+        ctx.stroke();
+      }
+
+      // ────── 星点マーカー（花） ──────
+      for (const ri of [2, 7, 12])
+        for (const ci of [2, 7, 12])
+          drawGardenMarker(gx(ci), gy(ri));
+
+      // ────── 腐食範囲ハイライト ──────
+      if (lastExpired.length > 0) {
+        const hl = new Set();
+        const dirs8 = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+        for (const pos of lastExpired)
+          for (const [dr, dc] of dirs8) {
+            const nr = pos.r+dr, nc = pos.c+dc;
+            if (nr>=0 && nr<BOARD_SIZE && nc>=0 && nc<BOARD_SIZE) hl.add(`${nr},${nc}`);
+          }
+        for (const key of hl) {
+          const [hr, hc] = key.split(',').map(Number);
+          const ex = PAD + hc * CELL;
+          const ey = PAD + hr * CELL;
+          const glow = ctx.createRadialGradient(
+            ex + CELL*0.5, ey + CELL*0.5, 0,
+            ex + CELL*0.5, ey + CELL*0.5, CELL * 0.72
+          );
+          glow.addColorStop(0, 'rgba(238,175,161,0.38)');
+          glow.addColorStop(0.5,'rgba(238,175,161,0.12)');
+          glow.addColorStop(1, 'rgba(238,175,161,0)');
+          ctx.fillStyle = glow;
+          ctx.fillRect(ex, ey, CELL, CELL);
+        }
+      }
+
+      // ────── ゲームの石 ──────
+      for (let r = 0; r < BOARD_SIZE; r++)
+        for (let c = 0; c < BOARD_SIZE; c++)
+          if (board[r][c]) drawStone(r, c, board[r][c].player, board[r][c].life);
+
+      // ────── 最終配置マスの枚枠ハイライト ──────
+      if (lastPlaced) {
+        const hx = PAD + lastPlaced.c * CELL;
+        const hy = PAD + lastPlaced.r * CELL;
+        ctx.save();
+        ctx.strokeStyle = lastPlaced.player === 0 ? 'rgba(146,181,188,0.95)' : 'rgba(238,175,161,0.95)';
+        ctx.lineWidth   = Math.max(CELL * 0.09, 2);
+        ctx.lineJoin    = 'round';
+        ctx.shadowColor = lastPlaced.player === 0 ? '#92B5BC' : '#EEAFA1';
+        ctx.shadowBlur  = CELL * 0.35;
+        ctx.strokeRect(hx + ctx.lineWidth / 2, hy + ctx.lineWidth / 2,
+                       CELL - ctx.lineWidth, CELL - ctx.lineWidth);
+        ctx.restore();
+      }
+
+      // ────── 勝利5連ハイライトオーバーレイ ──────
+      if (winCells.length > 0) drawWinOverlay();
+    }
+
+    // ─── 勝利演出 ────────────────────────────────────────
+    function drawWinOverlay() {
+      const t     = (Date.now() - winAnimStartMs) / 1000;
+      const pulse = 0.5 + 0.5 * Math.sin(t * 7);
+      const alpha = Math.min(t * 5, 1);
+
+      ctx.save();
+      for (const [wr, wc] of winCells) {
+        const x = gx(wc), y = gy(wr);
+
+        // 放射グロー
+        const grad = ctx.createRadialGradient(x, y, CELL * 0.1, x, y, CELL * 0.55);
+        grad.addColorStop(0, `rgba(255,215,0,${(0.45 + pulse * 0.35) * alpha})`);
+        grad.addColorStop(1, 'rgba(255,215,0,0)');
+        ctx.beginPath();
+        ctx.arc(x, y, CELL * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // 金色リング
+        ctx.beginPath();
+        ctx.arc(x, y, CELL * 0.46, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,215,0,${(0.8 + pulse * 0.2) * alpha})`;
+        ctx.lineWidth   = Math.max(CELL * 0.07, 2);
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur  = CELL * (0.3 + pulse * 0.4);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function startWinAnimation() {
+      winAnimStartMs  = Date.now();
+      winPetalLastMs  = 0;
+      if (winAnimRafId) cancelAnimationFrame(winAnimRafId);
+
+      function frame() {
+        const elapsed = Date.now() - winAnimStartMs;
+        drawBoard(); // drawWinOverlayも内部で呼ばれる
+
+        // 最初の1.5秒は勝利マスから花びらを降らせる
+        if (elapsed < 1500 && elapsed - winPetalLastMs > 160) {
+          winPetalLastMs = elapsed;
+          const [wr, wc] = winCells[Math.floor(Math.random() * winCells.length)];
+          spawnPetals(gx(wc), gy(wr));
+        }
+
+        if (elapsed < 3000) {
+          winAnimRafId = requestAnimationFrame(frame);
+        } else {
+          winAnimRafId = null;
+          drawBoard(); // アニメ終了後に静的オーバーレイを最終描画
+        }
+      }
+      winAnimRafId = requestAnimationFrame(frame);
+    }
+
+    // ─── 棋谱ダウンロード機能 ────────────────────────────
+    function generateEPGN(winner) {
+      const winLabel = winner >= 0 ? `P${winner} wins` : 'Draw';
+      const lines = [`[Erosion-PGN] ${winLabel}`];
+      for (const t of gameLog) {
+        let line = `${t.turn}: P${t.player}(${t.move.r},${t.move.c})`;
+        const events = [];
+        for (const e of t.expired) {
+          if (e.reason === 'lifespan') events.push(`Exp: P${e.player}(${e.r},${e.c})`);
+        }
+        for (const e of t.expired) {
+          if (e.reason === 'erosion') events.push(`Eroded: P${e.player}(${e.r},${e.c})`);
+        }
+        if (events.length > 0) line += ` [${events.join(', ')}]`;
+        lines.push(line);
+      }
+      return lines.join('\n');
+    }
+
+    function showDownloadGameLog(winner) {
+      const btn = document.getElementById('btn-download-log');
+      btn.style.display = 'inline-block';
+      btn.onclick = () => {
+        const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+        const modeTag = gameMode === 'cvc' ? 'cvc-' : '';
+
+        // Erosion-PGN テキストのみDL
+        const epgn = generateEPGN(winner);
+        const epgnBlob = new Blob([epgn], { type: 'text/plain' });
+        const epgnUrl = URL.createObjectURL(epgnBlob);
+        const a = document.createElement('a');
+        a.href = epgnUrl;
+        a.download = `erosion-gomoku-${modeTag}log-${ts}.epgn.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(epgnUrl);
+      };
+    }
+
+    // 星点マーカー（小さな花）
+    function drawGardenMarker(x, y) {
+      const r = CELL * 0.18;
+      const petals = ['#EEAFA1', '#92B5BC', '#9AB08F', '#FBF6EA', '#D4C0A0'];
+
+      ctx.save();
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI * 2) / 5;
+        const px = x + Math.cos(a) * r * 1.12;
+        const py = y + Math.sin(a) * r * 1.12;
+        ctx.beginPath();
+        ctx.ellipse(px, py, r * 0.62, r * 0.38, a, 0, Math.PI * 2);
+        ctx.fillStyle = petals[i % petals.length];
+        ctx.globalAlpha = 0.86;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.52, 0, Math.PI * 2);
+      ctx.fillStyle = '#FBF6EA';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawStone(r, c, player, life) {
+      const x = gx(c), y = gy(r);
+      const radius = CELL * 0.43;
+
+      if (player === 0) {
+        // 朝露（Morning Dew）: 透明感のあるクリスタルブルー
+        const grad = ctx.createRadialGradient(
+          x - radius*0.32, y - radius*0.32, radius*0.05,
+          x, y, radius
+        );
+        grad.addColorStop(0, 'rgba(224,238,242,0.96)');
+        grad.addColorStop(0.4, 'rgba(146,181,188,0.92)');
+        grad.addColorStop(1, 'rgba(85,140,150,0.72)');
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI*2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(146,181,188,0.60)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // スペキュラハイライト
+        ctx.beginPath();
+        ctx.arc(x - radius*0.3, y - radius*0.32, radius*0.22, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.72)';
+        ctx.fill();
+      } else {
+        // 花芽（Flower Bud）: 寿命に応じて咲き具合が変わる
+        drawBud(x, y, radius, life);
+      }
+
+      // 寿命数字（白字＋黒縁取りで見読性を確保）
+      if (showLife) {
+        const fontSize = Math.max(radius * 0.72, 8);
+        ctx.font = `bold ${fontSize}px Georgia, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const isLow = life <= 5, isMid = life <= 10;
+        // 縁取り（全石共通）
+        ctx.lineWidth   = Math.max(fontSize * 0.28, 2.5);
+        ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+        ctx.lineJoin    = 'round';
+        ctx.strokeText(String(life), x, y);
+        // 本文
+        if (player === 0) {
+          ctx.fillStyle = isLow ? '#ff5858' : isMid ? '#ffd060' : '#ffffff';
+        } else {
+          ctx.fillStyle = isLow ? '#ff6060' : isMid ? '#ffd060' : '#ffffff';
+        }
+        ctx.fillText(String(life), x, y);
+      }
+    }
+
+    // 花芽描画（CPUの石）
+    function drawBud(x, y, radius, life) {
+      // life 24→つぼみ（青ピンク）、life 1→満開（鴯赤）
+      const t = Math.min(1, Math.max(0, (LIFETIME - life) / (LIFETIME - 1)));
+      const petalCount = 5;
+      const petalLen   = radius * (0.58 + t * 0.42);
+      const petalW     = radius * (0.26 + t * 0.16);
+
+      // 花弁色：青ピンク → 鴇赤
+      const rc = Math.round(185 + t * 70);
+      const gc = Math.round(130 - t * 90);
+      const bc = Math.round(135 - t * 45);
+
+      // 影
+      ctx.beginPath();
+      ctx.arc(x + radius*0.1, y + radius*0.1, radius * 0.88, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.fill();
+
+      // 弁５枚
+      for (let i = 0; i < petalCount; i++) {
+        const base = (i / petalCount) * Math.PI * 2 - Math.PI / 2;
+        const tipX = x + Math.cos(base) * petalLen;
+        const tipY = y + Math.sin(base) * petalLen;
+        const lx = x + Math.cos(base - 0.75) * petalW * 2.2;
+        const ly = y + Math.sin(base - 0.75) * petalW * 2.2;
+        const rx = x + Math.cos(base + 0.75) * petalW * 2.2;
+        const ry = y + Math.sin(base + 0.75) * petalW * 2.2;
+
+        const grad = ctx.createRadialGradient(x, y, radius*0.15, tipX, tipY, petalLen*0.35);
+        grad.addColorStop(0, `rgba(${rc},${gc},${bc},0.92)`);
+        grad.addColorStop(1, `rgba(${Math.min(255,rc+35)},${Math.max(0,gc-25)},${Math.max(0,bc-30)},0.82)`);
+
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(lx, ly, tipX+(lx-x)*0.2, tipY+(ly-y)*0.2, tipX, tipY);
+        ctx.bezierCurveTo(tipX+(rx-x)*0.2, tipY+(ry-y)*0.2, rx, ry, x, y);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // 蕊（中心）
+      const pistilR = radius * (0.22 - t * 0.04);
+      const pg = ctx.createRadialGradient(x-pistilR*0.3, y-pistilR*0.3, pistilR*0.1, x, y, pistilR);
+      pg.addColorStop(0, '#fff8a0');
+      pg.addColorStop(1, '#c89818');
+      ctx.beginPath();
+      ctx.arc(x, y, pistilR, 0, Math.PI*2);
+      ctx.fillStyle = pg;
+      ctx.fill();
+
+      // 散り際グロー（life≦５）
+      if (life <= 5) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 1.12, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,70,70,0.12)';
+        ctx.fill();
+      }
+    }
+
+    // ─── クリック処理 ──────────────────────────────────────
+    canvas.addEventListener('click', (e) => {
+      if (gameOver || current !== playerSide || gameMode === 'cvc' || gameMode === 'review') return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width  / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top)  * scaleY;
+      const c = Math.floor((mx - PAD) / CELL);
+      const r = Math.floor((my - PAD) / CELL);
+      if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+      placeStone(r, c);
+    });
+
+    // ─── ホバー表示 ───────────────────────────────────────
+    canvas.addEventListener('mousemove', (e) => {
+      if (gameOver || current !== playerSide || gameMode === 'cvc') return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width  / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top)  * scaleY;
+      const c = Math.floor((mx - PAD) / CELL);
+      const r = Math.floor((my - PAD) / CELL);
+      drawBoard();
+      if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && !board[r][c]) {
+        // マス全体を半透明でハイライト
+        ctx.fillStyle = 'rgba(160,235,255,0.28)';
+        ctx.fillRect(PAD + c * CELL + 1, PAD + r * CELL + 1, CELL - 2, CELL - 2);
+        // 中心に小さな円
+        ctx.beginPath();
+        ctx.arc(gx(c), gy(r), CELL * 0.26, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(160,235,255,0.45)';
+        ctx.fill();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => drawBoard());
+
+    // ─── UI 更新 ──────────────────────────────────────────
+    function updateStatus() {
+      const total = moveCount[0] + moveCount[1];
+      document.getElementById('total-moves').textContent = `合計: ${total} / ${MAX_TOTAL}手`;
+      document.getElementById('p0-moves').textContent = `${moveCount[0]}手`;
+      document.getElementById('p1-moves').textContent = `${moveCount[1]}手`;
+
+      const p0el = document.getElementById('p0-info');
+      const p1el = document.getElementById('p1-info');
+      const ind  = document.getElementById('turn-indicator');
+
+      if (gameOver) {
+        p0el.className = p1el.className = 'player-info inactive-player';
+        ind.textContent = '';
+      } else if (current === 0) {
+        p0el.className = 'player-info active-player';
+        p1el.className = 'player-info inactive-player';
+        ind.textContent = current === playerSide ? '← 手番' : 'CPU思考中…';
+      } else {
+        p0el.className = 'player-info inactive-player';
+        p1el.className = 'player-info active-player';
+        ind.textContent = current === playerSide ? '← 手番' : 'CPU思考中…';
+      }
+    }
+
+    function setMessage(msg) {
+      document.getElementById('message').textContent = msg;
+    }
+
+    // ─── INFPちゃん状態管理 ───────────────────────────────
+    const INFP_DEFS = {
+      idle:     { icon: '', label: 'あなたの番です…' },
+      thinking: { icon: '', label: '考えています…'  },
+      placing:  { icon: '', label: ''               },
+      tension:  { icon: '', label: ''               },
+      erosion:  { icon: '', label: ''               },
+      win:      { icon: '', label: ''               },
+      lose:     { icon: '', label: ''               },
+      draw:     { icon: '', label: ''               },
+    };
+    const infpPanel = document.getElementById('infp-panel');
+    const infpIcon  = document.getElementById('infp-icon');
+    const infpLabel = document.getElementById('infp-label');
+
+    // キャラクター吹き出し更新
+    const bubbleLeft  = document.getElementById('bubble-left');
+    const bubbleRight = document.getElementById('bubble-right');
+    function updateCharaBubbles(state) {
+      bubbleLeft.className  = 'chara-bubble';
+      bubbleRight.className = 'chara-bubble';
+      bubbleLeft.textContent  = '';
+      bubbleRight.textContent = '';
+      switch (state) {
+        case 'idle':
+          bubbleLeft.textContent = ' あなたの番です';
+          bubbleLeft.classList.add('visible');
+          break;
+        case 'thinking':
+          bubbleRight.textContent = ' 考えています…';
+          bubbleRight.classList.add('visible');
+          break;
+        case 'tension':
+          bubbleRight.textContent = ' やばい…';
+          bubbleRight.classList.add('visible');
+          break;
+        case 'erosion':
+          bubbleRight.textContent = ' 腐食！';
+          bubbleRight.classList.add('visible');
+          break;
+        case 'win': // CPU勝利
+          bubbleLeft.textContent  = '…';
+          bubbleRight.textContent = ' 勝った！';
+          bubbleLeft.classList.add('visible');
+          bubbleRight.classList.add('visible');
+          break;
+        case 'lose': // プレイヤー勝利
+          bubbleLeft.textContent  = ' やった！';
+          bubbleRight.textContent = '…';
+          bubbleLeft.classList.add('visible');
+          bubbleRight.classList.add('visible');
+          break;
+        case 'draw':
+          bubbleLeft.textContent  = ' 引き分け';
+          bubbleRight.textContent = '';
+          bubbleLeft.classList.add('visible');
+          bubbleRight.classList.add('visible');
+          break;
+      }
+    }
+
+    let _infpStateTimer = null;
+    function setInfpState(state) {
+      const def = INFP_DEFS[state] || INFP_DEFS.idle;
+      infpPanel.className = `infp-${state}`;
+      infpIcon.textContent  = def.icon;
+      infpLabel.textContent = def.label;
+      // 一時的なステートはidleに自動復帰
+      clearTimeout(_infpStateTimer);
+      if (['placing', 'tension', 'erosion'].includes(state)) {
+        _infpStateTimer = setTimeout(() => setInfpState('idle'), 1200);
+      }
+      updateCharaBubbles(state);
+    }
+
+    // ─── 花びらパーティクル（腐食発動時） ────────────────
+    function spawnPetals(canvasX, canvasY) {
+      const wrap    = document.getElementById('canvas-wrap');
+      const cRect   = canvas.getBoundingClientRect();
+      const wRect   = wrap.getBoundingClientRect();
+      const px = (canvasX / canvas.width)  * cRect.width  + cRect.left - wRect.left;
+      const py = (canvasY / canvas.height) * cRect.height + cRect.top  - wRect.top;
+      const colors = ['#ff9ab8','#ffb8c8','#ffd4d4','#ff7a9a','#ffc4a0','#ffaacc'];
+      for (let i = 0; i < 7; i++) {
+        const el = document.createElement('div');
+        el.className = 'petal';
+        const angle = (i / 7) * Math.PI * 2;
+        const dist  = 28 + Math.random() * 36;
+        el.style.cssText = `
+          left:${px}px; top:${py}px;
+          width:${6+Math.random()*5}px; height:${5+Math.random()*4}px;
+          background:${colors[i % colors.length]};
+          --px:${(Math.cos(angle)*dist).toFixed(1)}px;
+          --py:${(Math.sin(angle)*dist + 18).toFixed(1)}px;
+          --pr:${((Math.random()-0.5)*400).toFixed(1)}deg;
+        `;
+        wrap.appendChild(el);
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+      }
+    }
+
+    // ─── ボタン ───────────────────────────────────────────
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      gameMode = 'pvp';
+      if (playerSide === 0) {
+        document.getElementById('p0-name').textContent = 'あなた（朝露）';
+        document.getElementById('p1-name').textContent = 'INFPちゃん（花芽）';
+      } else {
+        document.getElementById('p0-name').textContent = 'INFPちゃん（朝露）';
+        document.getElementById('p1-name').textContent = 'あなた（花芽）';
+      }
+      document.getElementById('btn-toggle-side').style.display = '';
+      document.getElementById('btn-matta').style.display = '';
+      setInfpState('idle');
+      initWorker(); // リセット時は進行中の思考をキャンセルして再生成
+      initBoard();
+      if (playerSide === 1) scheduleCpu(); // 後攻の場合はCPUが先に打つ
+    });
+
+    document.getElementById('btn-toggle-side').addEventListener('click', function () {
+      playerSide = 1 - playerSide;
+      this.textContent = playerSide === 0 ? 'あなた: 先攻' : 'あなた: 後攻';
+      // そのまま新しい対局を開始
+      gameMode = 'pvp';
+      if (playerSide === 0) {
+        document.getElementById('p0-name').textContent = 'あなた（朝露）';
+        document.getElementById('p1-name').textContent = 'INFPちゃん（花芽）';
+      } else {
+        document.getElementById('p0-name').textContent = 'INFPちゃん（朝露）';
+        document.getElementById('p1-name').textContent = 'あなた（花芽）';
+      }
+      document.getElementById('btn-matta').style.display = '';
+      setInfpState('idle');
+      initWorker();
+      initBoard();
+      if (playerSide === 1) scheduleCpu();
+    });
+
+    document.getElementById('btn-cpu-battle').addEventListener('click', () => {
+      gameMode = 'cvc';
+      document.getElementById('p0-name').textContent = 'CPU-α（朝露）';
+      document.getElementById('p1-name').textContent = 'CPU-β（花芽）';
+      document.getElementById('btn-toggle-side').style.display = 'none';
+      document.getElementById('btn-matta').style.display = 'none';
+      setInfpState('idle');
+      initWorker();
+      initBoard();
+      // 先手（CPU-α）を即スケジュール
+      scheduleCpu();
+    });
+
+    document.getElementById('btn-toggle-life').addEventListener('click', function () {
+      showLife = !showLife;
+      this.textContent = `寿命表示: ${showLife ? 'ON' : 'OFF'}`;
+      drawBoard();
+    });
+
+    document.getElementById('btn-toggle-strength').addEventListener('click', function () {
+      cpuStrength = cpuStrength === 'A' ? 'B' : 'A';
+      this.textContent = cpuStrength === 'A' ? '強さ: 標準' : '強さ: 強 ';
+      this.style.color = cpuStrength === 'A' ? '#e0a0ff' : '#ffcc00';
+    });
+
+    document.getElementById('btn-matta').addEventListener('click', () => {
+      if (boardHistory.length === 0) return;
+      // CPU思考中ならワーカーを全て停止して再生成
+      initWorker();
+      canvas.style.pointerEvents = '';
+      restoreSnapshot(boardHistory.pop());
+      document.getElementById('btn-matta').disabled = boardHistory.length === 0;
+      document.getElementById('btn-download-log').style.display = 'none';
+      setInfpState('idle');
+      setMessage('');
+      initWorker();
+      updateStatus();
+      drawBoard();
+    });
+
+    // ─── 棋譜読み込みモード ──────────────────────────────
+    let reviewMoves = [];    // [{player, r, c}, ...]
+    let reviewStep  = 0;     // 現在表示している手数（0=初期盤面）
+    let reviewMode  = false;
+
+    function parseEPGN(text) {
+      const lines = text.split('\n');
+      const moves = [];
+      for (const line of lines) {
+        // "N: P0(r,c)" または "N: P0(r,c) [...]"
+        const m = line.match(/^\d+:\s*P(\d)\((\d+),(\d+)\)/);
+        if (m) moves.push({ player: parseInt(m[1]), r: parseInt(m[2]), c: parseInt(m[3]) });
+      }
+      return moves;
+    }
+
+    // stepまでの盤面を再構築（index.html の placeStone に依存しないよう直接再計算）
+    function rebuildBoardToStep(step) {
+      // 盤面初期化（描画やworkerを触らず内部状態だけリセット）
+      board = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+      moveCount = [0, 0];
+      lastExpired = [];
+      lastPlaced = null;
+      winCells = [];
+
+      for (let i = 0; i < step && i < reviewMoves.length; i++) {
+        const { player, r, c } = reviewMoves[i];
+
+        // 1. 石を置く
+        board[r][c] = { player, life: LIFETIME };
+        lastPlaced = { r, c, player };
+        moveCount[player]++;
+
+        // 2. 新設石以外の寿命 -1
+        const expiredNow = [];
+        for (let ri = 0; ri < BOARD_SIZE; ri++) {
+          for (let ci = 0; ci < BOARD_SIZE; ci++) {
+            if (ri === r && ci === c) continue;
+            const cell = board[ri][ci];
+            if (cell) {
+              cell.life--;
+              if (cell.life <= 0) expiredNow.push({ r: ri, c: ci, player: cell.player });
+            }
+          }
+        }
+
+        // 3. 腐食
+        const forceExpired = [];
+        for (const pos of expiredNow) {
+          board[pos.r][pos.c] = null;
+          const dirs8 = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+          for (const [dr, dc] of dirs8) {
+            const nr = pos.r + dr, nc = pos.c + dc;
+            if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) continue;
+            const cell = board[nr][nc];
+            if (cell && cell.player === 1 - pos.player) {
+              cell.life -= EROSION_AMT;
+              if (cell.life <= 0) forceExpired.push({ r: nr, c: nc });
+            }
+          }
+        }
+        for (const pos of forceExpired) board[pos.r][pos.c] = null;
+
+        if (i === step - 1) lastExpired = expiredNow;
+      }
+
+      if (step === 0) lastExpired = [];
+    }
+
+    function updateReviewLabel() {
+      const label = document.getElementById('review-turn-label');
+      label.textContent = reviewStep === 0
+        ? `開始局面`
+        : `${reviewStep} / ${reviewMoves.length} 手`;
+      document.getElementById('btn-review-prev').disabled = reviewStep === 0;
+      document.getElementById('btn-review-next').disabled = reviewStep >= reviewMoves.length;
+    }
+
+    function enterReviewMode(moves) {
+      reviewMoves = moves;
+      reviewStep  = moves.length; // 最終局面から開始
+      reviewMode  = true;
+      gameOver    = true; // 対局操作を無効化
+      gameMode    = 'review';
+      for (const w of aiWorkers) w.terminate();
+      aiWorkers = []; aiWorker = null;
+      document.getElementById('review-controls').style.display = 'flex';
+      document.getElementById('btn-download-log').style.display = 'none';
+      document.getElementById('p0-name').textContent = 'P0（朝露）';
+      document.getElementById('p1-name').textContent = 'P1（花芽）';
+      rebuildBoardToStep(reviewStep);
+      updateReviewLabel();
+      updateStatus();
+      drawBoard();
+      setMessage(` 棋譜再生モード（${moves.length}手）`);
+    }
+
+    function exitReviewMode() {
+      reviewMode = false;
+      reviewMoves = [];
+      reviewStep  = 0;
+      document.getElementById('review-controls').style.display = 'none';
+      gameMode = 'pvp';
+      document.getElementById('p0-name').textContent = 'あなた（朝露）';
+      document.getElementById('p1-name').textContent = 'INFPちゃん（花芽）';
+      setInfpState('idle');
+      initWorker();
+      initBoard();
+    }
+
+    document.getElementById('btn-load-epgn').addEventListener('click', () => {
+      document.getElementById('input-epgn').click();
+    });
+    document.getElementById('input-epgn').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      e.target.value = '';
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const moves = parseEPGN(ev.target.result);
+        if (moves.length === 0) { alert('棋譜の読み込みに失敗しました。'); return; }
+        enterReviewMode(moves);
+      };
+      reader.readAsText(file);
+    });
+    document.getElementById('btn-review-prev').addEventListener('click', () => {
+      if (reviewStep > 0) { reviewStep--; rebuildBoardToStep(reviewStep); updateReviewLabel(); updateStatus(); drawBoard(); }
+    });
+    document.getElementById('btn-review-next').addEventListener('click', () => {
+      if (reviewStep < reviewMoves.length) { reviewStep++; rebuildBoardToStep(reviewStep); updateReviewLabel(); updateStatus(); drawBoard(); }
+    });
+    document.getElementById('btn-review-exit').addEventListener('click', exitReviewMode);
+
+    // ─── チュートリアルモーダル ───────────────────────────
+    (function setupTutorial() {
+      const overlay  = document.getElementById('tutorial-overlay');
+      const pages    = Array.from(document.querySelectorAll('.tut-page'));
+      const dots     = Array.from(document.querySelectorAll('.tut-dot'));
+      const pageNum  = document.getElementById('tut-page-num');
+      const btnPrev  = document.getElementById('tut-prev');
+      const btnNext  = document.getElementById('tut-next');
+      let curPage    = 0;
+      let tutTimers  = [];
+
+      /* ── ページ切替 ─────────────────────────────── */
+      function goPage(idx) {
+        pages[curPage].classList.remove('active');
+        dots[curPage].classList.remove('active');
+        curPage = Math.max(0, Math.min(2, idx));
+        pages[curPage].classList.add('active');
+        dots[curPage].classList.add('active');
+        pageNum.textContent = `${curPage + 1} / 3`;
+        btnPrev.disabled = curPage === 0;
+        btnNext.textContent = curPage === 2 ? ' 閉じる' : '次へ ';
+        clearTutTimers();
+        startTutAnim(curPage);
+      }
+
+      function clearTutTimers() {
+        tutTimers.forEach(t => { clearTimeout(t); clearInterval(t); });
+        tutTimers = [];
+      }
+
+      /* ── ミニCanvas共通ユーティリティ ─────────────── */
+      const TSTONES = 5;   // ミニ盤のマス数（5×5 を描画エリアに収める）
+      const TPAD    = 14;
+      function tGx(c, cell) { return Math.round(TPAD + c * cell + cell / 2); }
+      function tGy(r, cell) { return Math.round(TPAD + r * cell + cell / 2); }
+
+      function drawMiniBoard(cv, stones, highlight = null) {
+        const ctx = cv.getContext('2d');
+        const W   = cv.width, H = cv.height;
+        const CELL = (Math.min(W, H) - TPAD * 2) / TSTONES;
+        ctx.clearRect(0, 0, W, H);
+
+        // 背景＋マス
+        ctx.fillStyle = '#9AB08F';
+        ctx.fillRect(0, 0, W, H);
+        for (let r = 0; r < TSTONES; r++) {
+          for (let c = 0; c < TSTONES; c++) {
+            const cx = TPAD + c * CELL, cy = TPAD + r * CELL;
+            ctx.fillStyle = (r + c) % 2 === 0 ? '#a8bf98' : '#96ae88';
+            ctx.fillRect(cx, cy, CELL, CELL);
+          }
+        }
+        // グリッド線
+        ctx.strokeStyle = 'rgba(106,86,74,0.40)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= TSTONES; i++) {
+          ctx.beginPath();
+          ctx.moveTo(TPAD, TPAD + i * CELL);
+          ctx.lineTo(TPAD + TSTONES * CELL, TPAD + i * CELL);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(TPAD + i * CELL, TPAD);
+          ctx.lineTo(TPAD + i * CELL, TPAD + TSTONES * CELL);
+          ctx.stroke();
+        }
+
+        // ハイライトマス
+        if (highlight) {
+          const [hr, hc, hp] = highlight;
+          const hx = TPAD + hc * CELL, hy = TPAD + hr * CELL;
+          ctx.save();
+          ctx.strokeStyle = hp === 0 ? 'rgba(146,181,188,0.95)' : 'rgba(238,175,161,0.95)';
+          ctx.lineWidth   = Math.max(CELL * 0.09, 2);
+          ctx.shadowColor = hp === 0 ? '#92B5BC' : '#EEAFA1';
+          ctx.shadowBlur  = CELL * 0.35;
+          ctx.strokeRect(hx + ctx.lineWidth / 2, hy + ctx.lineWidth / 2,
+                         CELL - ctx.lineWidth, CELL - ctx.lineWidth);
+          ctx.restore();
+        }
+
+        // 石を描く
+        for (const { r, c, player, life, erosion } of stones) {
+          const x = tGx(c, CELL), y = tGy(r, CELL);
+          const rad = CELL * 0.40;
+          if (player === 0) {
+            const g = ctx.createRadialGradient(x - rad*0.3, y - rad*0.3, rad*0.05, x, y, rad);
+            g.addColorStop(0, 'rgba(224,238,242,0.96)');
+            g.addColorStop(0.4,'rgba(146,181,188,0.92)');
+            g.addColorStop(1, 'rgba(85,140,150,0.72)');
+            ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI*2);
+            ctx.fillStyle = g; ctx.fill();
+          } else {
+            const g = ctx.createRadialGradient(x - rad*0.28, y - rad*0.28, rad*0.05, x, y, rad);
+            g.addColorStop(0, 'rgba(238,175,161,0.92)');
+            g.addColorStop(0.4,'rgba(200,110,100,0.85)');
+            g.addColorStop(1, 'rgba(150,60,60,0.70)');
+            ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI*2);
+            ctx.fillStyle = g; ctx.fill();
+          }
+          // 腐食マーカー
+          if (erosion) {
+            ctx.beginPath(); ctx.arc(x, y, rad * 1.18, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(255,100,40,0.7)'; ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+          // 寿命数字
+          if (life !== undefined) {
+            const fs = Math.max(rad * 0.72, 7);
+            ctx.font = `bold ${fs}px Georgia,serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.lineWidth = Math.max(fs * 0.3, 2);
+            ctx.strokeStyle = 'rgba(0,0,0,0.88)'; ctx.lineJoin = 'round';
+            ctx.strokeText(life, x, y);
+            ctx.fillStyle = life <= 3 ? '#ff6060' : life <= 8 ? '#ffd060' : '#ffffff';
+            ctx.fillText(life, x, y);
+          }
+        }
+      }
+
+      /* ── ページ0: 五目並べ基本アニメ ─────────────── */
+      function animPage0() {
+        const cv = document.getElementById('tut-c0');
+        const moves = [
+          { r:2, c:2, player:0 }, { r:2, c:3, player:1 },
+          { r:3, c:2, player:0 }, { r:3, c:3, player:1 },
+          { r:4, c:2, player:0 }, { r:4, c:3, player:1 },
+          { r:1, c:2, player:0 }, { r:1, c:3, player:1 },
+          { r:0, c:2, player:0 }, // 5連完成
+        ];
+        let placed = [];
+        let step   = 0;
+
+        function next() {
+          if (step >= moves.length) {
+            // 勝利フラッシュ後リセット
+            const t1 = setTimeout(() => { placed = []; step = 0; next(); }, 1800);
+            tutTimers.push(t1);
+            return;
+          }
+          const mv = moves[step++];
+          placed.push({ ...mv });
+          const winRow = (step === moves.length)
+            ? placed.filter(s => s.player === 0 && s.c === 2)
+            : null;
+
+          drawMiniBoard(cv, placed.map(s => ({ ...s })),
+            [mv.r, mv.c, mv.player]);
+
+          // 勝利時に5連をフラッシュ描画
+          if (winRow) {
+            const W = cv.width, H = cv.height;
+            const CELL = (Math.min(W, H) - TPAD * 2) / TSTONES;
+            const cvCtx = cv.getContext('2d');
+            winRow.forEach(s => {
+              const x = tGx(s.c, CELL), y = tGy(s.r, CELL);
+              cvCtx.save();
+              cvCtx.beginPath(); cvCtx.arc(x, y, CELL * 0.46, 0, Math.PI*2);
+              cvCtx.strokeStyle = 'rgba(255,215,0,0.9)';
+              cvCtx.lineWidth = 2; cvCtx.shadowColor = '#ffd700'; cvCtx.shadowBlur = 8;
+              cvCtx.stroke(); cvCtx.restore();
+            });
+          }
+
+          const delay = step === 1 ? 600 : 600;
+          const t = setTimeout(next, delay);
+          tutTimers.push(t);
+        }
+        next();
+      }
+
+      /* ── ページ1: 寿命アニメ ──────────────────────── */
+      function animPage1() {
+        const cv = document.getElementById('tut-c1');
+        // 3マス×3マスの小さな盤で寿命カウントダウンを見せる
+        // ターン毎に全石 -1、最終的に1個消滅
+        const baseStones = [
+          { r:1, c:1, player:0 },
+          { r:1, c:2, player:1 },
+          { r:2, c:1, player:0 },
+          { r:2, c:3, player:1 },
+          { r:3, c:2, player:0 },
+        ];
+        let turn = 0;
+
+        function renderTurn() {
+          const stones = baseStones
+            .map((s, i) => {
+              const life = 8 - turn - i; // それぞれ微妙にずらして見せる
+              return life > 0 ? { ...s, life } : null;
+            })
+            .filter(Boolean);
+          drawMiniBoard(cv, stones);
+        }
+
+        renderTurn();
+        const iv = setInterval(() => {
+          turn = (turn + 1) % 9;
+          renderTurn();
+        }, 700);
+        tutTimers.push(iv);
+      }
+
+      /* ── ページ2: 腐食アニメ ──────────────────────── */
+      function animPage2() {
+        const cv = document.getElementById('tut-c2');
+        //  player1の石 (2,2) が消滅 → 隣接 player0 の石 (2,1)(2,3)(1,2)(3,2) に腐食
+        const phases = [
+          // 段階0: 通常配置
+          {
+            stones: [
+              { r:1, c:2, player:0, life: 6 },
+              { r:2, c:1, player:0, life: 5 },
+              { r:2, c:2, player:1, life: 1 }, // もうすぐ消滅
+              { r:2, c:3, player:0, life: 5 },
+              { r:3, c:2, player:0, life: 5 },
+            ],
+            label: '消滅直前（LIFE=1）',
+          },
+          // 段階1: player1の石が消滅、腐食発動
+          {
+            stones: [
+              { r:1, c:2, player:0, life: 3, erosion: true },
+              { r:2, c:1, player:0, life: 2, erosion: true },
+              // (2,2) は消滅
+              { r:2, c:3, player:0, life: 2, erosion: true },
+              { r:3, c:2, player:0, life: 2, erosion: true },
+            ],
+            label: '消滅 → 隣接石に腐食 −2',
+          },
+        ];
+        let phase = 0;
+
+        function renderPhase() {
+          const p = phases[phase];
+          drawMiniBoard(cv, p.stones);
+          // フェーズラベルをCanvas上に描画
+          const ctx2 = cv.getContext('2d');
+          ctx2.fillStyle = 'rgba(106,86,74,0.70)';
+          ctx2.fillRect(0, cv.height - 22, cv.width, 22);
+          ctx2.fillStyle = '#FBF6EA';
+          ctx2.font = '11px Georgia,serif';
+          ctx2.textAlign = 'center';
+          ctx2.fillText(p.label, cv.width / 2, cv.height - 7);
+        }
+
+        renderPhase();
+        const iv = setInterval(() => {
+          phase = 1 - phase;
+          renderPhase();
+        }, 1200);
+        tutTimers.push(iv);
+      }
+
+      const animFns = [animPage0, animPage1, animPage2];
+
+      function startTutAnim(idx) {
+        animFns[idx]();
+      }
+
+      /* ── モーダル開閉 ────────────────────────────── */
+      function openModal() {
+        overlay.classList.add('open');
+        goPage(0);
+      }
+      function closeModal() {
+        overlay.classList.remove('open');
+        clearTutTimers();
+      }
+
+      document.getElementById('btn-help').addEventListener('click', openModal);
+      document.getElementById('tut-close').addEventListener('click', closeModal);
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+    // ─── メニューモーダル ──────────────────────────────────────────────
+    const menuOverlay = document.getElementById('menu-overlay');
+    function openMenu()  { menuOverlay.classList.add('open'); }
+    function closeMenu() { menuOverlay.classList.remove('open'); }
+    document.getElementById('btn-menu').addEventListener('click', openMenu);
+    document.getElementById('menu-close').addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', e => { if (e.target === menuOverlay) closeMenu(); });
+    // トグル以外のボタンはクリック後にメニューを閉じる
+    document.querySelector('.menu-body').addEventListener('click', e => {
+      if (e.target.tagName !== 'BUTTON') return;
+      const toggleIds = ['btn-toggle-side', 'btn-toggle-strength', 'btn-toggle-life'];
+      if (!toggleIds.includes(e.target.id)) setTimeout(closeMenu, 60);
+    });
+
+      btnPrev.addEventListener('click', () => goPage(curPage - 1));
+      btnNext.addEventListener('click', () => {
+        if (curPage === 2) closeModal();
+        else goPage(curPage + 1);
+      });
+      dots.forEach(d => d.addEventListener('click', () => goPage(+d.dataset.page)));
+
+      // 初期状態
+      btnPrev.disabled = true;
+    })();
+
+    // ─── リサイズ対応 ─────────────────────────────────────
+    window.addEventListener('resize', () => {
+      calcBoardSize();
+      drawBoard();
+    });
+
+    // ─── 起動 ─────────────────────────────────────────────
+    // requestAnimationFrame でレイアウト確定後にサイズ計算
+    requestAnimationFrame(() => {
+      calcBoardSize();
+      initWorker();
+      initBoard();
+    });
+  </script>
+</body>
+</html>

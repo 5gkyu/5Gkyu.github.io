@@ -203,7 +203,7 @@
 
           </div>
 
-          <hl-button id="generateBtn" icon="📄" block>PDF を生成してダウンロード</hl-button>
+          <hl-button id="generateBtn" icon="file" block>PDF を生成してダウンロード</hl-button>
         </div>
 
       </div>
@@ -276,7 +276,7 @@
           <div class="ip-thumb-img-wrap">
             <img src="${objUrl}" alt="${escHtml(file.name)}" loading="lazy">
           </div>
-          <button class="ip-thumb-remove" data-id="${id}" title="削除">✕</button>
+          <button class="ip-thumb-remove" data-id="${id}" title="削除"></button>
           <span class="ip-thumb-num">${index + 1}</span>
         `;
 
@@ -360,10 +360,10 @@
         const quality  = parseFloat(qualitySlider.value);
         const filename = (filenameInput.value.trim() || 'images') + '.pdf';
         await buildAndSavePDF(imageFiles, currentPageSize, quality, filename);
-        if (window.HlToast) HlToast.show('✅ PDF を生成しました', 'success', 3000);
+        if (window.HlToast) HlToast.show('<hl-icon name="check"></hl-icon> PDF を生成しました', 'success', 3000);
       } catch (err) {
         console.error(err);
-        if (window.HlToast) HlToast.show('❌ エラー: ' + err.message, 'error', 5000);
+        if (window.HlToast) HlToast.show(' エラー: ' + err.message, 'error', 5000);
       } finally {
         generateBtn.removeAttribute('loading');
       }

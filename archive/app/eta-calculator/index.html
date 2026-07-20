@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETA Calculator | Halcyon</title>
+    <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+    <style>
+        :root {
+            --bg-color-1: #f8f3ea;
+            --bg-color-2: #ede5d8;
+            --glass-bg: rgba(255, 255, 255, 0.52);
+            --glass-border: rgba(154, 176, 143, 0.26);
+            --text-primary: #2f2218;
+            --text-secondary: #75665b;
+            --primary-color: #b04f35;
+            --secondary-color: #2d6c66;
+            --glow-color: rgba(45, 108, 102, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-wrapper {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-color-1), var(--bg-color-2));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 1rem;
+            box-shadow: inset 0 0 0 1px rgba(154, 176, 143, 0.1);
+            min-height: 400px;
+        }
+
+        .background-animation {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(45, 108, 102, 0.08), transparent 40%),
+                        radial-gradient(circle at 80% 20%, rgba(176, 79, 53, 0.05), transparent 30%);
+            animation: rotate 40s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .input-section {
+            text-align: center;
+        }
+
+        .input-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .count-input-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        #current-input {
+            width: 140px;
+            font-size: 5rem;
+            font-weight: 700;
+            font-family: inherit;
+            color: var(--primary-color);
+            background: transparent;
+            border: none;
+            border-bottom: 3px dashed rgba(176, 79, 53, 0.3);
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1.1;
+        }
+
+        #current-input:focus {
+            border-bottom-color: var(--primary-color);
+            text-shadow: 0 0 20px rgba(176, 79, 53, 0.2);
+        }
+
+        /* Number input arrows removal */
+        #current-input::-webkit-outer-spin-button,
+        #current-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #current-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .max-count {
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .target-input {
+            width: 110px;
+            font-size: 3rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-bottom: 3px dashed rgba(80, 54, 40, 0.2);
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1.1;
+            margin-left: 0.5rem;
+        }
+
+        .target-input:focus {
+            border-bottom-color: var(--text-secondary);
+        }
+
+        .target-input::-webkit-outer-spin-button,
+        .target-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .target-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(80, 54, 40, 0.1);
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stat-box:first-child {
+            border-right: 1px dashed rgba(80, 54, 40, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .info-text {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+            margin-top: -1rem;
+        }
+
+    </style>
+</head>
+<body>
+    <site-header site-name="ETA Calculator"></site-header>
+
+    <hl-layout cols="2" class="fluffy-entry delay-1">
+        <div class="hl-layout-main">
+            <hl-breadcrumb 
+                level1-name="Archive" level1-url="/archive/"
+                level2-name="App" level2-url="/archive/app/"
+                current="ETA Calculator">
+            </hl-breadcrumb>
+            <page-title>ETA Calculator</page-title>
+
+            <p class="hl-content-text" style="margin-bottom: 2rem;">
+                現在の周回数を入力すると、設定した目標までの残り時間と完了見込み時刻を即座に計算します。
+            </p>
+
+            <div class="app-wrapper">
+                <div class="background-animation"></div>
+                <div class="container">
+                    
+                    <div class="input-section">
+                        <label class="input-label" for="current-input">現在の回数</label>
+                        <div class="count-input-wrapper">
+                            <input type="number" id="current-input" value="0" min="0">
+                            <span class="max-count">/</span>
+                            <input type="number" id="target-input" value="300" min="1" class="target-input">
+                        </div>
+
+                        <div style="margin-top: 1.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                            <label for="avg-lap-input" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 600;">平均ラップ:</label>
+                            <input type="number" id="avg-lap-input" value="27" min="0" step="0.1" style="width: 70px; padding: 0.3rem; border: 1px solid var(--glass-border); border-radius: 8px; background: rgba(255, 255, 255, 0.5); text-align: center; font-family: inherit; font-weight: 600; color: var(--primary-color); outline: none;">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">秒</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-label"><span id="target-display">300</span>回まであと</span>
+                            <span id="remain-time" class="stat-value">-- 分</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">完了見込み時刻</span>
+                            <span id="eta-time" class="stat-value">--/-- --:--</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <aside class="hl-layout-sidebar">
+            <hl-profile></hl-profile>
+            <hl-sidebar-box title="このアプリについて">
+                <p class="hl-content-text" style="font-size: 0.85rem;">
+                    周回回数の確認に特化したシンプルな計算ツールです。<br>
+                    回数を入力するだけで、完了までの目安時間をリアルタイムに把握できます。
+                </p>
+            </hl-sidebar-box>
+        </aside>
+    </hl-layout>
+    
+    <site-footer copy="5Gkyu"></site-footer>
+
+    <script src="/components/components.js"></script>
+    <script>
+        const currentInput = document.getElementById('current-input');
+        const targetInput = document.getElementById('target-input');
+        const avgLapInput = document.getElementById('avg-lap-input');
+        const remainTimeEl = document.getElementById('remain-time');
+        const etaTimeEl = document.getElementById('eta-time');
+        const targetDisplay = document.getElementById('target-display');
+
+        const STORAGE_KEY = 'eta_calculator_data';
+
+        function loadData() {
+            try {
+                const dataStr = localStorage.getItem(STORAGE_KEY);
+                if (dataStr) {
+                    const data = JSON.parse(dataStr);
+                    if (data.current !== undefined) currentInput.value = data.current;
+                    if (data.avgLap !== undefined) avgLapInput.value = data.avgLap;
+                    if (data.target !== undefined) targetInput.value = data.target;
+                }
+            } catch (e) {
+                console.error("Failed to load data", e);
+            }
+        }
+
+        function saveData(current, avgLap, target) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, avgLap, target }));
+            } catch (e) {
+                console.error("Failed to save data", e);
+            }
+        }
+
+        function calculate() {
+            let current = parseInt(currentInput.value, 10);
+            let avgLap = parseFloat(avgLapInput.value);
+            let target = parseInt(targetInput.value, 10);
+            
+            // 入力が空、または不正な値の場合はデフォルト値として扱う
+            if (isNaN(current) || current < 0) {
+                current = 0;
+            }
+            if (isNaN(avgLap) || avgLap <= 0) {
+                avgLap = 0; // 不正な場合は0秒として扱う
+            }
+            if (isNaN(target) || target < 1) {
+                target = 300;
+            }
+
+            targetDisplay.textContent = target;
+            const remainCount = target - current;
+
+            // すでに目標に到達している場合
+            if (remainCount <= 0) {
+                remainTimeEl.textContent = "完了！";
+                etaTimeEl.textContent = "--/-- --:--";
+                return;
+            }
+
+            // 残り時間の計算
+            const remainSec = remainCount * avgLap;
+            const remainMin = remainSec / 60;
+            remainTimeEl.textContent = `${remainMin.toFixed(1)} 分`;
+
+            // 完了見込み時刻の計算
+            const now = new Date();
+            now.setSeconds(now.getSeconds() + remainSec);
+
+            const m = (now.getMonth() + 1).toString().padStart(2, '0');
+            const d = now.getDate().toString().padStart(2, '0');
+            const h = now.getHours().toString().padStart(2, '0');
+            const min = now.getMinutes().toString().padStart(2, '0');
+
+            etaTimeEl.textContent = `${m}/${d} ${h}:${min}`;
+
+            // 入力値をローカルストレージに保存
+            saveData(current, avgLap, target);
+        }
+
+        // 入力時に即座に計算
+        currentInput.addEventListener('input', calculate);
+        avgLapInput.addEventListener('input', calculate);
+        targetInput.addEventListener('input', calculate);
+
+        // ページ読み込み時にデータを復元して初期計算を実行
+        loadData();
+        calculate();
+    </script>
+</body>
+</html>

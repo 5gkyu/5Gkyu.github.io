@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fuka Animation Test</title>
+  <style>
+    body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:2rem;}
+    .wrap{display:flex;flex-direction:column;align-items:center;gap:1rem}
+    .stage{background:#f3f3f3;border:1px solid #ddd;padding:1rem;border-radius:8px}
+    fuka-anim { border-radius:12px; overflow:hidden; display:inline-block; }
+    .controls{display:flex;gap:.5rem;align-items:center}
+    button{padding:.5rem 1rem;font-size:1rem}
+    .info{font-size:.9rem;color:#444}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Fuka Animation テスト</h2>
+    <div class="stage">
+      <div id="anim-container">
+        <fuka-anim id="fuka" width="160" fps="1.5" order="4,5,6,7"></fuka-anim>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="prev"> 前フレーム</button>
+      <button id="play"> 再生</button>
+      <button id="stop">■ 停止</button>
+      <button id="next">次フレーム </button>
+      <span class="info" id="status">frame: 0</span>
+    </div>
+
+    <p class="info">操作: 「停止」ボタンで自動再生を止めてからコマ送りしてください。</p>
+  </div>
+
+  <script src="/components/fuka-animation.js"></script>
+  <script>
+    (function(){
+      const el = document.getElementById('fuka');
+      const status = document.getElementById('status');
+      const prevBtn = document.getElementById('prev');
+      const nextBtn = document.getElementById('next');
+      const playBtn = document.getElementById('play');
+      const stopBtn = document.getElementById('stop');
+
+      function getSeqLen(){
+        return (el._sequence && el._sequence.length) ? el._sequence.length : (15*2-2);
+      }
+
+      function updateStatus(){
+        const seq = el._seq || 0;
+        let frame = 0;
+        if (typeof el._seqToFrame === 'function') {
+          frame = el._seqToFrame(seq);
+        } else {
+          // fallback: pingpong
+          const TOTAL = 15;
+          frame = seq < TOTAL ? seq : (TOTAL*2-2)-seq;
+        }
+        status.textContent = `seq: ${seq}  frame: ${frame + 1}`;
+      }
+
+      // stop auto-play so manual stepping works
+      el._stop && el._stop();
+      el._seq = el._seq || 0;
+      updateStatus();
+
+      prevBtn.addEventListener('click', ()=>{
+        el._stop && el._stop();
+        const SEQLEN = getSeqLen();
+        el._seq = (el._seq - 1 + SEQLEN) % SEQLEN;
+        el._applyFrame && el._applyFrame();
+        updateStatus();
+      });
+
+      nextBtn.addEventListener('click', ()=>{
+        el._stop && el._stop();
+        const SEQLEN = getSeqLen();
+        el._seq = (el._seq + 1) % SEQLEN;
+        el._applyFrame && el._applyFrame();
+        updateStatus();
+      });
+
+      playBtn.addEventListener('click', ()=>{
+        el._start && el._start();
+      });
+      stopBtn.addEventListener('click', ()=>{
+        el._stop && el._stop();
+      });
+
+      // update status periodically
+      setInterval(updateStatus, 200);
+    })();
+  </script>
+</body>
+</html>
