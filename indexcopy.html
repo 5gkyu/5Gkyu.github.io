@@ -595,12 +595,29 @@
           const titleEl = document.getElementById('video-info-title');
           const heroSection = document.getElementById('hero-section');
           
-          authorEl.textContent = 'ニコニコ動画';
           titleEl.textContent = info.title || 'Now Playing';
           panel.classList.add('show');
           
           if (info.thumbnailUrl) {
             heroSection.style.setProperty('--hero-bg', `url('${info.thumbnailUrl}')`);
+          }
+
+          // VocaDBから投稿者名（アーティスト名）を取得
+          if (info.videoId) {
+            fetch(`https://vocadb.net/api/songs?pvId=${info.videoId}&pvServices=NicoNicoDouga`)
+              .then(res => res.json())
+              .then(data => {
+                if (data && data.items && data.items.length > 0) {
+                  authorEl.textContent = data.items[0].artistString;
+                } else {
+                  authorEl.textContent = 'ニコニコ動画';
+                }
+              })
+              .catch(err => {
+                authorEl.textContent = 'ニコニコ動画';
+              });
+          } else {
+            authorEl.textContent = 'ニコニコ動画';
           }
         }
       }
