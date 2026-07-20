@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+    <!-- リサイズハンドル (fixed / overflow: hidden の外側) -->
+    <div id="resizeLayer">
+        <div class="rsz rsz-nw" data-dir="nw"></div>
+        <div class="rsz rsz-n"  data-dir="n"></div>
+        <div class="rsz rsz-ne" data-dir="ne"></div>
+        <div class="rsz rsz-w"  data-dir="w"></div>
+        <div class="rsz rsz-e"  data-dir="e"></div>
+        <div class="rsz rsz-sw" data-dir="sw"></div>
+        <div class="rsz rsz-s"  data-dir="s"></div>
+        <div class="rsz rsz-se" data-dir="se"></div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <!-- カスタムタイトルバー (pywebview フレームレス用) -->
+        <div class="titlebar" id="titlebar">
+            <div class="titlebar-drag" id="titlebarDrag">
+                <span class="titlebar-title">Music Player</span>
+            </div>
+            <div class="titlebar-buttons">
+                <button class="titlebar-btn titlebar-btn-mini" id="winMiniBtn" type="button" title="ミニプレイヤー">
+                    <span class="material-icons-round">picture_in_picture_alt</span>
+                </button>
+                <button class="titlebar-btn titlebar-btn-phone" id="winPhoneBtn" type="button" title="スマホサイズ">
+                    <span class="material-icons-round">smartphone</span>
+                </button>
+                <button class="titlebar-btn titlebar-btn-min" id="winMinBtn" type="button" title="最小化">
+                    <span class="material-icons-round">remove</span>
+                </button>
+                <button class="titlebar-btn titlebar-btn-max" id="winMaxBtn" type="button" title="最大化">
+                    <span class="material-icons-round" id="winMaxIcon">crop_square</span>
+                </button>
+                <button class="titlebar-btn titlebar-btn-close" id="winCloseBtn" type="button" title="閉じる">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ミニモード終了ボタン (mini-mode時のみ表示) -->
+        <button class="mini-exit-btn" id="miniExitBtn" type="button" title="通常モードに戻る">
+            <span class="material-icons-round">open_in_full</span>
+        </button>
+
+        <!-- 背景ブラー -->
+        <div class="bg-artwork" id="bgArtwork"></div>
+        <div class="bg-overlay"></div>
+
+        <!-- メインボディ (サイドバー + コンテンツ) -->
+        <div class="app-body">
+
+        <!-- サイドバー: プレイリスト -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="sidebar-settings-btn" id="openSettingsBtn" type="button" title="設定">
+                    <span class="material-icons-round">settings</span>
+                </button>
+                <div class="sidebar-top-bar">
+                    <div class="logo">
+                        <span class="material-icons-round logo-icon">music_note</span>
+                        <h1>Music Player</h1>
+                    </div>
+                    <div class="track-count" id="trackCount">0 曲</div>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-btn nav-btn-player active" id="openPlayerBtn" type="button">
+                        <span class="material-icons-round">play_circle</span>
+                        <span class="nav-btn-label">Player</span>
+                    </button>
+                    <button class="nav-btn" id="openEditorBtn" type="button">
+                        <span class="material-icons-round">edit_note</span>
+                        <span class="nav-btn-label">Editor</span>
+                    </button>
+                    <button class="nav-btn" id="openPlaylistWorkspaceBtn" type="button">
+                        <span class="material-icons-round">queue_music</span>
+                        <span class="nav-btn-label">Playlists</span>
+                    </button>
+                    <button class="nav-btn" id="openSteamBrowserBtn" type="button">
+                        <span class="material-icons-round">folder_open</span>
+                        <span class="nav-btn-label">フォルダ</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" id="searchInput" placeholder="検索 (例: artist:yoasobi genre:rock) ...">
+            </div>
+
+            <div class="filter-tools">
+                <div class="tool-row">
+                    <select id="playlistSelect" class="tool-select">
+                        <option value="">全て（ライブラリ）</option>
+                    </select>
+                </div>
+
+                <details class="tool-group">
+                    <summary>表示フィルタ</summary>
+                    <div class="tool-group-body">
+                        <div class="tool-row">
+                            <select id="folderFilterSelect" class="tool-select">
+                                <option value="__all__">すべてのフォルダ</option>
+                            </select>
+                        </div>
+                        <div class="tool-row">
+                            <select id="albumFilterSelect" class="tool-select">
+                                <option value="__all__">すべてのアルバム</option>
+                            </select>
+                        </div>
+                        <div class="tool-row two-col">
+                            <select id="sortKeySelect" class="tool-select">
+                                <option value="title">タイトル順</option>
+                                <option value="artist">アーティスト順</option>
+                                <option value="album">アルバム順</option>
+                                <option value="year">年順</option>
+                                <option value="duration">長さ順</option>
+                                <option value="bitrateKbps">ビットレート順</option>
+                                <option value="path">パス順</option>
+                            </select>
+                            <select id="sortOrderSelect" class="tool-select">
+                                <option value="asc">昇順</option>
+                                <option value="desc">降順</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <div class="playlist-container" id="playlist">
+                <!-- 動的に生成 -->
+            </div>
+        </aside>
+
+        <!-- メインプレイヤー -->
+        <main class="main-content">
+            <div class="player-area" id="playerArea">
+                <!-- アルバムアート -->
+                <div class="artwork-container">
+                    <div class="artwork-wrapper" id="artworkWrapper">
+                        <div class="artwork-default" id="artworkDefault">
+                            <span class="material-icons-round">album</span>
+                        </div>
+                        <img class="artwork-image" id="artworkImage" alt="Album Art" style="display:none;">
+                    </div>
+                    <div class="vinyl-ring"></div>
+                </div>
+
+                <!-- 曲情報 -->
+                <div class="track-info">
+                    <h2 class="track-title" id="trackTitle">曲を選択してください</h2>
+                    <p class="track-artist" id="trackArtist">---</p>
+                    <p class="track-album" id="trackAlbum"></p>
+                    <p class="track-folder" id="trackFolder"></p>
+                    <div class="track-meta-chips" id="trackMetaChips"></div>
+                    <p class="track-tech" id="trackTech"></p>
+                </div>
+
+                <!-- シークバー -->
+                <div class="seek-container">
+                    <span class="time-label" id="currentTime">0:00</span>
+                    <div class="seek-bar-wrapper">
+                        <input type="range" class="seek-bar" id="seekBar" min="0" max="100" value="0" step="0.1">
+                        <div class="seek-progress" id="seekProgress"></div>
+                    </div>
+                    <span class="time-label" id="totalTime">0:00</span>
+                </div>
+
+                <!-- コントロール -->
+                <div class="controls">
+                    <button class="ctrl-btn" id="btnShuffle" title="シャッフル">
+                        <span class="material-icons-round">shuffle</span>
+                    </button>
+                    <button class="ctrl-btn ctrl-main" id="btnPrev" title="前の曲">
+                        <span class="material-icons-round">skip_previous</span>
+                    </button>
+                    <button class="ctrl-btn ctrl-play" id="btnPlay" title="再生">
+                        <span class="material-icons-round" id="playIcon">play_arrow</span>
+                    </button>
+                    <button class="ctrl-btn ctrl-main" id="btnNext" title="次の曲">
+                        <span class="material-icons-round">skip_next</span>
+                    </button>
+                    <button class="ctrl-btn" id="btnRepeat" title="リピート">
+                        <span class="material-icons-round">repeat</span>
+                    </button>
+                </div>
+
+                <!-- ボリューム -->
+                <div class="volume-container">
+                    <button class="ctrl-btn volume-btn" id="btnMute" title="ミュート">
+                        <span class="material-icons-round" id="volumeIcon">volume_up</span>
+                    </button>
+                    <div class="volume-bar-wrapper">
+                        <input type="range" class="volume-bar" id="volumeBar" min="0" max="100" value="80" step="1">
+                        <div class="volume-progress" id="volumeProgress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-visualizer" id="mainVisualizer">
+                <canvas class="main-visualizer-canvas" id="visualizerCanvas"></canvas>
+            </div>
+
+            <section class="steam-browser" id="steamBrowser" aria-hidden="true">
+                <div class="steam-browser-header">
+                    <h2>フォルダブラウザ</h2>
+                    <div class="steam-browser-actions">
+                        <button id="steamBackToGridBtn" class="workspace-close-btn" type="button" disabled>一覧に戻る</button>
+                        <button id="closeSteamBrowserBtn" class="workspace-close-btn" type="button">閉じる</button>
+                    </div>
+                </div>
+
+                <!-- グリッド/一覧ビュー -->
+                <div class="steam-browser-grid" id="steamBrowserGridView">
+                    <div class="folder-mode-toggle">
+                        <button class="folder-mode-btn active" id="folderModeCardBtn" type="button">
+                            <span class="material-icons-round">grid_view</span>
+                            <span>カード</span>
+                        </button>
+                        <button class="folder-mode-btn" id="folderModePathBtn" type="button">
+                            <span class="material-icons-round">folder_open</span>
+                            <span>パス入力</span>
+                        </button>
+                    </div>
+
+                    <!-- カードモード -->
+                    <div id="folderCardView">
+                        <input id="steamBrowserSearchInput" class="tool-input" type="text" placeholder="フォルダ名で検索...">
+                        <div class="steam-game-grid" id="steamGameGrid"></div>
+                    </div>
+
+                    <!-- パス入力モード -->
+                    <div id="folderPathView" hidden>
+                        <div class="folder-path-input-row">
+                            <input id="folderPathInput" class="tool-input" type="text" placeholder="フォルダの相対パス (例: Artist/Album)">
+                            <button id="folderPathOpenBtn" class="tool-btn" type="button">開く</button>
+                        </div>
+                        <p class="tool-note">ライブラリ内のフォルダの相対パスを入力してください。</p>
+                    </div>
+                </div>
+
+                <!-- フォルダ詳細ビュー -->
+                <div class="steam-browser-detail" id="steamBrowserDetailView" hidden>
+                    <div class="folder-detail-header">
+                        <span class="material-icons-round">folder</span>
+                        <h3 id="folderDetailTitle">フォルダを選択してください</h3>
+                    </div>
+
+                    <!-- 画像選択セクション -->
+                    <div class="folder-image-section">
+                        <h4 class="folder-section-title">フォルダ内の画像（疑似アート）</h4>
+                        <div class="folder-steam-search-row">
+                            <input id="folderSteamSearchInput" class="tool-input" type="text" placeholder="Steam検索（タイトル / AppID）">
+                            <button id="folderSteamSearchBtn" class="tool-btn" type="button">Steam検索</button>
+                        </div>
+                        <p class="tool-note" id="folderSteamSearchStatus">必要に応じて手動でSteamカプセルを検索できます。</p>
+                        <div class="folder-image-grid" id="folderImageGrid">
+                            <p class="tool-note">読み込み中...</p>
+                        </div>
+                        <input id="folderImageUploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                        <div class="folder-apply-bar">
+                            <p class="tool-note" id="folderImageStatus">画像を選択してください。</p>
+                            <button id="folderApplyImageBtn" class="tool-btn" type="button" disabled>疑似アートとして適用</button>
+                        </div>
+                    </div>
+
+                    <!-- トラック一覧 -->
+                    <div class="steam-track-preview" id="steamTrackPreviewList"></div>
+                </div>
+            </section>
+
+            <!-- Editor Panel -->
+            <div class="editor-panel" id="editorPanel" hidden>
+                <!-- ヘッダー -->
+                <div class="editor-browser-header">
+                    <h2>メタデータエディタ</h2>
+                    <div class="editor-header-actions">
+                        <!-- 現在再生インジケータ -->
+                        <div class="editor-now-playing" id="editorNowPlaying" hidden>
+                            <span class="material-icons-round">music_note</span>
+                            <span class="editor-now-playing-title" id="editorMiniTitle">---</span>
+                            <button class="editor-mini-play-btn" id="editorMiniPlayBtn" type="button">
+                                <span class="material-icons-round" id="editorMiniPlayIcon">play_arrow</span>
+                            </button>
+                        </div>
+                        <!-- 選択時表示 -->
+                        <div class="editor-selection-info" id="editorSelectionInfo" style="display:none">
+                            <span class="editor-selection-count" id="editorBulkCount">0 件選択</span>
+                            <button class="workspace-close-btn" id="editorSelectAllBtn" type="button">全選択</button>
+                            <button class="workspace-close-btn" id="editorDeselectAllBtn" type="button">解除</button>
+                            <button class="workspace-close-btn" id="editorBulkEditBtn" type="button">一括編集</button>
+                            <button class="workspace-close-btn" id="editorOrganizeBtn" type="button">整理</button>
+                        </div>
+                        <button class="workspace-close-btn" id="editorCloseBtn" type="button">閉じる</button>
+                    </div>
+                </div>
+
+                <!-- 左右ペイン -->
+                <div class="editor-panes">
+
+                    <!-- 左: トラックリスト -->
+                    <div class="editor-track-pane" id="editorTrackPane">
+                        <!-- JSにより生成 -->
+                    </div>
+
+                    <!-- 右: 編集フォームエリア -->
+                    <div class="editor-form-pane" id="editorFormPane">
+
+                        <!-- 単一トラック編集 -->
+                        <div class="editor-form-section" id="editorSingleEditCard">
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">music_note</span>
+                                <h3 id="editorFileName">曲を選択してください</h3>
+                            </div>
+                            <p class="tool-note" id="editorFilePath" style="margin:0 0 10px;word-break:break-all;"></p>
+
+                            <div class="artwork-edit-row">
+                                <div class="artwork-preview-wrap">
+                                    <img id="editorArtworkPreview" class="artwork-preview" alt="Artwork">
+                                    <div id="editorArtworkEmpty" class="artwork-empty">No Jacket</div>
+                                </div>
+                                <div class="artwork-actions">
+                                    <input id="editorArtworkInput" type="file" accept="image/png,image/jpeg" hidden>
+                                    <button id="editorChooseArtworkBtn" class="workspace-close-btn" disabled>ジャケットを選択</button>
+                                    <button id="editorSaveArtworkBtn" class="workspace-close-btn" disabled>ジャケット保存</button>
+                                    <p class="tool-note">JPEG / PNG（推奨 800px 以上）</p>
+                                </div>
+                            </div>
+
+                            <div class="ed-form-grid">
+                                <label>Title<input id="editorTitle" type="text"></label>
+                                <label>Artist<input id="editorArtist" type="text"></label>
+                                <label>Album<input id="editorAlbum" type="text"></label>
+                                <label>Album Artist<input id="editorAlbumArtist" type="text"></label>
+                                <label>Genre<input id="editorGenre" type="text"></label>
+                                <label>Year<input id="editorYear" type="text" maxlength="4"></label>
+                                <label>Track #<input id="editorTrackNumber" type="text"></label>
+                                <label>Disc #<input id="editorDiscNumber" type="text"></label>
+                            </div>
+                            <div class="folder-apply-bar">
+                                <p class="tool-note" id="editorStatusText"></p>
+                                <button id="editorSaveBtn" class="tool-btn" disabled>保存</button>
+                            </div>
+                        </div>
+
+                        <!-- 技術情報 -->
+                        <div class="editor-form-section" id="editorTechCard">
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">info</span>
+                                <h3>Technical Info</h3>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric"><span>Codec</span><strong id="emCodec">-</strong></div>
+                                <div class="metric"><span>Bitrate</span><strong id="emBitrate">-</strong></div>
+                                <div class="metric"><span>Sample Rate</span><strong id="emSampleRate">-</strong></div>
+                                <div class="metric"><span>Channels</span><strong id="emChannels">-</strong></div>
+                                <div class="metric"><span>Bit Depth</span><strong id="emBitDepth">-</strong></div>
+                                <div class="metric"><span>Size</span><strong id="emSize">-</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- 一括編集 -->
+                        <div class="editor-form-section" id="editorBulkEditCard" hidden>
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">edit_note</span>
+                                <h3>一括メタデータ編集</h3>
+                            </div>
+                            <p class="tool-note">選択した曲に共通の値を一括設定します（空欄は変更しません）。タイトルとトラック番号は一括編集の対象外です。</p>
+                            <div class="ed-form-grid">
+                                <label>Artist<input id="editorBulkArtist" type="text" placeholder="変更しない"></label>
+                                <label>Album<input id="editorBulkAlbum" type="text" placeholder="変更しない"></label>
+                                <label>Album Artist<input id="editorBulkAlbumArtist" type="text" placeholder="変更しない"></label>
+                                <label>Genre<input id="editorBulkGenre" type="text" placeholder="変更しない"></label>
+                                <label>Year<input id="editorBulkYear" type="text" maxlength="4" placeholder="変更しない"></label>
+                                <label>Disc #<input id="editorBulkDiscNumber" type="text" placeholder="変更しない"></label>
+                            </div>
+                            <div class="folder-apply-bar">
+                                <p class="tool-note" id="editorBulkStatusText"></p>
+                                <button id="editorBulkCancelBtn" class="workspace-close-btn" type="button">キャンセル</button>
+                                <button id="editorBulkSaveBtn" class="tool-btn" type="button">一括適用</button>
+                            </div>
+                        </div>
+
+                        <!-- 整理 -->
+                        <div class="editor-form-section" id="editorOrganizeCard" hidden>
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">drive_file_move</span>
+                                <h3>ファイル整理</h3>
+                            </div>
+                            <p class="tool-note">メタデータに基づいてファイルを適切なフォルダ構造へ移動します。</p>
+                            <div class="ed-form-grid">
+                                <label>整理プリセット
+                                    <select id="editorOrganizePresetSelect">
+                                        <option value="default">標準 ({AlbumArtist}/{Album})</option>
+                                        <option value="steam">Steam ({Game Title (AppID)}/Soundtrack)</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="ed-form-grid" id="editorSteamOrganizeFields" hidden>
+                                <label>ゲーム検索<input id="editorSteamGameSearchInput" type="text" placeholder="ゲーム名で絞り込み"></label>
+                                <label>Steam ゲーム
+                                    <select id="editorSteamGameSelect">
+                                        <option value="">ゲームを選択</option>
+                                    </select>
+                                </label>
+                                <label>AppID<input id="editorSteamAppIdInput" type="text" placeholder="例: 123456"></label>
+                            </div>
+                            <div class="folder-structure" id="editorDefaultFolderStructure">music/
+  {Album Artist}/
+    {Album}/
+      {Disc}-{Track} {Title}.ext</div>
+                            <div class="folder-structure" id="editorSteamFolderStructure" hidden>music/
+  {Game Title (AppID)}/
+    Soundtrack/
+      {Disc}-{Track} {Title}.ext</div>
+                            <div id="editorOrganizePreview" class="organize-preview"></div>
+                            <div class="folder-apply-bar">
+                                <p class="tool-note" id="editorOrganizeStatusText"></p>
+                                <button id="editorOrganizeCancelBtn" class="workspace-close-btn" type="button">キャンセル</button>
+                                <button id="editorOrganizePreviewBtn" class="workspace-close-btn" type="button">プレビュー</button>
+                                <button id="editorOrganizeExecuteBtn" class="tool-btn" type="button" disabled>実行</button>
+                            </div>
+                        </div>
+
+                        <!-- フォルダ一括編集 -->
+                        <div class="editor-form-section" id="editorFolderBulkCard">
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">folder_special</span>
+                                <h3>フォルダ内全曲を一括編集</h3>
+                            </div>
+                            <p class="tool-note" id="editorFolderBulkTrackCount">対象曲: 0 件 — 左のフォルダフィルタで対象フォルダを選択してください。</p>
+                            <div class="ed-form-grid">
+                                <label>Artist<input id="editorFolderBulkArtist" type="text" placeholder="変更しない"></label>
+                                <label>Album<input id="editorFolderBulkAlbum" type="text" placeholder="変更しない"></label>
+                                <label>Album Artist<input id="editorFolderBulkAlbumArtist" type="text" placeholder="変更しない"></label>
+                                <label>Genre<input id="editorFolderBulkGenre" type="text" placeholder="変更しない"></label>
+                                <label>Year<input id="editorFolderBulkYear" type="text" maxlength="4" placeholder="変更しない"></label>
+                            </div>
+                            <div class="folder-apply-bar">
+                                <p class="tool-note" id="editorFolderBulkStatusText"></p>
+                                <button id="editorApplyFolderBulkBtn" class="tool-btn" type="button" disabled>このフォルダ配下に一括適用</button>
+                            </div>
+                        </div>
+
+                        <!-- フォルダ画像適用 -->
+                        <div class="editor-form-section" id="editorFolderImageApplyCard">
+                            <div class="editor-form-section-header">
+                                <span class="material-icons-round">image</span>
+                                <h3>フォルダ画像を留1アートに適用</h3>
+                            </div>
+                            <p class="tool-note">選択中フォルダの jpg/png をプレビューして選び、画像なしのファイルに留1表示します。</p>
+                            <div class="ed-form-grid">
+                                <label>対象フォルダ<input id="editorFolderImageFolderInput" type="text" placeholder="フォルダフィルタで選択" readonly></label>
+                                <label>選択画像<input id="editorFolderImagePathInput" type="text" placeholder="下のプレビューから選択" readonly></label>
+                            </div>
+                            <div class="folder-apply-bar">
+                                <button id="editorLoadFolderImagesBtn" class="workspace-close-btn" type="button">画像を読み込む</button>
+                            </div>
+                            <div id="editorFolderImagePreviewGrid" class="folder-image-preview-grid"></div>
+                            <div class="folder-apply-bar">
+                                <p class="tool-note" id="editorFolderImageStatusText"></p>
+                                <button id="editorApplyFolderImageBtn" class="tool-btn" disabled>フォルダに画像を適用</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        </div><!-- /.app-body -->
+        <!-- モバイルメニューボタン -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <span class="material-icons-round">queue_music</span>
+        </button>
+    </div>
+
+    <section class="settings-panel" id="settingsPanel" aria-hidden="true">
+        <div class="settings-header">
+            <h2>設定</h2>
+            <button id="closeSettingsBtn" class="workspace-close-btn" type="button">閉じる</button>
+        </div>
+
+        <div class="settings-body">
+            <div class="settings-row settings-theme-row">
+                <label for="themeSelect" class="theme-label">テーマ</label>
+                <select id="themeSelect" class="theme-select">
+                    <option value="midnight-bloom">Midnight Bloom</option>
+                    <option value="amber-noir">Amber Noir</option>
+                    <option value="ocean-glass">Ocean Glass</option>
+                    <option value="forest-ink">Forest Ink</option>
+                    <option value="rose-smoke">Rose Smoke</option>
+                    <option value="slate-copper">Slate Copper</option>
+                    <option value="aurora-mint">Aurora Mint</option>
+                    <option value="mono-paper">Mono Paper</option>
+                    <option value="sunset-cinema">Sunset Cinema</option>
+                    <option value="blueprint-neon">Blueprint Neon</option>
+                    <option value="cover-reactive">Cover Reactive</option>
+                </select>
+            </div>
+            <p class="tool-note">音楽ライブラリフォルダを指定します。</p>
+            <label for="libraryPathInput" class="theme-label">ライブラリパス</label>
+            <div class="settings-row">
+                <input id="libraryPathInput" type="text" class="tool-input" placeholder="C:/Music">
+                <button id="saveLibraryPathBtn" class="tool-btn" type="button">保存</button>
+            </div>
+            <p id="libraryPathStatus" class="tool-note"></p>
+        </div>
+    </section>
+
+    <section class="playlist-workspace" id="playlistWorkspace" aria-hidden="true">
+        <div class="playlist-workspace-header">
+            <h2>Playlist Workspace</h2>
+            <button id="closePlaylistWorkspaceBtn" class="workspace-close-btn" type="button">閉じる</button>
+        </div>
+
+        <div class="playlist-workspace-toolbar">
+            <input id="workspaceNewPlaylistName" type="text" class="tool-input" placeholder="新規プレイリスト名">
+            <button id="workspaceCreatePlaylistBtn" class="tool-btn" type="button">作成</button>
+            <select id="workspacePlaylistSelect" class="tool-select">
+                <option value="">プレイリスト選択</option>
+            </select>
+            <button id="workspaceSavePlaylistBtn" class="tool-btn" type="button" disabled>保存</button>
+            <button id="workspaceDeletePlaylistBtn" class="tool-btn" type="button" disabled>削除</button>
+            <input id="workspaceLibrarySearchInput" type="text" class="tool-input" placeholder="ライブラリ検索">
+        </div>
+
+        <div class="playlist-workspace-grid">
+            <div class="workspace-card">
+                <h3>ライブラリ</h3>
+                <div class="workspace-list" id="workspaceLibraryList"></div>
+            </div>
+            <div class="workspace-card">
+                <h3>プレイリスト内容</h3>
+                <div class="workspace-list" id="workspacePlaylistItems"></div>
+            </div>
+        </div>
+
+        <p id="workspaceStatus" class="tool-note"></p>
+    </section>
+
+    <!-- オーディオ要素 -->
+    <audio id="audioPlayer" preload="auto"></audio>
+    <script src="/static/js/player.js"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+class MetadataEditor {
+    constructor() {
+        this.tracks = [];
+        this.filtered = [];
+        this.current = null;
+        this.sortKey = 'title';
+        this.sortOrder = 'asc';
+        this.pendingArtworkData = '';
+
+        this.els = {
+            trackList: document.getElementById('trackList'),
+            searchInput: document.getElementById('searchInput'),
+            sortKeySelect: document.getElementById('sortKeySelect'),
+            sortOrderSelect: document.getElementById('sortOrderSelect'),
+            helpBtn: document.getElementById('helpBtn'),
+            closeHelpBtn: document.getElementById('closeHelpBtn'),
+            helpPanel: document.getElementById('helpPanel'),
+            fileName: document.getElementById('fileName'),
+            filePath: document.getElementById('filePath'),
+            saveBtn: document.getElementById('saveBtn'),
+            chooseArtworkBtn: document.getElementById('chooseArtworkBtn'),
+            saveArtworkBtn: document.getElementById('saveArtworkBtn'),
+            artworkInput: document.getElementById('artworkInput'),
+            artworkPreview: document.getElementById('artworkPreview'),
+            artworkEmpty: document.getElementById('artworkEmpty'),
+            statusText: document.getElementById('statusText'),
+            title: document.getElementById('title'),
+            artist: document.getElementById('artist'),
+            album: document.getElementById('album'),
+            albumArtist: document.getElementById('albumArtist'),
+            genre: document.getElementById('genre'),
+            year: document.getElementById('year'),
+            trackNumber: document.getElementById('trackNumber'),
+            discNumber: document.getElementById('discNumber'),
+            mCodec: document.getElementById('mCodec'),
+            mBitrate: document.getElementById('mBitrate'),
+            mSampleRate: document.getElementById('mSampleRate'),
+            mChannels: document.getElementById('mChannels'),
+            mBitDepth: document.getElementById('mBitDepth'),
+            mSize: document.getElementById('mSize'),
+            techChart: document.getElementById('techChart'),
+        };
+
+        this.bindEvents();
+        this.loadTracks();
+    }
+
+    bindEvents() {
+        this.els.searchInput.addEventListener('input', () => {
+            this.applyFilters();
+        });
+
+        this.els.sortKeySelect.addEventListener('change', (e) => {
+            this.sortKey = e.target.value;
+            this.applyFilters();
+        });
+
+        this.els.sortOrderSelect.addEventListener('change', (e) => {
+            this.sortOrder = e.target.value;
+            this.applyFilters();
+        });
+
+        this.els.trackList.addEventListener('click', (e) => {
+            const item = e.target.closest('.playlist-item');
+            if (!item) return;
+            this.loadTrack(item.dataset.path);
+        });
+
+        this.els.saveBtn.addEventListener('click', () => this.saveCurrent());
+        this.els.chooseArtworkBtn.addEventListener('click', () => this.els.artworkInput.click());
+        this.els.artworkInput.addEventListener('change', (e) => this.onArtworkSelected(e));
+        this.els.saveArtworkBtn.addEventListener('click', () => this.saveArtwork());
+
+        this.els.helpBtn.addEventListener('click', () => {
+            this.els.helpPanel.hidden = false;
+        });
+        this.els.closeHelpBtn.addEventListener('click', () => {
+            this.els.helpPanel.hidden = true;
+        });
+        this.els.helpPanel.addEventListener('click', (e) => {
+            if (e.target === this.els.helpPanel) {
+                this.els.helpPanel.hidden = true;
+            }
+        });
+    }
+
+    async loadTracks() {
+        const res = await fetch('/api/editor/tracks');
+        this.tracks = await res.json();
+        this.applyFilters();
+    }
+
+    parseSearchTokens(query) {
+        return query
+            .trim()
+            .split(/\s+/)
+            .map((t) => t.trim())
+            .filter(Boolean);
+    }
+
+    matchesAdvancedSearch(track, query) {
+        const q = (query || '').toLowerCase().trim();
+        if (!q) return true;
+
+        const fieldMap = {
+            title: String(track.title || '').toLowerCase(),
+            artist: String(track.artist || '').toLowerCase(),
+            album: String(track.album || '').toLowerCase(),
+            genre: String(track.genre || '').toLowerCase(),
+            year: String(track.year || '').toLowerCase(),
+            codec: String(track.codec || '').toLowerCase(),
+            path: String(track.path || '').toLowerCase(),
+        };
+
+        const bag = Object.values(fieldMap).join(' ');
+        const tokens = this.parseSearchTokens(q);
+
+        return tokens.every((token) => {
+            const colonPos = token.indexOf(':');
+            if (colonPos > 0) {
+                const key = token.slice(0, colonPos);
+                const value = token.slice(colonPos + 1);
+                if (!value) return true;
+                if (fieldMap[key] !== undefined) {
+                    return fieldMap[key].includes(value);
+                }
+            }
+            return bag.includes(token);
+        });
+    }
+
+    getSortValue(track, key) {
+        if (key === 'duration' || key === 'bitrateKbps') {
+            return Number(track[key] || 0);
+        }
+        if (key === 'year') {
+            const n = parseInt(track.year, 10);
+            return Number.isNaN(n) ? 0 : n;
+        }
+        return String(track[key] || '').toLowerCase();
+    }
+
+    applyFilters() {
+        const query = this.els.searchInput.value || '';
+
+        this.filtered = this.tracks
+            .filter((t) => this.matchesAdvancedSearch(t, query))
+            .sort((a, b) => {
+                const av = this.getSortValue(a, this.sortKey);
+                const bv = this.getSortValue(b, this.sortKey);
+                let result = 0;
+                if (typeof av === 'number' && typeof bv === 'number') {
+                    result = av - bv;
+                } else {
+                    result = String(av).localeCompare(String(bv), 'ja');
+                }
+                return this.sortOrder === 'desc' ? -result : result;
+            });
+
+        this.renderTrackList();
+    }
+
+    renderTrackList() {
+        this.els.trackList.innerHTML = this.filtered.map((t) => {
+            const active = this.current && this.current.path === t.path ? 'active' : '';
+            const subtitleParts = [];
+            if (t.artist && t.artist !== 'Unknown Artist') subtitleParts.push(t.artist);
+            if (t.album && t.album !== 'Unknown Album') subtitleParts.push(t.album);
+            const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' / ') : (t.codec || 'Unknown');
+            return `
+                <div class="playlist-item ${active}" data-path="${this.escapeHtml(t.path)}">
+                    <div class="playlist-item-art">
+                        <span class="material-icons-round">music_note</span>
+                    </div>
+                    <div class="playlist-item-info">
+                        <div class="playlist-item-title">${this.escapeHtml(t.title || t.filename)}</div>
+                        <div class="playlist-item-artist">${this.escapeHtml(subtitle)}</div>
+                    </div>
+                    <div class="playlist-item-duration">${this.formatTime(t.duration)}</div>
+                </div>
+            `;
+        }).join('');
+
+        this.loadTrackListArtwork();
+    }
+
+    async loadTrackListArtwork() {
+        const items = this.els.trackList.querySelectorAll('.playlist-item');
+        for (const item of items) {
+            if (item.dataset.artLoaded === '1') continue;
+            const path = item.dataset.path;
+            const track = this.filtered.find((t) => t.path === path);
+            if (!track || !track.hasArt) continue;
+
+            try {
+                const encodedPath = path.split('/').map((s) => encodeURIComponent(s)).join('/');
+                const res = await fetch(`/api/art/${encodedPath}`);
+                if (!res.ok) continue;
+                const art = await res.json();
+                const artEl = item.querySelector('.playlist-item-art');
+                const iconEl = artEl.querySelector('.material-icons-round');
+                if (iconEl) {
+                    const img = document.createElement('img');
+                    img.src = `data:${art.mime};base64,${art.data}`;
+                    img.alt = '';
+                    artEl.insertBefore(img, iconEl);
+                    iconEl.style.display = 'none';
+                    item.dataset.artLoaded = '1';
+                }
+            } catch {
+                // ジャケット取得失敗は無視
+            }
+        }
+    }
+
+    formatTime(seconds) {
+        if (!seconds || Number.isNaN(seconds)) return '0:00';
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    async loadTrack(path) {
+        const encodedPath = path.split('/').map((s) => encodeURIComponent(s)).join('/');
+        const res = await fetch(`/api/editor/track/${encodedPath}`);
+        if (!res.ok) return;
+        this.current = await res.json();
+
+        this.els.fileName.textContent = this.current.filename;
+        this.els.filePath.textContent = this.current.path;
+
+        this.els.title.value = this.current.title || '';
+        this.els.artist.value = this.current.artist || '';
+        this.els.album.value = this.current.album || '';
+        this.els.albumArtist.value = this.current.albumArtist || '';
+        this.els.genre.value = this.current.genre || '';
+        this.els.year.value = this.current.year || '';
+        this.els.trackNumber.value = this.current.trackNumber || '';
+        this.els.discNumber.value = this.current.discNumber || '';
+        this.els.saveBtn.disabled = false;
+        this.els.chooseArtworkBtn.disabled = false;
+        this.els.saveArtworkBtn.disabled = true;
+        this.pendingArtworkData = '';
+
+        await this.loadArtworkPreview(this.current);
+
+        this.updateTechView(this.current);
+        this.els.statusText.textContent = '';
+        this.renderTrackList();
+    }
+
+    async loadArtworkPreview(track) {
+        if (!track || !track.path || !track.hasArt) {
+            this.showArtworkPlaceholder();
+            return;
+        }
+
+        try {
+            const encodedPath = track.path.split('/').map((s) => encodeURIComponent(s)).join('/');
+            const res = await fetch(`/api/art/${encodedPath}`);
+            if (!res.ok) {
+                this.showArtworkPlaceholder();
+                return;
+            }
+            const art = await res.json();
+            this.showArtwork(`data:${art.mime};base64,${art.data}`);
+        } catch {
+            this.showArtworkPlaceholder();
+        }
+    }
+
+    showArtwork(dataUrl) {
+        this.els.artworkPreview.src = dataUrl;
+        this.els.artworkPreview.style.display = 'block';
+        this.els.artworkEmpty.style.display = 'none';
+    }
+
+    showArtworkPlaceholder() {
+        this.els.artworkPreview.removeAttribute('src');
+        this.els.artworkPreview.style.display = 'none';
+        this.els.artworkEmpty.style.display = 'grid';
+    }
+
+    onArtworkSelected(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (!/^image\/(jpeg|png)$/.test(file.type)) {
+            this.els.statusText.textContent = 'JPEG / PNG のみ選択できます。';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.pendingArtworkData = String(reader.result || '');
+            this.showArtwork(this.pendingArtworkData);
+            this.els.saveArtworkBtn.disabled = false;
+            this.els.statusText.textContent = 'ジャケット画像を選択しました。';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async saveArtwork() {
+        if (!this.current || !this.pendingArtworkData) return;
+
+        const res = await fetch('/api/editor/artwork', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                path: this.current.path,
+                imageData: this.pendingArtworkData,
+            }),
+        });
+        const result = await res.json();
+        if (!res.ok || !result.ok) {
+            this.els.statusText.textContent = `ジャケット保存失敗: ${result.error || 'unknown error'}`;
+            return;
+        }
+
+        this.current = result.track;
+        this.pendingArtworkData = '';
+        this.els.artworkInput.value = '';
+        this.els.saveArtworkBtn.disabled = true;
+        this.els.statusText.textContent = 'ジャケットを保存しました。';
+        const idx = this.tracks.findIndex((t) => t.path === this.current.path);
+        if (idx >= 0) this.tracks[idx] = this.current;
+        this.filtered = this.filtered.map((t) => (t.path === this.current.path ? this.current : t));
+        await this.loadArtworkPreview(this.current);
+        this.updateTechView(this.current);
+        this.renderTrackList();
+    }
+
+    updateTechView(track) {
+        this.els.mCodec.textContent = track.codec || '-';
+        this.els.mBitrate.textContent = track.bitrateKbps ? `${track.bitrateKbps} kbps` : '-';
+        this.els.mSampleRate.textContent = track.sampleRate ? `${track.sampleRate} Hz` : '-';
+        this.els.mChannels.textContent = track.channels || '-';
+        this.els.mBitDepth.textContent = track.bitDepth || '-';
+        this.els.mSize.textContent = track.fileSizeMB ? `${track.fileSizeMB} MB` : '-';
+        this.drawChart(track);
+    }
+
+    drawChart(track) {
+        const canvas = this.els.techChart;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const bars = [
+            { label: 'Bitrate', value: track.bitrateKbps || 0, max: 1000, color: '#c6522f' },
+            { label: 'SampleRate(kHz)', value: (track.sampleRate || 0) / 1000, max: 192, color: '#1f7a8c' },
+            { label: 'BitDepth', value: track.bitDepth || 0, max: 32, color: '#5b4d9d' },
+            { label: 'Channels', value: track.channels || 0, max: 8, color: '#2f9e44' },
+        ];
+
+        const left = 14;
+        const top = 12;
+        const rowH = 50;
+        const barTopOffset = 18;
+        const barHeight = 16;
+        const maxW = width - left * 2;
+
+        ctx.font = '12px Space Grotesk';
+
+        bars.forEach((bar, i) => {
+            const y = top + i * rowH;
+            const ratio = Math.min(1, bar.value / bar.max);
+            const w = maxW * ratio;
+
+            ctx.fillStyle = '#3e342b';
+            ctx.textAlign = 'left';
+            ctx.fillText(bar.label, left, y + 12);
+            ctx.textAlign = 'right';
+            ctx.fillText(String(bar.value || '-'), width - left, y + 12);
+
+            ctx.fillStyle = '#ebe2d6';
+            ctx.fillRect(left, y + barTopOffset, maxW, barHeight);
+
+            ctx.fillStyle = bar.color;
+            ctx.fillRect(left, y + barTopOffset, w, barHeight);
+        });
+
+        ctx.textAlign = 'left';
+    }
+
+    async saveCurrent() {
+        if (!this.current) return;
+
+        const tags = {
+            title: this.els.title.value,
+            artist: this.els.artist.value,
+            album: this.els.album.value,
+            albumArtist: this.els.albumArtist.value,
+            genre: this.els.genre.value,
+            year: this.els.year.value,
+            trackNumber: this.els.trackNumber.value,
+            discNumber: this.els.discNumber.value,
+        };
+
+        const res = await fetch('/api/editor/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: this.current.path, tags }),
+        });
+
+        const result = await res.json();
+        if (!res.ok || !result.ok) {
+            this.els.statusText.textContent = `保存失敗: ${result.error || 'unknown error'}`;
+            return;
+        }
+
+        this.current = result.track;
+        this.els.statusText.textContent = '保存しました。';
+
+        const idx = this.tracks.findIndex((t) => t.path === this.current.path);
+        if (idx >= 0) this.tracks[idx] = this.current;
+        this.filtered = this.filtered.map((t) => (t.path === this.current.path ? this.current : t));
+        this.updateTechView(this.current);
+        this.renderTrackList();
+    }
+
+    escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+}
+
+new MetadataEditor();

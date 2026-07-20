@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Editor</title>
+    <link rel="stylesheet" href="/static/css/editor.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+    <div class="editor-app">
+        <aside class="track-panel">
+            <div class="panel-head">
+                <div class="panel-title-row">
+                    <h1>Metadata Editor</h1>
+                    <button class="help-btn" id="helpBtn" title="使い方">?</button>
+                </div>
+                <a class="back-link" href="/">Playerへ戻る</a>
+            </div>
+            <input id="searchInput" class="search" type="text" placeholder="検索 (例: artist:yoasobi genre:rock)">
+            <div class="editor-tools">
+                <select id="sortKeySelect" class="search">
+                    <option value="title">タイトル順</option>
+                    <option value="artist">アーティスト順</option>
+                    <option value="album">アルバム順</option>
+                    <option value="year">年順</option>
+                    <option value="duration">長さ順</option>
+                    <option value="bitrateKbps">ビットレート順</option>
+                    <option value="path">パス順</option>
+                </select>
+                <select id="sortOrderSelect" class="search">
+                    <option value="asc">昇順</option>
+                    <option value="desc">降順</option>
+                </select>
+            </div>
+            <div id="trackList" class="track-list"></div>
+        </aside>
+
+        <main class="edit-panel">
+            <div class="form-card">
+                <h2 id="fileName">ファイルを選択してください</h2>
+                <p id="filePath" class="path"></p>
+
+                <div class="artwork-edit-row">
+                    <div class="artwork-preview-wrap">
+                        <img id="artworkPreview" alt="Artwork Preview" class="artwork-preview" />
+                        <div id="artworkEmpty" class="artwork-empty">No Jacket</div>
+                    </div>
+                    <div class="artwork-actions">
+                        <input id="artworkInput" type="file" accept="image/png,image/jpeg" hidden>
+                        <button id="chooseArtworkBtn" class="soft-btn" disabled>ジャケットを選択</button>
+                        <button id="saveArtworkBtn" class="soft-btn" disabled>ジャケット保存</button>
+                        <p class="artwork-note">対応: JPEG / PNG（推奨 800px 以上）</p>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <label>Title<input id="title" type="text"></label>
+                    <label>Artist<input id="artist" type="text"></label>
+                    <label>Album<input id="album" type="text"></label>
+                    <label>Album Artist<input id="albumArtist" type="text"></label>
+                    <label>Genre<input id="genre" type="text"></label>
+                    <label>Year<input id="year" type="text" maxlength="4"></label>
+                    <label>Track #<input id="trackNumber" type="text"></label>
+                    <label>Disc #<input id="discNumber" type="text"></label>
+                </div>
+
+                <button id="saveBtn" class="save-btn" disabled>保存</button>
+                <p id="statusText" class="status"></p>
+            </div>
+
+            <div class="viz-card">
+                <h3>Technical View</h3>
+                <div class="metric-row">
+                    <div class="metric"><span>Codec</span><strong id="mCodec">-</strong></div>
+                    <div class="metric"><span>Bitrate</span><strong id="mBitrate">-</strong></div>
+                    <div class="metric"><span>Sample Rate</span><strong id="mSampleRate">-</strong></div>
+                    <div class="metric"><span>Channels</span><strong id="mChannels">-</strong></div>
+                    <div class="metric"><span>Bit Depth</span><strong id="mBitDepth">-</strong></div>
+                    <div class="metric"><span>Size</span><strong id="mSize">-</strong></div>
+                </div>
+                <canvas id="techChart" width="800" height="220"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <div class="help-panel" id="helpPanel" hidden>
+        <div class="help-card">
+            <h3>メタデータエディターの使い方</h3>
+            <p>1. 左の一覧から曲を選択します。</p>
+            <p>2. タイトル・アーティストなどを編集して「保存」を押します。</p>
+            <p>3. ジャケットを変更する場合は「ジャケットを選択」→「ジャケット保存」を押します。</p>
+            <p>検索は通常語に加えて <strong>artist: / album: / genre: / year:</strong> の形式にも対応しています。</p>
+            <button id="closeHelpBtn" class="save-btn">閉じる</button>
+        </div>
+    </div>
+
+    <script src="/static/js/editor.js"></script>
+</body>
+</html>

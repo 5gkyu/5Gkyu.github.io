@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lagtrain Scene Recreation | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="ラグトレインの1シーンをCSSアートで再現したデモです。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/other/Lagtrain/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* Scene Container (16:9 aspect ratio) */
+    .scene-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      background-color: #c4c4c4; /* Gray background */
+      overflow: hidden;
+      margin: 2rem auto;
+      border: 4px solid #111;
+      font-family: "Noto Serif JP", serif; /* For lyrics */
+    }
+
+    /* Screen shake / Glitch overlay */
+    .scene-container::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.03) 0px,
+        rgba(0,0,0,0.03) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 100;
+    }
+
+    /* --- BACKGROUND (TRAIN INTERIOR) --- */
+    .window-sill {
+      position: absolute;
+      bottom: 25%;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #111;
+      z-index: 1;
+    }
+    
+    .wall-line {
+      position: absolute;
+      bottom: 0;
+      left: 35%;
+      width: 4px;
+      height: 25%;
+      background: #111;
+      z-index: 1;
+    }
+
+    .window-frame {
+      position: absolute;
+      top: 0;
+      left: 42%;
+      width: 4px;
+      height: 75%;
+      background: #111;
+      z-index: 1;
+    }
+
+    /* Scribbled Schedule Board on the left */
+    .schedule-board {
+      position: absolute;
+      top: 20%;
+      left: -20px;
+      width: 35%;
+      height: 45%;
+      border: 3px solid #111;
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+      background: transparent;
+      z-index: 2;
+    }
+    .schedule-board::before {
+      content: '';
+      position: absolute;
+      top: 15%; left: 10%; width: 80%; height: 2px;
+      background: #111;
+      box-shadow: 0 15px 0 #111, 0 40px 0 #111, 0 70px 0 #111, 0 100px 0 #111;
+    }
+    .schedule-board::after {
+      content: '';
+      position: absolute;
+      top: 30%; left: 10%; width: 20px; height: 10px;
+      border: 2px solid #111;
+      box-shadow: 50px 0 0 #111, 0 60px 0 #111, 50px 60px 0 #111;
+    }
+
+    /* --- CHARACTER --- */
+    .character {
+      position: absolute;
+      bottom: -10%;
+      right: 15%;
+      width: 45%;
+      height: 85%;
+      z-index: 10;
+    }
+
+    /* Coat */
+    .coat {
+      position: absolute;
+      bottom: 0;
+      left: 5%;
+      width: 100%;
+      height: 60%;
+      background: #c4c4c4;
+      border: 4px solid #111;
+      border-radius: 40% 50% 0 0;
+      z-index: 11;
+    }
+    
+    .coat-collar {
+      position: absolute;
+      top: -15%;
+      left: -10%;
+      width: 120%;
+      height: 40%;
+      background: #c4c4c4;
+      border: 4px solid #111;
+      border-radius: 50px;
+      z-index: 12;
+      transform: rotate(-5deg);
+    }
+    
+    .coat-line {
+      position: absolute;
+      top: 20%;
+      left: 60%;
+      width: 4px;
+      height: 80%;
+      background: #111;
+    }
+
+    /* Head / Face */
+    .head {
+      position: absolute;
+      top: 5%;
+      left: 15%;
+      width: 60%;
+      height: 45%;
+      background: #c4c4c4;
+      border: 4px solid #111;
+      border-radius: 45% 40% 50% 45%;
+      z-index: 13;
+      transform: rotate(-5deg);
+    }
+
+    /* Hair (Black) */
+    .hair-back {
+      position: absolute;
+      top: -5%;
+      left: -5%;
+      width: 110%;
+      height: 110%;
+      background: #111;
+      border-radius: 50% 50% 40% 40%;
+      z-index: 12;
+    }
+
+    .hair-bangs {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: #111;
+      border-radius: 50% 50% 0 0;
+      z-index: 14;
+    }
+    
+    .hair-bangs-cut {
+      position: absolute;
+      bottom: -5%;
+      left: 30%;
+      width: 20%;
+      height: 40%;
+      background: #c4c4c4;
+      border-top: 4px solid #111;
+      border-radius: 50% 50% 0 0;
+      transform: rotate(15deg);
+    }
+
+    .hair-side-l {
+      position: absolute;
+      top: 30%;
+      left: -5%;
+      width: 25%;
+      height: 60%;
+      background: #111;
+      border-radius: 10px;
+      z-index: 15;
+      transform: rotate(5deg);
+    }
+    
+    .hair-side-r {
+      position: absolute;
+      top: 30%;
+      right: -5%;
+      width: 20%;
+      height: 70%;
+      background: #111;
+      border-radius: 10px;
+      z-index: 15;
+      transform: rotate(-5deg);
+    }
+    
+    .hair-long {
+      position: absolute;
+      top: 80%;
+      right: 15%;
+      width: 15%;
+      height: 100%;
+      background: #111;
+      z-index: 15;
+      transform: rotate(-2deg);
+    }
+
+    /* Face Details */
+    .eye {
+      position: absolute;
+      top: 50%;
+      width: 20%;
+      height: 15%;
+      border-top: 5px solid #111;
+      border-bottom: 2px solid #111;
+      border-left: 3px solid #111;
+      border-radius: 50% 10% 10% 50%;
+      z-index: 14;
+      background: transparent;
+    }
+    .eye.left {
+      left: 10%;
+      transform: rotate(-10deg);
+    }
+    .eye.right {
+      right: 15%;
+      width: 15%;
+      transform: rotate(-5deg);
+    }
+    
+    /* Pupil */
+    .eye::after {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 10%;
+      width: 30%;
+      height: 60%;
+      background: #111;
+      border-radius: 50%;
+    }
+
+    .mouth {
+      position: absolute;
+      top: 75%;
+      left: 60%;
+      width: 10%;
+      height: 3px;
+      background: #111;
+      z-index: 14;
+      transform: rotate(-5deg);
+    }
+
+    /* --- LYRICS --- */
+    .lyrics {
+      position: absolute;
+      bottom: 10%;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 1.8rem;
+      letter-spacing: 0.5em;
+      text-shadow: 1px 1px 0 #111, -1px -1px 0 #111, 1px -1px 0 #111, -1px 1px 0 #111;
+      z-index: 20;
+    }
+
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Other"></site-header>
+
+  <hl-layout cols="1" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Other" level2-url="/archive/other/"
+        current="Lagtrain Scene">
+      </hl-breadcrumb>
+      <page-title>Lagtrain - Scene Recreation</page-title>
+
+      <div class="hl-content-text" style="margin-bottom: 1rem;">
+        <p>いただいたスクリーンショットのシーン（「ポケットで握りしめて」）を、画像を使わずにHTMLとCSSの図形のみ（CSSアート）で模写・再現したデモです。<br>
+        ※手描きのラフな線をコードで完全再現するのは難しいため、図形の組み合わせによる「デフォルメ表現（オマージュ）」となっています。</p>
+      </div>
+
+      <!-- Scene Recreation -->
+      <div class="scene-container">
+        
+        <!-- Background Lines -->
+        <div class="window-sill"></div>
+        <div class="wall-line"></div>
+        <div class="window-frame"></div>
+        <div class="schedule-board"></div>
+
+        <!-- Character -->
+        <div class="character">
+          <div class="coat">
+            <div class="coat-collar"></div>
+            <div class="coat-line"></div>
+          </div>
+          
+          <div class="head">
+            <div class="hair-back"></div>
+            <div class="hair-bangs">
+              <div class="hair-bangs-cut"></div>
+            </div>
+            <div class="hair-side-l"></div>
+            <div class="hair-side-r"></div>
+            
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+          </div>
+          
+          <!-- Long front hair -->
+          <div class="hair-long"></div>
+        </div>
+
+        <!-- Lyrics -->
+        <div class="lyrics">ポケットで握りしめて</div>
+
+      </div>
+
+    </div>
+  </hl-layout>
+  
+  <site-footer copy="5Gkyu"></site-footer>
+  <!-- Google Fonts for Lyrics (Mincho) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+  <script src="/components/components.js" type="module"></script>
+</body>
+</html>

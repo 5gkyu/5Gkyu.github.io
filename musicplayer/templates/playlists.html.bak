@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Manager</title>
+    <link rel="stylesheet" href="/static/css/playlists.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="left-panel">
+            <div class="brand">
+                <span class="material-icons-round">queue_music</span>
+                <h1>Playlist Manager</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">プレイヤーへ戻る</a>
+                <a href="/editor">メタデータ編集</a>
+            </div>
+
+            <div class="create-box">
+                <input id="newPlaylistName" type="text" placeholder="新規プレイリスト名">
+                <button id="createPlaylistBtn">作成</button>
+            </div>
+
+            <div class="playlist-list" id="playlistList"></div>
+        </aside>
+
+        <main class="main-panel">
+            <header class="main-header">
+                <h2 id="currentPlaylistName">プレイリストを選択してください</h2>
+                <div class="header-actions">
+                    <button id="savePlaylistBtn" class="primary" disabled>保存</button>
+                    <button id="deletePlaylistBtn" class="danger" disabled>削除</button>
+                </div>
+            </header>
+
+            <section class="content-grid">
+                <div class="card">
+                    <h3>ライブラリ曲</h3>
+                    <input id="librarySearchInput" type="text" placeholder="曲名 / アーティスト / アルバムで検索">
+                    <div class="track-list" id="libraryTrackList"></div>
+                </div>
+
+                <div class="card">
+                    <h3>現在の内容</h3>
+                    <div class="track-list" id="currentItems"></div>
+                </div>
+            </section>
+
+            <p class="status" id="statusText"></p>
+        </main>
+    </div>
+
+    <script src="/static/js/playlists.js"></script>
+</body>
+</html>

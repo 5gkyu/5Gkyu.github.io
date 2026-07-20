@@ -64,12 +64,13 @@
       transform: translateX(-50%) scale(1.05);
       width: 100vw;
       height: 100%;
-      background: linear-gradient(135deg, #1e1e1e, #3a3a3a); /* ニコニコ用にダークな背景に */
+      background-image: var(--hero-bg, linear-gradient(135deg, #1e1e1e, #3a3a3a));
       background-size: cover;
       background-position: center;
       filter: blur(25px) saturate(130%) brightness(0.85);
       opacity: 0.8;
       z-index: -1;
+      transition: background-image 0.5s ease;
     }
 
     .hero-video-wrapper {
@@ -99,8 +100,10 @@
       padding: 0.8rem 1.2rem;
       color: #fff;
       display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
       opacity: 0;
       transform: translateY(10px);
@@ -110,6 +113,13 @@
     .hero-video-info.show {
       opacity: 1;
       transform: translateY(0);
+    }
+    .hero-video-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      overflow: hidden;
+      flex: 1;
     }
     .hero-video-author {
       font-size: 0.8rem;
@@ -123,6 +133,35 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    /* イコライザーアニメーション */
+    .video-equalizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .video-equalizer.playing {
+      opacity: 1;
+    }
+    .eq-bar {
+      width: 4px;
+      background-color: #fff;
+      border-radius: 2px;
+      animation: eq-bounce 1s infinite ease-in-out alternate;
+    }
+    .eq-bar:nth-child(1) { height: 30%; animation-delay: -0.2s; background-color: #ff6b9d; box-shadow: 0 0 8px rgba(255,107,157,0.8); }
+    .eq-bar:nth-child(2) { height: 100%; animation-delay: -0.5s; background-color: #ffa04a; box-shadow: 0 0 8px rgba(255,160,74,0.8); }
+    .eq-bar:nth-child(3) { height: 60%; animation-delay: -0.1s; background-color: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.8); }
+    .eq-bar:nth-child(4) { height: 80%; animation-delay: -0.8s; background-color: #7fff9f; box-shadow: 0 0 8px rgba(127,255,159,0.8); }
+    .eq-bar:nth-child(5) { height: 50%; animation-delay: -0.4s; background-color: #4ae8ff; box-shadow: 0 0 8px rgba(74,232,255,0.8); }
+
+    @keyframes eq-bounce {
+      0% { transform: scaleY(0.3); transform-origin: bottom; }
+      100% { transform: scaleY(1); transform-origin: bottom; }
     }
 
     /* ------------------------------------------------------------
@@ -407,8 +446,17 @@
       </div>
       <!-- 動画情報パネル -->
       <div class="hero-video-info" id="video-info-panel">
-        <div class="hero-video-author" id="video-info-author"></div>
-        <div class="hero-video-title" id="video-info-title"></div>
+        <div class="hero-video-meta">
+          <div class="hero-video-author" id="video-info-author"></div>
+          <div class="hero-video-title" id="video-info-title"></div>
+        </div>
+        <div class="video-equalizer" id="video-equalizer">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
       </div>
     </div>
 
@@ -463,11 +511,11 @@
     </div>
   </section>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let ytPlayer;
+    var ytPlayer;
     function onYouTubeIframeAPIReady() {
       ytPlayer = new YT.Player('youtube-player', {
+        host: 'https://www.youtube-nocookie.com',
         playerVars: {
           listType: 'playlist',
           list: 'PL_AxZNiWvR64B0j5pzRn_QVanULhAelZZ',
@@ -479,28 +527,41 @@
         },
         events: {
           'onReady': function(event) {
-            // プレイリストをシャッフルして最初の動画を再生（これでランダム再生になります）
             event.target.setShuffle(true);
             event.target.playVideoAt(0);
           },
           'onStateChange': function(event) {
-            // 再生中になったら動画情報を取得してパネルに表示
+            const panel = document.getElementById('video-info-panel');
+            const authorEl = document.getElementById('video-info-author');
+            const titleEl = document.getElementById('video-info-title');
+            const eq = document.getElementById('video-equalizer');
+            const heroSection = document.getElementById('hero-section');
+            
             if (event.data === YT.PlayerState.PLAYING) {
               const data = event.target.getVideoData();
-              const panel = document.getElementById('video-info-panel');
-              const authorEl = document.getElementById('video-info-author');
-              const titleEl = document.getElementById('video-info-title');
-              
               if (data && data.title) {
                 authorEl.textContent = data.author || '';
                 titleEl.textContent = data.title;
                 panel.classList.add('show');
+                
+                if (data.video_id) {
+                  heroSection.style.setProperty('--hero-bg', `url('https://img.youtube.com/vi/${data.video_id}/hqdefault.jpg')`);
+                }
               }
+              if (eq) eq.classList.add('playing');
+            } else {
+              if (eq) eq.classList.remove('playing');
             }
           }
         }
       });
     }
+
+    // YouTube APIを非同期で読み込む
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   </script>
 
   <!-- フッター -->

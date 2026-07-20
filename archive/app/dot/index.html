@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ドット絵パレット変換 — 完全版（最近のパレット・ディザ・SVG 出力 等）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div id="headerStatus" data-state="idle">
+    <span class="statusIndicator" aria-hidden="true"></span>
+    <span id="headerStatusText" class="statusText">待機中</span>
+  </div>
+  <h1>ドット絵パレット変換</h1>
+  <div class="historyNav" aria-label="履歴操作">
+    <button id="undoBtn" class="secondary" title="戻る (Ctrl+Z)">↶ 戻る</button>
+    <button id="redoBtn" class="secondary" title="進む (Ctrl+Y)">↷ 進む</button>
+  </div>
+  <nav class="tabNav">
+    <button class="tabBtn active" data-tab="img" data-key="q">📁 画像 (Q)</button>
+    <button class="tabBtn" data-tab="size" data-key="w">⚙️ 調整 (W)</button>
+    <button class="tabBtn" data-tab="palette" data-key="e">🎨 パレット (E)</button>
+    <button class="tabBtn" data-tab="dither" data-key="r">🧩 ディザー (R)</button>
+    <button class="tabBtn" data-tab="view" data-key="t">👁 表示 (T)</button>
+  </nav>
+  <div class="headerTopActions">
+    <button id="toggleSrcBtn" class="secondary" title="元画像の表示/非表示を切り替え">元画像を非表示</button>
+    <a href="dot_char.html" class="secondary" style="text-decoration:none;display:inline-flex;align-items:center;">🔤 1文字ドット</a>
+    <button id="openTestModalBtn" class="secondary" title="テスト画像を開く">🧪 テスト</button>
+    <button id="helpBtn" class="secondary" title="使い方">❓</button>
+    <button id="kbdBtn" class="secondary" title="キーボード操作">⌨️</button>
+  </div>
+  <div class="headerQuickControls" aria-label="クイック設定">
+    <div class="headerControlGroup">
+      <span class="headerControlLabel">出力</span>
+      <div class="headerSizeInputs">
+        <input id="outWidth" class="input" type="number" value="0" min="0" title="出力幅" />
+        <span>×</span>
+        <input id="outHeight" class="input" type="number" value="0" min="0" title="出力高さ" />
+        <button id="toggleKeepAspectBtn" class="secondary" type="button" title="縦横比の自動調整を切り替え">自動調整:ON</button>
+      </div>
+    </div>
+    <div class="headerControlGroup headerDotGroup">
+      <span class="headerControlLabel">粗さ</span>
+      <input id="dotScaleSlider" type="range" min="100" max="5000" step="100" value="2500" />
+      <span id="dotScaleValue" class="headerValue">100%</span>
+      <input id="dotScaleNumber" type="number" value="100" min="4" max="200" step="1" />
+      <button id="resetDotScaleBtn" class="small secondary" title="ドット粗さをリセット">↺</button>
+    </div>
+    <div class="headerControlGroup headerColorGroup">
+      <span class="headerControlLabel">色数</span>
+      <input id="autoReduceColorCount" class="input" type="number" value="32" min="1" max="256" />
+      <input id="autoReduceColorSlider" type="range" min="0" max="5" step="1" value="2" title="色数スライダー" />
+    </div>
+    <div class="headerControlGroup">
+      <span class="headerControlLabel">使用色</span>
+      <span id="usedColorCount" class="headerValue">-</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== TEST MODAL ===== -->
+<div id="testModal" class="modalOverlay" aria-hidden="true">
+  <div class="modalContent" role="dialog" aria-modal="true" aria-labelledby="testModalTitle">
+    <div class="modalHeader">
+      <div id="testModalTitle" class="modalTitle">テスト画像を選択</div>
+      <button id="closeTestModalBtn" class="secondary" title="閉じる">✕</button>
+    </div>
+    <div class="modalBody">
+      <div class="modalGrid">
+        <button class="testSelectBtn" data-test-src="test1.png">🖼️ test1.png</button>
+        <button class="testSelectBtn" data-test-src="test2.jpg">🖼️ test2.jpg</button>
+        <button class="testSelectBtn" data-test-src="test3.png">🖼️ test3.png</button>
+        <button class="testSelectBtn" data-test-src="test4.png">🖼️ test4.png</button>
+        <button class="testSelectBtn" data-test-src="test5.jpg">🖼️ test5.jpg</button>
+        <button class="testSelectBtn" data-test-src="test6.jpg">🖼️ test6.jpg</button>
+        <button class="testSelectBtn" data-test-src="test7.jpg">🖼️ test7.jpg</button>
+      </div>
+      <div class="small" style="margin-top:10px;color:var(--text-muted);">クリックすると読み込みます。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTAINER ===== -->
+<div class="container" role="main">
+
+  <!-- ===== LEFT SIDEBAR ===== -->
+  <aside class="left" aria-label="コントロール">
+
+    <!-- TAB: 画像管理 -->
+    <details open data-section="img" style="display:block;">
+      <summary style="display:none;">画像管理</summary>
+      <div class="sectionInner">
+        <label for="file" style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">📁 画像管理</label>
+        <input id="file" type="file" accept="image/*" class="hiddenInput" />
+        <div id="dropArea" style="margin-top:8px;">
+          <div style="font-size:2rem;margin-bottom:6px;opacity:0.4;">📁</div>
+          <div style="font-weight:600;color:var(--text-secondary);margin-bottom:2px;font-size:13px;">ファイルを選択またはドロップ</div>
+          <div class="small" style="color:var(--text-muted);">PNG, JPG, GIF, WEBP, BMP</div>
+        </div>
+        <div id="fileInfo" class="small" style="margin-top:8px;color:var(--text-muted);">未選択</div>
+
+        <div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <button id="download" class="secondary" disabled>⬇ PNG保存</button>
+          <button id="exportSvg" class="secondary" title="SVGでダウンロード">⬇ SVG保存</button>
+          <select id="imageExportFormat" class="input" style="max-width:140px;">
+            <option value="jpg">JPEG</option>
+            <option value="webp">WebP</option>
+            <option value="bmp">BMP</option>
+            <option value="gif">GIF</option>
+            <option value="apng">APNG</option>
+            <option value="tiff">TIFF</option>
+            <option value="ico">ICO</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button id="exportImageBtn" class="secondary" disabled>⬇ 形式で保存</button>
+        </div>
+      </div>
+    </details>
+
+    <!-- TAB: 出力設定 / フィルター -->
+    <details open data-section="size" style="display:none;">
+      <summary style="display:none;">出力設定</summary>
+      <div class="sectionInner">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin:0;">⚙️ 出力設定 &amp; フィルター</label>
+          <button id="resetAllFiltersBtn" class="small secondary" style="padding:4px 8px;font-size:11px;">リセット</button>
+        </div>
+
+        <!-- Edge Strength -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="edgeStrengthSlider" style="margin:0;">エッジ強調度</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="edgeStrengthValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">100%</span>
+              <input id="edgeStrengthNumber" type="number" value="100" min="0" max="400" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetEdgeStrengthBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="edgeStrengthSlider" type="range" min="0" max="400" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Contrast -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="contrastSlider" style="margin:0;">コントラスト</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="contrastValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">100%</span>
+              <input id="contrastNumber" type="number" value="100" min="0" max="400" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetContrastBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="contrastSlider" type="range" min="0" max="400" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Brightness -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="brightnessSlider" style="margin:0;">明度</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="brightnessValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">100%</span>
+              <input id="brightnessNumber" type="number" value="100" min="0" max="400" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetBrightnessBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="brightnessSlider" type="range" min="0" max="400" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Hue -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="hueSlider" style="margin:0;">色相</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="hueValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">0°</span>
+              <input id="hueNumber" type="number" value="0" min="-180" max="180" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetHueBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="hueSlider" type="range" min="-180" max="180" step="1" value="0" style="width:100%;" />
+        </div>
+
+        <!-- Saturation -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="saturationSlider" style="margin:0;">彩度</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="saturationValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">100%</span>
+              <input id="saturationNumber" type="number" value="100" min="0" max="400" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetSaturationBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="saturationSlider" type="range" min="0" max="400" step="1" value="100" style="width:100%;" />
+        </div>
+
+        <!-- Luminance -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="luminanceSlider" style="margin:0;">輝度</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="luminanceValue" style="font-size:11px;color:var(--accent);font-weight:600;min-width:36px;text-align:right;">100%</span>
+              <input id="luminanceNumber" type="number" value="100" min="0" max="400" step="1" style="width:56px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetLuminanceBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="luminanceSlider" type="range" min="0" max="400" step="1" value="100" style="width:100%;" />
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TAB: パレット設定 -->
+    <details open data-section="palette" style="display:none;">
+      <summary style="display:none;">パレット設定</summary>
+      <div class="sectionInner">
+
+        <!-- パレット入力 -->
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">カスタムパレット</label>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:8px;background:var(--bg-tertiary);">
+          <div class="paletteHorizontal">
+            <div class="paletteColumn paletteColumnInput">
+              <textarea id="paletteInput" spellcheck="false">#000000
+#ffffff
+#ff004d
+#ffa300
+#ffe34c
+#00e436
+#29adff
+#83769c</textarea>
+              <div style="margin-top:6px;display:flex;gap:6px;align-items:center;justify-content:space-between;">
+                <div class="small" style="color:var(--text-muted);">改行/カンマ/スペース区切り</div>
+                <button id="applyPaletteBtn">変換</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="paletteEditor" class="paletteEditor" aria-label="パレット編集領域" style="display:none;"></div>
+        <div class="small" style="margin-top:6px;color:var(--text-muted);">色名はツールチップに表示されます。</div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">色一覧</label>
+        <div id="palettePreview" class="palettePreview footerPalette" aria-hidden="false"></div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">選択中の色</label>
+        <div id="selectedPalettePreview" class="palettePreview" aria-hidden="false"></div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <div style="margin-top:8px;display:none;">
+          <label style="font-size:11px;">減色シード（任意）</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input id="seedInput" class="input" type="number" placeholder="自動(画像由来)" style="flex:1" />
+            <button id="applySeedBtn" class="secondary" style="padding:5px 8px;font-size:11px;">設定</button>
+            <button id="randomSeedBtn" class="secondary" style="padding:5px 8px;font-size:11px;">🎲</button>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <!-- 最近使ったパレット -->
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">最近のパレット</label>
+        <div class="recentRow" id="recentRow"></div>
+
+        <div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <button id="exportJson" class="secondary" style="font-size:11px;">📄 JSON保存</button>
+          <input id="importJson" type="file" accept="application/json" class="hiddenInput" />
+          <label for="importJson" class="fileButton" style="font-size:11px;">📂 JSON読込</label>
+          <select id="paletteFormatSelect" class="input" style="max-width:140px;">
+            <option value="txt">TXT</option>
+            <option value="csv">CSV</option>
+            <option value="gpl">GPL (GIMP)</option>
+            <option value="act">ACT</option>
+            <option value="aco">ACO</option>
+            <option value="ase">ASE</option>
+            <option value="pal">PAL</option>
+          </select>
+          <button id="exportPaletteBtn" class="secondary" style="font-size:11px;">⬇ 形式で保存</button>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TAB: ディザー設定 -->
+    <details open data-section="dither" style="display:none;">
+      <summary style="display:none;">ディザー設定</summary>
+      <div class="sectionInner">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <div style="flex:1;min-width:120px;">
+            <label for="convertPreset" style="font-size:11px;">変換方法</label>
+            <select id="convertPreset" class="input" style="margin-top:2px;">
+              <option value="default" selected>デフォルト</option>
+              <option value="natural">自然なドット絵</option>
+              <option value="retro">レトロ（8bit感）</option>
+              <option value="edge">輪郭重視</option>
+              <option value="limited">シンプルな配色制限</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label for="reduceMethod" style="font-size:11px;">減色方法</label>
+            <select id="reduceMethod" class="input" style="margin-top:2px;">
+              <option value="standard" selected>標準（最近傍＋誤差拡散）</option>
+              <option value="wu">Wu（分散最小化）</option>
+              <option value="neuquant">NeuQuant（SOM）</option>
+              <option value="kmeans">K-means 最適化</option>
+              <option value="bilateral">Bilateral → 量子化</option>
+              <option value="ciede2000">CIEDE2000 マッピング</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">🧩 ディザリング</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+          <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+            <input id="ditherCheckbox" name="ditherCheckbox" type="checkbox" checked> <span style="font-size:12px;">dither</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+            <input id="paletteOnlyCheckbox" name="paletteOnlyCheckbox" type="checkbox" checked> <span style="font-size:12px;">パレット色固定</span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <div style="flex:1;min-width:120px;">
+            <label for="ditherPattern" style="font-size:11px;">ディザーパターン</label>
+            <select id="ditherPattern" class="input" style="margin-top:2px;">
+              <option value="basic" selected>デフォルト</option>
+              <option value="check">チェック</option>
+              <option value="ichimatsu">市松模様</option>
+              <option value="tile">タイル</option>
+              <option value="vertical">たてじま</option>
+              <option value="horizontal">よこじま</option>
+              <option value="diagonalUp">斜めじま（右上）</option>
+              <option value="diagonalDown">斜めじま（右下）</option>
+              <option value="mesh">メッシュ</option>
+              <option value="halftone">ハーフトーン</option>
+              <option value="ordered4">Bayer 4x4</option>
+              <option value="ordered8">Bayer 8x8</option>
+              <option value="blue8">Blue-noise 8x8</option>
+              <option value="blue16">Blue-noise 16x16</option>
+              <option value="atkinson">Atkinson</option>
+              <option value="jarvis">Jarvis</option>
+              <option value="stucki">Stucki</option>
+              <option value="burkes">Burkes</option>
+              <option value="sierra">Sierra</option>
+              <option value="sierra2">Sierra-2</option>
+              <option value="sierraLite">Sierra-Lite</option>
+              <option value="riemersma">Riemersma</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <label for="ditherStrengthSlider" style="margin:0;font-size:11px;">ディザー強度</label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="ditherStrengthValue" style="font-size:11px;color:var(--accent);font-weight:600;">100%</span>
+              <input id="ditherStrengthNumber" type="number" value="100" min="0" max="200" step="1" style="width:50px;padding:3px 6px;font-size:11px;text-align:center;" />
+              <button id="resetDitherStrengthBtn" class="small secondary" style="padding:2px 6px;font-size:10px;">↺</button>
+            </div>
+          </div>
+          <input id="ditherStrengthSlider" type="range" min="0" max="200" step="1" value="100" style="width:100%;" />
+        </div>
+      </div>
+    </details>
+
+    <!-- TAB: 表示設定 -->
+    <details open data-section="view" style="display:none;">
+      <summary style="display:none;">表示設定</summary>
+      <div class="sectionInner">
+        <label style="color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">👁 表示設定</label>
+        
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label for="showNumber" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+            <input id="showNumber" name="showNumber" type="checkbox" checked> 
+            <span style="font-size:12px;">マウスオーバーで詳細</span>
+          </label>
+          <label for="borderCheckbox" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+            <input id="borderCheckbox" name="borderCheckbox" type="checkbox"> 
+            <span style="font-size:12px;">ボーダー表示</span>
+          </label>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label for="useLab" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+            <input id="useLab" name="useLab" type="checkbox" checked> 
+            <span style="font-size:12px;">CIE Lab（知覚的色距離）</span>
+          </label>
+          <label for="keepAlpha" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+            <input id="keepAlpha" name="keepAlpha" type="checkbox" checked> 
+            <span style="font-size:12px;">透過を保持</span>
+          </label>
+        </div>
+        <div class="small" style="margin-top:8px;color:var(--text-muted);">CIE Lab を有効にすると、人間の知覚に基づいた色の近さで評価します。</div>
+      </div>
+    </details>
+
+  </aside>
+
+  <!-- ===== RIGHT / CANVAS AREA ===== -->
+  <section class="right" aria-label="プレビュー">
+    <div class="dstArea" style="height:100%;">
+      <div class="panel" id="srcPanel">
+        <div class="canvasWrapper" id="srcWrapper">
+          <canvas id="src" class="srcCanvas" aria-label="元画像キャンバス"></canvas>
+        </div>
+      </div>
+      <div class="panel" id="dstPanel">
+        <div class="canvasWrapper" id="dstWrapper" tabindex="0">
+          <canvas id="dst" aria-label="変換後キャンバス"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div id="tooltip" class="tooltip" style="display:none"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
