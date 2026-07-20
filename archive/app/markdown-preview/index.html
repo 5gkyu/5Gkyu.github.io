@@ -18,10 +18,11 @@
   <link id="gh-style" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" disabled>
 
   <style>
+    .hl-layout-main { max-width: 100% !important; padding: 0 2rem; }
     .md-app-container {
-      max-width: 1200px;
+      width: 100%;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 1rem 0;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
@@ -205,10 +206,10 @@
         <div class="md-controls">
           <div class="md-controls-left">
             <div class="md-file-input-wrapper">
-              <button class="hl-btn primary">📁 ファイルを開く (.md)</button>
+              <button class="hl-btn primary">ファイルを開く (.md)</button>
               <input type="file" id="file-input" class="md-file-input" accept=".md,.txt,text/markdown">
             </div>
-            <button class="hl-btn" id="btn-clear">🗑️ クリア</button>
+            <button class="hl-btn" id="btn-clear">クリア</button>
           </div>
           
           <div class="theme-toggle" id="theme-toggle" role="button" tabindex="0">
