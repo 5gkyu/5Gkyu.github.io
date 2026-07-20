@@ -89,6 +89,42 @@
       border: none;
     }
 
+    /* 動画情報パネル */
+    .hero-video-info {
+      margin-top: 1rem;
+      background: rgba(40, 40, 40, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 0.8rem 1.2rem;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: auto;
+    }
+    .hero-video-info.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hero-video-author {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      letter-spacing: 0.05em;
+    }
+    .hero-video-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* ------------------------------------------------------------
        トップページ専用コンテンツエリア（右カラム）
     ------------------------------------------------------------ */
@@ -365,10 +401,15 @@
 
   <!-- ヒーロー背景動画（フルブリード） -->
   <section class="hero-img-section" id="hero-section">
-    <div class="hero-video-wrapper">
-      <iframe id="nico-player"
-        src=""
-        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="hero-left-col" style="display: flex; flex-direction: column;">
+      <div class="hero-video-wrapper">
+        <div id="youtube-player"></div>
+      </div>
+      <!-- 動画情報パネル -->
+      <div class="hero-video-info" id="video-info-panel">
+        <div class="hero-video-author" id="video-info-author"></div>
+        <div class="hero-video-title" id="video-info-title"></div>
+      </div>
     </div>
 
     <div class="hero-overlay-content">
@@ -422,34 +463,44 @@
     </div>
   </section>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // マイリスト 79515405 の動画リスト
-    let nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238", "sm44459183", "sm44378639", "sm44272302", "sm44154304", "sm44044139", "sm43952031", "sm43940053", "sm43431511", "sm43428567", "sm43431566", "sm43390647", "sm43264382", "so42906629", "sm42802761", "sm42694570"];
-    const nicoPlayer = document.getElementById('nico-player');
-
-    function playRandomNico() {
-      if (!nicoList || nicoList.length === 0) return;
-      const rnd = nicoList[Math.floor(Math.random() * nicoList.length)];
-      // jsapi=1 でAPI有効化、autoplay=1 で自動再生
-      nicoPlayer.src = 'https://embed.nicovideo.jp/watch/' + rnd + '?jsapi=1&autoplay=1';
-    }
-
-    // 初回再生
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', playRandomNico);
-    } else {
-      playRandomNico();
-    }
-    // プレイヤーからのイベントを受け取って連続再生
-    window.addEventListener("message", function(e) {
-      if (e.origin === "https://embed.nicovideo.jp") {
-        const data = e.data;
-        // playerStatus === 4 が終了ステータス
-        if (data.eventName === "playerStatusChange" && data.data.playerStatus === 4) {
-          playRandomNico();
+    let ytPlayer;
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('youtube-player', {
+        playerVars: {
+          listType: 'playlist',
+          list: 'PL_AxZNiWvR64B0j5pzRn_QVanULhAelZZ',
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          controls: 1,
+          rel: 0
+        },
+        events: {
+          'onReady': function(event) {
+            // プレイリストをシャッフルして最初の動画を再生（これでランダム再生になります）
+            event.target.setShuffle(true);
+            event.target.playVideoAt(0);
+          },
+          'onStateChange': function(event) {
+            // 再生中になったら動画情報を取得してパネルに表示
+            if (event.data === YT.PlayerState.PLAYING) {
+              const data = event.target.getVideoData();
+              const panel = document.getElementById('video-info-panel');
+              const authorEl = document.getElementById('video-info-author');
+              const titleEl = document.getElementById('video-info-title');
+              
+              if (data && data.title) {
+                authorEl.textContent = data.author || '';
+                titleEl.textContent = data.title;
+                panel.classList.add('show');
+              }
+            }
+          }
         }
-      }
-    });
+      });
+    }
   </script>
 
   <!-- フッター -->
