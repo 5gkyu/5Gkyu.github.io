@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -276,6 +276,48 @@
 &lt;hl-embed
   src="https://www.youtube.com/embed/4TstQhTJ6zA"
   caption="src属性にembed URLを直接指定した例"&gt;
+&lt;/hl-embed&gt;</hl-code>
+        </hl-accordion>
+      </div>
+
+      <!-- ══════════════════════════
+           オプション属性 (autoplay, loop, muted)
+      ══════════════════════════ -->
+      <section-heading id="options">オプション属性（自動再生・ループ等）</section-heading>
+
+      <div class="demo-section" style="margin-bottom: 3rem;">
+        <p class="hl-content-text" style="margin-bottom: 1.2rem;">
+          <code>autoplay</code>、<code>loop</code>、<code>muted</code> 属性を追加するだけで、YouTubeやニコニコ動画のパラメータとしてURLに自動的に付与されます。
+          <br>※最近のブラウザでは音声ありの自動再生がブロックされるため、<code>autoplay</code> を使う場合は <code>muted</code> も同時に指定することを推奨します。
+        </p>
+        
+        <!-- 自動再生＋ループ＋ミュートのデモ (YouTube) -->
+        <hl-embed
+          url="https://www.youtube.com/watch?v=4TstQhTJ6zA"
+          autoplay loop muted
+          caption="自動再生・ループ・ミュートが有効な例 (YouTube)">
+        </hl-embed>
+
+        <!-- 自動再生＋ループ＋ミュートのデモ (ニコニコ動画) -->
+        <hl-embed
+          url="https://www.nicovideo.jp/watch/sm17944074"
+          autoplay loop muted
+          caption="自動再生・ループ・ミュートが有効な例 (ニコニコ動画)">
+        </hl-embed>
+
+        <hl-accordion title="コードを見る" style="margin-top: 1rem;">
+          <hl-code lang="html">
+&lt;!-- 各種オプション属性を記述するだけ --&gt;
+&lt;hl-embed
+  url="https://www.youtube.com/watch?v=4TstQhTJ6zA"
+  autoplay loop muted
+  caption="自動再生・ループ・ミュートが有効な例 (YouTube)"&gt;
+&lt;/hl-embed&gt;
+
+&lt;hl-embed
+  url="https://www.nicovideo.jp/watch/sm17944074"
+  autoplay loop muted
+  caption="自動再生・ループ・ミュートが有効な例 (ニコニコ動画)"&gt;
 &lt;/hl-embed&gt;</hl-code>
         </hl-accordion>
       </div>
