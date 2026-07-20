@@ -554,7 +554,7 @@
   </section>
 
   <script>
-    const nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238", "sm4445918"];
+    const nicoList = ["sm46123897", "sm45768473", "sm45354176", "sm45327730", "sm45320107", "sm45263197", "sm44814526", "sm44684885", "sm44674163", "sm44508238"];
     let currentPlatform = 'niconico';
     var ytPlayer;
 
@@ -604,11 +604,14 @@
 
           // VocaDBから投稿者名（アーティスト名）を取得
           if (info.videoId) {
-            fetch(`https://vocadb.net/api/songs?pvId=${info.videoId}&pvServices=NicoNicoDouga`)
-              .then(res => res.json())
+            fetch(`https://vocadb.net/api/songs/byPv?pvId=${info.videoId}&pvService=NicoNicoDouga`)
+              .then(res => {
+                if (!res.ok) throw new Error('Not found');
+                return res.json();
+              })
               .then(data => {
-                if (data && data.items && data.items.length > 0) {
-                  authorEl.textContent = data.items[0].artistString;
+                if (data && data.artistString) {
+                  authorEl.textContent = data.artistString;
                 } else {
                   authorEl.textContent = 'ニコニコ動画';
                 }
