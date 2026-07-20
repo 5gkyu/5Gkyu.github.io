@@ -1,6 +1,8 @@
 # 5Gkyu's Homepage
 
-ようこそ。ここは「きゅー（[5Gkyu](https://github.com/5Gkyu)）」の個人Webサイト兼ポートフォリオのリポジトリです。
+🔗 **Webサイトトップ**: [https://5gkyu.github.io/](https://5gkyu.github.io/)
+
+「きゅー（[5Gkyu](https://github.com/5Gkyu)）」の個人Webサイト兼ポートフォリオのリポジトリです。
 自作のWebアプリ、UIコンポーネント、ゲーム、その他の実験的なコードを保管・公開しています。
 
 ## 📦 コンテンツ
@@ -8,7 +10,7 @@
 主に以下のコンテンツが含まれています。
 
 - **App & Tools (`/archive/app/`)**: 画像ツール、PDF変換などの便利Webアプリ
-- **Play (`/archive/play/`)**: 自作パズルゲームなどの遊べるコンテンツ
+- **Play (`/archive/play/`)**: スマホ、PCゲームなどの攻略情報やツール
 - **UI Components (`/components/`)**: 再利用可能な独自Webコンポーネント群
 - **Note (`/archive/note/`)**: デザインや技術に関する備忘録・コラム
 
