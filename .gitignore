@@ -1,0 +1,15 @@
+# OS/システムが自動で作る隠しファイル
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# エディタ（VS Codeなど）の設定
+.vscode/
+.idea/
+
+# ログファイル
+*.log
+
+# Node.jsなどのパッケージ
+node_modules/
+npm-debug.log
