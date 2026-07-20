@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>URLエンコーダー (Unicode化)</title>
+  <style>
+    :root {
+      --bg: #f6fbfb;
+      --card: #ffffff;
+      --accent-1: #0fb8bf;
+      --text: #073a46;
+      --muted: #57727a;
+      --input-bg: #f8fbfc;
+      --input-border: rgba(6,50,58,0.12);
+      --radius: 12px;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 16px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(2,18,22,0.06);
+      border: 1px solid rgba(6,50,58,0.06);
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 14px;
+      box-sizing: border-box;
+      resize: vertical;
+      margin-bottom: 20px;
+      font-family: monospace;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 2px rgba(15,184,191,0.2);
+    }
+    #output_text {
+      background: #ffffff;
+    }
+    .btn-copy {
+      background: var(--accent-1);
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(15,184,191,0.2);
+    }
+    .btn-copy:hover {
+      background: #0ea2a8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15,184,191,0.3);
+    }
+    .btn-copy:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 8px rgba(15,184,191,0.2);
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>テキストエンコーダー (Unicode化)</h1>
+    
+    <label for="input_text">変換するテキスト</label>
+    <textarea id="input_text" placeholder="ここに検索ワードやテキストを入力してください..."></textarea>
+    
+    <label for="output_text">エンコード結果</label>
+    <textarea id="output_text" readonly placeholder="エンコードされた文字列（%22など）がここに表示されます"></textarea>
+    
+    <button type="button" class="btn-copy" id="btn_copy">結果をコピー</button>
+    <div class="hint">入力するとリアルタイムでURLエンコードされます。</div>
+  </div>
+
+  <script>
+    const inputText = document.getElementById('input_text');
+    const outputText = document.getElementById('output_text');
+    const btnCopy = document.getElementById('btn_copy');
+
+    // リアルタイム変換
+    inputText.addEventListener('input', () => {
+      // encodeURIComponent を使ってすべての特殊文字をエンコード（ユニコード化）する
+      const encoded = encodeURIComponent(inputText.value);
+      outputText.value = encoded;
+    });
+
+    // コピーボタン処理
+    btnCopy.addEventListener('click', () => {
+      const textToCopy = outputText.value;
+      if (!textToCopy) {
+        alert('コピーする内容がありません。');
+        return;
+      }
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showCopiedFeedback();
+        }).catch(() => {
+          fallbackCopyTextToClipboard(textToCopy);
+        });
+      } else {
+        fallbackCopyTextToClipboard(textToCopy);
+      }
+    });
+
+    function showCopiedFeedback() {
+      const originalText = btnCopy.textContent;
+      btnCopy.textContent = 'コピーしました！';
+      btnCopy.style.background = '#4CAF50'; // 一時的に緑色に変更
+      
+      setTimeout(() => {
+        btnCopy.textContent = originalText;
+        btnCopy.style.background = '';
+      }, 2000);
+    }
+
+    // クリップボードAPIが使えない場合のフォールバック処理
+    function fallbackCopyTextToClipboard(text) {
+      outputText.select();
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showCopiedFeedback();
+        } else {
+          alert('コピーに失敗しました。手動でコピーしてください。');
+        }
+      } catch (err) {
+        alert('コピー機能がサポートされていません。手動でコピーしてください。');
+      }
+      // 選択状態を解除
+      window.getSelection().removeAllRanges();
+    }
+  </script>
+</body>
+</html>
