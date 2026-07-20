@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git 超入門ノート ── 4つの「場所」と基本コマンド | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="Gitの基本概念（作業ディレクトリ、ステージング、リポジトリ）と、よく使う基本コマンド（add, commit, push, pull, status）を初心者向けに解説。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/note/git-guide/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+
+  <style>
+    .article-meta {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .article-meta__date {
+      font-size: 0.82rem;
+      color: var(--clr-brown);
+      opacity: 0.5;
+      font-weight: 700;
+    }
+    .article-meta__badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.75rem;
+      border-radius: 50px;
+      background: rgba(154, 176, 143, 0.15);
+      color: var(--clr-sage);
+      border: 1px solid rgba(154, 176, 143, 0.3);
+    }
+    .sidebar-sticky { position: sticky; top: 100px; }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="Note"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Note" level2-url="/archive/note/"
+        current="Git 超入門ノート">
+      </hl-breadcrumb>
+
+      <page-title>Git 超入門ノート ── 4つの「場所」と基本コマンド</page-title>
+
+      <div class="article-meta">
+        <span class="article-meta__date">2026.07.20</span>
+        <span class="article-meta__badge">ガイド</span>
+      </div>
+
+      <div class="hl-content-text">
+
+        <hl-chat char="A" align="left">Gitって難しそう……エラーが出るとパニックになっちゃう。</hl-chat>
+        <hl-chat char="B" align="right">大丈夫！基本の仕組みさえ分かれば、実は「ファイルのタイムマシン 兼 バックアップツール」でしかないんだ。ゲームのセーブデータみたいなものだよ。</hl-chat>
+
+        <hl-lead>
+          <p>Gitを使いこなす上で一番重要なのが、ファイルが今どこにあるかという<strong>4つの場所（状態）</strong>の理解です。</p>
+        </hl-lead>
+
+        <h2 id="four-places">1. 4つの「場所」を理解しよう</h2>
+        <p><strong>① Working Directory（作業ディレクトリ）</strong><br>あなたのパソコン上のフォルダ（現在作業している場所）です。ここでファイルを編集・保存します。</p>
+        <p><strong>② Staging Area（ステージングエリア）</strong><br>「次にセーブする（記録する）ファイル」を仮置きする<strong>荷造り用の箱</strong>です。</p>
+        <p><strong>③ Local Repository（ローカルリポジトリ）</strong><br>あなたのパソコン内にある<strong>自分専用の金庫</strong>です。（<code>.git</code> という隠しフォルダがこれです）ステージングエリアの箱がここに保存され、セーブデータ（履歴）として記録されます。</p>
+        <p><strong>④ Remote Repository（リモートリポジトリ）</strong><br>インターネット上（GitHubなど）にある<strong>クラウドの保管庫</strong>です。パソコンが壊れてもここにあれば安心です。GitHub Pagesはここのデータを読み取ってWebサイトとして公開しています。</p>
+
+        <h2 id="basic-workflow">2. 普段の作業の流れ（基本の3ステップ）</h2>
+        <p>ファイルを変更して、それをGitHubに反映するまでの基本の流れは以下の3ステップです。</p>
+
+        <h3>① 荷造りする：<code>git add</code></h3>
+        <p>変更したファイルを「ステージングエリア（箱）」に入れます。</p>
+        <hl-code lang="bash">
+# 変更したすべてのファイルを箱に入れる（一番よく使います）
+git add .
+
+# 特定のファイルだけを箱に入れる場合
+git add index.html</hl-code>
+
+        <h3>② 箱に名前をつけて金庫にしまう：<code>git commit</code></h3>
+        <p>箱を閉じて、「何を変更したか」というラベル（メッセージ）を貼り、パソコン内の金庫（ローカルリポジトリ）に保存します。</p>
+        <hl-code lang="bash">
+# -m の後に、変更内容のメモを書きます
+git commit -m "トップページのデザインを修正"</hl-code>
+
+        <h3>③ クラウドに送信する：<code>git push</code></h3>
+        <p>パソコン内の金庫に新しく追加されたセーブデータを、GitHub（リモートリポジトリ）に送信します。</p>
+        <hl-code lang="bash">
+# origin(GitHub) の main(メインブランチ) に送信する
+git push origin main</hl-code>
+
+        <hl-alert type="success">
+          <p>基本はこの <strong>add → commit → push</strong> の3つをセットで行うだけです！</p>
+        </hl-alert>
+
+        <h2 id="other-commands">3. その他の重要なコマンド</h2>
+
+        <h3>今の状態を確認する：<code>git status</code></h3>
+        <p>自分が今どのステップにいるのか、どのファイルが変更されたのかを確認するコマンドです。迷子になったらとりあえずこれを打ちます。</p>
+        <ul>
+          <li>赤色のファイル：まだ箱（add）に入っていない変更</li>
+          <li>緑色のファイル：箱（add）に入っていて、金庫（commit）に入れる準備ができている変更</li>
+        </ul>
+
+        <h3>クラウドの最新状態をダウンロードする：<code>git pull</code></h3>
+        <p>別のパソコンで作業した時や、GitHub上で直接ファイルを編集した時に、その最新状態を自分のパソコンに取り込みます。</p>
+        <hl-code lang="bash">
+git pull origin main</hl-code>
+
+        <h2 id="github-pages">4. GitHub Pagesとの関係</h2>
+        <p>あなたのサイトは、<strong>GitHub（クラウド）の <code>main</code> ブランチにプッシュされたファイルを自動的に読み取ってWebサイトとして公開</strong>する仕組みになっています。そのため、ローカルのVS Codeでいくらファイルを編集して保存しても、<strong><code>git push</code> をしてクラウドに送信しない限り、Webサイトには反映されません。</strong></p>
+
+        <hl-alert type="warning">
+          <p><strong>もしエラーでサイトが更新されなくなったら？</strong><br>本日のトラブルのように、Jekyll（GitHub側のサイト構築システム）がエラーを起こすと、<code>git push</code>自体は成功していても、Webサイトの見た目が更新されなくなります。<br>その場合は <code>.nojekyll</code> というファイルを置いてJekyllを停止させたり、間違って入ってしまった <code>.git</code> フォルダを取り除くことで解決します。</p>
+        </hl-alert>
+
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <note-sidebar></note-sidebar>
+      </div>
+    </div>
+  </hl-layout>
+
+  <site-footer></site-footer>
+  <script src="/components/components.js" type="module"></script>
+</body>
+</html>
