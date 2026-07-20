@@ -13,3 +13,7 @@ desktop.ini
 # Node.jsなどのパッケージ
 node_modules/
 npm-debug.log
+
+# 指定されたファイル
+archive/note/index.html
+
