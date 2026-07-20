@@ -61,6 +61,13 @@
         "cols": 3,
         "items": [
           {
+            "title": "Markdown Previewer",
+            "tag": "開発ツール",
+            "href": "/archive/app/markdown-preview/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ブラウザ上で動作する軽量なMarkdownプレビューツール。GitHub風デザインの切り替え機能付き。"
+          },
+          {
             "title": "Xplore",
             "tag": "開発ツール",
             "href": "https://5gkyu.github.io/Xplore/",
