@@ -35,12 +35,12 @@
 (function () {
   'use strict';
 
-  const DATA_URL = '/archive/data.json';
+  const DATA_URL = '/archive/data.json?v=' + Date.now();
   let _cache = null;
 
   async function fetchData() {
     if (_cache) return _cache;
-    const res = await fetch(DATA_URL);
+    const res = await fetch(DATA_URL, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     _cache = await res.json();
     return _cache;
