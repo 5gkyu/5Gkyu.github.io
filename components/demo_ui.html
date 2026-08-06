@@ -66,15 +66,66 @@
       </div>
 
       <!-- ══════════════════════════════
+           Extended Components (New)
+      ══════════════════════════════ -->
+      <section class="hl-section">
+        <section-heading id="sec-extended">Extended Components (新規追加)</section-heading>
+        <p class="hl-content-text" style="margin-bottom:1.5rem;">
+          Webアプリ・データ可視化・メディア比較で威力を発揮する<strong>拡張コンポーネント群</strong>です。
+        </p>
+
+        <div class="demo-block" style="display:flex; flex-direction:column; gap:2rem;">
+
+          <div>
+            <span class="typo-label">hl-copy-box (ワンタップコピーBOX)</span>
+            <hl-copy-box value="https://5gkyu.github.io/archive/app/device-info/" label="デバイス情報ツールURL"></hl-copy-box>
+          </div>
+
+          <div>
+            <span class="typo-label">hl-gauge (円形ステータス・進行度ゲージ)</span>
+            <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+              <hl-gauge value="85" max="100" label="バッテリー残量" unit="%" color="#2d6c66"></hl-gauge>
+              <hl-gauge value="92" max="100" label="回線速度スコア" unit="pt" color="#b04f35"></hl-gauge>
+              <hl-gauge value="64" max="100" label="メモリ使用率" unit="%" color="#e59866"></hl-gauge>
+            </div>
+          </div>
+
+          <div>
+            <span class="typo-label">hl-before-after (画像ビフォーアフター比較)</span>
+            <div style="margin-top:0.5rem;">
+              <hl-before-after before="https://picsum.photos/640/320?blur=4" after="https://picsum.photos/640/320" label-before="処理前" label-after="処理後"></hl-before-after>
+            </div>
+          </div>
+
+          <div>
+            <span class="typo-label">hl-tag-filter (動的タグフィルタリング)</span>
+            <hl-tag-filter target="filtered-demo-list"></hl-tag-filter>
+            <div id="filtered-demo-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-top:0.75rem;">
+              <div data-tag="network" style="background:rgba(45,108,102,0.1); padding:0.75rem; border-radius:8px; border:1px solid rgba(45,108,102,0.2);">
+                <strong style="color:#2d6c66;">IPアドレス取得</strong>
+                <p style="font-size:0.75rem; margin:0; color:#6e6056;">ネットワーク機能</p>
+              </div>
+              <div data-tag="device" style="background:rgba(176,79,53,0.1); padding:0.75rem; border-radius:8px; border:1px solid rgba(176,79,53,0.2);">
+                <strong style="color:#b04f35;">OS / ブラウザ解析</strong>
+                <p style="font-size:0.75rem; margin:0; color:#6e6056;">デバイス機能</p>
+              </div>
+              <div data-tag="system" style="background:rgba(47,34,24,0.08); padding:0.75rem; border-radius:8px; border:1px solid rgba(47,34,24,0.15);">
+                <strong style="color:#2f2218;">タイムゾーン判定</strong>
+                <p style="font-size:0.75rem; margin:0; color:#6e6056;">システム機能</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
            Basic UI
       ══════════════════════════════ -->
       <section class="hl-section">
         <section-heading id="sec-basic">Basic UI</section-heading>
         <p class="hl-content-text" style="margin-bottom:1.5rem;">
           ページで最もよく使う基本パーツです。
-          <strong>ボタン（button）</strong>はクリック操作を受け付け、
-          <strong>アラート（alert）</strong>は注意・お知らせを目立たせ、
-          <strong>バッジ（badge）</strong>はカテゴリやタグを小さく表示します。
         </p>
 
         <hl-tabs>

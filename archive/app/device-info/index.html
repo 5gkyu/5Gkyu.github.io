@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デバイス・回線情報 | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="ご利用のデバイス情報（OS、ブラウザ、画面解像度、バッテリー、CPU）およびネットワーク回線情報（IPアドレス、ISP、接続速度、遅延）をリアルタイムに確認・計測できるWebツールです。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/device-info/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="デバイス・回線情報 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ご利用のデバイスおよびネットワーク通信回線の詳細情報をリアルタイム解析・計測します。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/device-info/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="/components/components.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 1. サイト共通ヘッダーコンポーネント -->
+  <site-header site-name="デバイス・回線情報"></site-header>
+
+  <!-- 2. サイト共通レイアウトコンポーネント (1カラム) -->
+  <hl-layout cols="1" class="fluffy-entry delay-1">
+    
+    <!-- メインコンテンツ領域 -->
+    <div class="hl-layout-main">
+
+      <!-- 3. パンくずリストコンポーネント -->
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/"
+        current="デバイス・回線情報">
+      </hl-breadcrumb>
+
+      <!-- 4. ページタイトルコンポーネント -->
+      <page-title>デバイス・回線情報</page-title>
+
+      <p class="hl-content-text" style="margin-bottom: 1.5rem;">
+        お使いのデバイス（OS、ブラウザ、画面解像度、CPU、バッテリー等）および通信回線（IPアドレス、ISP、通信速度、応答遅延等）のステータスをリアルタイムで詳細に解析・表示します。
+      </p>
+
+      <!-- アプリケーション アクションバー（共通ボタンコンポーネント使用） -->
+      <div class="app-action-bar">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span id="status-badge-text">リアルタイム監視中</span>
+        </div>
+        <div class="action-buttons">
+          <hl-button id="btn-copy-all" variant="primary" icon="copy">全情報をコピー</hl-button>
+          <hl-button id="btn-refresh" variant="secondary" icon="refresh">更新</hl-button>
+        </div>
+      </div>
+
+      <!-- アラート通知表示エリア（共通アラートコンポーネント使用） -->
+      <div id="alert-container" style="margin-bottom: 1.5rem;"></div>
+
+      <!-- 5. コンテンツカードグリッド（共通カードコンポーネント使用） -->
+      <div class="dashboard-grid">
+
+        <!-- 1. ネットワーク & 通信回線情報 -->
+        <hl-card class="card-hero">
+          <div class="card-title-header">
+            <h2>ネットワーク &amp; 通信回線情報</h2>
+            <span class="card-tag" id="net-online-status">オンライン</span>
+          </div>
+
+          <div class="ip-hero-box">
+            <div class="ip-hero-item">
+              <span class="label">グローバルIP (IPv4 / IPv6)</span>
+              <div class="ip-value-wrapper">
+                <span id="ip-address" class="ip-address-display">取得中...</span>
+                <hl-button id="btn-copy-ip" variant="secondary" size="sm" icon="copy">コピー</hl-button>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-grid col-3">
+            <div class="info-item">
+              <span class="item-label">プロバイダ (ISP) / 組織</span>
+              <span class="item-value" id="net-isp">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">接続地域 / 国</span>
+              <span class="item-value" id="net-location">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">接続タイプ (推定)</span>
+              <span class="item-value" id="net-effective-type">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">推定下り帯域</span>
+              <span class="item-value" id="net-downlink">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">推定RTT (遅延時間)</span>
+              <span class="item-value" id="net-rtt">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">データセーバー設定</span>
+              <span class="item-value" id="net-save-data">検出中...</span>
+            </div>
+          </div>
+
+          <!-- スピードテストセクション -->
+          <div class="speedtest-container">
+            <div class="speedtest-header">
+              <div class="speedtest-title">
+                <span>簡易スピードテスト</span>
+              </div>
+              <hl-button id="btn-start-speedtest" variant="primary" size="sm" icon="zap">テスト開始</hl-button>
+            </div>
+
+            <div class="speedtest-metrics">
+              <div class="metric-card">
+                <span class="metric-label">Ping (応答速度)</span>
+                <span class="metric-value" id="speed-ping">-- <small>ms</small></span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">実測下り速度</span>
+                <span class="metric-value" id="speed-download">-- <small>Mbps</small></span>
+              </div>
+            </div>
+
+            <div id="speedtest-progress-bar" class="progress-bar-container hidden">
+              <div class="progress-bar-fill" id="speedtest-progress-fill"></div>
+            </div>
+          </div>
+        </hl-card>
+
+        <!-- 2. デバイス & OS情報 -->
+        <hl-card class="device-card">
+          <h2 class="section-card-title">デバイス &amp; OS情報</h2>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="row-label">OS / プラットフォーム</span>
+              <span class="row-valueHighlight" id="dev-os">解析中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">ブラウザ</span>
+              <span class="row-valueHighlight" id="dev-browser">解析中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">CPU 論理コア数</span>
+              <span class="row-value" id="dev-cores">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">デバイス メモリ容量</span>
+              <span class="row-value" id="dev-memory">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">タッチ操作サポート</span>
+              <span class="row-value" id="dev-touch">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">User Agent</span>
+              <span class="row-value code-font text-ellipsis" id="dev-ua" title="">解析中...</span>
+            </div>
+          </div>
+        </hl-card>
+
+        <!-- 3. ディスプレイ & 画面解像度 -->
+        <hl-card class="display-card">
+          <h2 class="section-card-title">画面 &amp; ディスプレイ解像度</h2>
+          <div class="info-grid col-2">
+            <div class="info-item">
+              <span class="item-label">画面全体解像度 (Screen)</span>
+              <span class="item-value" id="disp-screen">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">ビューポート (Window)</span>
+              <span class="item-value" id="disp-viewport">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">ピクセル比 (DPR)</span>
+              <span class="item-value" id="disp-dpr">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">カラーデプス (色深度)</span>
+              <span class="item-value" id="disp-color-depth">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">Display P3 (広色域)</span>
+              <span class="item-value" id="disp-color-gamut">判定中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">OS カラーモード</span>
+              <span class="item-value" id="disp-theme">判定中...</span>
+            </div>
+          </div>
+        </hl-card>
+
+        <!-- 4. バッテリー & 電源 -->
+        <hl-card class="battery-card">
+          <h2 class="section-card-title">バッテリー &amp; 電源</h2>
+          <div class="battery-status-box">
+            <div class="battery-level-container">
+              <div class="battery-level-bar">
+                <div class="battery-level-fill" id="battery-fill" style="width: 0%;"></div>
+              </div>
+              <span class="battery-percentage" id="battery-percent">--%</span>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row">
+                <span class="row-label">給電状態</span>
+                <span class="row-value" id="battery-charging-status">判定中...</span>
+              </div>
+              <div class="info-row">
+                <span class="row-label">充電完了予定時間</span>
+                <span class="row-value" id="battery-charge-time">--</span>
+              </div>
+              <div class="info-row">
+                <span class="row-label">バッテリー駆動時間予測</span>
+                <span class="row-value" id="battery-discharge-time">--</span>
+              </div>
+            </div>
+          </div>
+        </hl-card>
+
+        <!-- 5. システム & ロケール -->
+        <hl-card class="locale-card">
+          <h2 class="section-card-title">システム &amp; ロケール</h2>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="row-label">優先言語</span>
+              <span class="row-value" id="sys-lang">取得中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">タイムゾーン</span>
+              <span class="row-value" id="sys-timezone">取得中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">現在日時</span>
+              <span class="row-value code-font" id="sys-time">更新中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">Cookie 設定</span>
+              <span class="row-value" id="sys-cookies">判定中...</span>
+            </div>
+          </div>
+        </hl-card>
+
+      </div>
+
+    </div>
+
+  </hl-layout>
+
+  <!-- 6. サイト共通フッターコンポーネント -->
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

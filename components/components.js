@@ -106,11 +106,11 @@ function trapFocus(element) {
 
     * { box-sizing: border-box; }
 
-    html { scrollbar-gutter: stable; scroll-behavior: smooth; scroll-padding-top: 90px; }
-    ::-webkit-scrollbar { width: 14px; }
-    ::-webkit-scrollbar-track { background: var(--clr-cream); border-left: 1px solid rgba(106, 86, 74, 0.05); }
-    ::-webkit-scrollbar-thumb { background: rgba(154, 176, 143, 0.4); border-radius: 10px; border: 4px solid var(--clr-cream); }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(154, 176, 143, 0.7); }
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; scrollbar-color: var(--clr-brown) rgba(106, 86, 74, 0.12); }
+    ::-webkit-scrollbar { width: 12px; }
+    ::-webkit-scrollbar-track { background: rgba(106, 86, 74, 0.12); border-radius: 10px; margin: 4px 2px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--clr-brown), #4A3B32); border-radius: 10px; border: 2.5px solid rgba(255, 255, 255, 0.9); box-shadow: 0 2px 6px rgba(74, 59, 50, 0.2); }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #8C6F5E, var(--clr-brown)); border-color: #fff; }
 
     site-header, site-footer, hl-layout, hl-toc, page-title, section-heading { display: block; width: 100%; box-sizing: border-box; }
 
@@ -341,14 +341,141 @@ function trapFocus(element) {
     /* ------------------------------------------------------------
        GENERAL UI COMPONENTS
     ------------------------------------------------------------ */
-    .hl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.8rem; border-radius: 50px; font-family: var(--font-main); font-size: 0.95rem; font-weight: 700; letter-spacing: 0.05em; text-decoration: none; cursor: pointer; border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 4px 12px rgba(106, 86, 74, 0.06); }
-    .hl-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(106, 86, 74, 0.12); }
-    .hl-btn:active { transform: translateY(0); }
-    .hl-btn--primary { background-color: var(--clr-sage); color: var(--clr-cream); }
-    .hl-btn--primary:hover { background-color: #8da382; }
-    .hl-btn--secondary { background-color: transparent; color: var(--clr-peach); border-color: var(--clr-peach); box-shadow: none; }
-    .hl-btn--secondary:hover { background-color: rgba(238, 175, 161, 0.1); }
-    .hl-btn--block { width: 100%; }
+    /* ボタンコンポーネント (hl-btn) - デザイン＆バリエーション強化 */
+    .hl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.6rem;
+      border-radius: 50px;
+      font-family: var(--font-main);
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      cursor: pointer;
+      border: 2px solid transparent;
+      outline: none;
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 4px 14px rgba(106, 86, 74, 0.08);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+
+    /* ホバー・アクティブ時のマイクロアニメーション */
+    @media (hover: hover) {
+      .hl-btn:hover {
+        transform: translateY(-2.5px) scale(1.01);
+        box-shadow: 0 8px 20px rgba(106, 86, 74, 0.16);
+      }
+    }
+    .hl-btn:active {
+      transform: translateY(1px) scale(0.97) !important;
+      box-shadow: 0 2px 8px rgba(106, 86, 74, 0.1) !important;
+    }
+
+    /* 1. Primary (標準・主要アクション) */
+    .hl-btn--primary {
+      background: linear-gradient(145deg, var(--clr-sage), #809975);
+      color: var(--clr-cream);
+      border-color: rgba(255, 255, 255, 0.25);
+      text-shadow: 0 1px 2px rgba(50, 60, 45, 0.2);
+    }
+    .hl-btn--primary:hover {
+      background: linear-gradient(145deg, #8ba380, #738a68);
+    }
+
+    /* 2. Secondary (サブアクション・通常ボタン) */
+    .hl-btn--secondary {
+      background-color: rgba(255, 255, 255, 0.85);
+      color: var(--clr-brown);
+      border-color: rgba(106, 86, 74, 0.2);
+      box-shadow: 0 2px 8px rgba(106, 86, 74, 0.05);
+    }
+    .hl-btn--secondary:hover {
+      background-color: #fff;
+      color: var(--clr-sage);
+      border-color: var(--clr-sage);
+    }
+
+    /* 3. Outline (枠線スタイル) */
+    .hl-btn--outline {
+      background-color: transparent;
+      color: var(--clr-sage);
+      border-color: var(--clr-sage);
+      box-shadow: none;
+    }
+    .hl-btn--outline:hover {
+      background-color: rgba(154, 176, 143, 0.12);
+    }
+
+    /* 4. Ghost (透明背景スタイル) */
+    .hl-btn--ghost {
+      background-color: transparent;
+      color: var(--clr-brown);
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .hl-btn--ghost:hover {
+      background-color: rgba(106, 86, 74, 0.08);
+    }
+
+    /* 5. Accent / Danger (強調・警告スタイル) */
+    .hl-btn--accent, .hl-btn--danger {
+      background: linear-gradient(145deg, var(--clr-peach), #d98e7f);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+      text-shadow: 0 1px 2px rgba(80, 40, 30, 0.2);
+    }
+    .hl-btn--accent:hover, .hl-btn--danger:hover {
+      background: linear-gradient(145deg, #e39d8e, #c77b6c);
+    }
+
+    /* 選択状態 (Selected / Active) - モード選択等の現在地をくっきり表現 */
+    .hl-btn.is-selected, .hl-btn.active, .hl-btn.is-active {
+      background: linear-gradient(145deg, #586e4e, #45573d) !important;
+      color: #ffffff !important;
+      border-color: var(--clr-sage) !important;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.25), 0 4px 12px rgba(69, 87, 61, 0.3) !important;
+      transform: translateY(0);
+    }
+    .hl-btn.is-selected::before, .hl-btn.active::before {
+      content: '✓';
+      display: inline-block;
+      margin-right: 0.15rem;
+      font-weight: 900;
+      opacity: 0.9;
+    }
+
+    /* サイズバリエーション */
+    .hl-btn--sm {
+      padding: 0.42rem 1.1rem;
+      font-size: 0.8rem;
+      border-radius: 30px;
+    }
+    .hl-btn--lg {
+      padding: 0.95rem 2.2rem;
+      font-size: 1.05rem;
+      border-radius: 50px;
+    }
+    .hl-btn--block {
+      width: 100%;
+      display: flex;
+    }
+
+    /* 無効状態 (Disabled) */
+    .hl-btn:disabled, .hl-btn.is-disabled {
+      opacity: 0.55 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+      box-shadow: none !important;
+      pointer-events: none !important;
+    }
 
     hl-card-grid { display: grid; grid-template-columns: repeat(var(--hl-grid-cols, 3), 1fr); gap: 1.5rem; margin-top: 1rem; margin-bottom: 2rem; }
     hl-card-grid[cols="2"] { --hl-grid-cols: 2; }
@@ -1873,6 +2000,11 @@ class SiteHeader extends HTMLElement {
           </nav>
         </div>
         
+        <!-- 
+          ヘッダーのプログレスバー＆キャラクターギミック 
+          左端にFukaが座っていて、ページ上部までスクロールを戻すと、
+          PinoがFukaの膝の上に戻ってくるというストーリー性のあるギミックです。
+        -->
         <div style="position: absolute; bottom: -2px; left: 0; width: calc(100% - 15px); height: 3px; z-index: 150; pointer-events: none;">
           <img src="https://5gkyu.github.io/icon/Fuka_header.png" alt="" draggable="false" oncontextmenu="return false;"
             style="
@@ -2098,89 +2230,12 @@ class SiteFooter extends HTMLElement {
     const chara = this.querySelector('#fuka-chara');
     if (chara) {
       if (chara.complete) { chara.classList.add('is-loaded'); } else { chara.addEventListener('load', () => chara.classList.add('is-loaded')); }
-      const handleAction = (e) => { e.preventDefault(); if (chara.classList.contains('is-animating')) return; chara.classList.add('is-animating'); setTimeout(() => { window.location.href = '/prologue/'; }, 400); };
+      const handleAction = (e) => { e.preventDefault(); if (chara.classList.contains('is-animating')) return; chara.classList.add('is-animating'); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { chara.classList.remove('is-animating'); }, 800); };
       chara.addEventListener('click', handleAction);
       chara.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handleAction(e); });
     }
 
-    /* ─── 上に戻るボタン ─── */
-    if (!document.getElementById('hl-scroll-to-top')) {
-      document.head.insertAdjacentHTML('beforeend', `<style>
-        .hl-scroll-to-top {
-          position: fixed; bottom: -100px; right: 16px;
-          width: 46px; height: 46px; padding: 0;
-          background: rgba(251, 246, 234, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-          border: 1.5px solid var(--clr-sage); border-radius: 50px;
-          z-index: 199; cursor: pointer;
-          transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.2s ease, opacity 0.3s ease, border-color 0.2s ease;
-          box-shadow: 0 4px 12px rgba(106, 86, 74, 0.08);
-          display: flex; align-items: center; justify-content: center;
-        }
-        @media (min-width: 861px) { .hl-scroll-to-top { right: 30px; } }
-        .hl-scroll-to-top.is-visible { bottom: 20px; }
-        @media (min-width: 861px) { .hl-scroll-to-top.is-visible { bottom: 30px; } }
-        .hl-scroll-to-top:hover { transform: translateY(-4px); border-color: #EEAFA1; box-shadow: 0 8px 16px rgba(106, 86, 74, 0.12); }
-        .hl-scroll-to-top__balloon {
-          width: 28px; height: auto;
-          animation: hl-balloon-float 3.5s ease-in-out infinite;
-          pointer-events: none; user-select: none;
-        }
-        @keyframes hl-balloon-float {
-          0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-          50%       { transform: translateY(-4px) rotate(1.5deg); }
-        }
-        .hl-scroll-to-top.is-soaring {
-          transform: translateY(-55px);
-          opacity: 0;
-          transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.55s ease;
-          pointer-events: none;
-        }
-      </style>`);
 
-      const soarBtn = document.createElement('div');
-      soarBtn.id = 'hl-scroll-to-top';
-      soarBtn.className = 'hl-scroll-to-top';
-      soarBtn.title = 'とぶ'; 
-      soarBtn.innerHTML = `
-        <svg class="hl-scroll-to-top__balloon" viewBox="0 0 36 54" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <ellipse cx="18" cy="20" rx="14" ry="17" fill="#EEAFA1"/>
-          <ellipse cx="12.5" cy="13" rx="4.5" ry="5.5" fill="rgba(255,255,255,0.35)"/>
-          <path d="M15 37 Q18 41 21 37" stroke="#d8897a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M18 41 C16 45 20 49 18 53" stroke="#9AB08F" stroke-width="1" fill="none" stroke-linecap="round"/>
-        </svg>
-      `;
-      document.body.appendChild(soarBtn);
-      
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) soarBtn.classList.add('is-visible');
-        else soarBtn.classList.remove('is-visible');
-      }, { passive: true });
-
-      soarBtn.addEventListener('click', () => {
-        if (soarBtn.classList.contains('is-soaring')) return;
-        soarBtn.classList.add('is-soaring');
-        document.documentElement.style.scrollBehavior = 'auto';
-        const startY = window.scrollY;
-        const duration = 800;
-        let startTime = null;
-        const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
-        const animateScroll = (timestamp) => {
-          if (!startTime) startTime = timestamp;
-          const progress = timestamp - startTime;
-          const percent = Math.min(progress / duration, 1);
-          window.scrollTo(0, startY * (1 - easeOutQuart(percent)));
-          if (progress < duration) {
-            requestAnimationFrame(animateScroll);
-          } else {
-            document.documentElement.style.scrollBehavior = 'smooth';
-            soarBtn.classList.remove('is-soaring');
-            // 揺れアニメを再起動
-            void soarBtn.offsetWidth;
-          }
-        };
-        requestAnimationFrame(animateScroll);
-      });
-    }
   }
 }
 customElements.define('site-footer', SiteFooter);
@@ -2747,12 +2802,11 @@ class HlChat extends HTMLElement {
 customElements.define('hl-chat', HlChat);
 
 class HlButton extends HTMLElement {
-  static get observedAttributes() { return ['loading']; }
+  static get observedAttributes() { return ['loading', 'type', 'variant', 'size', 'selected', 'disabled']; }
   
   connectedCallback() {
     if (this.dataset.rendered && !this.hasAttribute('loading')) return;
     this.dataset.rendered = 'true';
-    // 初期状態のinnerHTMLを保存しておく（ローディング解除後に戻すため）
     if (!this._originalContent) {
       this._originalContent = this.innerHTML;
     }
@@ -2760,26 +2814,39 @@ class HlButton extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (this.dataset.rendered && name === 'loading') {
+    if (this.dataset.rendered && oldVal !== newVal) {
       this._render();
     }
   }
 
   _render() {
     const href = this.getAttribute('href');
-    const variant = this.getAttribute('variant') || 'primary';
+    // type と variant の両方の指定に対応 (下位互換性確保)
+    const variant = this.getAttribute('variant') || this.getAttribute('type') || 'primary';
+    const size = this.getAttribute('size'); // 'sm', 'lg'
     const isBlock = this.hasAttribute('block');
+    const isSelected = this.hasAttribute('selected') || this.classList.contains('active') || this.classList.contains('is-selected');
+    const isDisabled = this.hasAttribute('disabled');
     const icon = this.getAttribute('icon') || '';
     const target = this.getAttribute('target') || '';
     const isLoading = this.hasAttribute('loading');
     
-    const baseClass = `hl-btn hl-btn--${variant} ${isBlock ? 'hl-btn--block' : ''} ${isLoading ? 'is-loading' : ''}`;
+    const sizeClass = size ? `hl-btn--${size}` : '';
+    const selectedClass = isSelected ? 'is-selected' : '';
+    const disabledClass = isDisabled ? 'is-disabled' : '';
+    const baseClass = `hl-btn hl-btn--${variant} ${sizeClass} ${selectedClass} ${disabledClass} ${isBlock ? 'hl-btn--block' : ''} ${isLoading ? 'is-loading' : ''}`;
     
     const spinnerHtml = `<span class="hl-spinner"></span>`;
-    const iconHtml = icon ? `<span aria-hidden="true">${icon}</span>` : '';
+    let iconHtml = '';
+    if (icon) {
+      if (typeof HL_ICONS !== 'undefined' && HL_ICONS[icon]) {
+        iconHtml = `<span aria-hidden="true">${HL_ICONS[icon]}</span>`;
+      } else {
+        iconHtml = `<span aria-hidden="true">${icon}</span>`;
+      }
+    }
     const targetAttr = target ? `target="${target}" rel="noopener noreferrer"` : '';
     
-    // loading中は元のテキストとアイコンを透明にして、中央にスピナーを配置
     const innerStyle = isLoading ? 'visibility: hidden; opacity: 0;' : 'transition: opacity 0.2s;';
     const contentHtml = `<span style="display:inline-flex; align-items:center; gap:0.5rem; ${innerStyle}">${iconHtml}${this._originalContent}</span>`;
     const finalInner = isLoading ? `${spinnerHtml}${contentHtml}` : contentHtml;
@@ -2787,7 +2854,7 @@ class HlButton extends HTMLElement {
     if (href) {
       this.innerHTML = `<a href="${href}" class="${baseClass}" ${targetAttr}>${finalInner}</a>`;
     } else {
-      this.innerHTML = `<button class="${baseClass}" ${isLoading ? 'disabled' : ''}>${finalInner}</button>`;
+      this.innerHTML = `<button class="${baseClass}" ${isLoading || isDisabled ? 'disabled' : ''} type="button">${finalInner}</button>`;
     }
   }
 }
@@ -4237,9 +4304,11 @@ customElements.define('hl-compare', HlCompare);
     const target = anchor.getAttribute('target');
     const hasDownload = anchor.hasAttribute('download');
 
-    if (href && !href.startsWith('#') && target !== '_blank' && !href.startsWith('javascript:') && !hasDownload) {
+    if (href && href.trim() !== '' && href !== '#' && !href.startsWith('#') && target !== '_blank' && !href.startsWith('javascript:') && !hasDownload) {
       e.preventDefault();
       const targetUrl = anchor.href;
+      // 現在のURLと全く同じ場合（ハッシュ除く）はリロード防止のため実行しない
+      if (targetUrl === window.location.href) return;
       document.body.classList.add('hl-page-fade-out');
       setTimeout(() => window.location.href = targetUrl, PAGE_TRANSITION_MS);
     }
@@ -4247,11 +4316,148 @@ customElements.define('hl-compare', HlCompare);
 
   // bfcache復元時（ブラウザバック・フォワード）に fade-out クラスと FOUC スタイルをリセット
   window.addEventListener('pageshow', (e) => {
-    // `pageshow` は bfcache 復元時だけでなく通常遷移でも発生します。
-    // 復元後に body が fade-out のまま残るケースがあるため、常に解除しておきます。
     document.body.classList.remove('hl-page-fade-out');
     const foucStyle = document.getElementById('fouc-prevent');
     if (foucStyle) foucStyle.remove();
   });
 
+})();
+
+/* ============================================================
+   新規拡張コンポーネント群 (hl-copy-box, hl-gauge, hl-before-after, hl-tag-filter)
+   ※ローディングスキップ設定に関わらず常に確実に定義登録されます
+============================================================ */
+(function registerExtendedComponents() {
+  if (typeof customElements === 'undefined') return;
+
+  if (!customElements.get('hl-copy-box')) {
+    customElements.define('hl-copy-box', class HlCopyBox extends HTMLElement {
+      connectedCallback() {
+        const val = this.getAttribute('value') || '';
+        const label = this.getAttribute('label') || '';
+        const btnText = this.getAttribute('button-text') || 'コピー';
+
+        this.innerHTML = `
+          <div class="hl-copy-box-wrap" style="display:flex; flex-direction:column; gap:0.35rem; background:rgba(248,243,234,0.7); border:1px solid rgba(154,176,143,0.3); padding:0.85rem 1rem; border-radius:12px; margin:0.5rem 0;">
+            ${label ? `<span style="font-size:0.75rem; font-weight:600; color:#6e6056;">${label}</span>` : ''}
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+              <code style="font-family:'Fira Code',Consolas,monospace; font-size:0.9rem; font-weight:600; color:#b04f35; word-break:break-all;">${val}</code>
+              <hl-button class="hl-copy-btn" variant="secondary" size="sm" icon="copy">${btnText}</hl-button>
+            </div>
+          </div>
+        `;
+
+        const btn = this.querySelector('.hl-copy-btn');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(val).then(() => {
+              if (window.HlToast) window.HlToast.show('クリップボードにコピーしました', 'success', 2500);
+            });
+          });
+        }
+      }
+    });
+  }
+
+  if (!customElements.get('hl-gauge')) {
+    customElements.define('hl-gauge', class HlGauge extends HTMLElement {
+      connectedCallback() {
+        const val = parseFloat(this.getAttribute('value') || '0');
+        const max = parseFloat(this.getAttribute('max') || '100');
+        const label = this.getAttribute('label') || '';
+        const unit = this.getAttribute('unit') || '%';
+        const color = this.getAttribute('color') || '#2d6c66';
+
+        const pct = Math.min(100, Math.max(0, Math.round((val / max) * 100)));
+        const strokeDash = (pct / 100) * 251.2;
+
+        this.innerHTML = `
+          <div class="hl-gauge-wrap" style="display:inline-flex; flex-direction:column; align-items:center; gap:0.5rem; padding:1.25rem; background:rgba(255,255,255,0.75); border:1px solid rgba(154,176,143,0.25); border-radius:16px; text-align:center;">
+            <div style="position:relative; width:90px; height:90px;">
+              <svg width="90" height="90" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+                <circle cx="50" cy="50" r="40" stroke="rgba(154,176,143,0.2)" stroke-width="8" fill="none"></circle>
+                <circle cx="50" cy="50" r="40" stroke="${color}" stroke-width="8" fill="none" stroke-dasharray="251.2" stroke-dashoffset="${251.2 - strokeDash}" stroke-linecap="round" style="transition: stroke-dashoffset 0.8s ease;"></circle>
+              </svg>
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Fira Code',monospace; font-size:1.1rem; font-weight:700; color:#2f2218;">
+                ${pct}<small style="font-size:0.65rem;">${unit}</small>
+              </div>
+            </div>
+            ${label ? `<span style="font-size:0.8rem; font-weight:700; color:#2f2218;">${label}</span>` : ''}
+          </div>
+        `;
+      }
+    });
+  }
+
+  if (!customElements.get('hl-before-after')) {
+    customElements.define('hl-before-after', class HlBeforeAfter extends HTMLElement {
+      connectedCallback() {
+        const before = this.getAttribute('before') || '';
+        const after = this.getAttribute('after') || '';
+        const labelBefore = this.getAttribute('label-before') || 'Before';
+        const labelAfter = this.getAttribute('label-after') || 'After';
+
+        this.innerHTML = `
+          <div class="hl-ba-container" style="position:relative; width:100%; max-width:640px; height:320px; border-radius:16px; overflow:hidden; border:1px solid rgba(154,176,143,0.3); user-select:none;">
+            <img src="${after}" alt="${labelAfter}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+            <span style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 10px; border-radius:999px; font-size:0.75rem; font-weight:700; z-index:1;">${labelAfter}</span>
+            
+            <div class="hl-ba-before-wrap" style="position:absolute; top:0; left:0; bottom:0; width:50%; overflow:hidden; border-right:2px solid #ffffff; box-shadow:2px 0 10px rgba(0,0,0,0.3);">
+              <img src="${before}" alt="${labelBefore}" style="width:640px; height:100%; object-fit:cover;">
+              <span style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 10px; border-radius:999px; font-size:0.75rem; font-weight:700;">${labelBefore}</span>
+            </div>
+            
+            <input type="range" min="0" max="100" value="50" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:10;">
+          </div>
+        `;
+
+        const range = this.querySelector('input[type="range"]');
+        const beforeWrap = this.querySelector('.hl-ba-before-wrap');
+        if (range && beforeWrap) {
+          range.addEventListener('input', (e) => {
+            beforeWrap.style.width = `${e.target.value}%`;
+          });
+        }
+      }
+    });
+  }
+
+  if (!customElements.get('hl-tag-filter')) {
+    customElements.define('hl-tag-filter', class HlTagFilter extends HTMLElement {
+      connectedCallback() {
+        const targetId = this.getAttribute('target') || '';
+        const targetEl = document.getElementById(targetId);
+
+        this.innerHTML = `
+          <div class="hl-tag-filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:1rem 0;">
+            <hl-button class="hl-tag-btn active" data-tag="all" variant="primary" size="sm">すべて</hl-button>
+            <hl-button class="hl-tag-btn" data-tag="network" variant="secondary" size="sm">ネットワーク</hl-button>
+            <hl-button class="hl-tag-btn" data-tag="device" variant="secondary" size="sm">デバイス</hl-button>
+            <hl-button class="hl-tag-btn" data-tag="system" variant="secondary" size="sm">システム</hl-button>
+          </div>
+        `;
+
+        const buttons = this.querySelectorAll('.hl-tag-btn');
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const tag = btn.getAttribute('data-tag');
+            buttons.forEach(b => b.setAttribute('variant', 'secondary'));
+            btn.setAttribute('variant', 'primary');
+
+            if (targetEl) {
+              const items = targetEl.querySelectorAll('[data-tag]');
+              items.forEach(item => {
+                const itemTag = item.getAttribute('data-tag');
+                if (tag === 'all' || itemTag === tag) {
+                  item.style.display = '';
+                } else {
+                  item.style.display = 'none';
+                }
+              });
+            }
+          });
+        });
+      }
+    });
+  }
 })();

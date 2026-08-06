@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -232,9 +232,37 @@
             <tr><td><code>hl-slider</code></td><td>データ</td><td>スライダー入力</td></tr>
             <tr><td><code>hl-embed</code></td><td>メディア</td><td>動画埋め込み（YouTube / Niconico）</td></tr>
             <tr><td><code>hl-figure</code></td><td>メディア</td><td>キャプション付き画像ブロック</td></tr>
+            <tr><td><code>hl-copy-box</code></td><td>UI / ユーティリティ</td><td>ワンタップコピー付きテキストボックス</td></tr>
+            <tr><td><code>hl-gauge</code></td><td>データ / ゲージ</td><td>円形ステータス・進行度ゲージ</td></tr>
+            <tr><td><code>hl-before-after</code></td><td>メディア / 比較</td><td>画像ビフォーアフター比較スライダー</td></tr>
+            <tr><td><code>hl-tag-filter</code></td><td>UI / 検索</td><td>動的タグフィルタリングバー</td></tr>
           </tbody>
         </table>
       </hl-table>
+
+      <!-- ── 新拡張コンポーネント ライブデモ ── -->
+      <section-heading id="sec-new-demo">新規追加コンポーネント デモ</section-heading>
+      <div style="display:flex; flex-direction:column; gap:1.5rem; margin-top:1rem;">
+        
+        <div>
+          <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem; color:var(--clr-brown);">1. &lt;hl-copy-box&gt; （ワンタップコピーBOX）</h3>
+          <hl-copy-box value="https://5gkyu.github.io/archive/app/device-info/" label="デバイス情報ツールURL"></hl-copy-box>
+        </div>
+
+        <div>
+          <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem; color:var(--clr-brown);">2. &lt;hl-gauge&gt; （ステータス・円形ゲージ）</h3>
+          <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+            <hl-gauge value="85" max="100" label="バッテリー残量" unit="%" color="#2d6c66"></hl-gauge>
+            <hl-gauge value="92" max="100" label="回線品質スコア" unit="pt" color="#b04f35"></hl-gauge>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem; color:var(--clr-brown);">3. &lt;hl-before-after&gt; （画像比較スライダー）</h3>
+          <hl-before-after before="https://picsum.photos/640/320?blur=4" after="https://picsum.photos/640/320" label-before="処理前 (元の画像)" label-after="処理後 (鮮明化)"></hl-before-after>
+        </div>
+
+      </div>
 
     </div>
 

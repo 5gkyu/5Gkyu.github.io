@@ -1,0 +1,346 @@
+/* ==========================================================================
+   Device & Network Inspector - Component Integrated CSS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. コンポーネントレイアウトの幅拡張（左右余白の最適化）
+   -------------------------------------------------------------------------- */
+hl-layout[cols="1"],
+hl-layout,
+.hl-layout-main {
+  max-width: 1240px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   1. アクションバー & ステータスインジケーター
+   -------------------------------------------------------------------------- */
+.app-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--app-bg-input, rgba(248, 243, 234, 0.7));
+  border: 1px solid rgba(154, 176, 143, 0.25);
+  padding: 0.85rem 1.25rem;
+  border-radius: 16px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--clr-sage, #2d6c66);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--clr-sage, #2d6c66);
+  box-shadow: 0 0 8px var(--clr-sage, #2d6c66);
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 108, 102, 0.6); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(45, 108, 102, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 108, 102, 0); }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. ダッシュボード & グリッド配置
+   -------------------------------------------------------------------------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.card-hero { grid-column: span 12; }
+.device-card { grid-column: span 6; }
+.display-card { grid-column: span 6; }
+.battery-card { grid-column: span 6; }
+.locale-card { grid-column: span 6; }
+
+@media (max-width: 900px) {
+  .device-card, .display-card, .battery-card, .locale-card {
+    grid-column: span 12;
+  }
+}
+
+.card-title-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.card-title-header h2,
+.section-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--clr-brown, #2f2218);
+  margin-bottom: 1rem;
+}
+
+.card-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(45, 108, 102, 0.12);
+  color: var(--clr-sage, #2d6c66);
+  border: 1px solid rgba(45, 108, 102, 0.25);
+}
+
+.card-tag.offline {
+  background: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   3. IP・情報グリッド要素
+   -------------------------------------------------------------------------- */
+.ip-hero-box {
+  background: rgba(248, 243, 234, 0.7);
+  border: 1px solid rgba(154, 176, 143, 0.3);
+  border-radius: 14px;
+  padding: 1.125rem 1.35rem;
+  margin-bottom: 1.35rem;
+}
+
+.ip-hero-item .label {
+  font-size: 0.775rem;
+  color: var(--clr-subtext, #6e6056);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.ip-value-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ip-address-display {
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+  font-weight: 700;
+  color: var(--clr-terracotta, #b04f35);
+  word-break: break-all;
+}
+
+.info-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.info-grid.col-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.info-grid.col-2 { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+
+.info-item {
+  background: rgba(248, 243, 234, 0.6);
+  border: 1px solid rgba(154, 176, 143, 0.2);
+  padding: 0.9rem 1.05rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item-label {
+  font-size: 0.75rem;
+  color: var(--clr-subtext, #6e6056);
+  font-weight: 600;
+}
+
+.item-value {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--clr-brown, #2f2218);
+  word-break: break-word;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(248, 243, 234, 0.6);
+  border: 1px solid rgba(154, 176, 143, 0.2);
+  border-radius: 12px;
+  gap: 0.75rem;
+}
+
+.row-label {
+  font-size: 0.825rem;
+  color: var(--clr-subtext, #6e6056);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.row-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--clr-brown, #2f2218);
+  text-align: right;
+}
+
+.row-valueHighlight {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--clr-sage, #2d6c66);
+  text-align: right;
+}
+
+.code-font {
+  font-family: 'Fira Code', Consolas, monospace;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+
+/* --------------------------------------------------------------------------
+   4. スピードテスト & バッテリー
+   -------------------------------------------------------------------------- */
+.speedtest-container {
+  margin-top: 1.35rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(154, 176, 143, 0.25);
+}
+
+.speedtest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.speedtest-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--clr-brown, #2f2218);
+}
+
+.speedtest-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.metric-card {
+  background: rgba(248, 243, 234, 0.75);
+  border: 1px solid rgba(154, 176, 143, 0.25);
+  padding: 0.9rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--clr-subtext, #6e6056);
+  margin-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--clr-sage, #2d6c66);
+}
+
+.metric-value small {
+  font-size: 0.75rem;
+  color: #958578;
+  font-weight: 400;
+}
+
+.progress-bar-container {
+  height: 6px;
+  background: rgba(154, 176, 143, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2d6c66, #b04f35);
+  transition: width 0.3s ease;
+}
+
+.hidden { display: none !important; }
+
+/* バッテリー */
+.battery-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.battery-level-container {
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;
+  background: rgba(248, 243, 234, 0.75);
+  padding: 1.125rem 1.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(154, 176, 143, 0.25);
+}
+
+.battery-level-bar {
+  flex: 1;
+  height: 18px;
+  background: rgba(154, 176, 143, 0.2);
+  border-radius: 999px;
+  padding: 2px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(154, 176, 143, 0.3);
+}
+
+.battery-level-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2d6c66, #34d399);
+  box-shadow: 0 0 10px rgba(45, 108, 102, 0.3);
+  transition: width 0.5s ease-out;
+}
+
+.battery-percentage {
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--clr-terracotta, #b04f35);
+  min-width: 60px;
+  text-align: right;
+}
