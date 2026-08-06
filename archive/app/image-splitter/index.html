@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画像分割ツール | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="1枚の画像を均等なサイズに分割して保存できるツールです。正方形（3x3, 4x4）や長方形（自由分割）のグリッド分割に対応しています。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/image-splitter/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="画像分割ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="1枚の画像を均等なサイズに分割して保存できるツールです。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/image-splitter/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- FOUC対策 -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  </style>
+
+  <!-- 専用スタイルシート -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- サイトヘッダー -->
+  <site-header site-name="Apps"></site-header>
+
+  <!-- メインレイアウト -->
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+    <!-- 左側コンテンツ -->
+    <div class="hl-layout-main">
+
+      <!-- パンくずリスト -->
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/"
+        current="画像分割ツール">
+      </hl-breadcrumb>
+
+      <page-title>画像分割ツール</page-title>
+
+      <!-- メインツール枠（統合カード） -->
+      <div class="app-container-card">
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 1rem;">1. 画像の選択</h2>
+        
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <input type="file" id="image-input" accept="image/*" style="display: none;">
+          <hl-button id="btn-select-file" variant="primary" icon="image" onclick="document.getElementById('image-input').click()">ファイルを選択</hl-button>
+          <span id="file-name-display" style="font-size: 0.9rem; color: var(--clr-brown); opacity: 0.7;">選択されていません</span>
+        </div>
+        
+        <hl-divider style="margin: 1.5rem 0;"></hl-divider>
+
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 1rem;">2. 分割モードの選択</h2>
+        
+        <!-- モード切替タブ -->
+        <div style="display: flex; gap: 0.8rem; margin-bottom: 1.2rem; flex-wrap: wrap;">
+          <hl-button id="tab-square" variant="primary" selected onclick="switchMainMode('square')" style="flex: 1; min-width: 140px;">正方形モード</hl-button>
+          <hl-button id="tab-rect" variant="secondary" onclick="switchMainMode('rect')" style="flex: 1; min-width: 140px;">長方形・カスタムモード</hl-button>
+        </div>
+
+        <!-- 正方形モードオプション -->
+        <div id="square-options" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <hl-button id="btn-3x3" class="split-btn" variant="primary" selected onclick="setSquarePreset(3)" style="flex: 1; min-width: 120px;">3 × 3 (9枚)</hl-button>
+          <hl-button id="btn-4x4" class="split-btn" variant="secondary" onclick="setSquarePreset(4)" style="flex: 1; min-width: 120px;">4 × 4 (16枚)</hl-button>
+        </div>
+
+        <!-- 長方形・カスタムモードオプション（ユーザー入力） -->
+        <div id="rect-options" style="display: none; background: rgba(255,255,255,0.6); padding: 1.2rem; border-radius: 16px; border: 1.5px solid rgba(154, 176, 143, 0.4); box-shadow: inset 0 2px 6px rgba(106,86,74,0.03);">
+          <div style="display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 120px;">
+              <label for="rect-cols" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 0.4rem;">横の分割数 (列)</label>
+              <input type="number" id="rect-cols" value="3" min="1" max="10" style="width: 100%; padding: 0.6rem 0.8rem; border-radius: 10px; border: 1.5px solid rgba(106, 86, 74, 0.2); font-size: 1rem; font-family: var(--font-main); font-weight: 700; color: var(--clr-brown); box-sizing: border-box; outline: none; background: #fff;" onchange="onRectParamChange()" onkeyup="onRectParamChange()">
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: var(--clr-brown); opacity: 0.5; padding-top: 1.2rem;">×</div>
+            <div style="flex: 1; min-width: 120px;">
+              <label for="rect-rows" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--clr-brown); margin-bottom: 0.4rem;">縦の分割数 (行)</label>
+              <input type="number" id="rect-rows" value="2" min="1" max="10" style="width: 100%; padding: 0.6rem 0.8rem; border-radius: 10px; border: 1.5px solid rgba(106, 86, 74, 0.2); font-size: 1rem; font-family: var(--font-main); font-weight: 700; color: var(--clr-brown); box-sizing: border-box; outline: none; background: #fff;" onchange="onRectParamChange()" onkeyup="onRectParamChange()">
+            </div>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--clr-brown); opacity: 0.75; margin-top: 0.8rem; margin-bottom: 0; line-height: 1.5;">
+            ※画像全体の縦横比を保ちつつ、ご指定の枚数（横×縦）に均等分割します。
+          </p>
+        </div>
+
+        <!-- プレビュー＆ダウンロードエリア（画像選択後に表示） -->
+        <div id="result-area" style="display: none; margin-top: 2rem;">
+          <hl-divider style="margin: 1.5rem 0;"></hl-divider>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.2rem;">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--clr-brown); margin: 0;">3. プレビュー</h2>
+            <hl-button id="btn-download-zip" variant="accent" icon="floppy-disk" onclick="downloadAllAsZip()">
+              一括ダウンロード (ZIP)
+            </hl-button>
+          </div>
+          
+          <div class="preview-container">
+            <!-- JSでここに分割された画像がグリッド配置される -->
+            <div id="grid-preview" class="grid-preview"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右側サイドバー（余白または広告/案内用） -->
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-sidebar-box title="ツールについて">
+          <p style="font-size: 0.85rem; line-height: 1.6; color: var(--clr-brown);">
+            1枚の画像を均等なサイズに分割（スライス）するツールです。<br>
+            Instagramのグリッド投稿（プロフィール画面のプロフグリッド）を作成する際などに便利です。<br><br>
+            画像の処理はすべてお使いのブラウザ（端末）上で行われるため、外部サーバーに画像が送信されることはありません。
+          </p>
+        </hl-sidebar-box>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <!-- サイトフッター -->
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <!-- JSZip Library (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- 共通コンポーネントスクリプト -->
+  <script src="/components/components.js"></script>
+
+  <!-- 専用スクリプト -->
+  <script src="app.js"></script>
+</body>
+</html>

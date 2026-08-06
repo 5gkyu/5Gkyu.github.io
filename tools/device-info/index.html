@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device & Network Inspector | デバイス・回線情報チェッカー</title>
+  
+  <meta name="description" content="ご利用のデバイス情報（OS、ブラウザ、画面解像度、バッテリー、CPU）およびネットワーク回線情報（IPアドレス、ISP、接続速度、遅延）をリアルタイムに確認・計測できるWebツールです。">
+  <meta name="robots" content="index, follow">
+  
+  <!-- OGタグ -->
+  <meta property="og:title" content="Device & Network Inspector | デバイス・回線情報チェッカー">
+  <meta property="og:description" content="デバイスとネットワーク回線の詳細情報をリアルタイム表示・計測するWebアプリ">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="background-decorations">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+    <div class="grid-pattern"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="badge">
+          <span class="pulse-dot"></span>
+          <span id="status-badge-text">リアルタイム監視中</span>
+        </div>
+        <h1 class="main-title">Device &amp; Network Inspector</h1>
+        <p class="subtitle">お使いのデバイスおよび通信回線のステータスを詳細に解析・表示します</p>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-copy-all" class="btn btn-primary" type="button" aria-label="全情報をクリップボードにコピー">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>情報をコピー</span>
+        </button>
+        <button id="btn-refresh" class="btn btn-secondary" type="button" aria-label="情報を手動更新">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>更新</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- メインダッシュボード -->
+    <main class="dashboard-grid">
+
+      <!-- ネットワーク情報カード -->
+      <section class="card card-hero network-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="icon-box icon-cyan">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3" stroke-linecap="round"></line>
+              </svg>
+            </div>
+            <h2>ネットワーク &amp; 回線情報</h2>
+          </div>
+          <span class="card-tag" id="net-online-status">オンライン</span>
+        </div>
+
+        <div class="card-body">
+          <div class="ip-hero-box">
+            <div class="ip-hero-item">
+              <span class="label">グローバルIP (IPv4 / IPv6)</span>
+              <div class="ip-value-wrapper">
+                <span id="ip-address" class="ip-address-display">取得中...</span>
+                <button id="btn-copy-ip" class="btn-icon-only" title="IPアドレスをコピー" aria-label="IPアドレスをコピー">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-grid col-2">
+            <div class="info-item">
+              <span class="item-label">プロバイダ (ISP) / 組織</span>
+              <span class="item-value" id="net-isp">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">接続地域 / 国</span>
+              <span class="item-value" id="net-location">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">接続タイプ (推定)</span>
+              <span class="item-value" id="net-effective-type">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">推定下り通信帯域</span>
+              <span class="item-value" id="net-downlink">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">推定ラウンドトリップ時間 (RTT)</span>
+              <span class="item-value" id="net-rtt">検出中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">データセーバー設定</span>
+              <span class="item-value" id="net-save-data">検出中...</span>
+            </div>
+          </div>
+
+          <!-- スピードテストセクション -->
+          <div class="speedtest-container">
+            <div class="speedtest-header">
+              <div class="speedtest-title">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>簡易回線スピードテスト</span>
+              </div>
+              <button id="btn-start-speedtest" class="btn btn-sm btn-outline-cyan">
+                <span>テスト開始</span>
+              </button>
+            </div>
+
+            <div class="speedtest-metrics">
+              <div class="metric-card">
+                <span class="metric-label">Ping (応答速度)</span>
+                <span class="metric-value" id="speed-ping">-- <small>ms</small></span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">実測下り速度</span>
+                <span class="metric-value" id="speed-download">-- <small>Mbps</small></span>
+              </div>
+            </div>
+
+            <div id="speedtest-progress-bar" class="progress-bar-container hidden">
+              <div class="progress-bar-fill" id="speedtest-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- デバイス & OS情報カード -->
+      <section class="card device-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="icon-box icon-purple">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <h2>デバイス &amp; OS情報</h2>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-list">
+            <div class="info-row">
+              <span class="row-label">OS / プラットフォーム</span>
+              <span class="row-valueHighlight" id="dev-os">解析中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">ブラウザ</span>
+              <span class="row-valueHighlight" id="dev-browser">解析中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">CPU 論理コア数</span>
+              <span class="row-value" id="dev-cores">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">デバイス メモリ容量</span>
+              <span class="row-value" id="dev-memory">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">タッチ操作サポート</span>
+              <span class="row-value" id="dev-touch">検出中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">ユーザーエージェント文字列</span>
+              <span class="row-value code-font text-ellipsis" id="dev-ua" title="">解析中...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ディスプレイ & 表示情報カード -->
+      <section class="card display-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="icon-box icon-emerald">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <h2>ディスプレイ &amp; 画面解像度</h2>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-grid col-2">
+            <div class="info-item">
+              <span class="item-label">画面解像度 (Screen)</span>
+              <span class="item-value" id="disp-screen">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">ビューポートサイズ (Window)</span>
+              <span class="item-value" id="disp-viewport">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">デバイス ピクセル比 (DPR)</span>
+              <span class="item-value" id="disp-dpr">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">カラーデプス (色深度)</span>
+              <span class="item-value" id="disp-color-depth">取得中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">Display P3 (広色域)</span>
+              <span class="item-value" id="disp-color-gamut">判定中...</span>
+            </div>
+            <div class="info-item">
+              <span class="item-label">OS カラーモード</span>
+              <span class="item-value" id="disp-theme">判定中...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- バッテリー & 電源情報カード -->
+      <section class="card battery-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="icon-box icon-amber">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="6" width="18" height="12" rx="2" ry="2"></rect>
+                <line x1="23" y1="11" x2="23" y2="13"></line>
+              </svg>
+            </div>
+            <h2>バッテリー &amp; 電源ステータス</h2>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="battery-status-box">
+            <div class="battery-level-container">
+              <div class="battery-level-bar">
+                <div class="battery-level-fill" id="battery-fill" style="width: 0%;"></div>
+              </div>
+              <span class="battery-percentage" id="battery-percent">--%</span>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row">
+                <span class="row-label">給電状態</span>
+                <span class="row-value" id="battery-charging-status">判定中...</span>
+              </div>
+              <div class="info-row">
+                <span class="row-label">充電完了予定時間</span>
+                <span class="row-value" id="battery-charge-time">--</span>
+              </div>
+              <div class="info-row">
+                <span class="row-label">バッテリー駆動時間予測</span>
+                <span class="row-value" id="battery-discharge-time">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- システム & ロケール情報カード -->
+      <section class="card locale-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="icon-box icon-rose">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <h2>システム &amp; ロケール</h2>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-list">
+            <div class="info-row">
+              <span class="row-label">優先言語 (Language)</span>
+              <span class="row-value" id="sys-lang">取得中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">タイムゾーン (Timezone)</span>
+              <span class="row-value" id="sys-timezone">取得中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">現在ローカル日時</span>
+              <span class="row-value code-font" id="sys-time">更新中...</span>
+            </div>
+            <div class="info-row">
+              <span class="row-label">Cookie 有効性</span>
+              <span class="row-value" id="sys-cookies">判定中...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- トースト通知コンテナ -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- フッター -->
+    <footer class="app-footer">
+      <p>&copy; Device &amp; Network Inspector - Halcyon / 5Gkyu</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -59,6 +59,13 @@
             "href": "/archive/app/image-pdf/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "複数の画像を選択して1つのPDFにまとめます。JPEG・PNG・WebP対応。"
+          },
+          {
+            "title": "画像分割ツール",
+            "tag": "画像ツール",
+            "href": "/archive/app/image-splitter/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1枚の画像を均等なサイズ（正方形・長方形）に分割して一括保存できるツールです。"
           }
         ]
       },
@@ -315,10 +322,11 @@
         "cols": 3,
         "items": [
           {
-            "title": "Coming Soon",
-            "tag": "ゲーム",
-            "href": "#",
-            "description": "準備中です。"
+            "title": "15パズル 解法ツール",
+            "tag": "パズルツール",
+            "href": "/archive/play/slide-puzzle/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "手元の15パズルの配置を入力すると、解法手順を自動で算出してステップ再生で確認できます。"
           }
         ]
       }

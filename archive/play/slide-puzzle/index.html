@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>15パズル 解法ツール | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="手元の15パズル（4×4スライドパズル）の配置を入力すると、解法手順を自動で算出してステップ再生できるツールです。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/slide-puzzle/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="15パズル 解法ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="手元の15パズルの配置を入力すると解法手順を自動算出。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/play/slide-puzzle/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- FOUC対策 -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+  </style>
+
+  <!-- 専用スタイルシート -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- サイトヘッダー -->
+  <site-header site-name="Play"></site-header>
+
+  <!-- メインレイアウト -->
+  <hl-layout cols="2" class="fluffy-entry delay-2">
+    <!-- 左側コンテンツ -->
+    <div class="hl-layout-main">
+
+      <!-- パンくずリスト -->
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Play" level2-url="/archive/play/"
+        current="15パズル 解法ツール">
+      </hl-breadcrumb>
+
+      <page-title>15パズル 解法ツール</page-title>
+
+      <!-- メインカード -->
+      <div class="app-container-card">
+
+        <!-- フェーズインジケーター -->
+        <div class="phase-bar">
+          <div class="phase-step active" id="phase-1">
+            <span class="phase-num">1</span>
+            <span class="phase-label">配置入力</span>
+          </div>
+          <div class="phase-divider"></div>
+          <div class="phase-step" id="phase-2">
+            <span class="phase-num">2</span>
+            <span class="phase-label">解法再生</span>
+          </div>
+        </div>
+
+        <!-- 説明テキスト（セットアップ時のみ表示） -->
+        <p class="instruction-text" id="instruction-text">
+          マスをタップしてから、下の番号を選んでください
+        </p>
+
+        <!-- パズルボード（共通） -->
+        <div class="puzzle-container">
+          <div id="puzzle-board" class="puzzle-board"></div>
+        </div>
+
+        <!-- ===== PHASE 1: セットアップ ===== -->
+        <div id="setup-controls">
+
+          <!-- ナンバーパッド -->
+          <div id="number-pad" class="number-pad"></div>
+
+          <!-- セットアップボタン -->
+          <div class="game-controls">
+            <hl-button id="btn-clear" variant="secondary">全消去</hl-button>
+            <hl-button id="btn-solve" variant="primary" disabled>解法を計算</hl-button>
+          </div>
+        </div>
+
+        <!-- ===== PHASE 2: 解法再生 ===== -->
+        <div id="playback-controls" style="display: none;">
+          <!-- ステップ表示 -->
+          <div class="step-info">
+            <span id="step-counter" class="step-counter">初期状態</span>
+            <span id="step-total" class="step-total"></span>
+          </div>
+
+          <!-- 再生ボタン群 -->
+          <div class="playback-buttons">
+            <button class="pb-btn" id="btn-first" title="最初へ" aria-label="最初へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="pb-btn" id="btn-prev" title="前へ" aria-label="前へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <button class="pb-btn pb-btn-main" id="btn-auto" title="自動再生" aria-label="自動再生"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="pb-btn" id="btn-next" title="次へ" aria-label="次へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+            <button class="pb-btn" id="btn-last" title="最後へ" aria-label="最後へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+          </div>
+
+          <!-- 戻るボタン -->
+          <div class="game-controls" style="margin-top: 1rem;">
+            <hl-button id="btn-back" variant="secondary">配置入力に戻る</hl-button>
+          </div>
+        </div>
+
+        <!-- ローディングオーバーレイ -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+          <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">解法を計算中...</p>
+          </div>
+        </div>
+
+      </div><!-- /.app-container-card -->
+    </div>
+
+    <!-- 右側サイドバー -->
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-sidebar-box title="使いかた">
+          <p style="font-size: 0.85rem; line-height: 1.65; color: var(--clr-brown);">
+            <strong>1. 配置入力</strong><br>
+            お手元のパズルと同じ配置を再現します。マスをタップ → 番号を選択。<br><br>
+            <strong>2. 解法計算</strong><br>
+            全マスが埋まったら「解法を計算」で最短に近い手順を自動算出します。<br><br>
+            <strong>3. ステップ再生</strong><br>
+            前へ / 次へ で1手ずつ確認。自動再生で連続再生もできます。
+          </p>
+        </hl-sidebar-box>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <!-- サイトフッター -->
+  <site-footer copy="5Gkyu Play"></site-footer>
+
+  <!-- 共通コンポーネントスクリプト -->
+  <script src="/components/components.js"></script>
+
+  <!-- 専用スクリプト -->
+  <script src="app.js"></script>
+</body>
+</html>

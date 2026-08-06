@@ -1,0 +1,444 @@
+/* ==========================================================================
+   15パズル 解法ツール - Styles (モバイルファースト)
+   ========================================================================== */
+
+/* メインカード */
+.app-container-card {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(154, 176, 143, 0.35);
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(106, 86, 74, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.app-container-card * {
+  touch-action: manipulation;
+}
+
+/* ==================== フェーズインジケーター ==================== */
+.phase-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 1.2rem;
+  padding: 0.6rem 0;
+}
+
+.phase-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.phase-step.active {
+  background: var(--clr-sage);
+  color: #fff;
+}
+
+.phase-step:not(.active) {
+  color: var(--clr-brown);
+  opacity: 0.45;
+}
+
+.phase-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.phase-step.active .phase-num {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.phase-step:not(.active) .phase-num {
+  background: rgba(106, 86, 74, 0.12);
+  color: var(--clr-brown);
+}
+
+.phase-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.phase-divider {
+  width: 32px;
+  height: 2px;
+  background: rgba(106, 86, 74, 0.15);
+  margin: 0 0.3rem;
+}
+
+/* ==================== パズルボード ==================== */
+.puzzle-container {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 1rem;
+}
+
+.puzzle-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: rgba(154, 176, 143, 0.2);
+  border: 2.5px solid rgba(154, 176, 143, 0.45);
+  border-radius: 16px;
+  padding: 6px;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ==================== タイル共通 ==================== */
+.puzzle-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(106, 86, 74, 0.1);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 数字バッジ（左上） */
+.puzzle-tile-badge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  background: rgba(106, 86, 74, 0.75);
+  color: #ffffff;
+  font-family: 'Quicksand', var(--font-main);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 5px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 空きマス（穴） */
+.puzzle-tile.empty-slot {
+  background: rgba(106, 86, 74, 0.05);
+  border: 2px dashed rgba(106, 86, 74, 0.18);
+  box-shadow: inset 0 2px 6px rgba(106, 86, 74, 0.06);
+  cursor: pointer;
+}
+
+/* ==================== セットアップモード固有 ==================== */
+
+/* 未配置セル（?マーク） */
+.puzzle-tile.setup-unfilled {
+  background: rgba(251, 246, 234, 0.6);
+  border: 2px dashed rgba(106, 86, 74, 0.22);
+  cursor: pointer;
+}
+
+.setup-placeholder {
+  font-family: 'Quicksand', var(--font-main);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(106, 86, 74, 0.25);
+  pointer-events: none;
+}
+
+/* 選択中のセル */
+.puzzle-tile.selected {
+  border-color: var(--clr-sage) !important;
+  box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.35), 0 4px 12px rgba(154, 176, 143, 0.2) !important;
+  transform: scale(1.03);
+}
+
+/* 説明テキスト */
+.instruction-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--clr-brown);
+  margin: 0 0 1rem;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+/* ==================== ナンバーパッド ==================== */
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-width: 320px;
+  margin: 0 auto 1.2rem;
+}
+
+.numpad-btn {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid rgba(154, 176, 143, 0.35);
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+.numpad-btn:active {
+  transform: scale(0.93);
+}
+
+.numpad-label {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 1;
+  font-family: 'Quicksand', var(--font-main);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(106, 86, 74, 0.75);
+  padding: 1px 5px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.numpad-blank {
+  background-color: rgba(251, 246, 234, 0.8);
+  border-style: dashed;
+}
+
+.numpad-blank .numpad-label {
+  color: var(--clr-brown);
+  background: rgba(106, 86, 74, 0.12);
+  text-shadow: none;
+}
+
+/* 使用済みボタン */
+.numpad-btn.used {
+  opacity: 0.25;
+  pointer-events: none;
+  filter: grayscale(0.6);
+}
+
+/* ==================== コントロールボタン ==================== */
+.game-controls {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ==================== ステップ表示 ==================== */
+.step-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.step-counter {
+  font-family: 'Quicksand', var(--font-main);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--clr-brown);
+}
+
+.step-total {
+  font-size: 0.78rem;
+  color: var(--clr-brown);
+  opacity: 0.6;
+}
+
+/* ==================== 再生ボタン群 ==================== */
+.playback-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 0.8rem;
+}
+
+.pb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(154, 176, 143, 0.4);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 1.2rem;
+  color: var(--clr-brown);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pb-btn:active {
+  transform: scale(0.9);
+}
+
+.pb-btn-main {
+  width: 56px;
+  height: 56px;
+  background: var(--clr-sage);
+  border-color: var(--clr-sage);
+  color: #fff;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 12px rgba(154, 176, 143, 0.3);
+}
+
+.pb-btn-main.playing {
+  background: #c77b5a;
+  border-color: #c77b5a;
+  box-shadow: 0 4px 12px rgba(199, 123, 90, 0.3);
+}
+
+@media (hover: hover) {
+  .pb-btn:hover {
+    background: rgba(154, 176, 143, 0.1);
+  }
+  .pb-btn-main:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(154, 176, 143, 0.4);
+  }
+}
+
+/* ==================== 移動ハイライト ==================== */
+.puzzle-tile.highlight {
+  border-color: #d4956b !important;
+  box-shadow: 0 0 0 3px rgba(212, 149, 107, 0.35), 0 4px 12px rgba(212, 149, 107, 0.2) !important;
+  z-index: 1;
+}
+
+/* ==================== ローディングオーバーレイ ==================== */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(154, 176, 143, 0.25);
+  border-top-color: var(--clr-sage);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 0.8rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 0.9rem;
+  color: var(--clr-brown);
+  font-weight: 600;
+}
+
+/* ==================== レスポンシブ ==================== */
+@media (max-width: 480px) {
+  .app-container-card {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .puzzle-container {
+    max-width: 100%;
+  }
+
+  .puzzle-board {
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .puzzle-tile {
+    border-radius: 8px;
+  }
+
+  .puzzle-tile-badge {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .number-pad {
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .numpad-btn {
+    border-radius: 10px;
+  }
+
+  .numpad-label {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .phase-label {
+    font-size: 0.75rem;
+  }
+
+  .step-counter {
+    font-size: 1.1rem;
+  }
+
+  .pb-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+
+  .pb-btn-main {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
