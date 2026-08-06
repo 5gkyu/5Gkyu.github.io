@@ -570,6 +570,9 @@ function enterPlayback() {
 /**
  * 再生盤面を描画
  */
+/**
+ * 再生盤面を描画
+ */
 function renderPlaybackBoard() {
   const boardElem = document.getElementById('puzzle-board');
   boardElem.innerHTML = '';
@@ -581,6 +584,7 @@ function renderPlaybackBoard() {
   for (let i = 0; i < TOTAL; i++) {
     const val = board[i];
     const cell = document.createElement('div');
+    cell.dataset.tile = String(val);
 
     if (val === 0) {
       cell.className = 'puzzle-tile empty-slot';
@@ -604,6 +608,54 @@ function renderPlaybackBoard() {
 }
 
 /**
+ * FLIPアニメーション技術を使用したタイルの滑らかな移動（ぬるっと動くアニメーション）
+ */
+function animatePlaybackStep(actionFn) {
+  const boardElem = document.getElementById('puzzle-board');
+  const oldRects = {};
+
+  // 1. First: 移動前の各タイルの位置を取得
+  const tiles = boardElem.querySelectorAll('.puzzle-tile[data-tile]');
+  tiles.forEach(tile => {
+    const val = tile.dataset.tile;
+    if (val && val !== '0') {
+      oldRects[val] = tile.getBoundingClientRect();
+    }
+  });
+
+  // 2. 状態の更新とDOM再描画
+  actionFn();
+
+  // 3. Last, Invert, Play: 新位置を取得してスライドアニメーション適用
+  const newTiles = boardElem.querySelectorAll('.puzzle-tile[data-tile]');
+  newTiles.forEach(tile => {
+    const val = tile.dataset.tile;
+    if (val && oldRects[val]) {
+      const oldRect = oldRects[val];
+      const newRect = tile.getBoundingClientRect();
+      const dx = oldRect.left - newRect.left;
+      const dy = oldRect.top - newRect.top;
+
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        tile.style.transition = 'none';
+        tile.style.transform = `translate(${dx}px, ${dy}px)`;
+        tile.style.zIndex = '10';
+
+        // ブラウザのリフローを強制
+        void tile.offsetHeight;
+
+        tile.style.transition = 'transform 0.55s cubic-bezier(0.25, 1, 0.5, 1)';
+        tile.style.transform = '';
+
+        setTimeout(() => {
+          tile.style.zIndex = '';
+        }, 560);
+      }
+    }
+  });
+}
+
+/**
  * ステップカウンター表示を更新
  */
 function updateStepCounter() {
@@ -622,9 +674,11 @@ function updateStepCounter() {
  */
 function nextStep() {
   if (currentStep >= solutionMoves.length) return;
-  currentStep++;
-  renderPlaybackBoard();
-  updateStepCounter();
+  animatePlaybackStep(() => {
+    currentStep++;
+    renderPlaybackBoard();
+    updateStepCounter();
+  });
 
   if (currentStep >= solutionMoves.length) {
     stopAutoPlay();
@@ -639,9 +693,11 @@ function nextStep() {
  */
 function prevStep() {
   if (currentStep <= 0) return;
-  currentStep--;
-  renderPlaybackBoard();
-  updateStepCounter();
+  animatePlaybackStep(() => {
+    currentStep--;
+    renderPlaybackBoard();
+    updateStepCounter();
+  });
 }
 
 /**
@@ -649,9 +705,12 @@ function prevStep() {
  */
 function goFirst() {
   stopAutoPlay();
-  currentStep = 0;
-  renderPlaybackBoard();
-  updateStepCounter();
+  if (currentStep === 0) return;
+  animatePlaybackStep(() => {
+    currentStep = 0;
+    renderPlaybackBoard();
+    updateStepCounter();
+  });
 }
 
 /**
@@ -659,9 +718,12 @@ function goFirst() {
  */
 function goLast() {
   stopAutoPlay();
-  currentStep = solutionMoves.length;
-  renderPlaybackBoard();
-  updateStepCounter();
+  if (currentStep === solutionMoves.length) return;
+  animatePlaybackStep(() => {
+    currentStep = solutionMoves.length;
+    renderPlaybackBoard();
+    updateStepCounter();
+  });
 }
 
 /**
