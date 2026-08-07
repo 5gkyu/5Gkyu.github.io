@@ -442,3 +442,219 @@
     font-size: 1.2rem;
   }
 }
+
+/* 解法テキスト表示・コピーエリア */
+.solution-text-container {
+  margin-top: 1.2rem;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(154, 176, 143, 0.35);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(106, 86, 74, 0.04);
+}
+
+.solution-text-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.solution-text-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--clr-brown);
+}
+
+.solution-text-box {
+  background: #ffffff;
+  border: 1.5px solid rgba(154, 176, 143, 0.4);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-family: 'Courier New', Consolas, monospace, var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--clr-brown);
+  max-height: 160px;
+  overflow-y: auto;
+  word-break: break-all;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ============================================================
+   PDF / 印刷用スタイル
+   ============================================================ */
+.pdf-print-area {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* サイト要素・共通コンポーネントの非表示 */
+  body > *:not(#pdf-print-area),
+  site-header,
+  site-footer,
+  hl-layout,
+  hl-profile,
+  hl-toc,
+  .solution-text-container {
+    display: none !important;
+  }
+
+  .pdf-print-area {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff;
+  }
+
+  .pdf-page {
+    position: relative !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-sizing: border-box;
+    padding: 8mm 10mm;
+    max-height: 275mm;
+    overflow: hidden;
+  }
+
+  .pdf-page:first-child {
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
+
+  .pdf-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .pdf-header {
+    text-align: center;
+    border-bottom: 1.5px solid #444444;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+
+  .pdf-header h1 {
+    font-size: 1.2rem;
+    margin: 0 0 2px 0;
+    color: #222222;
+  }
+
+  .pdf-header p {
+    font-size: 0.72rem;
+    color: #555555;
+    margin: 0;
+  }
+
+  .pdf-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 6px 3px;
+  }
+
+  .pdf-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e74c3c;
+    font-size: 1.1rem;
+    font-weight: bold;
+    min-width: 14px;
+  }
+
+  .pdf-card {
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 5px;
+    background: #ffffff;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .pdf-card-title {
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: #333333;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pdf-mini-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: #dddddd;
+    padding: 2px;
+    border-radius: 4px;
+  }
+
+  .pdf-mini-tile {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 3px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f5f5f5;
+  }
+
+  .pdf-mini-tile.empty {
+    background: #eeeeee;
+  }
+
+  .pdf-mini-tile.tap-target {
+    box-shadow: inset 0 0 0 2.5px #e74c3c;
+    border: 1.5px solid #e74c3c;
+  }
+
+  .pdf-mini-tile-badge {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    background: rgba(0, 0, 0, 0.65);
+    color: #ffffff;
+    font-size: 0.48rem;
+    padding: 0px 2px;
+    border-radius: 2px;
+  }
+
+  .pdf-mini-tile.tap-target::after {
+    content: 'TAP!';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #e74c3c;
+    color: #ffffff;
+    font-size: 0.52rem;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+}
