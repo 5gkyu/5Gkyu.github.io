@@ -119,10 +119,28 @@ function renderSetupBoard() {
       // 番号つきタイル（画像あり）
       cell.className = 'puzzle-tile';
       cell.style.backgroundImage = `url('image/${val}.jpg')`;
+      
       const badge = document.createElement('span');
       badge.className = 'puzzle-tile-badge';
       badge.textContent = val;
       cell.appendChild(badge);
+
+      // 個別削除用(×)ボタン
+      const removeBtn = document.createElement('div');
+      removeBtn.className = 'tile-remove-btn';
+      removeBtn.innerHTML = '×';
+      removeBtn.title = 'このマスを未配置に戻す';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // セル自体のタップ選択処理を防ぐ
+        setupBoard[i] = null;
+        if (selectedCell === i) selectedCell = -1;
+        autoAssignBlank();
+        renderSetupBoard();
+        updateNumpadState();
+        updateSolveButton();
+        saveToStorage();
+      });
+      cell.appendChild(removeBtn);
     }
 
     // 選択状態
@@ -175,6 +193,22 @@ function buildNumberPad() {
     btn.addEventListener('click', () => handleNumpadClick(n));
     pad.appendChild(btn);
   }
+
+  // 16個目: 選択マスの入力を取り消す（クリア）ボタン
+  const btnClearTile = document.createElement('button');
+  btnClearTile.className = 'numpad-btn numpad-blank';
+  
+  const clearLabel = document.createElement('span');
+  clearLabel.className = 'numpad-label';
+  clearLabel.textContent = 'クリア';
+  btnClearTile.appendChild(clearLabel);
+  
+  const icon = document.createElement('div');
+  icon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="color: var(--clr-brown); opacity: 0.4;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+  btnClearTile.appendChild(icon);
+
+  btnClearTile.addEventListener('click', () => handleNumpadClick('clear'));
+  pad.appendChild(btnClearTile);
 }
 
 /**
@@ -208,6 +242,18 @@ function handleNumpadClick(value) {
     if (window.HlToast) {
       window.HlToast.show('先にマスをタップしてください', 'info', 1500);
     }
+    return;
+  }
+
+  // 「外す」ボタンが押された場合
+  if (value === 'clear') {
+    setupBoard[selectedCell] = null;
+    selectedCell = -1; // 配置後は選択解除
+    autoAssignBlank();
+    renderSetupBoard();
+    updateNumpadState();
+    updateSolveButton();
+    saveToStorage();
     return;
   }
 
