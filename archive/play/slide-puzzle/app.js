@@ -10,11 +10,13 @@ const GOAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
 // ==================== 状態管理 ====================
 let setupBoard = new Array(TOTAL).fill(null); // null = 未配置
 let selectedCell = -1;
-let solutionMoves = [];   // 各ステップで動くタイルの値
-let solutionStates = [];  // 各ステップの盤面スナップショット
+let solutionMoves = [];         // 各ステップで動くタイルの値
+let solutionPositionMoves = []; // 各ステップでタップする盤面上の位置番号 (1〜16)
+let solutionStates = [];        // 各ステップの盤面スナップショット
 let currentStep = 0;
 let autoPlayTimer = null;
 let mode = 'setup'; // 'setup' | 'playback'
+let solutionTextFormat = 'ascii'; // 'ascii' | 'numbers'
 
 const STORAGE_KEY = 'slide-puzzle-setup';
 
@@ -66,6 +68,7 @@ function bindEvents() {
   document.getElementById('btn-first').addEventListener('click', goFirst);
   document.getElementById('btn-last').addEventListener('click', goLast);
   document.getElementById('btn-back').addEventListener('click', goToSetup);
+  document.getElementById('btn-export-pdf').addEventListener('click', exportSolutionPDF);
 }
 
 // ==================== セットアップモード ====================
@@ -523,11 +526,12 @@ function idaStar(initialBoard) {
 }
 
 /**
- * 初期盤面と解法手順から、各ステップの盤面スナップショットを生成
+ * 初期盤面と解法手順から、各ステップの盤面スナップショットとタップ位置番号を生成
  */
 function buildSolutionStates(initialBoard, moves) {
   solutionMoves = moves;
   solutionStates = [];
+  solutionPositionMoves = [];
 
   const board = [...initialBoard];
   solutionStates.push([...board]);
@@ -535,6 +539,10 @@ function buildSolutionStates(initialBoard, moves) {
   for (const tileVal of moves) {
     const tilePos = board.indexOf(tileVal);
     const blankPos = board.indexOf(0);
+
+    // 盤面上の位置番号 (1〜16)
+    solutionPositionMoves.push(tilePos + 1);
+
     board[blankPos] = tileVal;
     board[tilePos] = 0;
     solutionStates.push([...board]);
@@ -542,6 +550,178 @@ function buildSolutionStates(initialBoard, moves) {
 }
 
 // ==================== 再生モード ====================
+
+/**
+ * 1〜16の位置番号配列から4x4のアスキーアート(■/□)形式の解法テキストを生成
+ */
+function buildAsciiSolutionText(positions) {
+  if (!positions || positions.length === 0) return '';
+
+  return positions.map((pos, stepIdx) => {
+    const pIndex = pos - 1; // 0..15
+    const gridLines = [];
+
+    for (let r = 0; r < 4; r++) {
+      let line = '';
+      for (let c = 0; c < 4; c++) {
+        const idx = r * 4 + c;
+        line += (idx === pIndex) ? '■ ' : '□ ';
+      }
+      gridLines.push(line.trim());
+    }
+
+    return `[${stepIdx + 1}手目]\n${gridLines.join('\n')}`;
+  }).join('\n\n');
+}
+
+/**
+ * 実際のパネル画像を使用して全ステップの解法カードを生成し、PDF出力（1ページあたり9手）を実行
+ */
+function exportSolutionPDF() {
+  if (!solutionMoves || solutionMoves.length === 0) return;
+
+  const pdfPrintArea = document.getElementById('pdf-print-area');
+  if (!pdfPrintArea) return;
+
+  const now = new Date().toLocaleDateString('ja-JP');
+  const STEPS_PER_PAGE = 9;
+  const totalSteps = solutionMoves.length;
+  const totalPages = Math.ceil(totalSteps / STEPS_PER_PAGE);
+
+  let fullHtml = '';
+
+  for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+    const startIdx = pageIdx * STEPS_PER_PAGE;
+    const endIdx = Math.min(startIdx + STEPS_PER_PAGE, totalSteps);
+
+    let cardsHtml = '';
+
+    for (let k = startIdx; k < endIdx; k++) {
+      const stepNum = k + 1;
+      const boardState = solutionStates[k]; // 移動前の盤面
+      const tileToTap = solutionMoves[k];
+      const tapPos = boardState.indexOf(tileToTap); // タップすべき位置(0..15)
+      const rowCol = (k - startIdx) % 3; // 0, 1, 2
+
+      let tilesHtml = '';
+      for (let i = 0; i < TOTAL; i++) {
+        const val = boardState[i];
+        const isTapTarget = (i === tapPos);
+        const targetClass = isTapTarget ? ' tap-target' : '';
+
+        if (val === 0) {
+          tilesHtml += `<div class="pdf-mini-tile empty"></div>`;
+        } else {
+          const bgImg = `image/${val}.jpg`;
+          tilesHtml += `
+            <div class="pdf-mini-tile${targetClass}" style="background-image: url('${bgImg}');">
+              <span class="pdf-mini-tile-badge">${val}</span>
+            </div>
+          `;
+        }
+      }
+
+      const arrowSvg = `
+        <div class="pdf-arrow">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      `;
+      const emptyArrow = `<div class="pdf-arrow"></div>`;
+
+      // 1列目の左外枠矢印 (パズル全体の2手目以降、前行・前ページからの継続「→」を表示)
+      if (rowCol === 0) {
+        if (k > 0) {
+          cardsHtml += arrowSvg;
+        } else {
+          cardsHtml += emptyArrow;
+        }
+      }
+
+      // カード本体
+      cardsHtml += `
+        <div class="pdf-card">
+          <div class="pdf-card-title">
+            <span>${stepNum}手目</span>
+          </div>
+          <div class="pdf-mini-board">
+            ${tilesHtml}
+          </div>
+        </div>
+      `;
+
+      // 中間矢印
+      if (rowCol < 2) {
+        if (k + 1 < totalSteps) {
+          cardsHtml += arrowSvg;
+        } else {
+          cardsHtml += emptyArrow;
+        }
+      }
+
+      // 3列目の右外枠矢印 (次行または次ページへの継続「→」を表示)
+      if (rowCol === 2) {
+        if (k + 1 < totalSteps) {
+          cardsHtml += arrowSvg;
+        } else {
+          cardsHtml += emptyArrow;
+        }
+      }
+    }
+
+    fullHtml += `
+      <div class="pdf-page">
+        <div class="pdf-header">
+          <h1>15パズル 解法手順ガイド (全 ${totalSteps} 手)</h1>
+          <p>作成日: ${now} | ページ ${pageIdx + 1} / ${totalPages} (${startIdx + 1}〜${endIdx}手目)</p>
+        </div>
+        <div class="pdf-grid">
+          ${cardsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  pdfPrintArea.innerHTML = fullHtml;
+
+  if (window.HlToast) {
+    window.HlToast.show('PDF印刷プレビューを開きます', 'info', 1500);
+  }
+
+  setTimeout(() => {
+    window.print();
+  }, 300);
+}
+
+/**
+ * 解法テキストの表示内容を更新 (AA形式 or 番号形式)
+ */
+function updateSolutionTextDisplay() {
+  const textElem = document.getElementById('solution-text');
+  const titleElem = document.getElementById('solution-title');
+  if (!textElem) return;
+
+  if (solutionTextFormat === 'ascii') {
+    if (titleElem) titleElem.textContent = 'タップ位置ガイド（■）';
+    textElem.textContent = buildAsciiSolutionText(solutionPositionMoves);
+  } else {
+    if (titleElem) titleElem.textContent = 'タップ位置番号（1〜16）';
+    textElem.textContent = solutionPositionMoves.join(' → ');
+  }
+}
+
+/**
+ * 解法テキストの表示形式を切り替え (AA ⇄ 番号)
+ */
+function toggleSolutionFormat() {
+  solutionTextFormat = (solutionTextFormat === 'ascii') ? 'numbers' : 'ascii';
+  updateSolutionTextDisplay();
+  if (window.HlToast) {
+    const formatName = (solutionTextFormat === 'ascii') ? '■ガイド表示' : '1〜16番号表示';
+    window.HlToast.show(`表示形式を変更しました（${formatName}）`, 'info', 1500);
+  }
+}
 
 /**
  * 再生モードに切り替え
@@ -559,6 +739,7 @@ function enterPlayback() {
 
   document.getElementById('step-total').textContent = `全 ${solutionMoves.length} 手`;
 
+  updateSolutionTextDisplay();
   renderPlaybackBoard();
   updateStepCounter();
 
@@ -568,8 +749,41 @@ function enterPlayback() {
 }
 
 /**
- * 再生盤面を描画
+ * 解法テキストをクリップボードにコピー
  */
+function copySolutionText() {
+  if (!solutionPositionMoves || solutionPositionMoves.length === 0) return;
+  const text = (solutionTextFormat === 'ascii')
+    ? buildAsciiSolutionText(solutionPositionMoves)
+    : solutionPositionMoves.join(' → ');
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      if (window.HlToast) {
+        window.HlToast.show('解法テキストをコピーしました', 'success', 2000);
+      }
+    }).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    if (window.HlToast) {
+      window.HlToast.show('タップ位置をコピーしました', 'success', 2000);
+    }
+  } catch (_) {}
+  document.body.removeChild(textarea);
+}
+
 /**
  * 再生盤面を描画
  */

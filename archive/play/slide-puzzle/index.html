@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -23,12 +24,17 @@
 
   <!-- FOUC対策 -->
   <style id="fouc-prevent">
-    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
   </style>
 
   <!-- 専用スタイルシート -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- サイトヘッダー -->
@@ -40,9 +46,7 @@
     <div class="hl-layout-main">
 
       <!-- パンくずリスト -->
-      <hl-breadcrumb
-        level1-name="Archive" level1-url="/archive/"
-        level2-name="Play" level2-url="/archive/play/"
+      <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Play" level2-url="/archive/play/"
         current="15パズル 解法ツール">
       </hl-breadcrumb>
 
@@ -97,11 +101,31 @@
 
           <!-- 再生ボタン群 -->
           <div class="playback-buttons">
-            <button class="pb-btn" id="btn-first" title="最初へ" aria-label="最初へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-            <button class="pb-btn" id="btn-prev" title="前へ" aria-label="前へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-            <button class="pb-btn pb-btn-main" id="btn-auto" title="自動再生" aria-label="自動再生"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
-            <button class="pb-btn" id="btn-next" title="次へ" aria-label="次へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
-            <button class="pb-btn" id="btn-last" title="最後へ" aria-label="最後へ"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <button class="pb-btn" id="btn-first" title="最初へ" aria-label="最初へ"><svg width="18" height="18"
+                viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+              </svg></button>
+            <button class="pb-btn" id="btn-prev" title="前へ" aria-label="前へ"><svg width="18" height="18"
+                viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+              </svg></button>
+            <button class="pb-btn pb-btn-main" id="btn-auto" title="自動再生" aria-label="自動再生"><svg width="22" height="22"
+                viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg></button>
+            <button class="pb-btn" id="btn-next" title="次へ" aria-label="次へ"><svg width="18" height="18"
+                viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+              </svg></button>
+            <button class="pb-btn" id="btn-last" title="最後へ" aria-label="最後へ"><svg width="18" height="18"
+                viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+              </svg></button>
+          </div>
+
+          <!-- PDF出力エリア -->
+          <div style="margin-top: 1.2rem; text-align: center;">
+            <hl-button id="btn-export-pdf" variant="primary" size="lg" style="width: 100%;">手順をPDFで出力</hl-button>
           </div>
 
           <!-- 戻るボタン -->
@@ -153,5 +177,9 @@
 
   <!-- 専用スクリプト -->
   <script src="app.js"></script>
+
+  <!-- PDF印刷用領域 -->
+  <div id="pdf-print-area" class="pdf-print-area"></div>
 </body>
+
 </html>
