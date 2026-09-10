@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Halcyon - 5Gkyu</title>
-  
+
   <meta name="description" content="Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。">
   <link rel="canonical" href="https://5gkyu.github.io/">
 
@@ -22,534 +23,3589 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="google-site-verification" content="99weR7yCJ9qUO3LkBzej2hf9I5lN3deqP-4GbqsuKQQ" />
 
-  <!-- JS読み込み前の画面隠蔽（チラつき防止） -->
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+  <!-- Google Fonts: DotGothic16 & Quicksand (Logo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Quicksand:wght@600;700&display=swap"
+    rel="stylesheet">
 
   <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    /* ヒーロー画像（フルブリード） */
-    .hero-img-section {
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      line-height: 0;
-      margin-bottom: 0;
-      padding-top: 64px; /* fixed header height */
-    }
-    .hero-img {
-      width: 100%;
-      height: auto;
-      display: block;
-      min-height: calc(100vh - 64px);
-      object-fit: cover;
-      object-position: center center;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'DotGothic16', sans-serif !important;
+      -webkit-user-drag: none;
+      user-select: none;
     }
 
-    /* ------------------------------------------------------------
-       トップページ専用オーバーレイ
-    ------------------------------------------------------------ */
-    .hero-overlay-content {
-      position: absolute;
-      top: 64px; left: 0; right: 0; bottom: 0;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-color: #080811 !important;
+      color: #fff;
+      font-family: 'DotGothic16', sans-serif !important;
+    }
+
+    /* 共通コンポーネントが注入するアイボリー背景疑似要素を完全に無効化 */
+    body::before,
+    body::after {
+      display: none !important;
+      content: none !important;
+    }
+
+    /* トップページ専用の静的ヘッダー */
+    .top-site-header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      height: 64px;
+      background-color: rgba(8, 8, 17, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .top-site-header__inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: center;   /* 縦中央付近 */
-      align-items: flex-end;     /* PCでは右寄せにして左のキャラクターを見せる */
-      padding: clamp(1rem, 5vw, 4rem);
-      padding-bottom: 8vh;
-      pointer-events: none;
-      gap: 1.5rem;
-      z-index: 10; /* 花びらより背面に配置 */
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .site-header__logo-area {
+      display: flex;
+      align-items: center;
+    }
+
+    .site-header__logo-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      user-select: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .site-header__logo-link:hover {
+      opacity: 0.72;
+    }
+
+    .site-header__logo-icon img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .site-header__logo-text {
+      font-family: 'Quicksand', 'DotGothic16', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #FBF6EA;
+      letter-spacing: 0.06em;
+      margin-left: 0.3rem;
+    }
+
+    .site-header__site-name {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: #FBF6EA;
+      opacity: 0.55;
+      letter-spacing: 0.10em;
+      margin-left: 0.55rem;
+      padding: 0.18rem 0.55rem;
+      border: 1px solid rgba(251, 246, 234, 0.28);
+      border-radius: 50px;
+      white-space: nowrap;
     }
 
     @media (max-width: 860px) {
-      .hero-img-section { padding-top: 56px; }
-      .hero-img { min-height: calc(100vh - 56px); }
-      .hero-overlay-content { top: 56px; }
+      .top-site-header__inner {
+        height: 56px;
+        padding: 0 1rem;
+      }
+
+      .site-header__logo-text {
+        display: none;
+      }
+
+      .site-header__logo-area {
+        margin-left: 0.2rem;
+      }
+
+      .site-header__logo-icon img {
+        width: 29px;
+        height: 29px;
+      }
+
+      .site-header__site-name {
+        display: inline-flex;
+        margin-left: 0.42rem;
+        padding: 0.14rem 0.46rem;
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+        border-color: rgba(251, 246, 234, 0.36);
+        opacity: 0.78;
+      }
     }
 
-    /* タイトルと説明のガラスパネル */
+    /* 初期未起動ステート：ヘッダー・上部HUD・下部デッキを待機位置にして隠蔽 */
+    .top-site-header,
+    .stage-hud-top,
+    .stage-hud-bottom {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .top-site-header {
+      transform: translateY(-24px);
+    }
+
+    .stage-hud-top {
+      transform: translateY(-20px);
+    }
+
+    .stage-hud-bottom {
+      transform: translateY(30px);
+    }
+
+    /* 起動後（覚醒ステート）：各UIが時間差（ディレイ）で滑らかにフェードイン */
+    body.is-started .top-site-header {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition-delay: 0.25s;
+    }
+
+    body.is-started .stage-hud-top {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition-delay: 0.45s;
+    }
+
+    body.is-started .stage-hud-bottom {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition-delay: 0.65s;
+    }
+
+    /* ヒーローメインセクション（全画面フルスクリーンステージ） */
+    .hero-stage-fullscreen {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* カメが主役の全画面キャンバスコンテナ */
+    .turtle-canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #080811;
+      cursor: crosshair;
+      z-index: 1;
+    }
+
+    .turtle-canvas-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* キャンバス上のHUDオーバーレイ（上部） */
+    .stage-hud-top {
+      position: relative;
+      z-index: 10;
+      padding: calc(64px + 1.5rem) 2.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* 左上：タイトルとステータスのフロストグラスパネル */
     .hero-glass-panel {
       pointer-events: auto;
       position: relative;
-      background: linear-gradient(135deg,
-        rgba(255, 107, 157, 0.22),
-        rgba(255, 160, 74, 0.2),
-        rgba(255, 220, 80, 0.18),
-        rgba(100, 220, 160, 0.18),
-        rgba(74, 200, 255, 0.2),
-        rgba(167, 139, 250, 0.22)
-      );
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: none;
-      border-radius: 20px;
-      padding: clamp(1.5rem, 3vw, 2.5rem);
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      background: rgba(15, 15, 25, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 22px;
+      padding: 1.2rem 1.8rem;
+      max-width: 380px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
       color: #fff;
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
-      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
-      transition: transform 0.3s;
+      gap: 0.35rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s ease, border-color 0.3s ease;
     }
-    /* 虹色グラデーション枚線（常時表示） */
+
+    .hero-glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 12px rgba(74, 232, 255, 0.25);
+    }
+
+    /* 微細なグロー付き枠線 */
     .hero-glass-panel::before {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 1px;
-      background: linear-gradient(135deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       mask-composite: exclude;
-      opacity: 0.65;
+      opacity: 0.8;
       pointer-events: none;
     }
 
     .hero-glass-title {
-      font-size: clamp(2.2rem, 4vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      margin: 0 0 0.5rem 0;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
       line-height: 1.1;
-      text-shadow: 1px 2px 8px rgba(62, 50, 44, 0.65);
+      background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 75%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 12px rgba(255, 255, 255, 0.05);
     }
-    
+
     .hero-glass-subtitle {
-      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-      font-weight: 500;
+      font-size: 0.95rem;
+      font-weight: 600;
       letter-spacing: 0.08em;
-      opacity: 0.95;
+      opacity: 0.9;
+      color: #e2e8f0;
+    }
+
+    .hero-glass-updated {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
     }
 
     .hero-glass-desc {
-      font-size: clamp(0.9rem, 1.5vw, 1rem);
-      line-height: 1.8;
-      opacity: 0.95;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      opacity: 0.8;
+      color: #cbd5e1;
+      margin-top: 0.25rem;
     }
 
-    /* 最終更新日 */
-    .hero-glass-updated {
+    .hero-glass-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       font-size: 0.72rem;
-      opacity: 0.6;
-      text-align: right;
-      letter-spacing: 0.05em;
-      margin-top: auto;
+      opacity: 0.65;
+      letter-spacing: 0.06em;
+      margin-top: 0.35rem;
     }
 
-    /* 詳細ボタン群（ガラスカードスタイル） */
-    .hero-nav {
+    .hero-glass-link {
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s ease;
       pointer-events: auto;
+    }
+
+    .hero-glass-link:hover {
+      color: #4ae8ff;
+    }
+
+    /* 現在のキャラクター情報パネル */
+    .hero-char-info {
+      margin-top: 0.65rem;
+      padding-top: 0.55rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.3rem;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .hero-char-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-char-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: rgba(74, 232, 255, 0.15);
+      border: 1px solid rgba(74, 232, 255, 0.35);
+      color: #4ae8ff;
+    }
+
+    .hero-char-badge.ip-badge {
+      background: rgba(255, 107, 157, 0.15);
+      border-color: rgba(255, 107, 157, 0.35);
+      color: #ff6b9d;
+    }
+
+    .hero-char-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+    }
+
+    /* 右上：インタラクティブヒントバッジ */
+    .stage-badge {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      background: rgba(15, 15, 25, 0.6);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #7fff9f;
+      box-shadow: 0 0 8px #7fff9f;
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+
+    /* キャラクター切り替えセレクター */
+    .character-switcher-deck {
+      pointer-events: auto;
+      display: flex;
+      gap: 0.4rem;
+      background: rgba(15, 15, 25, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      padding: 0.35rem 0.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .char-switch-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #cbd5e1;
+      padding: 0.45rem 0.95rem;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .char-switch-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .char-switch-btn.active {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.28), rgba(74, 232, 255, 0.25));
+      border-color: rgba(255, 215, 0, 0.6);
+      color: #ffd700;
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.35);
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.35);
+        opacity: 1;
+      }
+    }
+
+    /* ------------------------------------------------------------
+       下部ナビゲーションデッキ（フルスクリーン下部にフローティング）
+    ------------------------------------------------------------ */
+    .stage-hud-bottom {
+      position: relative;
+      z-index: 10;
+      padding: 0 2.5rem 2.5rem;
       width: 100%;
-      max-width: 480px;
+      max-width: 1440px;
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .hero-nav-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      width: 100%;
+      pointer-events: auto;
     }
 
     .hero-nav-card {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 1.2rem;
+      gap: 1rem;
       text-decoration: none;
       color: #fff;
-      background: rgba(40, 40, 40, 0.28);
-      border: none;
-      border-radius: 16px;
-      padding: 1rem 1.2rem;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-      transition: background 0.25s, transform 0.22s, box-shadow 0.3s;
-      text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.5);
+      background: rgba(18, 18, 32, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 1rem 1.3rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      transition: all 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+      overflow: hidden;
     }
-    /* 虹色グラデーション枚線（常時表示、hoverでアニメ） */
+
+    /* 微細なグロー付き枠線 */
     .hero-nav-card::before {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 1px;
-      background: linear-gradient(90deg, #ff6b9d, #ffa04a, #ffd700, #7fff9f, #4ae8ff, #a78bfa, #ff6b9d);
-      background-size: 300% 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       mask-composite: exclude;
-      opacity: 0.7;
-      transition: opacity 0.35s;
-      animation: rainbow-shift 3s linear infinite paused;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
     }
+
     .hero-nav-card:hover::before {
       opacity: 1;
-      animation-play-state: running;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.1));
     }
-    @keyframes rainbow-shift {
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 300% 50%; }
-    }
+
     .hero-nav-card:hover {
-      background: rgba(255, 255, 255, 0.18);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+      background: rgba(30, 30, 52, 0.75);
+      transform: translateY(-4px);
     }
-    /* Aboutだけ少しアクセントカラー → 他と統一 */
-    .hero-nav-card.accent {
-      background: rgba(40, 40, 40, 0.28);
-      border-color: rgba(255, 255, 255, 0.3);
+
+    /* トップページ（このページ）のみヘッダーのナビゲーションメニューを非表示にし、下部デッキにナビゲーションを集約 */
+    site-header .site-header__nav,
+    site-header .site-header__menu-btn {
+      display: none !important;
     }
-    .hero-nav-card.accent:hover {
-      background: rgba(255, 255, 255, 0.18);
+
+    /* トップページ専用ヘッダーSNSアイコンエリア */
+    .top-header-sns {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-left: auto;
+      pointer-events: auto;
+      z-index: 210;
+    }
+
+    .top-header-sns-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--clr-cream);
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .top-header-sns-link:hover {
+      background: rgba(var(--char-color-rgb), 0.15);
+      border-color: var(--char-color);
+      color: var(--char-color);
+      box-shadow: 0 0 12px rgba(var(--char-color-rgb), 0.35);
+      transform: translateY(-2px);
+    }
+
+    .top-header-sns-link svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    /* モバイル時（ハンバーガーメニュー等）のレイアウト調整 */
+    @media (max-width: 860px) {
+      .top-header-sns {
+        margin-right: 3.5rem;
+        /* ハンバーガーボタンと重ならないように調整 */
+      }
+    }
+
+    /* Archiveカードのラッパー */
+    .hero-nav-card-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .hero-nav-card-wrapper .hero-nav-card {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ネオンガラスのサブメニューパネル (常時表示) */
+    .archive-submenu-panel {
+      position: absolute;
+      bottom: 100%;
+      /* ボタンの真上 */
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      display: flex;
+      gap: 0.6rem;
+      background: rgba(10, 12, 24, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(var(--char-color-rgb), 0.35);
+      /* キャラクターのネオンカラーと連動 */
+      border-radius: 12px;
+      padding: 0.5rem;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.55), 0 0 18px rgba(var(--char-color-rgb), 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      opacity: 1;
+      visibility: visible;
+      z-index: 50;
+      margin-bottom: 0.75rem;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+
+    /* サブメニュー項目 */
+    .submenu-item {
+      display: inline-block;
+      padding: 0.45rem 1.0rem;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all 0.22s ease;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .submenu-item:hover {
+      background: rgba(var(--char-color-rgb), 0.22);
+      color: var(--char-color);
+      border-color: var(--char-color);
+      box-shadow: 0 0 8px rgba(var(--char-color-rgb), 0.3);
+      transform: translateY(-1.5px);
+    }
+
+    /* ボタンごとの個性的な微細ネオングロウ */
+    #nav-card-links:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(226, 214, 181, 0.25);
+      border-color: rgba(226, 214, 181, 0.4) !important;
+    }
+
+    #nav-card-policy:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(255, 102, 153, 0.25);
+      border-color: rgba(255, 102, 153, 0.4) !important;
+    }
+
+    #nav-card-archive:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(162, 224, 72, 0.25);
+      border-color: rgba(162, 224, 72, 0.4) !important;
+    }
+
+    #nav-card-contact:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(166, 196, 124, 0.25);
+      border-color: rgba(166, 196, 124, 0.4) !important;
     }
 
     .nav-card-icon {
       flex-shrink: 0;
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s ease, background 0.3s ease;
     }
+
+    .hero-nav-card:hover .nav-card-icon {
+      transform: scale(1.08);
+      background: rgba(255, 255, 255, 0.18);
+    }
+
     .nav-card-icon svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       fill: #fff;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .nav-card-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
     }
 
     .nav-card-title {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.06em;
+      color: #fff;
     }
 
+    .nav-card-sub {
+      font-size: 0.72rem;
+      opacity: 0.65;
+      letter-spacing: 0.04em;
+      color: #cbd5e1;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-nav-deck {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* デスクトップ表示（769px以上）：モバイルストーリーデッキ・固定パネルは非表示 */
+    @media (min-width: 769px) {
+
+      .mobile-story-deck,
+      .mobile-step-indicator,
+      .mobile-fixed-hud-card {
+        display: none !important;
+      }
+    }
+
+    /* モバイル表示（768px以下）：スクロールスナップ・1枚固定パネルHUDモード */
     @media (max-width: 768px) {
-      .hero-overlay-content { 
-        align-items: center; /* 画面中央に配置 */
-        padding: 1rem;
-        padding-bottom: 2vh; 
+
+      html,
+      body {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: scroll !important;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
       }
-      .hero-glass-panel, .hero-nav {
-        max-width: 100%;
+
+      /* 背景キャンバスを全画面固定 */
+      .turtle-canvas-container {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
       }
-      .hero-glass-panel {
-        text-align: center;
-        background: linear-gradient(135deg,
-          rgba(255, 107, 157, 0.35),
-          rgba(255, 160, 74, 0.32),
-          rgba(255, 220, 80, 0.28),
-          rgba(100, 220, 160, 0.28),
-          rgba(74, 200, 255, 0.32),
-          rgba(167, 139, 250, 0.35)
-        );
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-color: rgba(255, 255, 255, 0.35);
-        padding: 2rem 1.5rem;
-        text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+
+      /* デスクトップ用HUDは非表示にし、固定カードに集約 */
+      .stage-hud-top,
+      .stage-hud-bottom {
+        display: none !important;
       }
-      .hero-glass-updated { text-align: center; font-size: 0.7rem; opacity: 0.8; }
-      .hero-glass-title { font-size: 3rem; }
-      .hero-glass-subtitle { font-size: 1.15rem; }
-      .nav-card-title { font-size: 1.3rem; }
-      .hero-nav-card {
-        background: rgba(30, 30, 30, 0.38);
-        text-shadow: 1px 1px 4px rgba(62, 50, 44, 0.6);
+
+      .hero-stage-fullscreen {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
       }
-      /* スマホではアイコンを少し小さく */
-      .nav-card-icon {
-        width: 40px; height: 40px;
+
+      /* モバイル専用スクロールトリガーコンテナ */
+      .mobile-story-deck {
+        display: block !important;
+        position: relative;
+        z-index: 10;
+        width: 100%;
       }
-      .nav-card-icon svg {
-        width: 20px; height: 20px;
+
+      /* 透明なスクロール吸着トリガー */
+      .mobile-snap-trigger {
+        height: 100vh;
+        height: 100dvh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        pointer-events: none;
+        width: 100%;
+      }
+
+      /* 画面下部に1枚だけ常時固定される動的ネオンHUDパネル（スリム化） */
+      .mobile-fixed-hud-card {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.22rem;
+        position: fixed !important;
+        bottom: calc(0.9rem + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2.0rem);
+        max-width: 360px;
+        z-index: 50;
+        pointer-events: auto;
+        background: rgba(8, 10, 20, 0.82);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1.2px solid rgba(var(--char-color-rgb), 0.45);
+        border-radius: 16px;
+        padding: 0.85rem 1.05rem;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 20px rgba(var(--char-color-rgb), 0.2);
+        color: #fff;
+        transition: border-color 0.35s ease, box-shadow 0.35s ease;
+      }
+
+      .m-card-badge {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        padding: 0.12rem 0.45rem;
+        border-radius: 100px;
+        border: 1px solid var(--char-color);
+        background: rgba(var(--char-color-rgb), 0.15);
+        color: var(--char-color);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.05rem;
+        transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+      }
+
+      .m-card-title {
+        font-size: 1.28rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        line-height: 1.15;
+        color: #fff;
+        text-shadow: 0 0 10px var(--char-color);
+        transition: text-shadow 0.3s ease;
+      }
+
+      .m-card-sub {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .m-card-desc {
+        font-size: 0.72rem;
+        line-height: 1.35;
+        color: #cbd5e1;
+        opacity: 0.9;
+        margin-top: 0.1rem;
+      }
+
+      .m-card-scroll-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        margin-top: 0.4rem;
+        padding-top: 0.35rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.68rem;
+        color: var(--char-color);
+        animation: hint-bounce 1.8s infinite ease-in-out;
+      }
+
+      @keyframes hint-bounce {
+
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.7;
+        }
+
+        50% {
+          transform: translateY(3px);
+          opacity: 1;
+        }
+      }
+
+      .m-card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-top: 0.35rem;
+      }
+
+      .m-sub-links-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.3rem;
+      }
+
+      .m-sub-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.45rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .m-sub-btn:active {
+        background: rgba(var(--char-color-rgb), 0.25);
+        border-color: var(--char-color);
+        color: var(--char-color);
+      }
+
+      .m-primary-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.48rem 0.8rem;
+        background: linear-gradient(135deg, rgba(var(--char-color-rgb), 0.35), rgba(var(--char-color-rgb), 0.15));
+        border: 1.2px solid var(--char-color);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(var(--char-color-rgb), 0.2);
+        transition: all 0.2s ease;
+      }
+
+      .m-primary-btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 0 20px rgba(var(--char-color-rgb), 0.5);
+      }
+
+      .m-primary-btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 0 20px rgba(var(--char-color-rgb), 0.5);
+      }
+
+      /* 画面右端の縦型ステップナビゲーション */
+      .mobile-step-indicator {
+        position: fixed;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(8, 10, 20, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 8px 6px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .step-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .step-dot.active {
+        height: 18px;
+        border-radius: 6px;
+        background: var(--char-color);
+        box-shadow: 0 0 10px var(--char-color);
       }
     }
 
-    /* トップページのみフッター上部マージンをリセット */
-    site-footer, .site-footer { 
-      margin-top: 0 !important; 
+    /* ============================================================
+       テーマ用共通カラー変数
+    ============================================================ */
+    :root {
+      --char-color: #4ae8ff;
+      --char-color-rgb: 74, 232, 255;
+      --char-glow: rgba(74, 232, 255, 0.4);
+    }
+
+    /* ------------------------------------------------------------
+       THEME 1: Ambient Aurora (アンビエント・オーロラ・リアクティブ)
+    ------------------------------------------------------------ */
+    body.theme-aurora {
+      background-color: #060712 !important;
+    }
+
+    body.theme-aurora .hero-glass-panel {
+      background: rgba(10, 12, 24, 0.65);
+      border: 1.5px solid rgba(var(--char-color-rgb), 0.45);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 28px rgba(var(--char-color-rgb), 0.25), inset 0 0 15px rgba(var(--char-color-rgb), 0.1);
+      border-radius: 20px;
+      transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.3s ease;
+    }
+
+    body.theme-aurora .hero-glass-panel::before {
+      display: none;
+    }
+
+    body.theme-aurora .hero-glass-title {
+      background: linear-gradient(135deg, #ffffff 40%, rgba(var(--char-color-rgb), 0.9) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(var(--char-color-rgb), 0.35);
+      transition: all 0.45s ease;
+    }
+
+    body.theme-aurora .hero-glass-subtitle {
+      color: var(--char-color);
+      text-shadow: 0 0 10px rgba(var(--char-color-rgb), 0.4);
+      transition: color 0.45s ease;
+    }
+
+    body.theme-aurora .hero-char-badge {
+      background: rgba(var(--char-color-rgb), 0.18);
+      border-color: var(--char-color);
+      color: var(--char-color);
+      box-shadow: 0 0 8px rgba(var(--char-color-rgb), 0.3);
+    }
+
+    body.theme-aurora .hero-nav-card {
+      background: rgba(14, 16, 30, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    body.theme-aurora .hero-nav-card::before {
+      display: none;
+    }
+
+    body.theme-aurora .hero-nav-card:hover,
+    body.theme-aurora .hero-nav-card:focus {
+      border-color: rgba(var(--char-color-rgb), 0.75) !important;
+      background: rgba(18, 22, 42, 0.85);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 28px rgba(var(--char-color-rgb), 0.4) !important;
+      transform: translateY(-5px);
+    }
+
+    body.theme-aurora .hero-nav-card:hover .nav-card-icon,
+    body.theme-aurora .hero-nav-card:focus .nav-card-icon {
+      background: rgba(var(--char-color-rgb), 0.22);
+      border-color: var(--char-color);
+      transform: scale(1.1);
+    }
+
+    body.theme-aurora .hero-nav-card:hover .nav-card-icon svg,
+    body.theme-aurora .hero-nav-card:focus .nav-card-icon svg {
+      fill: var(--char-color);
+      filter: drop-shadow(0 0 8px var(--char-color));
+    }
+
+    body.theme-aurora .stage-badge {
+      background: rgba(10, 12, 24, 0.65);
+      border-color: rgba(var(--char-color-rgb), 0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 14px rgba(var(--char-color-rgb), 0.15);
+      transition: border-color 0.45s ease, box-shadow 0.45s ease;
+    }
+
+    /* ------------------------------------------------------------
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--char-color) !important;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(var(--char-color-rgb), 0.45), inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+      transform: translateY(-5px);
+    }
+
+    body.theme-prism .stage-badge,
+    body.theme-prism .theme-switch-container {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(var(--char-color-rgb), 0.15);
+    }
+
+    /* ------------------------------------------------------------
+       THEME 3: Holo Cyber Deck (ホログラフィック・ゲームHUD)
+    ------------------------------------------------------------ */
+    body.theme-holo {
+      background-color: #030408 !important;
+    }
+
+    body.theme-holo .hero-glass-panel {
+      background: rgba(4, 8, 18, 0.85);
+      border-radius: 4px;
+      border: 1px solid rgba(var(--char-color-rgb), 0.5);
+      box-shadow: 0 0 25px rgba(var(--char-color-rgb), 0.25), inset 0 0 20px rgba(var(--char-color-rgb), 0.1);
       position: relative;
-      z-index: 30; /* 花びらより前面に配置 */
     }
 
-    /* 落ち葉・花びら Canvas (ヒーロー画像の上に重ねる) */
-    #petals-canvas {
+    body.theme-holo .hero-glass-panel::before {
+      content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: -3px;
+      border: 2px solid var(--char-color);
+      clip-path: polygon(0 0, 16px 0, 16px 2px, 2px 2px, 2px 16px, 0 16px, 0 0, 100% 0, 100% 16px, calc(100% - 2px) 16px, calc(100% - 2px) 2px, calc(100% - 16px) 2px, calc(100% - 16px) 0, 100% 0, 100% 100%, calc(100% - 16px) 100%, calc(100% - 16px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) calc(100% - 16px), 100% calc(100% - 16px), 100% 100%, 0 100%, 0 calc(100% - 16px), 2px calc(100% - 16px), 2px calc(100% - 2px), 16px calc(100% - 2px), 16px 100%, 0 100%);
       pointer-events: none;
-      z-index: 20; /* overlay-content(10) より前面、footer(30) より背面 */
+      opacity: 0.9;
+    }
+
+    body.theme-holo .hero-glass-title {
+      background: none;
+      -webkit-text-fill-color: initial;
+      color: #ffffff;
+      text-shadow: 0 0 12px var(--char-color), 0 0 24px var(--char-color);
+      letter-spacing: 0.08em;
+    }
+
+    body.theme-holo .hero-glass-subtitle {
+      color: var(--char-color);
+      text-shadow: 0 0 8px var(--char-color);
+    }
+
+    body.theme-holo .hero-char-badge {
+      background: rgba(var(--char-color-rgb), 0.2);
+      border: 1px solid var(--char-color);
+      color: var(--char-color);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(var(--char-color-rgb), 0.3);
+    }
+
+    body.theme-holo .hero-nav-card {
+      background: rgba(6, 10, 22, 0.85);
+      border: 1px solid rgba(var(--char-color-rgb), 0.3);
+      border-radius: 4px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    body.theme-holo .hero-nav-card::before {
+      display: none;
+    }
+
+    body.theme-holo .hero-nav-card:hover,
+    body.theme-holo .hero-nav-card:focus {
+      background: rgba(10, 20, 42, 0.95);
+      border-color: var(--char-color) !important;
+      box-shadow: 0 0 30px rgba(var(--char-color-rgb), 0.5), inset 0 0 15px rgba(var(--char-color-rgb), 0.25) !important;
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    body.theme-holo .nav-card-icon {
+      border-radius: 4px;
+      border: 1px solid var(--char-color);
+      background: rgba(var(--char-color-rgb), 0.15);
+    }
+
+    body.theme-holo .nav-card-icon svg {
+      fill: var(--char-color);
+      filter: drop-shadow(0 0 6px var(--char-color));
+    }
+
+    body.theme-holo .nav-card-title {
+      color: #ffffff;
+      text-shadow: 0 0 8px var(--char-color);
+    }
+
+    body.theme-holo .stage-badge {
+      background: rgba(6, 10, 22, 0.85);
+      border: 1px solid var(--char-color);
+      border-radius: 4px;
+      box-shadow: 0 0 15px rgba(var(--char-color-rgb), 0.2);
+      color: var(--char-color);
+    }
+
+    /* ドラッグ＆ドロップ用近未来HUDオーバーレイ */
+    .stage-drop-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 4, 12, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 3px dashed #4ae8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(1.02);
+    }
+
+    .stage-drop-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .stage-drop-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(74, 232, 255, 0.15);
+      border: 1.5px solid #4ae8ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(74, 232, 255, 0.4);
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+
+    .stage-drop-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 0 0 15px rgba(74, 232, 255, 0.8);
+    }
+
+    .stage-drop-sub {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(74, 232, 255, 0.3);
+      }
+
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 40px rgba(74, 232, 255, 0.7);
+      }
     }
   </style>
 </head>
-<body>
 
-  <!-- ヘッダー -->
-  <site-header site-name="Entrance"></site-header>
+<body class="theme-aurora">
 
-  <!-- ヒーロー画像（フルブリード） -->
-  <section class="hero-img-section" id="hero-section">
-    <img src="https://5gkyu.github.io/icon/helo.png" alt="Halcyon" class="hero-img" draggable="false" oncontextmenu="return false;">
-    
-    <canvas id="petals-canvas"></canvas>
+  <!-- ドラッグ＆ドロップ用近未来オーバーレイ -->
+  <div class="stage-drop-overlay" id="stage-drop-overlay">
+    <div class="stage-drop-icon">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="#4ae8ff">
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+      </svg>
+    </div>
+    <div class="stage-drop-title">DROP .JSON / .JS PARTICLE DATA HERE</div>
+    <div class="stage-drop-sub">dog.js, miku.js または エディターで出力した .js / .json をドロップして即座に変形表示</div>
+  </div>
 
-    <div class="hero-overlay-content">
-      <!-- フロストグラスパネル（サイト情報） -->
-      <div class="hero-glass-panel">
-        <div>
-          <h1 class="hero-glass-title">Halcyon</h1>
-          <div class="hero-glass-subtitle">5Gkyu's Space</div>
-        </div>
-        <!-- <p class="hero-glass-desc">
-          「5Gkyu」のホームページです。<br>
-        </p> -->
-        <div class="hero-glass-updated">Last Updated: 2026.05.14</div>
+  <!-- ヘッダー（コンポーネント非依存のピュアHTMLヘッダー） -->
+  <header class="top-site-header">
+    <div class="top-site-header__inner">
+      <!-- 左側：ロゴ ＆ Entranceバッジ -->
+      <div class="site-header__logo-area">
+        <a href="/" class="site-header__logo-link">
+          <span class="site-header__logo-icon" aria-hidden="true">
+            <img src="https://5gkyu.github.io/icon/hl-logo-6A7963.png" alt="Halcyon Logo" draggable="false"
+              oncontextmenu="return false;">
+          </span>
+          <span class="site-header__logo-text">Halcyon</span>
+        </a>
+        <span class="site-header__site-name" aria-hidden="true">Entrance</span>
       </div>
 
-      <!-- 詳細ボタン群（ガラスカードスタイル） -->
-      <nav class="hero-nav" aria-label="ページナビゲーション">
-        
-        <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="hero-nav-card accent" target="_blank" rel="noopener noreferrer">
-          <div class="nav-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,19.93C7.05,19.43 4,16.05 4,12C4,7.95 7.05,4.57 11,4.07V19.93M13,4.07C16.95,4.57 20,7.95 20,12C20,16.05 16.95,19.43 13,19.93V4.07Z" /></svg>
-          </div>
-          <span class="nav-card-title">Links</span>
+      <!-- 右側：SNSアイコンリンク群（GitHub, X, Niconico, Steam, Discord, Vocaloid100, note） -->
+      <div class="top-header-sns">
+        <a href="https://github.com/5gkyu" target="_blank" rel="noopener noreferrer" class="top-header-sns-link"
+          title="GitHub" data-hover-key="sns_github">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.07 2.91.83.1-.75.4-1.27.73-1.56-2.2-.25-4.51-1.11-4.51-4.9 0-1.08.38-1.96 1.02-2.65-.1-.25-.45-1.26.1-2.62 0 0 .83-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33.85 0 1.71.11 2.5.33 1.91-1.29 2.74-1.02 2.74-1.02.55 1.36.2 2.37.1 2.62.64.69 1.02 1.57 1.02 2.65 0 3.8-2.3 4.65-4.5 4.9.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z" />
+          </svg>
+        </a>
+        <a href="https://twitter.com/5gkyu" target="_blank" rel="noopener noreferrer" class="top-header-sns-link"
+          title="X (Twitter)" data-hover-key="sns_x">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
         </a>
 
-        <a href="/archive/" class="hero-nav-card">
-          <div class="nav-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H6V3H8V4H16V3H18V4H20A2,2 0 0,1 22,6V18C22,19.1 21.1,20 20,20M20,18V11H4V18H20M20,9V6H4V9H20M18,16H6V14H18V16M14,13H6V11H14V13Z" /></svg>
+        <a href="https://steamcommunity.com/id/QueenKyu/" target="_blank" rel="noopener noreferrer"
+          class="top-header-sns-link" title="Steam" data-hover-key="sns_steam">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 1.25a8.75 8.75 0 0 0-8.68 7.73c.18-.03.36-.05.54-.05h.06c.31.02.6.14.82.35l2.06 2.07c.2.2.3.47.3.75v1.23h1.8c.28 0 .53.13.7.35l2.06 2.57c.2.25.32.56.32.89v2.1c4.54-.53 8.07-4.4 8.07-9.04 0-4.83-3.92-8.75-8.75-8.75zm-3 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm6.5 4a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z" />
+          </svg>
+        </a>
+        <a href="https://discord.gg/SkvCmGcKZ" target="_blank" rel="noopener noreferrer" class="top-header-sns-link"
+          title="Discord" data-hover-key="sns_discord">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19.27 4.73a16.14 16.14 0 0 0-3.97-1.23.1.1 0 0 0-.1.05c-.17.3-.37.72-.5 1.03a14.9 14.9 0 0 0-4.4 0c-.13-.31-.33-.73-.5-1.03a.1.1 0 0 0-.1-.05 16.14 16.14 0 0 0-3.97 1.23.1.1 0 0 0-.04.04A15.82 15.82 0 0 0 2 17.68a.1.1 0 0 0 .04.07 16.69 16.69 0 0 0 5.03 2.54.1.1 0 0 0 .1-.03c.42-.57.8-1.19 1.11-1.84a.1.1 0 0 0-.05-.13 10.9 10.9 0 0 1-1.57-.75.1.1 0 0 1-.01-.17c.1-.07.2-.15.3-.23a.1.1 0 0 1 .1-.02 11.53 11.53 0 0 0 9.88 0 .1.1 0 0 1 .1.02c.1.08.2.16.3.23a.1.1 0 0 1-.01.17 10.9 10.9 0 0 1-1.57.75.1.1 0 0 0-.05.13c.31.65.69 1.27 1.11 1.84a.1.1 0 0 0 .1.03 16.69 16.69 0 0 0 5.03-2.54.1.1 0 0 0 .04-.07 15.82 15.82 0 0 0-4.23-12.91.1.1 0 0 0-.04-.04zM9 14.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+          </svg>
+        </a>
+        <a href="https://kiite.jp/playlist/TeeyGbDqxe" target="_blank" rel="noopener noreferrer"
+          class="top-header-sns-link" title="Vocaloid100" data-hover-key="sns_vocaloid100">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>
+        </a>
+        <a href="https://note.com/5gkyu" target="_blank" rel="noopener noreferrer" class="top-header-sns-link"
+          title="note" data-hover-key="sns_note">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2zm2.8 12.3c-.3.6-.9.9-1.6.9H9.4V8.8h3.8c.7 0 1.3.3 1.6.9.3.5.3 1.1 0 1.6-.2.4-.6.6-1 .7.4.1.8.3 1 .7.3.5.3 1.1 0 1.6z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- カメが主役の全画面ヒーローステージ -->
+  <main class="hero-stage-fullscreen" id="hero-section">
+    <!-- p5.js パーティクル亀キャンバス（全画面背景） -->
+    <div class="turtle-canvas-container" id="turtle-canvas-container"></div>
+
+    <!-- 上部HUDレイヤー（サイト情報・ヒント） -->
+    <div class="stage-hud-top">
+      <div class="hero-glass-panel">
+        <h1 class="hero-glass-title" id="hero-glass-title">Halcyon</h1>
+        <div class="hero-glass-subtitle" id="hero-glass-subtitle">5Gkyu's Space</div>
+        <div class="hero-glass-desc" id="hero-glass-desc">満天の星空と天の川、水鏡に映る少女の祈り。静寂な星の世界。</div>
+        <div class="hero-glass-meta">
+          <span class="hero-glass-updated">Updated: 2026.09.05</span>
+        </div>
+        <div class="hero-char-info" id="hero-char-info">
+          <div class="hero-char-row">
+            <span class="hero-char-badge" id="char-model-type" style="border-color: #38bdf8; color: #38bdf8;">Pixel Art
+              Scene</span>
+            <span class="hero-char-name" id="char-model-name">Stargazer (星空の水鏡)</span>
+            <span class="hero-char-badge ip-badge" id="char-model-ip" style="display: inline-flex;">Halcyon Original
+              Scene</span>
           </div>
-          <span class="nav-card-title">Archive</span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+        <button id="btn-toggle-stargazer" class="stage-badge"
+          style="cursor: pointer; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.6); color: #7dd3fc; font-weight: 700; transition: all 0.25s ease;"
+          title="星空の水鏡（少女と銀河・水面反射）モデルを表示">
+          ✨ Stargazer (星空の水鏡)
+        </button>
+        <button id="btn-toggle-penrose" class="stage-badge"
+          style="cursor: pointer; background: rgba(140, 230, 255, 0.15); border-color: rgba(140, 230, 255, 0.5); color: #8ce6ff; font-weight: 700; transition: all 0.25s ease;"
+          title="ペンローズの階段（無限歩行人間）モデルを表示">
+          ♾️ Penrose Stairs
+        </button>
+        <div style="display: flex; gap: 0.4rem;">
+          <button id="btn-open-paste-modal" class="stage-badge"
+            style="cursor: pointer; background: rgba(168, 85, 247, 0.18); border-color: rgba(168, 85, 247, 0.55); color: #e9d5ff; font-weight: 700; transition: all 0.25s ease;"
+            title="JSコードやテキストを直接ペーストして実行">
+            📝 Paste Code
+          </button>
+          <input type="file" id="stage-file-input" accept=".js,.json" style="display: none;">
+          <button id="btn-load-custom-js" class="stage-badge"
+            style="cursor: pointer; background: rgba(74, 232, 255, 0.12); border-color: rgba(74, 232, 255, 0.5); color: #4ae8ff; font-weight: 700; transition: all 0.25s ease;"
+            title="ローカルの .js / .json 点群データを読み込んで表示">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+            </svg>
+            Load File
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 画面右上の軽量ネオントースト通知 -->
+    <div id="paste-toast"
+      style="display: none; position: fixed; top: 20px; right: 20px; z-index: 10000; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(168, 85, 247, 0.6); border-radius: 8px; padding: 8px 14px; color: #f3e8ff; font-size: 0.85rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+    </div>
+
+    <!-- 下部HUDレイヤー（ナビゲーションデッキ：Archive ➔ Links ➔ Contact ➔ Policy） -->
+    <div class="stage-hud-bottom">
+      <nav class="hero-nav-deck" aria-label="ページナビゲーション">
+        <!-- 1. Archive (ホバーでネオンガラスのサブメニューが出現) -->
+        <div class="hero-nav-card-wrapper" id="nav-card-archive-wrapper">
+          <!-- 浮き出るネオンガラスのサブメニュー -->
+          <div class="archive-submenu-panel">
+            <a href="/archive/app/" class="submenu-item" data-hover-key="archive_app">App</a>
+            <a href="/archive/play/" class="submenu-item" data-hover-key="archive_play">Play</a>
+            <a href="/archive/note/" class="submenu-item" data-hover-key="archive_note">Note</a>
+            <a href="/archive/other/" class="submenu-item" data-hover-key="archive_other">Other</a>
+          </div>
+
+          <a href="/archive/" class="hero-nav-card" id="nav-card-archive">
+            <div class="nav-card-icon">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H6V3H8V4H16V3H18V4H20A2,2 0 0,1 22,6V18C22,19.1 21.1,20 20,20M20,18V11H4V18H20M20,9V6H4V9H20M18,16H6V14H18V16M14,13H6V11H14V13Z" />
+              </svg>
+            </div>
+            <div class="nav-card-texts">
+              <span class="nav-card-title">Archive</span>
+              <span class="nav-card-sub">Past Works & Logs</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- 2. Links -->
+        <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="hero-nav-card" id="nav-card-links" target="_blank"
+          rel="noopener noreferrer">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 12,22A10,10 0 0,1 12,2M11,19.93C7.05,19.43 4,16.05 4,12C4,7.95 7.05,4.57 11,4.07V19.93M13,4.07C16.95,4.57 20,7.95 20,12C20,16.05 16.95,19.43 13,19.93V4.07Z" />
+            </svg>
+          </div>
+          <div class="nav-card-texts">
+            <span class="nav-card-title">Links</span>
+            <span class="nav-card-sub">Social & Profiles</span>
+          </div>
         </a>
 
-        <a href="/contact/" class="hero-nav-card">
+        <!-- 3. Contact -->
+        <a href="/contact/" class="hero-nav-card" id="nav-card-contact">
           <div class="nav-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" />
+            </svg>
           </div>
-          <span class="nav-card-title">Contact</span>
+          <div class="nav-card-texts">
+            <span class="nav-card-title">Contact</span>
+            <span class="nav-card-sub">Get in Touch</span>
+          </div>
         </a>
 
+        <!-- 4. Policy (小豆沢こはねモデル) -->
+        <a href="/policy/" class="hero-nav-card" id="nav-card-policy">
+          <div class="nav-card-icon">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.4 16.14,19.53 12,20.89C7.86,19.53 5,15.4 5,11V6.11L12,3Z" />
+            </svg>
+          </div>
+          <div class="nav-card-texts">
+            <span class="nav-card-title">Policy</span>
+            <span class="nav-card-sub">Rules & Terms</span>
+          </div>
+        </a>
       </nav>
     </div>
-  </section>
 
-  <!-- フッター -->
-  <site-footer copy="5Gkyu"></site-footer>
+    <!-- モバイル専用：スクロールスナップ用トリガー（透明な縦スクロール領域） -->
+    <div class="mobile-story-deck" id="mobile-story-deck">
+      <div class="mobile-snap-trigger" id="m-trig-top" data-model="turtle"></div>
+      <div class="mobile-snap-trigger" id="m-trig-archive" data-model="archive"></div>
+      <div class="mobile-snap-trigger" id="m-trig-links" data-model="links"></div>
+      <div class="mobile-snap-trigger" id="m-trig-contact" data-model="contact"></div>
+      <div class="mobile-snap-trigger" id="m-trig-policy" data-model="policy"></div>
+    </div>
 
-  <script src="/components/components.js"></script>
+    <!-- モバイル専用：画面下部に1枚だけ常時固定される動的ネオンHUDパネル -->
+    <div class="mobile-fixed-hud-card" id="mobile-fixed-hud-card">
+      <div class="m-card-badge" id="m-hud-badge">Entrance</div>
+      <h2 class="m-card-title" id="m-hud-title">Halcyon</h2>
+      <div class="m-card-sub" id="m-hud-sub">5Gkyu's Sandbox</div>
+      <p class="m-card-desc" id="m-hud-desc">5Gkyuのポートフォリオ ＆ 創作物の実験室へようこそ。</p>
 
-  <!-- 落ち葉・花びらアニメーション (404と同様) -->
+      <div class="m-card-scroll-hint" id="m-hud-scroll-hint">
+        <span>Scroll to Explore</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+        </svg>
+      </div>
+
+      <div class="m-card-actions" id="m-hud-actions" style="display: none;"></div>
+    </div>
+
+    <!-- モバイル専用：画面右端の縦型ステップナビゲーション -->
+    <div class="mobile-step-indicator" id="mobile-step-indicator">
+      <div class="step-dot active" data-step="0" title="Top"></div>
+      <div class="step-dot" data-step="1" title="Archive"></div>
+      <div class="step-dot" data-step="2" title="Links"></div>
+      <div class="step-dot" data-step="3" title="Contact"></div>
+      <div class="step-dot" data-step="4" title="Policy"></div>
+    </div>
+
+  </main>
+
+  <!-- モデルデータ読み込み（キャッシュ無効クエリ付き） -->
+  <script src="./particle/miku.js?v=20260821_2"></script>
+  <script src="./particle/kohaneidle.js?v=20260821_2"></script>
+  <script src="./particle/dog.js?v=20260821_2"></script>
+  <script src="./particle/kohane.js?v=20260821_2"></script>
+  <script src="./particle/koishi.js?v=20260821_2"></script>
+  <script src="./particle/fuka.js?v=20260821_2"></script>
+  <script src="./particle/penrose.js?v=20260822_1"></script>
+  <script src="./particle/gears.js?v=20260822_1"></script>
+  <script src="./particle/tetris.js?v=20260822_1"></script>
+  <script src="./particle/meadow.js?v=20260905_4"></script>
+  <script src="./particle/jellyfish.js?v=20260829_1"></script>
+  <script src="./particle/dragon.js?v=20260825_1"></script>
+  <script src="./particle/veranda.js?v=20260905_1"></script>
+  <script src="./particle/stargazer.js?v=20260911_v4_perfect"></script>
+  <!-- p5.js ライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
   <script>
-    (function() {
-        const canvas = document.getElementById('petals-canvas');
-        const section = document.getElementById('hero-section');
-        const ctx = canvas.getContext('2d');
+    (function () {
+      // サイトの虹色カラーパレット（亀用）
+      const PALETTE = [
+        [255, 107, 157],  // ピンク
+        [255, 160, 74],   // オレンジ
+        [255, 215, 0],    // ゴールド
+        [127, 255, 159],  // グリーン
+        [74, 232, 255],   // シアン
+        [167, 139, 250],  // パープル
+      ];
 
-        const SHAPES = [
-            { type: 'petal', color: '#ffb3ba', size:  8 }, // Pink
-            { type: 'petal', color: '#ffddf4', size:  6 }, // Light Pink
-            { type: 'petal', color: '#bdecb6', size:  7 }, // Light Green
-            { type: 'petal', color: '#ffdfba', size:  9 }, // Orange/Peach
-            { type: 'petal', color: '#bae1ff', size:  7 }, // Light Blue
-            { type: 'petal', color: '#e0baff', size:  8 }, // Purple
-            { type: 'leaf',  color: '#bae1ff', size:  6 }, // Blue leaf
-            { type: 'leaf',  color: '#ffdfba', size:  8 }, // Yellow/Orange leaf
-            { type: 'leaf',  color: '#ffffff', size:  5 }, // White
+      // 亀の高精細点群モデルデータ生成（約1,870点）
+      function generateTurtleTemplate() {
+        const template = [];
+
+        // 1. 甲羅（立体楕円ドーム：高密度化）
+        for (let i = 0; i < 750; i++) {
+          const u = Math.random();
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(u);
+          const rx = 52 * r;
+          const ry = 42 * r;
+          const col = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+          template.push({
+            type: 'shell',
+            bx: Math.cos(a) * rx,
+            by: Math.sin(a) * ry,
+            rgb: col,
+            layer: 'body',
+            size: Math.random() * 1.8 + 2.2
+          });
+        }
+
+        // 2. 甲羅の幾何学パターン（六角形＆稜線：高密度化）
+        const hexes = [
+          { x: 0, y: 0, r: 14 },
+          { x: -22, y: -12, r: 11 }, { x: 22, y: -12, r: 11 },
+          { x: -22, y: 12, r: 11 }, { x: 22, y: 12, r: 11 },
+          { x: 0, y: -24, r: 10 }, { x: 0, y: 24, r: 10 },
+          { x: -38, y: 0, r: 9 }, { x: 38, y: 0, r: 9 }
         ];
-
-        function rand(min, max) { return Math.random() * (max - min) + min; }
-
-        function resize() {
-            // ヒーロー画像の表示領域に合わせてCanvasサイズを更新
-            canvas.width  = section.offsetWidth;
-            canvas.height = section.offsetHeight;
-        }
-        window.addEventListener('resize', resize);
-        
-        // 初回のサイズ計算を確実に行うための処理
-        requestAnimationFrame(() => {
-            resize();
-        });
-
-        // パーティクルの数
-        const COUNT = 45;
-        const COUNT_FG = 8; // 手前の大型・高速パーティクル
-        const particles = [];
-
-        function createParticle(startAtTop) {
-            const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-            return {
-                x:          rand(0, window.innerWidth),
-                y:          startAtTop ? rand(-80, -10) : rand(-window.innerHeight, 0),
-                size:       rand(s.size * 0.8, s.size * 1.4),
-                color:      s.color,
-                type:       s.type,
-                speed:      rand(0.6, 1.6),
-                drift:      rand(-0.4, 0.4),
-                angle:      rand(0, Math.PI * 2),
-                spin:       rand(-0.02, 0.02),
-                sway:       rand(0.3, 0.8),
-                swaySpeed:  rand(0.01, 0.025),
-                swayOffset: rand(0, Math.PI * 2),
-                opacity:    rand(0.55, 0.85),
-                isFeather:  false,
-            };
-        }
-
-        // 白い羽パーティクル（手前レイヤー・横移動）
-        function createFeather(startLeft) {
-            const vw = canvas.width  || window.innerWidth;
-            const vh = canvas.height || window.innerHeight;
-            // 0=遠景(小) 〜 1=近景(大) の奥行きスケール
-            const depth = rand(0.2, 1.0);
-            const size  = 10 + depth * 42; // 遠: ~12px, 近: ~52px
-            return {
-                x:           startLeft ? rand(-size * 2, -10) : rand(-vw * 0.95, -10),
-                y:           rand(vh * -0.12, vh * 0.55),
-                size:        size,
-                depth:       depth,
-                type:        'feather',
-                vx:          rand(0.7, 2.0) + depth * rand(1.5, 3.0), // 大きいほど速い
-                vy:          rand(0.05, 0.6) + depth * 0.2,           // 右下方向への初速
-                curve:       rand(0.0005, 0.006) * (0.4 + depth * 0.8), // 弧を描く曲率
-                angle:       rand(-Math.PI * 0.45, Math.PI * 0.35),
-                spin:        (Math.random() < 0.5 ? 1 : -1) * rand(0.004, 0.018),
-                wobble:      rand(0, Math.PI * 2),
-                wobbleSpeed: rand(0.008, 0.022) / (0.5 + depth * 0.5),
-                wobbleAmp:   rand(0.1, 0.5) * (0.3 + depth * 0.8),
-                tiltOffset:  rand(0, Math.PI * 2),
-                tiltSpeed:   rand(0.005, 0.018),
-                tiltAmp:     rand(0.003, 0.014) * (0.5 + depth * 0.6),
-                opacity:     rand(0.3 + depth * 0.25, 0.55 + depth * 0.4),
-                isFeather:   true,
-            };
-        }
-
-        for (let i = 0; i < COUNT; i++) {
-            particles.push(createParticle(false));
-        }
-        for (let i = 0; i < COUNT_FG; i++) {
-            particles.push(createFeather(false));
-        }
-
-        function drawLeaf(ctx, size) {
-            ctx.beginPath();
-            ctx.moveTo(0, -size);
-            ctx.bezierCurveTo( size * 0.8, -size * 0.5,  size * 0.8,  size * 0.5, 0,  size);
-            ctx.bezierCurveTo(-size * 0.8,  size * 0.5, -size * 0.8, -size * 0.5, 0, -size);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(0, -size * 0.9);
-            ctx.lineTo(0,  size * 0.9);
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-        }
-
-        function drawPetal(ctx, size) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size * 0.5, size * 0.55, size, 0, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // 白い羽の描画（クイル＋羽枝テクスチャ）
-        function drawFeather(ctx, size) {
-            // Vane（羽の面）
-            ctx.beginPath();
-            ctx.moveTo(0, -size);
-            ctx.bezierCurveTo( size * 0.38, -size * 0.4,  size * 0.42,  size * 0.3,  size * 0.05,  size * 0.95);
-            ctx.lineTo(0, size);
-            ctx.bezierCurveTo(-size * 0.42,  size * 0.3, -size * 0.38, -size * 0.4, 0, -size);
-            ctx.fillStyle = 'rgba(255,255,255,0.42)';
-            ctx.fill();
-            // 羽枝のテクスチャライン
-            const numBarbs = 10;
-            for (let i = 1; i < numBarbs; i++) {
-                const t = i / numBarbs;
-                const qy = -size + t * 1.95 * size;
-                const w  = size * 0.38 * Math.sin(Math.PI * (t * 0.82 + 0.09));
-                ctx.beginPath();
-                ctx.moveTo(-w, qy + w * 0.18);
-                ctx.lineTo( w, qy + w * 0.18);
-                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-                ctx.lineWidth = 0.6;
-                ctx.stroke();
-            }
-            // 中央の羽軸（クイル）
-            ctx.beginPath();
-            ctx.moveTo(0, -size * 0.95);
-            ctx.lineTo(0,  size);
-            ctx.strokeStyle = 'rgba(255,255,255,0.88)';
-            ctx.lineWidth = Math.max(0.8, size * 0.032);
-            ctx.stroke();
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const now = performance.now() * 0.001;
-
-            particles.forEach(p => {
-                if (p.isFeather) {
-                    // 羽: 左上→右下カーブ移動＋ふわふわ浮遊
-                    p.vy  += p.curve; // 重力的カーブ（徐々に下向きへ弧を描く）
-                    p.x   += p.vx;
-                    p.y   += p.vy + Math.sin(now * p.wobbleSpeed * 60 + p.wobble) * p.wobbleAmp;
-                    p.angle += p.spin + Math.sin(now * p.tiltSpeed * 60 + p.tiltOffset) * p.tiltAmp;
-
-                    if (p.x > canvas.width + p.size * 2 || p.y > canvas.height + p.size * 2) {
-                        Object.assign(p, createFeather(true));
-                    }
-
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.angle);
-                    ctx.globalAlpha = p.opacity;
-                    drawFeather(ctx, p.size);
-                    ctx.restore();
-                } else {
-                    // 花びら・葉: 落下
-                    p.y     += p.speed;
-                    p.x     += p.drift + Math.sin(now * p.swaySpeed * 60 + p.swayOffset) * p.sway;
-                    p.angle += p.spin;
-
-                    if (p.y > canvas.height + 20) {
-                        Object.assign(p, createParticle(true));
-                        p.x = rand(0, canvas.width);
-                    }
-
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.angle);
-                    ctx.globalAlpha = p.opacity;
-                    ctx.fillStyle   = p.color;
-
-                    if (p.type === 'leaf') drawLeaf(ctx, p.size);
-                    else                   drawPetal(ctx, p.size);
-
-                    ctx.restore();
-                }
+        for (const h of hexes) {
+          for (let j = 0; j < 20; j++) {
+            const a = (Math.PI * 2 / 20) * j;
+            template.push({
+              type: 'shell-line',
+              bx: h.x + Math.cos(a) * h.r,
+              by: h.y + Math.sin(a) * h.r,
+              rgb: PALETTE[2], // ゴールド
+              layer: 'body',
+              size: Math.random() * 1.2 + 2.5
             });
-
-            requestAnimationFrame(animate);
+          }
         }
 
-        animate();
+        // 3. 頭（前方に突き出た丸み：高密度化）
+        for (let i = 0; i < 220; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(Math.random()) * 18;
+          const col = Math.random() < 0.6 ? PALETTE[3] : PALETTE[4];
+          template.push({
+            type: 'head',
+            bx: 64 + Math.cos(a) * (r * 1.1),
+            by: Math.sin(a) * (r * 0.85),
+            rgb: col,
+            layer: 'head',
+            size: Math.random() * 1.8 + 2.2
+          });
+        }
+
+        // 4. 目（左右：くっきり発光）
+        for (let i = 0; i < 12; i++) {
+          template.push({
+            type: 'eye',
+            bx: 72 + (Math.random() - 0.5) * 4,
+            by: -8 + (Math.random() - 0.5) * 4,
+            rgb: [255, 255, 255],
+            layer: 'head',
+            size: 4.2
+          });
+          template.push({
+            type: 'eye',
+            bx: 72 + (Math.random() - 0.5) * 4,
+            by: 8 + (Math.random() - 0.5) * 4,
+            rgb: [255, 255, 255],
+            layer: 'head',
+            size: 4.2
+          });
+        }
+
+        // 5. 大きな前ヒレ（右前・左前：高密度化）
+        for (let i = 0; i < 200; i++) {
+          const t = Math.random();
+          const a = t * 1.2 + 0.2;
+          const len = 30 + t * 45;
+          const spread = (Math.random() - 0.5) * 14 * (1 - t * 0.5);
+          const col = Math.random() < 0.5 ? PALETTE[4] : PALETTE[5];
+          // 上ヒレ
+          template.push({
+            type: 'flipper-front-top',
+            bx: 28 + Math.cos(a) * len,
+            by: -26 - Math.sin(a) * len + spread,
+            rgb: col,
+            layer: 'flipper-top',
+            size: Math.random() * 1.8 + 2.2
+          });
+          // 下ヒレ
+          template.push({
+            type: 'flipper-front-bot',
+            bx: 28 + Math.cos(a) * len,
+            by: 26 + Math.sin(a) * len + spread,
+            rgb: col,
+            layer: 'flipper-bot',
+            size: Math.random() * 1.8 + 2.2
+          });
+        }
+
+        // 6. 後ろ足（パドル状：高密度化）
+        for (let i = 0; i < 120; i++) {
+          const t = Math.random();
+          const a = t * 0.9 + 2.2;
+          const len = 20 + t * 30;
+          const spread = (Math.random() - 0.5) * 10;
+          const col = Math.random() < 0.5 ? PALETTE[3] : PALETTE[0];
+          // 上後足
+          template.push({
+            type: 'flipper-back-top',
+            bx: -36 + Math.cos(a) * len,
+            by: -24 - Math.sin(a) * len * 0.6 + spread,
+            rgb: col,
+            layer: 'back-top',
+            size: Math.random() * 1.8 + 2.2
+          });
+          // 下後足
+          template.push({
+            type: 'flipper-back-bot',
+            bx: -36 + Math.cos(a) * len,
+            by: 24 + Math.sin(a) * len * 0.6 + spread,
+            rgb: col,
+            layer: 'back-bot',
+            size: Math.random() * 1.8 + 2.2
+          });
+        }
+
+        // 7. しっぽ（後方：高密度化）
+        for (let i = 0; i < 60; i++) {
+          const t = Math.random();
+          template.push({
+            type: 'tail',
+            bx: -54 - t * 20,
+            by: (Math.random() - 0.5) * (8 * (1 - t)),
+            rgb: PALETTE[3],
+            layer: 'tail',
+            size: Math.random() * 1.8 + 2.0
+          });
+        }
+
+        return template;
+      }
+
+      const container = document.getElementById('turtle-canvas-container');
+      if (!container) return;
+
+      // 現在選択中のキャラクター ('stargazer' | 'veranda' | 'dragon' | 'turtle' | 'char1' | 'char2')
+      let currentModel = 'stargazer';
+      // ホバーによる一時的なキャラクターオーバーライド ('contact' | null)
+      let hoverOverrideModel = null;
+
+      // キャラクター情報およびページ情報の定義
+      const CHAR_METADATA = {
+        stargazer: {
+          name: 'Stargazer (星空の水鏡)',
+          type: 'Pixel Art Scene',
+          ip: 'Halcyon Original Scene',
+          color: '#38bdf8',
+          title: 'Halcyon',
+          subtitle: "5Gkyu's Space",
+          desc: '満天の星空と天の川、水鏡に映る少女の祈り。静寂な星の世界。'
+        },
+        veranda: {
+          name: 'Starry Veranda (星屑のテラス)',
+          type: 'Original Animation',
+          ip: 'Halcyon Original Scene',
+          color: '#818cf8',
+          title: 'Halcyon',
+          subtitle: "5Gkyu's Space",
+          desc: 'Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。'
+        },
+        dragon: {
+          name: 'Quantum Cyber Dragon',
+          type: 'Original Animation',
+          ip: '',
+          color: '#1eb4ff',
+          title: 'Halcyon',
+          subtitle: "5Gkyu's Space",
+          desc: 'Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。'
+        },
+        turtle: {
+          name: 'Chiroporo',
+          type: 'Original Model',
+          ip: '',
+          color: '#4ae8ff',
+          title: 'Halcyon',
+          subtitle: "5Gkyu's Space",
+          desc: 'Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。'
+        },
+        char1: {
+          name: '初音ミク (Hatsune Miku)',
+          type: 'Fan Art Model',
+          ip: 'ピアプロ・キャラクター・ライセンス (Crypton Future Media)',
+          color: '#ff6b9d'
+        },
+        char2: {
+          name: '小豆沢 こはね (アイドルVer.)',
+          type: 'Fan Art Model',
+          ip: 'プロジェクトセカイ × 推しの子パロディ',
+          color: '#ffd700'
+        },
+        char3: {
+          name: '小豆沢 こはね (Kohane Azusawa)',
+          type: 'Fan Art Model',
+          ip: 'プロジェクトセカイ (SEGA / Colorful Palette)',
+          color: '#ff6699'
+        },
+        policy: {
+          name: 'Starlight Meadow (星降る草原と佇む少女)',
+          type: 'Pixel Art Scene',
+          ip: 'Halcyon Original Scene',
+          color: '#4ae8ff',
+          title: 'Policy',
+          subtitle: 'Rules & Guidelines',
+          desc: '利用規約、免責事項、プライバシーポリシー、各種ツールの利用方針について掲載しています。'
+        },
+        contact: {
+          name: 'Chiroporo (キロポロ / 亀)',
+          type: 'Original Model',
+          ip: '',
+          color: '#4ae8ff',
+          title: 'Contact',
+          subtitle: 'Get in Touch',
+          desc: 'ご質問・ご要望・ご依頼などのお問い合わせはこちらから。X (旧Twitter) のDMや各種フォームをご利用いただけます。'
+        },
+        links: {
+          name: 'Cyber Jellyfish (巨大ネオン・クラゲ)',
+          type: 'Bioluminescent Creature',
+          ip: 'Halcyon Original Animation',
+          color: '#4ae8ff',
+          title: 'Links',
+          subtitle: 'Social & Profiles',
+          desc: 'ソーシャルリンク集（KyuLink）へ移動します。各SNSや外部活動のリンクをまとめています。'
+        },
+        archive: {
+          name: '古明地 こいし (Koishi Komeiji)',
+          type: 'Fan Art Model',
+          ip: '東方Project (上海アリス幻樂団)',
+          color: '#a2e048',
+          title: 'Archive',
+          subtitle: 'Past Works & Creative Logs',
+          desc: '自作Webアプリ、ゲーム、記事、その他の制作物を集約したアーカイブハブです。'
+        },
+        archive_app: {
+          name: 'Clockwork Gears (ネオン歯車機構)',
+          type: 'Mechanical Art Model',
+          ip: 'Halcyon Original Mechanism',
+          color: '#22d3ee',
+          title: 'App & Tools',
+          subtitle: 'Web Applications',
+          desc: '画像圧縮、PDF変換、コラージュメーカー、カラーツールなど、ブラウザ上で快適に動作する便利Webアプリ群です。'
+        },
+        archive_play: {
+          name: 'Neon Tetris (7-Bag System)',
+          type: 'Retro Game Animation',
+          ip: 'The Tetris Company / Guideline 7-Bag',
+          color: '#38bdf8',
+          title: 'Play & Games',
+          subtitle: 'Games & Tools',
+          desc: 'パズルゲームやミニゲーム、ゲーム攻略情報や解析ツールなどの実験場です。'
+        },
+        archive_note: {
+          name: '古明地 こいし (Koishi Komeiji)',
+          type: 'Fan Art Model',
+          ip: '東方Project (上海アリス幻樂団)',
+          color: '#a2e048',
+          title: 'Note',
+          subtitle: 'Design & Tech Notes',
+          desc: 'Webデザイン、UI/UX、タイポグラフィ、心理学、ゲームデザイン、技術メモ等のコラム・備忘録です。'
+        },
+        archive_other: {
+          name: '古明地 こいし (Koishi Komeiji)',
+          type: 'Fan Art Model',
+          ip: '東方Project (上海アリス幻樂団)',
+          color: '#a2e048',
+          title: 'Other',
+          subtitle: 'Miscellaneous',
+          desc: '実験的なコードや検証用デモ、その他の制作物をまとめたアーカイブです。'
+        },
+        sns_github: {
+          name: '初音ミク (Hatsune Miku)',
+          type: 'Fan Art Model',
+          ip: 'ピアプロ・キャラクター・ライセンス (Crypton Future Media)',
+          color: '#ff6b9d',
+          title: 'GitHub',
+          subtitle: 'Open Source Projects',
+          desc: 'GitHubの個人アカウントへ移動します。各種ツールのソースコードを公開しています。'
+        },
+        sns_x: {
+          name: '小豆沢 こはね (Kohane Azusawa)',
+          type: 'Fan Art Model',
+          ip: 'プロジェクトセカイ カラフルステージ！ feat. 初音ミク',
+          color: '#ff88aa',
+          title: 'X / Twitter',
+          subtitle: 'Social Feed',
+          desc: 'X (旧Twitter) アカウントへ移動します。日常の進捗や創作の報告を行っています。'
+        },
+        sns_niconico: {
+          name: '小豆沢 こはね (アイドルVer.)',
+          type: 'Fan Art Model',
+          ip: 'プロジェクトセカイ × 推しの子パロディ',
+          color: '#ffd700',
+          title: 'Kiite / Niconico',
+          subtitle: 'Vocaloid Playlist',
+          desc: 'Kiite（カイテ）プレイリストへ移動します。お気に入りのボカロ曲がまとめられています。'
+        },
+        sns_steam: {
+          name: '古明地 こいし (Koishi Komeiji)',
+          type: 'Fan Art Model',
+          ip: '東方Project (上海アリス幻樂団)',
+          color: '#a2e048',
+          title: 'Steam',
+          subtitle: 'Gaming Profile',
+          desc: 'Steamのプロフィールページへ移動します。ゲームの進捗や実績を公開しています。'
+        },
+        sns_discord: {
+          name: '古明地 こいし (Koishi Komeiji)',
+          type: 'Fan Art Model',
+          ip: '東方Project (上海アリス幻樂団)',
+          color: '#a2e048',
+          title: 'Discord',
+          subtitle: 'Community Server',
+          desc: 'Discordサーバーの招待リンクです。開発進捗の確認やメンバー間の交流を行えます。'
+        },
+        sns_vocaloid100: {
+          name: '初音ミク (Hatsune Miku)',
+          type: 'Fan Art Model',
+          ip: 'ピアプロ・キャラクター・ライセンス (Crypton Future Media)',
+          color: '#ff6b9d',
+          title: 'Vocaloid 100',
+          subtitle: 'Special Playlist',
+          desc: 'Kiiteで公開しているボカロ曲100選プレイリストへ移動します。厳選された名曲が集められています。'
+        },
+        sns_note: {
+          name: 'Penrose Walker (ペンローズの階段)',
+          type: 'Infinite Motion Model',
+          ip: 'Impossible Geometry / M.C. Escher',
+          color: '#8ce6ff',
+          title: 'note',
+          subtitle: 'Dev Blog & Thoughts',
+          desc: 'noteの個人ブログへ移動します。開発の裏話や創作に関するコラムを投稿しています。'
+        },
+        custom: {
+          name: 'Custom Model',
+          type: 'Imported Particle Data',
+          ip: 'User Loaded',
+          color: '#38bdf8',
+          title: 'Custom Model',
+          subtitle: 'Dynamic Particle Data',
+          desc: 'ドラッグ＆ドロップまたはファイル選択によって読み込んだカスタム点群データです。'
+        },
+        penrose: {
+          name: 'Penrose Walker (無限階段)',
+          type: 'Infinite Motion Model',
+          ip: 'Impossible Geometry / M.C. Escher',
+          color: '#8ce6ff',
+          title: 'Penrose Stairs',
+          subtitle: 'Infinite Loop Animation',
+          desc: '錯視立体「ペンローズの階段」を永遠に歩き続ける人間の幾何学パーティクルアートです。'
+        },
+        gears: {
+          name: 'Clockwork Gears (ネオン歯車機構)',
+          type: 'Mechanical Art Model',
+          ip: 'Halcyon Original Mechanism',
+          color: '#22d3ee',
+          title: 'App & Tools',
+          subtitle: 'Web Applications',
+          desc: '画像圧縮、PDF変換、コラージュメーカー、カラーツールなど、ブラウザ上で快適に動作する便利Webアプリ群です。'
+        },
+        tetris: {
+          name: 'Neon Tetris (7-Bag System)',
+          type: 'Retro Game Animation',
+          ip: 'The Tetris Company / Guideline 7-Bag',
+          color: '#38bdf8',
+          title: 'Play & Games',
+          subtitle: 'Games & Tools',
+          desc: 'パズルゲームやミニゲーム、ゲーム攻略情報や解析ツールなどの実験場です。'
+        }
+      };
+
+      function hexToRgb(hex) {
+        let c = (hex || '#4ae8ff').replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const num = parseInt(c, 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+      }
+
+      let currentTheme = 'aurora'; // p5.js連携用のグローバル状態
+
+      function updateCharacterPanel(charKey) {
+        const panel = document.getElementById('hero-char-info');
+        const nameEl = document.getElementById('char-model-name');
+        const typeEl = document.getElementById('char-model-type');
+        const ipEl = document.getElementById('char-model-ip');
+
+        const glassTitle = document.getElementById('hero-glass-title');
+        const glassSubtitle = document.getElementById('hero-glass-subtitle');
+        const glassDesc = document.getElementById('hero-glass-desc');
+
+        if (!panel || !nameEl || !typeEl || !ipEl) return;
+
+        const meta = CHAR_METADATA[charKey] || CHAR_METADATA.turtle;
+        const defaultMeta = CHAR_METADATA[currentModel] || CHAR_METADATA.turtle;
+
+        // 亀（turtle/contact）、草原（policy）、ドラゴン（dragon）、テラス（veranda）、水鏡（stargazer）の時はオーロラテーマ、それ以外の時はホログラムテーマを自動適用（is-startedクラスを維持）
+        if (charKey === 'turtle' || charKey === 'dragon' || charKey === 'contact' || charKey === 'policy' || charKey === 'veranda' || charKey === 'stargazer') {
+          document.body.classList.remove('theme-holo', 'theme-prism');
+          document.body.classList.add('theme-aurora');
+          currentTheme = 'aurora';
+        } else {
+          document.body.classList.remove('theme-aurora', 'theme-prism');
+          document.body.classList.add('theme-holo');
+          currentTheme = 'holo';
+        }
+
+        // 動的CSS変数を更新（アンビエントライティング / ホログラム連携）
+        const charRgb = hexToRgb(meta.color || '#4ae8ff');
+        document.documentElement.style.setProperty('--char-color', meta.color || '#4ae8ff');
+        document.documentElement.style.setProperty('--char-color-rgb', `${charRgb[0]}, ${charRgb[1]}, ${charRgb[2]}`);
+
+        // ガラスパネル内の文字を更新（メタデータに定義がある場合のみ上書き、ない場合はデフォルトまたはturtleの情報を表示）
+        if (glassTitle && glassSubtitle && glassDesc) {
+          glassTitle.textContent = meta.title || defaultMeta.title || CHAR_METADATA.turtle.title;
+          glassSubtitle.textContent = meta.subtitle || defaultMeta.subtitle || CHAR_METADATA.turtle.subtitle;
+          glassDesc.textContent = meta.desc || defaultMeta.desc || CHAR_METADATA.turtle.desc;
+        }
+
+        panel.style.opacity = '0';
+        panel.style.transform = 'translateY(3px)';
+
+        setTimeout(() => {
+          nameEl.textContent = meta.name;
+          typeEl.textContent = meta.type;
+          typeEl.style.borderColor = meta.color;
+          typeEl.style.color = meta.color;
+
+          if (meta.ip) {
+            ipEl.textContent = meta.ip;
+            ipEl.style.display = 'inline-flex';
+          } else {
+            ipEl.style.display = 'none';
+          }
+
+          panel.style.opacity = '1';
+          panel.style.transform = 'translateY(0)';
+        }, 150);
+      }
+
+      // 初期カラー変数をセット
+      const initRgb = hexToRgb(CHAR_METADATA.stargazer.color);
+      document.documentElement.style.setProperty('--char-color', CHAR_METADATA.stargazer.color);
+      document.documentElement.style.setProperty('--char-color-rgb', `${initRgb[0]}, ${initRgb[1]}, ${initRgb[2]}`);
+
+      // 切り替えボタンのイベント登録
+      const switchBtns = document.querySelectorAll('.char-switch-btn');
+      switchBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetChar = btn.getAttribute('data-char');
+          if (targetChar && targetChar !== currentModel) {
+            currentModel = targetChar;
+            switchBtns.forEach(b => b.classList.toggle('active', b === btn));
+            if (!hoverOverrideModel) {
+              updateCharacterPanel(currentModel);
+            }
+          }
+        });
+      });
+
+      // ナビゲーションカードのマウスホバー・フォーカスイベント（イースターエッグ）
+      const navHoverMap = [
+        { id: 'nav-card-archive', key: 'archive' },
+        { id: 'nav-card-links', key: 'links' },
+        { id: 'nav-card-contact', key: 'contact' },
+        { id: 'nav-card-policy', key: 'policy' }
+      ];
+
+      navHoverMap.forEach(({ id, key }) => {
+        const card = document.getElementById(id);
+        if (card) {
+          const handleEnter = () => {
+            hoverOverrideModel = key;
+            updateCharacterPanel(key);
+          };
+          const handleLeave = () => {
+            hoverOverrideModel = null;
+            updateCharacterPanel(currentModel);
+          };
+
+          card.addEventListener('mouseenter', handleEnter);
+          card.addEventListener('mouseleave', handleLeave);
+          card.addEventListener('focus', handleEnter);
+          card.addEventListener('blur', handleLeave);
+          card.addEventListener('pointerdown', handleEnter);
+        }
+      });
+
+      // Stargazer (星空の水鏡) 切り替えボタンイベント
+      const btnStargazer = document.getElementById('btn-toggle-stargazer');
+      if (btnStargazer) {
+        btnStargazer.addEventListener('click', (e) => {
+          e.stopPropagation();
+          currentModel = (currentModel === 'stargazer') ? 'veranda' : 'stargazer';
+          hoverOverrideModel = null;
+          updateCharacterPanel(currentModel);
+        });
+      }
+
+      // Penrose Stairs 切り替えボタンイベント
+      const btnPenrose = document.getElementById('btn-toggle-penrose');
+      if (btnPenrose) {
+        btnPenrose.addEventListener('click', (e) => {
+          e.stopPropagation();
+          currentModel = (currentModel === 'penrose') ? 'dragon' : 'penrose';
+          hoverOverrideModel = null;
+          updateCharacterPanel(currentModel);
+        });
+      }
+
+
+      // ------------------------------------------------------------
+      // モバイル専用：スクロールスナップ ＆ 1枚固定HUDパネル動的更新
+      // ------------------------------------------------------------
+      const MOBILE_CARD_DATA = {
+        veranda: {
+          badge: 'Entrance',
+          title: 'Halcyon',
+          sub: "5Gkyu's Space",
+          desc: 'Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。',
+          showHint: true,
+          actionsHtml: ''
+        },
+        turtle: {
+          badge: 'Entrance',
+          title: 'Halcyon',
+          sub: "5Gkyu's Space",
+          desc: 'Where the world falls silent, we found our own halcyon days. 5Gkyuのホームページ。',
+          showHint: true,
+          actionsHtml: ''
+        },
+        archive: {
+          badge: '01 / Archive',
+          title: 'Archive',
+          sub: 'Past Works & Creative Logs',
+          desc: '自作Webアプリ、ゲーム、記事、その他の制作物を集約したアーカイブハブです。',
+          showHint: false,
+          actionsHtml: `
+            <div class="m-sub-links-grid">
+              <a href="/archive/app/" class="m-sub-btn">App</a>
+              <a href="/archive/play/" class="m-sub-btn">Play</a>
+              <a href="/archive/note/" class="m-sub-btn">Note</a>
+              <a href="/archive/other/" class="m-sub-btn">Other</a>
+            </div>
+            <a href="/archive/" class="m-primary-btn">View All Archives ➔</a>
+          `
+        },
+        links: {
+          badge: '02 / Links',
+          title: 'Links',
+          sub: 'Social & Profiles',
+          desc: 'ソーシャルリンク集（KyuLink）へ移動します。各SNSや外部活動のリンクをまとめています。',
+          showHint: false,
+          actionsHtml: `
+            <div class="m-sub-links-grid">
+              <a href="https://github.com/5gkyu" target="_blank" rel="noopener noreferrer" class="m-sub-btn">GitHub</a>
+              <a href="https://twitter.com/5gkyu" target="_blank" rel="noopener noreferrer" class="m-sub-btn">X (Twitter)</a>
+              <a href="https://steamcommunity.com/id/QueenKyu/" target="_blank" rel="noopener noreferrer" class="m-sub-btn">Steam</a>
+              <a href="https://discord.gg/SkvCmGcKZ" target="_blank" rel="noopener noreferrer" class="m-sub-btn">Discord</a>
+              <a href="https://kiite.jp/playlist/TeeyGbDqxe" target="_blank" rel="noopener noreferrer" class="m-sub-btn">Kiite 100</a>
+              <a href="https://note.com/5gkyu" target="_blank" rel="noopener noreferrer" class="m-sub-btn">note</a>
+            </div>
+            <a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" target="_blank" rel="noopener noreferrer" class="m-primary-btn">Open KyuLink Portal ➔</a>
+          `
+        },
+        contact: {
+          badge: '03 / Contact',
+          title: 'Contact',
+          sub: 'Get in Touch',
+          desc: 'ご質問・ご要望・ご依頼などのお問い合わせはこちらから。',
+          showHint: false,
+          actionsHtml: `
+            <a href="/contact/" class="m-primary-btn">Go to Contact Form ➔</a>
+          `
+        },
+        policy: {
+          badge: '04 / Policy',
+          title: 'Policy',
+          sub: 'Rules & Guidelines',
+          desc: '利用規約、免責事項、プライバシーポリシー、各種ツールの利用方針について掲載しています。',
+          showHint: false,
+          actionsHtml: `
+            <a href="/policy/" class="m-primary-btn">Go to Site Policy ➔</a>
+          `
+        }
+      };
+
+      const mobileTriggers = document.querySelectorAll('.mobile-snap-trigger');
+      const stepDots = document.querySelectorAll('.mobile-step-indicator .step-dot');
+      const mBadge = document.getElementById('m-hud-badge');
+      const mTitle = document.getElementById('m-hud-title');
+      const mSub = document.getElementById('m-hud-sub');
+      const mDesc = document.getElementById('m-hud-desc');
+      const mHint = document.getElementById('m-hud-scroll-hint');
+      const mActions = document.getElementById('m-hud-actions');
+      const mFixedCard = document.getElementById('mobile-fixed-hud-card');
+
+      function updateMobileFixedCard(modelKey) {
+        const data = MOBILE_CARD_DATA[modelKey] || MOBILE_CARD_DATA.turtle;
+        if (!mBadge || !mTitle || !mSub || !mDesc || !mFixedCard) return;
+
+        // 滑らかなフェード切り替え
+        mFixedCard.style.opacity = '0.5';
+        mFixedCard.style.transform = 'translateX(-50%) translateY(3px)';
+
+        setTimeout(() => {
+          mBadge.textContent = data.badge;
+          mTitle.textContent = data.title;
+          mSub.textContent = data.sub;
+          mDesc.textContent = data.desc;
+
+          if (data.showHint) {
+            if (mHint) mHint.style.display = 'flex';
+            if (mActions) mActions.style.display = 'none';
+          } else {
+            if (mHint) mHint.style.display = 'none';
+            if (mActions) {
+              mActions.innerHTML = data.actionsHtml;
+              mActions.style.display = 'flex';
+            }
+          }
+
+          mFixedCard.style.opacity = '1';
+          mFixedCard.style.transform = 'translateX(-50%) translateY(0)';
+        }, 120);
+      }
+
+      if ('IntersectionObserver' in window && mobileTriggers.length > 0) {
+        const observerOptions = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.55 // 画面の55%以上入ったときに切り替え
+        };
+
+        const triggerObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const targetModel = entry.target.getAttribute('data-model');
+              const sectionIndex = Array.from(mobileTriggers).indexOf(entry.target);
+
+              if (targetModel && window.innerWidth <= 768) {
+                currentModel = targetModel;
+                hoverOverrideModel = null;
+                updateCharacterPanel(targetModel);
+                updateMobileFixedCard(targetModel);
+
+                // ステップインジケーターの更新
+                stepDots.forEach((dot, idx) => {
+                  dot.classList.toggle('active', idx === sectionIndex);
+                });
+              }
+            }
+          });
+        }, observerOptions);
+
+        mobileTriggers.forEach((trig) => triggerObserver.observe(trig));
+
+        // ステップドットのタップで該当位置へスムーズスクロール
+        stepDots.forEach((dot, idx) => {
+          dot.addEventListener('click', () => {
+            if (mobileTriggers[idx]) {
+              mobileTriggers[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+          });
+        });
+      }
+
+      new p5(function (p) {
+        let turtleTmpl = [];
+        let model1Tmpl = [];
+        let model2Tmpl = [];
+        let model3Tmpl = [];
+        let contactTmpl = [];
+        let dogTmpl = [];
+        let koishiTmpl = [];
+        let penroseTmpl = [];
+        let gearsTmpl = [];
+        let tetrisTmpl = [];
+        let meadowTmpl = [];
+        let pianorollTmpl = [];
+        let jellyfishTmpl = [];
+        let dragonTmpl = [];
+        let verandaTmpl = [];
+        let stargazerTmpl = [];
+        let customModelTmpl = [];
+        let customDynamicFn = null;
+        let customModelCategory = '';
+        let startTextTmpl = [];
+
+        let isStarted = true; // 初期状態（最初から覚醒後メイン画面）
+        let totalParticles = 0;
+        let posX, posY, velX, velY;
+        let curR, curG, curB, curSize, curAlpha;
+        let pSpeed, pForce;
+        let shockwaves = [];
+        let vortexes = [];
+        let shuffleIdx;
+        let canvasW, canvasH;
+        let curNebulaR = 30, curNebulaG = 180, curNebulaB = 255;
+        let prevActiveCount = 0;
+        const colorCache = {};
+
+        // 「TAP TO START」の文字点群をオフスクリーンキャンバスでサンプリング生成
+        function generateStartTextTemplate() {
+          const tmpl = [];
+          const g = p.createGraphics(700, 220);
+          g.pixelDensity(1);
+          g.background(0);
+          g.fill(255);
+          g.textAlign(p.CENTER, p.CENTER);
+          g.textFont('Quicksand');
+          g.textStyle(p.BOLD);
+          g.textSize(56);
+          g.text('TAP TO START', 350, 80);
+          g.textSize(15);
+          g.textStyle(p.NORMAL);
+          g.fill(180, 240, 255);
+          g.text('CLICK ANYWHERE TO ENTER', 350, 145);
+          g.loadPixels();
+
+          const step = 4;
+          for (let y = 0; y < g.height; y += step) {
+            for (let x = 0; x < g.width; x += step) {
+              const idx = (y * g.width + x) * 4;
+              const r = g.pixels[idx];
+              if (r > 100) {
+                tmpl.push({
+                  bx: x - 350,
+                  by: y - 100,
+                  isSub: y > 120
+                });
+              }
+            }
+          }
+          g.remove();
+          return tmpl;
+        }
+
+        // 画面外から粒子を勢いよく飛び込ませる関数
+        function spawnFromOffscreen(i) {
+          const side = Math.floor(Math.random() * 4);
+          if (side === 0) { // 上から飛び込み
+            posX[i] = Math.random() * canvasW;
+            posY[i] = -40 - Math.random() * 80;
+            velY[i] = 8 + Math.random() * 8;
+            velX[i] = (Math.random() - 0.5) * 4;
+          } else if (side === 1) { // 右から飛び込み
+            posX[i] = canvasW + 40 + Math.random() * 80;
+            posY[i] = Math.random() * canvasH;
+            velX[i] = -(8 + Math.random() * 8);
+            velY[i] = (Math.random() - 0.5) * 4;
+          } else if (side === 2) { // 下から飛び込み
+            posX[i] = Math.random() * canvasW;
+            posY[i] = canvasH + 40 + Math.random() * 80;
+            velY[i] = -(8 + Math.random() * 8);
+            velX[i] = (Math.random() - 0.5) * 4;
+          } else { // 左から飛び込み
+            posX[i] = -40 - Math.random() * 80;
+            posY[i] = Math.random() * canvasH;
+            velX[i] = 8 + Math.random() * 8;
+            velY[i] = (Math.random() - 0.5) * 4;
+          }
+          curAlpha[i] = 0.0;
+          curSize[i] = 0.0;
+        }
+
+        // 背景星空データ（固定位置のきらめき星）
+        const BG_STAR_COUNT = 120;
+        const bgStarX = new Float32Array(BG_STAR_COUNT);
+        const bgStarY = new Float32Array(BG_STAR_COUNT);
+        const bgStarSize = new Float32Array(BG_STAR_COUNT);
+        const bgStarPhase = new Float32Array(BG_STAR_COUNT);
+        const bgStarSpeed = new Float32Array(BG_STAR_COUNT);
+        const bgStarBright = new Float32Array(BG_STAR_COUNT);
+
+        // 汎用アンビエント浮遊オーブ粒子（80個：幻想的な上昇ダスト）
+        const AMBIENT_COUNT = 80;
+        const ambX = new Float32Array(AMBIENT_COUNT);
+        const ambY = new Float32Array(AMBIENT_COUNT);
+        const ambVx = new Float32Array(AMBIENT_COUNT);
+        const ambVy = new Float32Array(AMBIENT_COUNT);
+        const ambSize = new Float32Array(AMBIENT_COUNT);
+        const ambColorIdx = new Uint8Array(AMBIENT_COUNT);
+        const ambAlphaPhase = new Float32Array(AMBIENT_COUNT);
+
+        // 流れ星データ
+        const shootingStars = [];
+        let nextShootTime = 0;
+
+        // 【新光要素】水面波紋光リング（Water Ring Ripples）データ
+        const waterRipples = [];
+        let nextRippleTime = 0;
+
+        // 【新光要素】水面・空間を浮遊する幻想的発光プリズムオーブ（Prism Glow Orbs: 120個に増量）
+        const PRISM_COUNT = 120;
+        const prismX = new Float32Array(PRISM_COUNT);
+        const prismY = new Float32Array(PRISM_COUNT);
+        const prismVx = new Float32Array(PRISM_COUNT);
+        const prismVy = new Float32Array(PRISM_COUNT);
+        const prismSize = new Float32Array(PRISM_COUNT);
+        const prismPhase = new Float32Array(PRISM_COUNT);
+        const prismColorIdx = new Uint8Array(PRISM_COUNT);
+
+        function ensureParticleCapacity(targetCount) {
+          if (targetCount <= totalParticles) return;
+          const newSize = Math.max(targetCount, totalParticles * 2);
+
+          const newShuffle = new Uint32Array(newSize);
+          for (let i = 0; i < newSize; i++) newShuffle[i] = i;
+
+          const newPosX = new Float32Array(newSize);
+          const newPosY = new Float32Array(newSize);
+          const newVelX = new Float32Array(newSize);
+          const newVelY = new Float32Array(newSize);
+          const newCurR = new Float32Array(newSize);
+          const newCurG = new Float32Array(newSize);
+          const newCurB = new Float32Array(newSize);
+          const newCurSize = new Float32Array(newSize);
+          const newCurAlpha = new Float32Array(newSize);
+          const newPSpeed = new Float32Array(newSize);
+          const newPForce = new Float32Array(newSize);
+
+          if (posX) {
+            newPosX.set(posX);
+            newPosY.set(posY);
+            newVelX.set(velX);
+            newVelY.set(velY);
+            newCurR.set(curR);
+            newCurG.set(curG);
+            newCurB.set(curB);
+            newCurSize.set(curSize);
+            newCurAlpha.set(curAlpha);
+            newPSpeed.set(pSpeed);
+            newPForce.set(pForce);
+          }
+
+          for (let i = totalParticles; i < newSize; i++) {
+            newPosX[i] = Math.random() * (canvasW || 1000);
+            newPosY[i] = Math.random() * (canvasH || 800);
+            newVelX[i] = (Math.random() - 0.5) * 1.5;
+            newVelY[i] = (Math.random() - 0.5) * 1.5;
+            newCurR[i] = 200;
+            newCurG[i] = 230;
+            newCurB[i] = 255;
+            newCurAlpha[i] = 0.8;
+            newCurSize[i] = 2.0;
+            newPSpeed[i] = 8.5 + Math.random() * 7.5;
+            newPForce[i] = 0.35 + Math.random() * 0.35;
+          }
+
+          shuffleIdx = newShuffle;
+          posX = newPosX;
+          posY = newPosY;
+          velX = newVelX;
+          velY = newVelY;
+          curR = newCurR;
+          curG = newCurG;
+          curB = newCurB;
+          curSize = newCurSize;
+          curAlpha = newCurAlpha;
+          pSpeed = newPSpeed;
+          pForce = newPForce;
+          totalParticles = newSize;
+        }
+
+        p.setup = function () {
+          const rect = container.getBoundingClientRect();
+          canvasW = rect.width;
+          canvasH = rect.height;
+          const canvas = p.createCanvas(canvasW, canvasH);
+          canvas.parent(container);
+          p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
+
+          startTextTmpl = generateStartTextTemplate();
+          turtleTmpl = generateTurtleTemplate();
+          if (typeof generateMikuTemplate === 'function') {
+            model1Tmpl = generateMikuTemplate();
+          } else if (typeof generateModel1Template === 'function') {
+            model1Tmpl = generateModel1Template();
+          }
+
+          if (typeof generateKohaneIdleTemplate === 'function') {
+            model2Tmpl = generateKohaneIdleTemplate();
+          } else if (typeof generateModel2Template === 'function') {
+            model2Tmpl = generateModel2Template();
+          }
+
+          if (typeof generateModel3Template === 'function') {
+            model3Tmpl = generateModel3Template();
+          } else if (typeof generateKohaneTemplate === 'function') {
+            model3Tmpl = generateKohaneTemplate();
+          } else if (typeof generateCustomTemplate === 'function') {
+            model3Tmpl = generateCustomTemplate();
+          }
+
+          if (typeof generateContactTemplate === 'function') {
+            contactTmpl = generateContactTemplate();
+          } else if (typeof generateFukaTemplate === 'function') {
+            contactTmpl = generateFukaTemplate();
+          }
+
+          if (typeof generateDogTemplate === 'function') {
+            dogTmpl = generateDogTemplate();
+          }
+
+          if (typeof generateKoishiTemplate === 'function') {
+            koishiTmpl = generateKoishiTemplate();
+          }
+
+          if (typeof generatePenroseTemplate === 'function') {
+            penroseTmpl = generatePenroseTemplate(0);
+          }
+
+          if (typeof generateGearsTemplate === 'function') {
+            gearsTmpl = generateGearsTemplate(0);
+          }
+
+          if (typeof generateTetrisTemplate === 'function') {
+            tetrisTmpl = generateTetrisTemplate(0);
+          }
+
+          if (typeof generateMeadowTemplate === 'function') {
+            meadowTmpl = generateMeadowTemplate(0);
+          }
+
+          if (typeof generateJellyfishTemplate === 'function') {
+            jellyfishTmpl = generateJellyfishTemplate(0);
+          }
+
+          if (typeof generatePianoRollTemplate === 'function') {
+            pianorollTmpl = generatePianoRollTemplate(0);
+          }
+
+          if (typeof generateVerandaTemplate === 'function') {
+            verandaTmpl = generateVerandaTemplate(0);
+          }
+
+          if (typeof generateStargazerTemplate === 'function') {
+            stargazerTmpl = generateStargazerTemplate(0);
+          }
+
+          totalParticles = Math.max(8500, startTextTmpl.length + 3500, turtleTmpl.length + 3500, model1Tmpl.length, model2Tmpl.length, model3Tmpl.length, contactTmpl.length, dogTmpl.length, koishiTmpl.length, penroseTmpl.length, (gearsTmpl ? gearsTmpl.length : 0), (tetrisTmpl ? tetrisTmpl.length : 0), (meadowTmpl ? meadowTmpl.length : 0), (jellyfishTmpl ? jellyfishTmpl.length : 0), (dragonTmpl ? dragonTmpl.length : 0), (pianorollTmpl ? pianorollTmpl.length : 0), (verandaTmpl ? verandaTmpl.length : 0), (stargazerTmpl ? stargazerTmpl.length : 0));
+
+          shuffleIdx = new Uint32Array(totalParticles);
+          for (let i = 0; i < totalParticles; i++) {
+            shuffleIdx[i] = i;
+          }
+          for (let i = totalParticles - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = shuffleIdx[i];
+            shuffleIdx[i] = shuffleIdx[j];
+            shuffleIdx[j] = temp;
+          }
+
+          posX = new Float32Array(totalParticles);
+          posY = new Float32Array(totalParticles);
+          velX = new Float32Array(totalParticles);
+          velY = new Float32Array(totalParticles);
+
+          curR = new Float32Array(totalParticles);
+          curG = new Float32Array(totalParticles);
+          curB = new Float32Array(totalParticles);
+          curSize = new Float32Array(totalParticles);
+          curAlpha = new Float32Array(totalParticles);
+
+          pSpeed = new Float32Array(totalParticles);
+          pForce = new Float32Array(totalParticles);
+
+          for (let i = 0; i < totalParticles; i++) {
+            posX[i] = Math.random() * canvasW;
+            posY[i] = Math.random() * canvasH;
+            velX[i] = (Math.random() - 0.5) * 1.5;
+            velY[i] = (Math.random() - 0.5) * 1.5;
+
+            curR[i] = 140;
+            curG[i] = 230;
+            curB[i] = 255;
+            curAlpha[i] = 0.8;
+            curSize[i] = 2.0;
+            pSpeed[i] = 8.5 + Math.random() * 7.5;
+            pForce[i] = 0.35 + Math.random() * 0.35;
+          }
+
+          prevActiveCount = 4000;
+          document.body.classList.add('is-started');
+
+          for (let i = 0; i < BG_STAR_COUNT; i++) {
+            bgStarX[i] = Math.random() * canvasW;
+            bgStarY[i] = Math.random() * canvasH;
+            bgStarSize[i] = 0.5 + Math.random() * 1.8;
+            bgStarPhase[i] = Math.random() * Math.PI * 2;
+            bgStarSpeed[i] = 1.5 + Math.random() * 3.0;
+            bgStarBright[i] = 0.3 + Math.random() * 0.7;
+          }
+
+          for (let i = 0; i < AMBIENT_COUNT; i++) {
+            ambX[i] = Math.random() * canvasW;
+            ambY[i] = Math.random() * canvasH;
+            ambVx[i] = (Math.random() - 0.5) * 0.4;
+            ambVy[i] = -(0.3 + Math.random() * 0.5);
+            ambSize[i] = 1.6 + Math.random() * 2.4;
+            ambColorIdx[i] = Math.floor(Math.random() * PALETTE.length);
+            ambAlphaPhase[i] = Math.random() * Math.PI * 2;
+          }
+
+          for (let i = 0; i < PRISM_COUNT; i++) {
+            prismX[i] = Math.random() * canvasW;
+            prismY[i] = canvasH * 0.35 + Math.random() * (canvasH * 0.60);
+            prismVx[i] = (Math.random() - 0.5) * 0.5;
+            prismVy[i] = -(0.3 + Math.random() * 0.6);
+            prismSize[i] = 3.5 + Math.random() * 5.0;
+            prismPhase[i] = Math.random() * Math.PI * 2;
+            prismColorIdx[i] = i % PALETTE.length;
+          }
+
+          // --- カスタム点群データ（.js / .json）の動的読込処理 ---
+          function parseParticleText(text, fileName) {
+            const nameLower = (fileName || '').toLowerCase();
+            const textLower = (text || '').toLowerCase();
+
+            // モデルカテゴリの厳密な判別
+            if (nameLower.includes('gears') || textLower.includes('generategearstemplate') || textLower.includes('buildstaticgears')) {
+              customModelCategory = 'gears';
+            } else if (nameLower.includes('penrose') || nameLower.includes('stairs') || textLower.includes('generatepenrosetemplate') || textLower.includes('buildstairsparticles')) {
+              customModelCategory = 'penrose';
+            } else if (nameLower.includes('tetris') || textLower.includes('generatetetristemplate') || textLower.includes('buildstatictetris')) {
+              customModelCategory = 'tetris';
+            } else if (nameLower.includes('meadow') || textLower.includes('generatemeadowtemplate') || textLower.includes('buildmeadowparticles')) {
+              customModelCategory = 'meadow';
+            } else if (nameLower.includes('hourglass') || textLower.includes('generatehourglasstemplate') || textLower.includes('hourglass')) {
+              customModelCategory = 'gears'; // 砂時計も大きめの適正スケールを適用
+            } else if (nameLower.includes('pianoroll') || nameLower.includes('piano') || textLower.includes('generatepianorolltemplate') || textLower.includes('buildpianorollparticles')) {
+              customModelCategory = 'pianoroll';
+            } else {
+              customModelCategory = 'other';
+            }
+
+            // 1. 直接のJSON配列
+            try {
+              const json = JSON.parse(text);
+              if (Array.isArray(json)) {
+                customDynamicFn = null;
+                return json;
+              }
+            } catch (e) { }
+
+            // 2. 配列リターン正規表現 match
+            try {
+              const match = text.match(/return\s*(\[\s*[\s\S]*\])\s*;?/);
+              if (match && match[1]) {
+                const arr = JSON.parse(match[1]);
+                if (Array.isArray(arr)) {
+                  customDynamicFn = null;
+                  return arr;
+                }
+              }
+            } catch (e) { }
+
+            // 3. JavaScriptコードの安全なサンドボックス実行とテンプレート関数の抽出
+            try {
+              // 評価前に一時グローバルをクリア
+              window.generateCustomTemplate = undefined;
+              window.generateHourglassTemplate = undefined;
+              window.generateMeadowTemplate = undefined;
+
+              const sandboxFn = new Function(`
+                ${text}
+                if (typeof generateMeadowTemplate === 'function') return generateMeadowTemplate;
+                if (typeof window.generateMeadowTemplate === 'function') return window.generateMeadowTemplate;
+                if (typeof window.generateCustomTemplate === 'function') return window.generateCustomTemplate;
+                if (typeof window.generateHourglassTemplate === 'function') return window.generateHourglassTemplate;
+                if (typeof generateCustomTemplate === 'function') return generateCustomTemplate;
+                if (typeof generateHourglassTemplate === 'function') return generateHourglassTemplate;
+                if (text.includes('generateGearsTemplate') && typeof generateGearsTemplate === 'function') return generateGearsTemplate;
+                if (text.includes('generatePenroseTemplate') && typeof generatePenroseTemplate === 'function') return generatePenroseTemplate;
+                if (text.includes('generateTetrisTemplate') && typeof generateTetrisTemplate === 'function') return generateTetrisTemplate;
+                return window.generateCustomTemplate || window.generateHourglassTemplate || window.generateMeadowTemplate || null;
+              `);
+              const fnOrArr = sandboxFn();
+              const targetFn = (typeof fnOrArr === 'function') ? fnOrArr : (window.generateCustomTemplate || window.generateHourglassTemplate);
+
+              if (typeof targetFn === 'function') {
+                customDynamicFn = targetFn;
+                const sampleArr = targetFn(0);
+                if (Array.isArray(sampleArr)) return sampleArr;
+              } else if (Array.isArray(fnOrArr)) {
+                customDynamicFn = null;
+                return fnOrArr;
+              }
+            } catch (e) { }
+
+            return null;
+          }
+
+          function loadCustomParticleData(text, fileName) {
+            const parsed = parseParticleText(text, fileName);
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+              customModelTmpl = parsed.map(item => ({
+                bx: item.bx || 0,
+                by: item.by || 0,
+                rgb: item.rgb || [255, 255, 255],
+                layer: item.layer || 'body',
+                size: item.size || 1.8
+              }));
+
+              // 代表色の抽出
+              let avgR = 0, avgG = 0, avgB = 0;
+              const sampleCount = Math.min(customModelTmpl.length, 50);
+              for (let i = 0; i < sampleCount; i++) {
+                const rgb = customModelTmpl[i].rgb || [74, 232, 255];
+                avgR += rgb[0]; avgG += rgb[1]; avgB += rgb[2];
+              }
+              const hexCol = "#" + ((1 << 24) + (Math.round(avgR / sampleCount) << 16) + (Math.round(avgG / sampleCount) << 8) + Math.round(avgB / sampleCount)).toString(16).slice(1);
+
+              const modelDisplayName = (fileName || 'Custom').replace(/\.[^/.]+$/, "");
+              mCustomLen = customModelTmpl.length;
+              ensureParticleCapacity(Math.max(4500, mCustomLen));
+
+              CHAR_METADATA.custom = {
+                name: modelDisplayName,
+                type: 'Loaded Particle Model',
+                ip: 'Local Data',
+                color: hexCol,
+                title: modelDisplayName,
+                subtitle: `${customModelTmpl.length.toLocaleString()} Particles`,
+                desc: `ファイル [${fileName || 'custom.js'}] から動的に読み込まれた点群データです。`
+              };
+
+              currentModel = 'custom';
+              hoverOverrideModel = null;
+              updateCharacterPanel('custom');
+
+              // 覚醒衝撃波
+              if (!isStarted) {
+                startExperience();
+              } else {
+                triggerShockwave(canvasW * 0.5, canvasH * 0.51, 40);
+                for (let i = 0; i < totalParticles; i++) {
+                  pSpeed[i] = 16.0 + Math.random() * 8.0;
+                }
+              }
+            } else {
+              alert('粒子データ（配列）を認識できませんでした。.js または .json ファイルをご確認ください。');
+            }
+          }
+
+          // ファイルインプット連携
+          const fileInput = document.getElementById('stage-file-input');
+          const btnLoadJs = document.getElementById('btn-load-custom-js');
+          if (btnLoadJs && fileInput) {
+            btnLoadJs.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+              if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => loadCustomParticleData(ev.target.result, file.name);
+                reader.readAsText(file);
+              }
+            });
+          }
+
+          // テキスト直接ペースト（モーダルなし・即時実行）
+          const btnOpenPaste = document.getElementById('btn-open-paste-modal');
+          const toastEl = document.getElementById('paste-toast');
+          let toastTimer = null;
+
+          function showToast(msg, isError = false) {
+            if (!toastEl) return;
+            toastEl.textContent = msg;
+            toastEl.style.borderColor = isError ? 'rgba(239, 68, 68, 0.7)' : 'rgba(168, 85, 247, 0.7)';
+            toastEl.style.color = isError ? '#fca5a5' : '#f3e8ff';
+            toastEl.style.display = 'block';
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+              toastEl.style.display = 'none';
+            }, 2500);
+          }
+
+          // 「📝 Paste Code」ボタンクリック時：クリップボードから即座に読み取って実行
+          if (btnOpenPaste) {
+            btnOpenPaste.addEventListener('click', async () => {
+              if (navigator.clipboard && navigator.clipboard.readText) {
+                try {
+                  const text = await navigator.clipboard.readText();
+                  if (text && text.trim()) {
+                    loadCustomParticleData(text, 'Pasted Code');
+                    showToast('点群コードをクリップボードから読み込みました');
+                    return;
+                  } else {
+                    showToast('クリップボードが空です。コードをコピーしてください。', true);
+                    return;
+                  }
+                } catch (err) {
+                  console.warn('Clipboard read error:', err);
+                  showToast('クリップボードの読み取りが拒否されました。Ctrl+V で直接貼り付けてください。', true);
+                  return;
+                }
+              }
+              showToast('お使いの環境では直接読み取れません。Ctrl+V で貼り付けてください。', true);
+            });
+          }
+
+          // 画面全体での直接 Ctrl+V (ペースト) イベント検知：即座に実行
+          window.addEventListener('paste', (e) => {
+            const activeEl = document.activeElement;
+            if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+              return;
+            }
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            if (pastedText && pastedText.trim()) {
+              e.preventDefault();
+              loadCustomParticleData(pastedText, 'Pasted Code');
+              showToast('点群コードを直接適用しました');
+            }
+          });
+
+          // ドラッグ＆ドロップ連携
+          const stageOverlay = document.getElementById('stage-drop-overlay');
+          if (stageOverlay) {
+            window.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              stageOverlay.classList.add('active');
+            });
+            stageOverlay.addEventListener('dragleave', () => {
+              stageOverlay.classList.remove('active');
+            });
+            stageOverlay.addEventListener('drop', (e) => {
+              e.preventDefault();
+              stageOverlay.classList.remove('active');
+              if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => loadCustomParticleData(ev.target.result, file.name);
+                reader.readAsText(file);
+              }
+            });
+          }
+        };
+
+        p.draw = function () {
+          const ctx = p.drawingContext;
+
+          ctx.globalCompositeOperation = 'source-over';
+          if (currentTheme === 'holo') {
+            ctx.fillStyle = 'rgba(4, 6, 12, 0.35)'; // Holo用の引き締まった黒
+          } else {
+            ctx.fillStyle = 'rgba(8, 8, 17, 0.32)'; // Aurora用の深い宇宙空間色
+          }
+          ctx.fillRect(0, 0, canvasW, canvasH);
+
+          const time = p.frameCount * 0.02;
+          const isMobile = canvasW <= 768;
+          // モバイル時は上部スペースにスッキリ収まるようにスケールを最適化
+          const turtleScale = isMobile
+            ? Math.min(canvasW / 360, canvasH / 600) * 0.82
+            : Math.min(canvasW / 460, canvasH / 320) * 1.15;
+
+          const charScale = isMobile
+            ? Math.min((canvasW * 0.82) / 500, (canvasH * 0.46) / 600)
+            : (canvasH * 0.70) / 800;
+
+          const cx = canvasW > 680 ? canvasW * 0.52 : canvasW * 0.5;
+          // モバイル時は下部固定パネルを避けて、中心を上寄りに配置
+          const cy = isMobile ? canvasH * 0.38 : canvasH * 0.51;
+
+          for (let i = 0; i < BG_STAR_COUNT; i++) {
+            const twinkle = Math.sin(time * bgStarSpeed[i] + bgStarPhase[i]);
+            const alpha = bgStarBright[i] * (0.4 + twinkle * 0.6);
+            if (alpha < 0.05) continue;
+            const sz = bgStarSize[i] * (0.7 + twinkle * 0.3);
+            ctx.fillStyle = `rgba(200, 220, 255, ${alpha.toFixed(2)})`;
+            ctx.fillRect(bgStarX[i] - sz * 0.5, bgStarY[i] - sz * 0.5, sz, sz);
+          }
+
+          if (p.frameCount > nextShootTime) {
+            nextShootTime = p.frameCount + 120 + Math.floor(Math.random() * 300);
+            const startX = Math.random() * canvasW;
+            const startY = Math.random() * canvasH * 0.4;
+            const angle = 0.3 + Math.random() * 0.8;
+            shootingStars.push({
+              x: startX, y: startY,
+              vx: Math.cos(angle) * (6 + Math.random() * 6),
+              vy: Math.sin(angle) * (6 + Math.random() * 6),
+              life: 1.0,
+              len: 25 + Math.random() * 40
+            });
+          }
+          for (let s = shootingStars.length - 1; s >= 0; s--) {
+            const ss = shootingStars[s];
+            ss.x += ss.vx;
+            ss.y += ss.vy;
+            ss.life -= 0.02;
+            if (ss.life <= 0) { shootingStars.splice(s, 1); continue; }
+            const tailX = ss.x - ss.vx * (ss.len / 8);
+            const tailY = ss.y - ss.vy * (ss.len / 8);
+            const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+            grad.addColorStop(0, `rgba(180, 220, 255, 0)`);
+            grad.addColorStop(1, `rgba(220, 240, 255, ${(ss.life * 0.8).toFixed(2)})`);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(ss.x, ss.y);
+            ctx.stroke();
+            ctx.fillStyle = `rgba(255, 255, 255, ${(ss.life * 0.9).toFixed(2)})`;
+            ctx.fillRect(ss.x - 1, ss.y - 1, 2, 2);
+          }
+
+          // 背後星雲グロー（キャラクターカラーと完全同期した動的アンビエントオーロラ）
+          const activeCharKey = hoverOverrideModel || currentModel;
+          const activeMeta = CHAR_METADATA[activeCharKey] || CHAR_METADATA.turtle;
+          const targetNebulaRgb = hexToRgb(activeMeta.color || '#4ae8ff');
+          curNebulaR += (targetNebulaRgb[0] - curNebulaR) * 0.05;
+          curNebulaG += (targetNebulaRgb[1] - curNebulaG) * 0.05;
+          curNebulaB += (targetNebulaRgb[2] - curNebulaB) * 0.05;
+
+          const nebulaMult = currentTheme === 'aurora' ? 1.7 : (currentTheme === 'prism' ? 1.25 : 0.85);
+          const nebulaAlpha = ((activeCharKey === 'turtle' || activeCharKey === 'dragon' ? 0.050 : 0.038) + Math.sin(time * 0.5) * 0.015) * nebulaMult;
+          const nebulaR = Math.min(canvasW, canvasH) * (currentTheme === 'aurora' ? 0.48 : 0.38);
+          const nebGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, nebulaR);
+          nebGrad.addColorStop(0, `rgba(${curNebulaR | 0}, ${curNebulaG | 0}, ${curNebulaB | 0}, ${nebulaAlpha.toFixed(3)})`);
+          nebGrad.addColorStop(0.45, `rgba(${curNebulaR | 0}, ${curNebulaG | 0}, ${curNebulaB | 0}, ${(nebulaAlpha * 0.45).toFixed(3)})`);
+          nebGrad.addColorStop(1, 'rgba(8, 8, 17, 0)');
+          ctx.fillStyle = nebGrad;
+          ctx.fillRect(cx - nebulaR, cy - nebulaR, nebulaR * 2, nebulaR * 2);
+
+          // 汎用アンビエント浮遊光粒子の描画（空間のにぎやかし）
+          for (let i = 0; i < AMBIENT_COUNT; i++) {
+            ambX[i] += ambVx[i] + Math.cos(time * 1.2 + ambAlphaPhase[i]) * 0.25;
+            ambY[i] += ambVy[i];
+
+            if (ambY[i] < -20) {
+              ambY[i] = canvasH + 20;
+              ambX[i] = Math.random() * canvasW;
+            }
+
+            const aTwinkle = 0.35 + Math.sin(time * 2.0 + ambAlphaPhase[i]) * 0.25;
+            const col = PALETTE[ambColorIdx[i]];
+            const sz = ambSize[i];
+            ctx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${aTwinkle.toFixed(2)})`;
+            ctx.fillRect(ambX[i] - sz * 0.5, ambY[i] - sz * 0.5, sz, sz);
+          }
+
+          // 【ドット絵水面要素 1】ドット絵波紋リング（Pixel Art Water Ripples）
+          if (p.frameCount > nextRippleTime) {
+            nextRippleTime = p.frameCount + 20 + Math.floor(Math.random() * 40);
+            const ripX = Math.round(cx + (Math.random() - 0.5) * (canvasW * 0.85));
+            const ripY = Math.round(cy + 40 + Math.random() * (canvasH * 0.40));
+            waterRipples.push({
+              x: ripX, y: ripY,
+              rx: 5 + Math.random() * 6,
+              ry: 2.0 + Math.random() * 2,
+              maxRx: 35 + Math.random() * 55,
+              life: 1.0,
+              speed: 0.70 + Math.random() * 0.6
+            });
+          }
+          for (let r = waterRipples.length - 1; r >= 0; r--) {
+            const rip = waterRipples[r];
+            rip.rx += rip.speed;
+            rip.ry += rip.speed * 0.40;
+            rip.life -= 0.016;
+            if (rip.life <= 0 || rip.rx >= rip.maxRx) {
+              waterRipples.splice(r, 1);
+              continue;
+            }
+            ctx.save();
+            const alphaStr = (rip.life * 0.70).toFixed(2);
+            ctx.fillStyle = `rgba(140, 230, 255, ${alphaStr})`;
+            // ピクセルグリッド上に描く四角いドット波紋
+            const numDots = 10;
+            for (let d = 0; d < numDots; d++) {
+              const angle = (Math.PI * 2 / numDots) * d;
+              const px = Math.round(rip.x + Math.cos(angle) * rip.rx);
+              const py = Math.round(rip.y + Math.sin(angle) * rip.ry);
+              ctx.fillRect(px - 1, py - 1, 3, 2);
+            }
+            ctx.restore();
+          }
+
+          // 【ドット絵水面要素 2】水面から溢れる120個のドットピクセル・クロスきらめきスター（Pixel Cross Glow Stars）
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          for (let i = 0; i < PRISM_COUNT; i++) {
+            prismX[i] += prismVx[i] + Math.sin(time * 1.4 + prismPhase[i]) * 0.35;
+            prismY[i] += prismVy[i];
+
+            if (prismY[i] < -20) {
+              prismY[i] = canvasH * 0.40 + Math.random() * (canvasH * 0.55);
+              prismX[i] = Math.random() * canvasW;
+            }
+
+            const pTwinkle = 0.40 + Math.sin(time * 2.2 + prismPhase[i]) * 0.35;
+            if (pTwinkle < 0.15) continue;
+            const pCol = PALETTE[prismColorIdx[i]];
+            const px = Math.round(prismX[i]);
+            const py = Math.round(prismY[i]);
+            const alphaStr = pTwinkle.toFixed(2);
+
+            // 中心：純白のピクセルコア (2x2)
+            ctx.fillStyle = `rgba(255, 255, 255, ${alphaStr})`;
+            ctx.fillRect(px - 1, py - 1, 3, 3);
+
+            // 上下左右：ドット絵クロス羽 (ピクセル十字)
+            ctx.fillStyle = `rgba(${pCol[0]}, ${pCol[1]}, ${pCol[2]}, ${(pTwinkle * 0.75).toFixed(2)})`;
+            ctx.fillRect(px - 4, py, 3, 1);
+            ctx.fillRect(px + 2, py, 3, 1);
+            ctx.fillRect(px, py - 4, 1, 3);
+            ctx.fillRect(px, py + 2, 1, 3);
+          }
+          ctx.restore();
+
+          // クリック／タップ衝撃波リングの描画
+          for (let s = shockwaves.length - 1; s >= 0; s--) {
+            const sw = shockwaves[s];
+            sw.radius += 16;
+            sw.life -= 0.035;
+            sw.power *= 0.93;
+            ctx.strokeStyle = `rgba(100, 220, 255, ${sw.life * 0.85})`;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            if (sw.life <= 0) shockwaves.splice(s, 1);
+          }
+
+          // 右クリック：重力渦（ブラックホール吸引リング＆中心コア）の描画
+          for (let v = vortexes.length - 1; v >= 0; v--) {
+            const vt = vortexes[v];
+            vt.radius *= 0.93;
+            vt.life -= 0.028;
+            vt.power *= 0.95;
+
+            // 収縮する引力リング（マゼンタ〜ネオンパープル）
+            ctx.strokeStyle = `rgba(255, 80, 180, ${(vt.life * 0.9).toFixed(2)})`;
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.arc(vt.x, vt.y, Math.max(3, vt.radius), 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 内側の引力リング（ゴールド）
+            ctx.strokeStyle = `rgba(255, 220, 100, ${(vt.life * 0.75).toFixed(2)})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(vt.x, vt.y, Math.max(2, vt.radius * 0.5), 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 重力コア（中心発光点）
+            ctx.fillStyle = `rgba(255, 255, 255, ${(vt.life * 0.95).toFixed(2)})`;
+            ctx.beginPath();
+            ctx.arc(vt.x, vt.y, 2.5 + (1 - vt.life) * 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (vt.life <= 0) vortexes.splice(v, 1);
+          }
+
+          const isAlwaysPlay = (typeof window.getAlwaysPlayMode === 'function' && window.getAlwaysPlayMode());
+          const effectiveModel = isAlwaysPlay ? 'pianoroll' : (hoverOverrideModel || currentModel);
+
+          const turtleLen = turtleTmpl.length;
+          const m1Len = model1Tmpl.length;
+          const m2Len = model2Tmpl.length;
+          const m3Len = model3Tmpl.length;
+          const mContactLen = contactTmpl.length;
+          const mDogLen = dogTmpl.length;
+          const mKoishiLen = koishiTmpl.length;
+          const mPenroseLen = (penroseTmpl && penroseTmpl.length) || 1693;
+          const mCustomLen = customModelTmpl.length;
+          const swayTime1 = time * 1.5;
+          const swayTime2 = time * 1.1;
+
+          const isPenroseModel = (effectiveModel === 'sns_note' || effectiveModel === 'penrose' || effectiveModel === 'archive_note' || (effectiveModel === 'custom' && customModelCategory === 'penrose'));
+          const isGearsModel = (effectiveModel === 'archive_app' || effectiveModel === 'gears' || (effectiveModel === 'custom' && customModelCategory === 'gears'));
+          const isTetrisModel = (effectiveModel === 'archive_play' || effectiveModel === 'tetris' || (effectiveModel === 'custom' && customModelCategory === 'tetris'));
+          const isMeadowModel = (effectiveModel === 'policy' || effectiveModel === 'meadow' || (effectiveModel === 'custom' && customModelCategory === 'meadow'));
+          const isJellyfishModel = (effectiveModel === 'links' || effectiveModel === 'jellyfish' || (effectiveModel === 'custom' && customModelCategory === 'jellyfish'));
+          const isDragonModel = (effectiveModel === 'dragon' || (effectiveModel === 'custom' && customModelCategory === 'dragon'));
+          const isVerandaModel = (effectiveModel === 'veranda');
+          const isStargazerModel = (effectiveModel === 'stargazer');
+          const isExactModel = (isStargazerModel || isVerandaModel || isDragonModel || isPenroseModel || isGearsModel || isTetrisModel || isMeadowModel || isJellyfishModel || effectiveModel === 'custom');
+
+          const orbitStarLen = 600; // 周回するスターダスト数
+          const streamStarLen = Math.max(0, 4000 - turtleLen - orbitStarLen); // かきわけ横流れスターダスト数 (合計4000に調整)
+
+          if (effectiveModel === 'custom' && customDynamicFn) {
+            customModelTmpl = customDynamicFn(time);
+          } else if (effectiveModel === 'stargazer') {
+            if (typeof generateStargazerTemplate === 'function') {
+              stargazerTmpl = generateStargazerTemplate(time);
+            }
+          } else if (effectiveModel === 'veranda') {
+            if (typeof generateVerandaTemplate === 'function') {
+              verandaTmpl = generateVerandaTemplate(time);
+            }
+          } else if (effectiveModel === 'dragon') {
+            if (typeof generateDragonTemplate === 'function') {
+              dragonTmpl = generateDragonTemplate(time);
+            }
+          } else if (effectiveModel === 'links' || effectiveModel === 'jellyfish') {
+            if (typeof generateJellyfishTemplate === 'function') {
+              jellyfishTmpl = generateJellyfishTemplate(time);
+            }
+          } else if (effectiveModel === 'policy' || effectiveModel === 'meadow') {
+            if (typeof generateMeadowTemplate === 'function') {
+              meadowTmpl = generateMeadowTemplate(time);
+            }
+          } else if (effectiveModel === 'sns_note' || effectiveModel === 'penrose' || effectiveModel === 'archive_note') {
+            if (typeof generatePenroseTemplate === 'function') {
+              penroseTmpl = generatePenroseTemplate(time);
+            }
+          } else if (effectiveModel === 'archive_app' || effectiveModel === 'gears') {
+            if (typeof generateGearsTemplate === 'function') {
+              gearsTmpl = generateGearsTemplate(time);
+            }
+          } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+            if (typeof generateTetrisTemplate === 'function') {
+              tetrisTmpl = generateTetrisTemplate(time);
+            }
+          }
+
+          let activeCount = totalParticles;
+          if (effectiveModel === 'stargazer') {
+            activeCount = (stargazerTmpl && stargazerTmpl.length) || 16000;
+          } else if (effectiveModel === 'veranda') {
+            activeCount = (verandaTmpl && verandaTmpl.length) || 4200;
+          } else if (effectiveModel === 'dragon') {
+            activeCount = (dragonTmpl && dragonTmpl.length) || 3200;
+          } else if (effectiveModel === 'turtle' || effectiveModel === 'contact') {
+            activeCount = turtleLen + orbitStarLen + streamStarLen;
+          } else if (effectiveModel === 'links' || effectiveModel === 'jellyfish') {
+            activeCount = (jellyfishTmpl && jellyfishTmpl.length) || 4000;
+          } else if (effectiveModel === 'policy' || effectiveModel === 'meadow') {
+            activeCount = (meadowTmpl && meadowTmpl.length) || 4500;
+          } else if (effectiveModel === 'sns_note' || effectiveModel === 'penrose' || effectiveModel === 'archive_note') {
+            activeCount = mPenroseLen;
+          } else if (effectiveModel === 'archive_app' || effectiveModel === 'gears') {
+            activeCount = (gearsTmpl && gearsTmpl.length) || 2986;
+          } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+            activeCount = (tetrisTmpl && tetrisTmpl.length) || 3042;
+          } else if (effectiveModel === 'custom') {
+            activeCount = (customModelTmpl && customModelTmpl.length) || mCustomLen;
+          } else if (effectiveModel === 'sns_github' || effectiveModel === 'char1' || effectiveModel === 'sns_vocaloid100') {
+            activeCount = Math.min(m1Len, totalParticles);
+          } else if (effectiveModel === 'sns_niconico' || effectiveModel === 'char2') {
+            activeCount = Math.min(m2Len, totalParticles);
+          } else if (effectiveModel === 'char3' || effectiveModel === 'sns_x') {
+            activeCount = Math.min(m3Len, totalParticles);
+          } else if (effectiveModel === 'sns_steam' || effectiveModel === 'sns_discord' || effectiveModel === 'archive' || effectiveModel.startsWith('archive_')) {
+            activeCount = Math.min(mKoishiLen, totalParticles);
+          }
+
+          ensureParticleCapacity(activeCount);
+
+          // 不足している粒子を画面外から出現、余った粒子に画面外へ吹き飛ぶ初速を付与
+          if (activeCount > prevActiveCount) {
+            for (let i = prevActiveCount; i < activeCount; i++) {
+              spawnFromOffscreen(i);
+            }
+          } else if (activeCount < prevActiveCount) {
+            for (let i = activeCount; i < prevActiveCount; i++) {
+              const outDx = (posX[i] - cx) + (Math.random() - 0.5) * 60;
+              const outDy = (posY[i] - cy) + (Math.random() - 0.5) * 60;
+              const outDist = Math.sqrt(outDx * outDx + outDy * outDy) || 1;
+              const blastSpeed = 8 + Math.random() * 12;
+              velX[i] = (outDx / outDist) * blastSpeed;
+              velY[i] = (outDy / outDist) * blastSpeed;
+            }
+          }
+          prevActiveCount = activeCount;
+
+          let activeScale = charScale;
+          let activeCy = cy;
+
+          if (isStargazerModel) {
+            activeScale = isMobile ? Math.max(canvasW / 650, canvasH / 440) * 1.15 : Math.max(canvasW / 880, canvasH / 450) * 1.22;
+            activeCy = isMobile ? canvasH * 0.63 : cy + 70;
+          } else if (isVerandaModel) {
+            activeScale = isMobile ? Math.min(canvasW / 460, canvasH / 420) * 0.95 : Math.min(canvasW / 760, canvasH / 460) * 1.15;
+            activeCy = isMobile ? canvasH * 0.42 : cy + 10;
+          } else if (isDragonModel) {
+            activeScale = isMobile ? Math.min(canvasW / 500, canvasH / 400) * 1.1 : Math.min(canvasW / 700, canvasH / 500) * 1.4;
+            activeCy = cy;
+          } else if (isMeadowModel) {
+            activeScale = isMobile ? Math.max(canvasW / 650, canvasH / 540) * 1.1 : Math.max(canvasW / 900, canvasH / 500) * 1.15;
+            activeCy = isMobile ? canvasH * 0.48 : cy;
+          } else if (isJellyfishModel) {
+            activeScale = isMobile ? Math.min(canvasW / 450, canvasH / 550) * 0.60 : Math.min(canvasW / 700, canvasH / 650) * 0.72;
+            activeCy = isMobile ? canvasH * 0.32 : cy - 30;
+          } else if (isPenroseModel) {
+            activeScale = isMobile ? Math.min(canvasW / 360, canvasH / 500) * 0.95 : Math.min(canvasW / 520, canvasH / 460) * 1.22;
+            activeCy = isMobile ? canvasH * 0.38 : cy + 15;
+          } else if (isGearsModel) {
+            activeScale = isMobile ? Math.min(canvasW / 360, canvasH / 500) * 1.05 : Math.min(canvasW / 520, canvasH / 460) * 1.35;
+            activeCy = isMobile ? canvasH * 0.38 : cy + 10;
+          } else if (isTetrisModel) {
+            activeScale = isMobile ? Math.min(canvasW / 360, canvasH / 500) * 1.05 : Math.min(canvasW / 520, canvasH / 460) * 1.30;
+            activeCy = isMobile ? canvasH * 0.38 : cy + 10;
+          }
+
+          let modelTmpl = null, modelLen = 1;
+          if (effectiveModel === 'stargazer') {
+            modelTmpl = stargazerTmpl; modelLen = (stargazerTmpl && stargazerTmpl.length) || 16000;
+          } else if (effectiveModel === 'veranda') {
+            modelTmpl = verandaTmpl; modelLen = (verandaTmpl && verandaTmpl.length) || 4200;
+          } else if (effectiveModel === 'dragon') {
+            modelTmpl = dragonTmpl; modelLen = (dragonTmpl && dragonTmpl.length) || 3200;
+          } else if (effectiveModel === 'sns_note' || effectiveModel === 'penrose' || effectiveModel === 'archive_note') {
+            modelTmpl = penroseTmpl; modelLen = (penroseTmpl && penroseTmpl.length) || 1679;
+          } else if (effectiveModel === 'archive_app' || effectiveModel === 'gears') {
+            modelTmpl = gearsTmpl; modelLen = (gearsTmpl && gearsTmpl.length) || 2986;
+          } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+            modelTmpl = tetrisTmpl; modelLen = (tetrisTmpl && tetrisTmpl.length) || 3042;
+          } else if (effectiveModel === 'links' || effectiveModel === 'jellyfish') {
+            modelTmpl = jellyfishTmpl; modelLen = (jellyfishTmpl && jellyfishTmpl.length) || 4000;
+          } else if (effectiveModel === 'policy' || effectiveModel === 'meadow') {
+            modelTmpl = meadowTmpl; modelLen = (meadowTmpl && meadowTmpl.length) || 4500;
+          } else if (effectiveModel === 'custom') {
+            modelTmpl = customModelTmpl; modelLen = mCustomLen || 1;
+          } else if (effectiveModel === 'contact') {
+            modelTmpl = contactTmpl; modelLen = mContactLen || 1;
+          } else if (effectiveModel === 'sns_niconico' || effectiveModel === 'char2') {
+            modelTmpl = model2Tmpl; modelLen = m2Len || 1;
+          } else if (effectiveModel === 'sns_steam' || effectiveModel === 'sns_discord' || effectiveModel === 'archive' || effectiveModel.startsWith('archive_')) {
+            modelTmpl = koishiTmpl; modelLen = mKoishiLen || 1;
+          } else if (effectiveModel === 'char3' || effectiveModel === 'sns_x') {
+            modelTmpl = model3Tmpl; modelLen = m3Len || 1;
+          } else {
+            modelTmpl = model1Tmpl; modelLen = m1Len || 1;
+          }
+
+          for (let i = 0; i < totalParticles; i++) {
+            let tx, ty;
+            let tr = 255, tg = 255, tb = 255, ts = 1.8;
+            let isActive = (i < activeCount);
+
+            if (effectiveModel === 'turtle' || effectiveModel === 'contact') {
+              if (i < turtleLen) {
+                const tm = turtleTmpl[i];
+                let bx = tm.bx, by = tm.by;
+                const flap = Math.sin(time * 2.2);
+
+                if (tm.layer === 'flipper-top') {
+                  const dist = Math.sqrt((bx - 28) ** 2 + (by + 26) ** 2);
+                  by += flap * dist * 0.25;
+                  bx += Math.cos(time * 2.2) * dist * 0.1;
+                } else if (tm.layer === 'flipper-bot') {
+                  const dist = Math.sqrt((bx - 28) ** 2 + (by - 26) ** 2);
+                  by -= flap * dist * 0.25;
+                  bx += Math.cos(time * 2.2) * dist * 0.1;
+                } else if (tm.layer === 'head') {
+                  bx += Math.sin(time * 2.2 + 0.5) * 4;
+                  by += Math.sin(time * 1.1) * 2;
+                } else if (tm.layer === 'tail') {
+                  const tailRatio = Math.max(0, Math.min(1, (-52 - bx) / 22));
+                  const wave = Math.sin(time * 2.5 - tailRatio * 2.4);
+                  by += wave * (tailRatio ** 1.3 * 10);
+                  bx += Math.cos(time * 2.5 - tailRatio * 2.4) * (tailRatio * 2.2);
+                } else if (tm.layer === 'back-top') {
+                  const dist = Math.sqrt((bx + 36) ** 2 + (by + 24) ** 2);
+                  by += Math.sin(time * 2.2 - 0.7) * dist * 0.18;
+                  bx += Math.cos(time * 2.2 - 0.7) * dist * 0.08;
+                } else if (tm.layer === 'back-bot') {
+                  const dist = Math.sqrt((bx + 36) ** 2 + (by - 24) ** 2);
+                  by -= Math.sin(time * 2.2 - 0.7) * dist * 0.18;
+                  bx += Math.cos(time * 2.2 - 0.7) * dist * 0.08;
+                }
+
+                tx = cx + (bx * turtleScale) + Math.cos(time * 0.8) * 8;
+                ty = cy + (by * turtleScale) + Math.sin(time * 1.5) * 12;
+                tr = tm.rgb[0]; tg = tm.rgb[1]; tb = tm.rgb[2]; ts = tm.size || 3.2;
+              } else if (i < turtleLen + orbitStarLen) {
+                const si = i - turtleLen;
+                const driftAngle = (si * 2.399963) + time * (0.03 + Math.sin(si * 3.7) * 0.02);
+                const orbitR = (60 + Math.pow(si / orbitStarLen, 1.3) * (Math.max(canvasW, canvasH) * 0.55) + Math.sin(si * 7.3) * 20) * 1.5;
+                tx = cx + Math.cos(driftAngle) * orbitR;
+                ty = cy + Math.sin(driftAngle) * (orbitR * 0.56);
+                const starCol = PALETTE[si % PALETTE.length];
+                tr = starCol[0]; tg = starCol[1]; tb = starCol[2]; ts = 1.6 + Math.sin(si * 2.1) * 0.6;
+              } else if (i < turtleLen + orbitStarLen + streamStarLen) {
+                tx = posX[i]; ty = posY[i];
+                const si = i - (turtleLen + orbitStarLen);
+                const zDepth = (si % 6) / 6;
+                const starCol = PALETTE[si % PALETTE.length];
+                tr = starCol[0] + (255 - starCol[0]) * zDepth * 0.35;
+                tg = starCol[1] + (255 - starCol[1]) * zDepth * 0.35;
+                tb = starCol[2] + (255 - starCol[2]) * zDepth * 0.35;
+                ts = (2.2 - zDepth * 1.4) + Math.sin(time * 2.0 + si) * 0.3;
+              }
+            } else {
+              const charIdx = isExactModel ? i : (shuffleIdx[i] % modelLen);
+              const tm = (modelTmpl && modelLen > 0) ? modelTmpl[charIdx] : null;
+              if (!tm) continue;
+
+              if (isExactModel) {
+                tx = cx + (tm.bx * activeScale);
+                ty = activeCy + (tm.by * activeScale);
+              } else {
+                tx = cx + (tm.bx * activeScale) + Math.cos(swayTime2 + tm.by * 0.015) * 1.0;
+                ty = cy + (tm.by * activeScale) + Math.sin(swayTime1 + tm.bx * 0.015) * 1.5;
+              }
+              const tmColor = tm.rgb || tm.color;
+              tr = tmColor ? tmColor[0] : 255;
+              tg = tmColor ? tmColor[1] : 255;
+              tb = tmColor ? tmColor[2] : 255;
+              ts = (tm.size || 1.8) * (isPenroseModel ? 1.2 : 1.0);
+            }
+
+            if (!isActive) {
+              // 不要な粒子は外側へ向かって高速に飛び去りながらフェードアウト
+              if (curAlpha[i] > 0.015 && curSize[i] > 0.1) {
+                curAlpha[i] += (0 - curAlpha[i]) * 0.035;
+                curSize[i] += (0 - curSize[i]) * 0.035;
+
+                // 画面中心から画面外へ加速させる外向き推進力
+                const outDx = posX[i] - cx;
+                const outDy = posY[i] - cy;
+                const outDist = Math.sqrt(outDx * outDx + outDy * outDy) || 1;
+                velX[i] += (outDx / outDist) * 0.55;
+                velY[i] += (outDy / outDist) * 0.55;
+                velX[i] *= 0.975;
+                velY[i] *= 0.975;
+                posX[i] += velX[i];
+                posY[i] += velY[i];
+
+                const cr = curR[i] | 0, cg = curG[i] | 0, cb = curB[i] | 0;
+                const caStep = (curAlpha[i] * 40 | 0);
+                const cKey = (cr << 20) | (cg << 12) | (cb << 4) | caStep;
+                let cStyle = colorCache[cKey];
+                if (!cStyle) {
+                  cStyle = `rgba(${cr},${cg},${cb},${(caStep * 0.025).toFixed(3)})`;
+                  colorCache[cKey] = cStyle;
+                }
+                ctx.fillStyle = cStyle;
+                ctx.fillRect(posX[i] - curSize[i] * 0.5, posY[i] - curSize[i] * 0.5, curSize[i], curSize[i]);
+              }
+              continue;
+            }
+
+            // アクティブな粒子は 1.0 にフェードイン
+            curAlpha[i] += (1.0 - curAlpha[i]) * 0.06;
+
+            // 目標地点への距離（形成度合い）に応じた滑らかなカラーモーフィング
+            const tdx = tx - posX[i];
+            const tdy = ty - posY[i];
+            const tdistSq = tdx * tdx + tdy * tdy;
+
+            // 距離の二乗比較で平方根計算(Math.sqrt)の呼び出し回数を削減
+            const formRatio = tdistSq < 48400 ? Math.max(0, Math.min(1, 1 - Math.sqrt(tdistSq) / 220)) : 0;
+            const colorSpeed = 0.02 + formRatio * 0.06;
+
+            curR[i] += (tr - curR[i]) * colorSpeed;
+            curG[i] += (tg - curG[i]) * colorSpeed;
+            curB[i] += (tb - curB[i]) * colorSpeed;
+            curSize[i] += (ts - curSize[i]) * 0.08;
+
+            let ax = 0, ay = 0;
+
+            if ((effectiveModel === 'turtle' || effectiveModel === 'contact') && i >= turtleLen + orbitStarLen && i < turtleLen + orbitStarLen + streamStarLen) {
+              // --- かきわけ専用の自由移動流体物理 ---
+              const si = i - (turtleLen + orbitStarLen);
+              const zDepth = (si % 6) / 6;
+
+              const baseVx = -(0.8 + (1.0 - zDepth) * 0.9);
+              velX[i] += (baseVx - velX[i]) * 0.03;
+              velY[i] += (0 - velY[i]) * 0.015;
+
+              const turtleCX = cx + Math.cos(time * 0.8) * 8;
+              const turtleCY = cy + Math.sin(time * 1.5) * 12;
+
+              const headX = turtleCX + (66 + Math.sin(time * 2.2 + 0.5) * 4) * turtleScale;
+              const headY = turtleCY + Math.sin(time * 1.1) * 2;
+              const hdx = posX[i] - headX;
+              const hdy = posY[i] - headY;
+              const hdist = Math.sqrt(hdx * hdx + hdy * hdy);
+              const headRadius = 22 * turtleScale;
+
+              if (hdist < headRadius && hdist > 0.1) {
+                const force = (1.0 - hdist / headRadius);
+                ay += Math.sign(hdy || (Math.random() - 0.5)) * force * 1.1;
+                ax -= force * 0.3;
+              }
+
+              const bdx = posX[i] - turtleCX;
+              const bdy = posY[i] - turtleCY;
+              const normX = bdx / (52 * turtleScale);
+              const normY = bdy / (42 * turtleScale);
+              const ellipseDist = normX * normX + normY * normY;
+
+              if (ellipseDist < 1.1 && ellipseDist > 0.01) {
+                const force = (1.1 - ellipseDist);
+                ay += Math.sign(bdy || (Math.random() - 0.5)) * force * 0.85;
+                ax -= force * 0.2;
+              }
+
+              const flap = Math.sin(time * 2.2);
+              const flipperRadius = 26 * turtleScale;
+
+              const flipperTopX = turtleCX + (28 + Math.cos(time * 2.2) * 8) * turtleScale;
+              const flipperTopY = turtleCY - (26 + flap * 22) * turtleScale;
+              const ftdx = posX[i] - flipperTopX;
+              const ftdy = posY[i] - flipperTopY;
+              const ftdist = Math.sqrt(ftdx * ftdx + ftdy * ftdy);
+              if (ftdist < flipperRadius && ftdist > 0.1) {
+                const force = (1.0 - ftdist / flipperRadius);
+                ay -= force * 0.9;
+                ax -= force * 0.2;
+              }
+
+              const flipperBotX = turtleCX + (28 + Math.cos(time * 2.2) * 8) * turtleScale;
+              const flipperBotY = turtleCY + (26 - flap * 22) * turtleScale;
+              const fbdx = posX[i] - flipperBotX;
+              const fbdy = posY[i] - flipperBotY;
+              const fbdist = Math.sqrt(fbdx * fbdx + fbdy * fbdy);
+              if (fbdist < flipperRadius && fbdist > 0.1) {
+                const force = (1.0 - fbdist / flipperRadius);
+                ay += force * 0.9;
+                ax -= force * 0.2;
+              }
+
+              // 衝撃波（左クリック／タップ）アクティブ時のみ処理
+              if (shockwaves.length > 0) {
+                for (let s = 0; s < shockwaves.length; s++) {
+                  const sw = shockwaves[s];
+                  const sdx = posX[i] - sw.x;
+                  const sdy = posY[i] - sw.y;
+                  const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+                  const diff = Math.abs(sdist - sw.radius);
+                  if (diff < 45 && sdist > 0.01) {
+                    const blast = (sw.power * 0.045) * (1 - diff / 45);
+                    ax += (sdx / sdist) * blast;
+                    ay += (sdy / sdist) * blast;
+                  }
+                }
+              }
+
+              // 重力渦（右クリック）アクティブ時のみ処理
+              if (vortexes.length > 0) {
+                for (let v = 0; v < vortexes.length; v++) {
+                  const vt = vortexes[v];
+                  const vdx = vt.x - posX[i];
+                  const vdy = vt.y - posY[i];
+                  const vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+                  const maxR = 400;
+                  if (vdist < maxR && vdist > 0.1) {
+                    const pull = Math.pow(1.0 - vdist / maxR, 1.5) * vt.power * 0.75;
+                    ax += (vdx / vdist) * pull;
+                    ay += (vdy / vdist) * pull;
+                    ax += (-vdy / vdist) * (pull * 0.7);
+                    ay += (vdx / vdist) * (pull * 0.7);
+                  }
+                }
+              }
+
+              velX[i] = (velX[i] + ax) * 0.98;
+              velY[i] = (velY[i] + ay) * 0.98;
+              posX[i] += velX[i];
+              posY[i] += velY[i];
+
+              if (posX[i] < -60) {
+                posX[i] = canvasW + 60 + Math.random() * 200;
+                posY[i] = Math.random() * canvasH;
+                velX[i] = baseVx;
+                velY[i] = (Math.random() - 0.5) * 0.3;
+              }
+            } else {
+              if (isExactModel && shockwaves.length === 0 && vortexes.length === 0) {
+                if (tdistSq > 10000.0) {
+                  posX[i] = tx;
+                  posY[i] = ty;
+                  velX[i] = 0;
+                  velY[i] = 0;
+                } else if (tdistSq < 4.0) {
+                  posX[i] = tx;
+                  posY[i] = ty;
+                  velX[i] = 0;
+                  velY[i] = 0;
+                } else {
+                  posX[i] += (tx - posX[i]) * 0.35;
+                  posY[i] += (ty - posY[i]) * 0.35;
+                  velX[i] = 0;
+                  velY[i] = 0;
+                }
+              } else {
+                let dx = tx - posX[i], dy = ty - posY[i];
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                let ds = pSpeed[i]; if (dist < 80) ds = (dist / 80) * ds;
+                if (dist > 0.001) { dx = (dx / dist) * ds; dy = (dy / dist) * ds; }
+                ax = dx - velX[i]; ay = dy - velY[i];
+                const mag = Math.sqrt(ax * ax + ay * ay);
+                if (mag > pForce[i]) { ax = (ax / mag) * pForce[i]; ay = (ay / mag) * pForce[i]; }
+
+                if (shockwaves.length > 0) {
+                  for (let s = 0; s < shockwaves.length; s++) {
+                    const sw = shockwaves[s];
+                    const sdx = posX[i] - sw.x;
+                    const sdy = posY[i] - sw.y;
+                    const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+                    const diff = Math.abs(sdist - sw.radius);
+                    if (diff < 45 && sdist > 0.01) {
+                      const bl = sw.power * (1 - diff / 45);
+                      ax += (sdx / sdist) * bl;
+                      ay += (sdy / sdist) * bl;
+                    }
+                  }
+                }
+
+                if (vortexes.length > 0) {
+                  for (let v = 0; v < vortexes.length; v++) {
+                    const vt = vortexes[v];
+                    const vdx = vt.x - posX[i];
+                    const vdy = vt.y - posY[i];
+                    const vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+                    const maxR = 400;
+                    if (vdist < maxR && vdist > 0.1) {
+                      const pull = Math.pow(1.0 - vdist / maxR, 1.5) * vt.power * 1.25;
+                      ax += (vdx / vdist) * pull;
+                      ay += (vdy / vdist) * pull;
+                      ax += (-vdy / vdist) * (pull * 0.75);
+                      ay += (vdx / vdist) * (pull * 0.75);
+                    }
+                  }
+                }
+
+                velX[i] = (velX[i] + ax) * 0.93;
+                velY[i] = (velY[i] + ay) * 0.93;
+                posX[i] += velX[i];
+                posY[i] += velY[i];
+              }
+            }
+
+            // 透明度の低い粒子の描画処理をスキップ（高速化）
+            if (curAlpha[i] <= 0.015 || curSize[i] <= 0.1) continue;
+
+            const cr = curR[i] | 0, cg = curG[i] | 0, cb = curB[i] | 0;
+            const caStep = (curAlpha[i] * 40 | 0);
+            const cKey = (cr << 20) | (cg << 12) | (cb << 4) | caStep;
+            let cStyle = colorCache[cKey];
+            if (!cStyle) {
+              cStyle = `rgba(${cr},${cg},${cb},${(caStep * 0.025).toFixed(3)})`;
+              colorCache[cKey] = cStyle;
+            }
+            ctx.fillStyle = cStyle;
+            ctx.fillRect(posX[i] - curSize[i] * 0.5, posY[i] - curSize[i] * 0.5, curSize[i], curSize[i]);
+          }
+        };
+
+        function triggerShockwave(x, y) {
+          if (x >= 0 && x <= canvasW && y >= 0 && y <= canvasH) {
+            shockwaves.push({ x: x, y: y, radius: 10, life: 1.0, power: 26 });
+          }
+        }
+
+        function triggerVortex(x, y) {
+          if (x >= 0 && x <= canvasW && y >= 0 && y <= canvasH) {
+            vortexes.push({ x: x, y: y, radius: 320, life: 1.0, power: 36 });
+          }
+        }
+
+        function startExperience(x, y) {
+          if (isStarted) return;
+          isStarted = true;
+          document.body.classList.add('is-started');
+
+          // タップ地点に強烈な覚醒衝撃波を発生
+          shockwaves.push({ x: x, y: y, radius: 10, life: 1.0, power: 45 });
+
+          // 全粒子に外向きの爆散エネルギー（Scatter Burst）を付与
+          for (let i = 0; i < totalParticles; i++) {
+            const dx = posX[i] - x;
+            const dy = posY[i] - y;
+            const d = Math.sqrt(dx * dx + dy * dy) || 1;
+            const burst = (Math.random() * 24 + 12);
+            velX[i] += (dx / d) * burst;
+            velY[i] += (dy / d) * burst;
+            pSpeed[i] = 11 + Math.random() * 11;
+            pForce[i] = 0.5 + Math.random() * 0.5;
+          }
+        }
+
+        p.mousePressed = function () {
+          if (!isStarted) {
+            startExperience(p.mouseX, p.mouseY);
+            return;
+          }
+          if (p.mouseButton === p.RIGHT) {
+            triggerVortex(p.mouseX, p.mouseY);
+          } else {
+            triggerShockwave(p.mouseX, p.mouseY);
+          }
+        };
+
+        p.mouseDragged = function () {
+          if (!isStarted) return;
+          if (p.frameCount % 3 === 0) {
+            if (p.mouseButton === p.RIGHT) {
+              triggerVortex(p.mouseX, p.mouseY);
+            } else {
+              triggerShockwave(p.mouseX, p.mouseY);
+            }
+          }
+        };
+
+        p.touchStarted = function () {
+          if (!isStarted) {
+            if (p.touches.length > 0) {
+              startExperience(p.touches[0].x, p.touches[0].y);
+            } else {
+              startExperience(p.mouseX, p.mouseY);
+            }
+            return;
+          }
+          if (p.touches.length > 0) {
+            triggerShockwave(p.touches[0].x, p.touches[0].y);
+          }
+        };
+
+        p.touchMoved = function () {
+          if (p.touches.length > 0 && p.frameCount % 4 === 0) {
+            triggerShockwave(p.touches[0].x, p.touches[0].y);
+          }
+        };
+
+        p.windowResized = function () {
+          const rect = container.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) { canvasW = rect.width; canvasH = rect.height; p.resizeCanvas(canvasW, canvasH); }
+        };
+      });
+
+      // ヘッダーのSNSアイコンリンクへのホバーイベント登録（静的HTMLに直接バインド）
+      document.querySelectorAll('.top-header-sns-link').forEach(link => {
+        const key = link.getAttribute('data-hover-key');
+        if (key) {
+          const handleEnter = () => {
+            hoverOverrideModel = key;
+            updateCharacterPanel(key);
+          };
+          const handleLeave = () => {
+            hoverOverrideModel = null;
+            updateCharacterPanel(currentModel);
+          };
+          link.addEventListener('mouseenter', handleEnter);
+          link.addEventListener('mouseleave', handleLeave);
+          link.addEventListener('focus', handleEnter);
+          link.addEventListener('blur', handleLeave);
+        }
+      });
+
+      // サブメニュー項目（.submenu-item）へのホバーイベント登録
+      document.querySelectorAll('.archive-submenu-panel .submenu-item').forEach(link => {
+        const key = link.getAttribute('data-hover-key');
+        if (key) {
+          const handleEnter = (e) => {
+            e.stopPropagation();
+            hoverOverrideModel = key;
+            updateCharacterPanel(key);
+          };
+          const handleLeave = (e) => {
+            e.stopPropagation();
+            const wrapper = document.getElementById('nav-card-archive-wrapper');
+            if (wrapper && wrapper.contains(e.relatedTarget)) {
+              hoverOverrideModel = 'archive';
+              updateCharacterPanel('archive');
+            } else {
+              hoverOverrideModel = null;
+              updateCharacterPanel(currentModel);
+            }
+          };
+          link.addEventListener('mouseenter', handleEnter);
+          link.addEventListener('mouseleave', handleLeave);
+          link.addEventListener('focus', handleEnter);
+          link.addEventListener('blur', handleLeave);
+        }
+      });
+
+      // 右クリック画像保存・コンテキストメニューの禁止
+      window.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      });
     })();
   </script>
 </body>
+
 </html>
-
-
