@@ -309,14 +309,13 @@
         item.by = p.by + animY;
 
         // X座標の絶対値に基づく水平グラデーション減衰
-        // 中央（absX=0）付近で最大輝度、左右に広がるほど線形に減衰
+        // 中央（absX=0）が最大輝度、左右に広がるにつれて徐々に減衰し端で消える
+        // データ範囲: absX は最大約 168px
         const absX = Math.abs(p.bx);
-        const AURA_FADE_START = 30;  // この距離から減衰開始
-        const AURA_FADE_END   = 180; // この距離で消える
-        const xFade = absX <= AURA_FADE_START
-          ? 1.0
-          : Math.max(0, 1.0 - (absX - AURA_FADE_START) / (AURA_FADE_END - AURA_FADE_START));
-        // 滑らかなイーズアウト
+        const AURA_FADE_END = 160; // この距離（px）で完全消滅
+        // 0からリニアに減衰し、AURA_FADE_ENDで0になる
+        const xFade = Math.max(0, 1.0 - absX / AURA_FADE_END);
+        // 二乗でイーズアウト（中央近くは明るく、端に近づくほど急速に暗くなる）
         const smoothFade = xFade * xFade;
 
         const alpha = smoothFade * waveGlow;
