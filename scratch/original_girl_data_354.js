@@ -1,0 +1,1 @@
+const GIRL_DATA = [{"bx":-52,"by":-127,"rgb":[16,18,43],"part":"body","size":1\n21:   const WATER_DATA = [{"type":"girl_refl","bx":-52,"by":1,"rgb":[35,67,111],"siz\n22:   const SHOOT_SLOT_COUNT = 60;\r\n25:   const WATER_MIRROR_PTS = [];

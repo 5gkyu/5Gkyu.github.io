@@ -1,0 +1,104 @@
+Created At: 2026-09-11T06:10:09+09:00
+Completed At: 2026-09-11T06:10:09+09:00
+File Path: `file:///c:/Users/yuton/OneDrive/%E3%83%87%E3%82%B9%E3%82%AF%E3%83%88%E3%83%83%E3%83%97/mainpage/particle/stargazer.js`
+Total Lines: 574
+Total Bytes: 1451423
+Showing lines 115 to 210
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+115:    */
+116:   function generateStargazerTemplate(time = 0) {
+117:     let pIdx = 0;
+118:     const isZero = (time === 0);
+119: 
+120:     // =========================================================
+121:     // 1. 星雲・暗夜背景（微細な輝度呼吸のみ、座標は静止）
+122:     // =========================================================
+123:     for (let i = 0; i < NEBULA_DATA.length; i++) {
+124:       const p = NEBULA_DATA[i];
+125:       const item = templateBuffer[pIdx++];
+126:       item.bx = p.bx;
+127:       item.by = p.by;
+128: 
+129:       if (isZero) {
+130:         item.rgb = p.rgb;
+131:         item.size = p.base_size;
+132:       } else {
+133:         const pulse = 0.90 + 0.10 * Math.sin(time * 0.8 + p.pulse_phase);
+134:         item.rgb = [
+135:           Math.min(255, Math.round(p.rgb[0] * pulse)),
+136:           Math.min(255, Math.round(p.rgb[1] * pulse)),
+137:           Math.min(255, Math.round(p.rgb[2] * (0.92 + 0.08 * pulse)))
+138:         ];
+139:         item.size = p.base_size * pulse;
+140:       }
+141:     }
+142: 
+143:     // =========================================================
+144:     // 2. 夜空の星々（微細な瞬きと、超微細な浮遊感）
+145:     // =========================================================
+146:     for (let i = 0; i < STARS_DATA.length; i++) {
+147:       const p = STARS_DATA[i];
+148:       const item = templateBuffer[pIdx++];
+149: 
+150:       if (isZero) {
+151:         item.bx = p.bx;
+152:         item.by = p.by;
+153:         item.rgb = p.rgb;
+154:         item.size = p.base_size;
+155:       } else {
+156:         item.bx = p.bx + Math.cos(time * 0.6 + p.twinkle_phase) * 0.35;
+157:         item.by = p.by + Math.sin(time * 0.7 + p.twinkle_phase) * 0.35;
+158: 
+159:         const twinkle = Math.sin(time * p.twinkle_speed + p.twinkle_phase);
+160:         const bright = 0.70 + 0.30 * twinkle;
+161:         item.rgb = [
+162:           Math.min(255, Math.round(p.rgb[0] * (0.75 + 0.25 * bright))),
+163:           Math.min(255, Math.round(p.rgb[1] * (0.75 + 0.25 * bright))),
+164:           Math.min(255, Math.round(p.rgb[2] * (0.85 + 0.15 * bright)))
+165:         ];
+166:         item.size = p.base_size * (0.88 + 0.22 * bright);
+167:       }
+168:     }
+169: 
+170:     // =========================================================
+171:     // 3. クロス大星（核と光条の呼吸）
+172:     // =========================================================
+173:     for (let i = 0; i < MAJOR_STAR_PTS.length; i++) {
+174:       const p = MAJOR_STAR_PTS[i];
+175:       const item = templateBuffer[pIdx++];
+176:       item.bx = p.bx;
+177:       item.by = p.by;
+178: 
+179:       if (isZero) {
+180:         item.rgb = p.rgb;
+181:         item.size = p.base_size;
+182:       } else {
+183:         const pulse = 0.85 + 0.15 * Math.sin(time * p.pulse_speed + p.pulse_phase);
+184: 
+185:         let edgeAlpha = 1.0;
+186:         const absX = Math.abs(p.bx);
+187:         if (absX > 400) {
+188:           edgeAlpha *= Math.max(0, (512 - absX) / 112);
+189:         }
+190:         if (p.by < -260) {
+191:           edgeAlpha *= Math.max(0, (p.by - (-307)) / 47);
+192:         } else if (p.by > 20) {
+193:           edgeAlpha *= Math.max(0, (120 - p.by) / 100);
+194:         }
+195: 
+196:         const finalPulse = pulse * edgeAlpha;
+197:         if (p.type === 'core') {
+198:           item.rgb = [
+199:             Math.round(p.rgb[0] * edgeAlpha),
+200:             Math.round(p.rgb[1] * edgeAlpha),
+201:             Math.round(p.rgb[2] * edgeAlpha)
+202:           ];
+203:           item.size = p.base_size * finalPulse;
+204:         } else {
+205:           item.rgb = [
+206:             Math.min(255, Math.round(p.rgb[0] * finalPulse)),
+207:             Math.min(255, Math.round(p.rgb[1] * finalPulse)),
+208:             Math.min(255, Math.round(p.rgb[2] * (0.85 + 0.15 * finalPulse)))
+209:           ];
+210:           item.size = p.base_size * finalPulse;
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

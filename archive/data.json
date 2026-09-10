@@ -5,8 +5,29 @@
         "id": "latest-updates",
         "heading": "最新のアップデート",
         "description": "最近追加・更新されたコンテンツです。",
-        "cols": 2,
+        "cols": 3,
         "items": [
+          {
+            "title": "ほろ酔い診断テスト",
+            "tag": "健康・生活",
+            "href": "/archive/app/sober-check/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "お酒を飲む前と後で同じテストを実施し、反射神経・認知判断・記憶・バランスの変化から現在の酔い度合いを優しく診断します。"
+          },
+          {
+            "title": "ラグトレイン 粒子シンフォニー",
+            "tag": "メディアアート",
+            "href": "/archive/play/lagtrain/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "3,022フレームの超軽量粒子アニメーションと、澄み切った星空オルゴール＆弦楽合奏による全画面体験型シアター。"
+          },
+          {
+            "title": "粒子座標・カラー生成ツール",
+            "tag": "開発ツール",
+            "href": "/archive/app/particle-generator/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "画像を読み込み、軽量なパーティクル点群モデル（座標・RGB値）のJavaScriptテンプレートコードを自動生成するツール。"
+          },
           {
             "title": "ブロスタ キャラクター評価",
             "tag": "ブロスタ",
@@ -101,6 +122,13 @@
             "href": "/archive/app/color/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "カラーコードに近い色の「日本語名」を検索。Webデザインやイラスト制作に。"
+          },
+          {
+            "title": "粒子座標・カラー生成ツール",
+            "tag": "開発ツール",
+            "href": "/archive/app/particle-generator/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "画像を読み込み、軽量なパーティクル点群モデル（座標・RGB値）のJavaScriptテンプレートコードを自動生成するツール。"
           }
         ]
       },
@@ -122,6 +150,20 @@
             "href": "/archive/app/x/dm/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "相手の数値IDを指定して、XのDM作成リンクを生成します。"
+          }
+        ]
+      },
+      {
+        "id": "life-tools",
+        "heading": "生活・セルフチェック",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ほろ酔い診断テスト",
+            "tag": "健康・生活",
+            "href": "/archive/app/sober-check/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "お酒を飲む前と後で同じテストを実施し、反射神経・認知判断・記憶・バランスの変化から現在の酔い度合いを優しく診断します。"
           }
         ]
       }
@@ -282,6 +324,20 @@
   "play": {
     "sections": [
       {
+        "id": "media-art",
+        "heading": " メディアアート",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ラグトレイン 粒子シンフォニー",
+            "tag": "メディアアート",
+            "href": "/archive/play/lagtrain/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "3,022フレームの超軽量粒子アニメーションと、澄み切った星空オルゴール＆弦楽合奏による全画面体験型シアター。"
+          }
+        ]
+      },
+      {
         "id": "brawl-stars",
         "heading": " ブロスタ",
         "cols": 3,
@@ -292,6 +348,13 @@
             "href": "/archive/play/Brawl/",
             "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
             "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+          },
+          {
+            "title": "ブロスタ キャラクター評価 (Firebase版)",
+            "tag": "ブロスタ",
+            "href": "/archive/play/brawl-firebase/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
+            "description": "キャラ別の強さ・難易度・おすすめビルドをFirebase Realtime Database連携でリアルタイム管理・一覧表示。"
           },
           {
             "title": "BanPic-Brawl",

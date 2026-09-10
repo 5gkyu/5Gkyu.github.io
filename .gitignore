@@ -19,3 +19,10 @@ archive/note/index.html
 prologue/
 halcyon_lore.md
 
+# ローカル専用ディレクトリ（公開しないファイル置き場）
+_local/
+_private/
+discord/
+
+
+

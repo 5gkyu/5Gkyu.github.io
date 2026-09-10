@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dot Matrix Preview: rag (Lagtrain.mid 楽曲シンクロ再生)</title>
+  <!-- Google Fonts: DotGothic16 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #b2b2b2;
+      color: #111827;
+      font-family: 'DotGothic16', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+    }
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ui-panel {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      min-width: 370px;
+      max-width: 450px;
+      transition: opacity 0.2s;
+    }
+    h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+      font-family: 'DotGothic16', sans-serif;
+    }
+    .meta {
+      font-size: 0.76rem;
+      color: #475569;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #0f172a;
+      border: 1px solid #0f172a;
+      color: #ffffff;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.76rem;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-family: -apple-system, sans-serif;
+      user-select: none;
+    }
+    button:hover {
+      background: #334155;
+    }
+    button.btn-active {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #334155;
+      font-family: -apple-system, sans-serif;
+    }
+    .slider-label {
+      width: 78px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #1e293b;
+      flex-shrink: 0;
+    }
+    .slider-val {
+      width: 44px;
+      text-align: right;
+      font-family: monospace;
+      font-weight: 600;
+      color: #2563eb;
+      font-size: 0.76rem;
+      flex-shrink: 0;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+    .frame-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: 600;
+      font-size: 0.72rem;
+    }
+    .lyric-status {
+      display: inline-block;
+      margin-top: 2px;
+      padding: 4px 8px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      color: #1e293b;
+      width: 100%;
+      border-left: 3px solid #2563eb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-close-panel {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .btn-close-panel:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .btn-show-panel {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 9;
+      background: rgba(15, 23, 42, 0.85);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: none;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+  <!-- p5.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <!-- 粒子アニメーション & 楽曲 & MIDIシンセ -->
+  <script src="./rag_new.js"></script>
+  <script src="./rag_lyrics.js"></script>
+  <script src="./lagtrain_notes.js"></script>
+  <script src="./midi_synth.js"></script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- パネル再表示用ボタン -->
+  <button id="btn-show-panel" class="btn-show-panel">⚙ 設定パネル表示 (Hキー)</button>
+
+  <div class="ui-panel" id="ui-panel">
+    <div class="panel-header">
+      <h1>✨ Dot Matrix Studio: rag</h1>
+      <button id="btn-hide-panel" class="btn-close-panel" title="パネルを隠す (Hキー)">✕ 隠す</button>
+    </div>
+    <div class="meta" id="info-text">初期化中...</div>
+    <div class="controls">
+      <div class="btn-row">
+        <button id="btn-toggle" class="btn-active" style="background:#2563eb; color:#fff; font-weight:700;">一時停止 / 再生</button>
+        <button id="btn-music" class="btn-active" style="background:#8b5cf6; color:#fff; font-weight:700;">🔊 音楽: ON</button>
+        <button id="btn-lyric-mode" class="btn-active">歌詞: 元動画そのまま</button>
+        <button id="btn-fit-mode" class="btn-active">画面: 最大フィット</button>
+        <button id="btn-speed">速度: 1.0x</button>
+        <button id="btn-reset">最初から</button>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-prev-frame">◀ 1F戻る</button>
+        <button id="btn-next-frame">1F進む ▶</button>
+        <button id="btn-copy-frame">現在Frameコピー</button>
+      </div>
+
+      <!-- 再生シーカー -->
+      <div class="slider-row">
+        <span class="slider-label" id="time-display">0:00 / 4:11</span>
+        <input type="range" id="seeker" min="0" max="251.83" step="0.0833" value="0">
+      </div>
+
+      <!-- 音量スライダー -->
+      <div class="slider-row">
+        <span class="slider-label">音量</span>
+        <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5">
+        <span class="slider-val" id="vol-val">50%</span>
+      </div>
+
+      <div class="lyric-status" id="current-lyric-preview">
+        現在歌詞: <span>(待機中)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isPlaying = true;
+    // 歌詞表示モード: 0 = テキスト重ね, 1 = 元動画そのまま（デフォルト）, 2 = 歌詞完全消去
+    const lyricModes = [
+      { id: 'text_overlay', name: '歌詞: テキスト重ね', loadOriginal: false, drawText: true },
+      { id: 'original_dots', name: '歌詞: 元動画そのまま', loadOriginal: true, drawText: false },
+      { id: 'hidden', name: '歌詞: 完全消去', loadOriginal: false, drawText: false }
+    ];
+    let lyricModeIdx = 1; // デフォルトは「歌詞: 元動画そのまま」
+    let fitMode = 'contain';
+
+    let fontSizePx = 11.0;
+    let posXOffsetPx = -5.0;
+    let lyricGridY = 104.0;
+    let letterSpacingPx = 16;
+    let strokeColor = '#000000';
+    let strokeWidthPx = 2.0;
+
+    let playSpeed = 1.0;
+    const speedOptions = [0.25, 0.5, 1.0, 1.5, 2.0];
+    let speedIdx = 2;
+    let animTime = 0;
+    const FPS = 12.0;
+    let TOTAL_DURATION = (window.RAG_NEW_CONFIG && window.RAG_NEW_CONFIG.duration) || 251.8333;
+    let TOTAL_FRAMES = (window.RAG_NEW_CONFIG && window.RAG_NEW_CONFIG.totalFrames) || 3022;
+
+    const infoText = document.getElementById('info-text');
+    const timeDisplay = document.getElementById('time-display');
+    const seeker = document.getElementById('seeker');
+    const lyricModeBtn = document.getElementById('btn-lyric-mode');
+    const fitModeBtn = document.getElementById('btn-fit-mode');
+    const lyricPreviewEl = document.getElementById('current-lyric-preview');
+    const musicBtn = document.getElementById('btn-music');
+    const volSlider = document.getElementById('vol-slider');
+    const volVal = document.getElementById('vol-val');
+    
+    const uiPanel = document.getElementById('ui-panel');
+    const btnHidePanel = document.getElementById('btn-hide-panel');
+    const btnShowPanel = document.getElementById('btn-show-panel');
+
+    seeker.max = TOTAL_DURATION;
+
+    function togglePanel(show) {
+      const isHidden = (show !== undefined) ? !show : !uiPanel.classList.contains('hidden');
+      uiPanel.classList.toggle('hidden', isHidden);
+      btnShowPanel.style.display = isHidden ? 'block' : 'none';
+    }
+
+    btnHidePanel.addEventListener('click', () => togglePanel(false));
+    btnShowPanel.addEventListener('click', () => togglePanel(true));
+
+    // Hキーでパネル表示・非表示トグル、スペースキーで一時停止/再生
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'h' || e.key === 'H') {
+        togglePanel();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        togglePlayState();
+      }
+    });
+
+    function togglePlayState() {
+      isPlaying = !isPlaying;
+      document.getElementById('btn-toggle').textContent = isPlaying ? '一時停止' : '再生';
+      if (window.lagtrainSynth) {
+        if (!isPlaying) {
+          window.lagtrainSynth.stopAll();
+        } else {
+          window.lagtrainSynth.seek(animTime);
+        }
+      }
+    }
+
+    document.getElementById('btn-toggle').addEventListener('click', () => {
+      togglePlayState();
+    });
+
+    // 音楽ミュートトグル
+    musicBtn.addEventListener('click', () => {
+      if (window.lagtrainSynth) {
+        const isMuted = window.lagtrainSynth.toggleMute();
+        musicBtn.textContent = isMuted ? '🔇 音楽: OFF' : '🔊 音楽: ON';
+        musicBtn.style.background = isMuted ? '#64748b' : '#8b5cf6';
+      }
+    });
+
+    // 音量調整
+    volSlider.addEventListener('input', (e) => {
+      const v = parseFloat(e.target.value);
+      volVal.textContent = `${Math.round(v * 100)}%`;
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.setVolume(v);
+      }
+    });
+
+    // 歌詞モード切り替え
+    lyricModeBtn.addEventListener('click', () => {
+      lyricModeIdx = (lyricModeIdx + 1) % lyricModes.length;
+      const currentMode = lyricModes[lyricModeIdx];
+      lyricModeBtn.textContent = currentMode.name;
+      lyricModeBtn.classList.toggle('btn-active', currentMode.id !== 'hidden');
+    });
+
+    fitModeBtn.addEventListener('click', () => {
+      fitMode = (fitMode === 'contain') ? 'cover' : 'contain';
+      fitModeBtn.textContent = `画面: ${fitMode === 'contain' ? '最大フィット' : '全画面充填 (Cover)'}`;
+    });
+
+    document.getElementById('btn-speed').addEventListener('click', (e) => {
+      speedIdx = (speedIdx + 1) % speedOptions.length;
+      playSpeed = speedOptions[speedIdx];
+      e.target.textContent = `速度: ${playSpeed.toFixed(2)}x`;
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      animTime = 0;
+      seeker.value = 0;
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.seek(0);
+      }
+    });
+
+    // 1フレーム戻る / 進む
+    document.getElementById('btn-prev-frame').addEventListener('click', () => {
+      isPlaying = false;
+      animTime = Math.max(0, animTime - (1.0 / FPS));
+      seeker.value = animTime;
+      if (window.lagtrainSynth) window.lagtrainSynth.seek(animTime);
+    });
+
+    document.getElementById('btn-next-frame').addEventListener('click', () => {
+      isPlaying = false;
+      animTime = Math.min(TOTAL_DURATION, animTime + (1.0 / FPS));
+      seeker.value = animTime;
+      if (window.lagtrainSynth) window.lagtrainSynth.seek(animTime);
+    });
+
+    // 現在フレームをコピー
+    document.getElementById('btn-copy-frame').addEventListener('click', (e) => {
+      const curFrame = Math.floor(animTime * FPS);
+      navigator.clipboard.writeText(curFrame.toString());
+      const oldText = e.target.textContent;
+      e.target.textContent = `コピー: ${curFrame}`;
+      setTimeout(() => { e.target.textContent = oldText; }, 1500);
+    });
+
+    seeker.addEventListener('input', (e) => {
+      animTime = parseFloat(e.target.value);
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.seek(animTime);
+      }
+    });
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // 現在フレームの歌詞を取得
+    function getLyricForFrame(currentFrame) {
+      const list = window.RAG_LYRICS || [];
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        if (currentFrame >= item.start && currentFrame <= item.end) {
+          return { active: true, text: item.text, sectionIdx: i + 1, start: item.start, end: item.end };
+        }
+      }
+      return { active: false, text: "", sectionIdx: 0 };
+    }
+
+    new p5(function(p) {
+      p.setup = function() {
+        const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+        canvas.parent('canvas-container');
+        p.ellipseMode(p.CENTER);
+        p.rectMode(p.CENTER);
+        p.noStroke();
+
+        // 画面クリックでオーディオをアンロック
+        window.addEventListener('click', () => {
+          if (window.lagtrainSynth && window.lagtrainSynth.ctx && window.lagtrainSynth.ctx.state === 'suspended') {
+            window.lagtrainSynth.ctx.resume();
+          }
+        }, { once: true });
+      };
+
+      p.draw = function() {
+        // 背景グレー (#b2b2b2)
+        p.background(178, 178, 178);
+
+        if (isPlaying) {
+          animTime = (animTime + (p.deltaTime / 1000) * playSpeed);
+          if (animTime >= TOTAL_DURATION) {
+            animTime = animTime % TOTAL_DURATION;
+            if (window.lagtrainSynth) window.lagtrainSynth.seek(animTime);
+          }
+          seeker.value = animTime;
+        }
+
+        // MIDI 楽曲シンセサイザーの更新・同期
+        if (window.lagtrainSynth) {
+          window.lagtrainSynth.update(animTime, isPlaying);
+        }
+
+        const curGlobalFrame = Math.floor(animTime * FPS);
+        timeDisplay.innerHTML = `${formatTime(animTime)} / ${formatTime(TOTAL_DURATION)} <span class="frame-badge">F: ${curGlobalFrame}</span>`;
+
+        const currentMode = lyricModes[lyricModeIdx];
+
+        // 空間別Dual-Resolutionフル尺マスター版 (rag_new.js) の点群を取得
+        let currentTmpl = null;
+        if (typeof window.generateRagNewTemplate === 'function') {
+          currentTmpl = window.generateRagNewTemplate(animTime, currentMode.loadOriginal);
+        }
+        if (!currentTmpl) return;
+
+        const lyricInfo = getLyricForFrame(curGlobalFrame);
+
+        if (lyricInfo.active) {
+          lyricPreviewEl.innerHTML = `[#${lyricInfo.sectionIdx} / F:${lyricInfo.start}-${lyricInfo.end}] <strong>${lyricInfo.text}</strong>`;
+          lyricPreviewEl.style.borderLeftColor = '#2563eb';
+        } else {
+          lyricPreviewEl.innerHTML = `<span>(歌詞なし区間)</span>`;
+          lyricPreviewEl.style.borderLeftColor = '#94a3b8';
+        }
+
+        const cx = p.width / 2;
+        const cy = p.height / 2;
+
+        // 画面を最大まで使ったスケール計算（640x360 余白ゼロ）
+        const scale = (fitMode === 'cover')
+          ? Math.max(p.width / 420.0, p.height / 236.25)
+          : Math.min(p.width / 420.0, p.height / 236.25);
+
+        // 1. 点群（四角ドット）の描画
+        let drawnCount = 0;
+        p.noStroke();
+        for (let i = 0; i < currentTmpl.length; i++) {
+          const pt = currentTmpl[i];
+          drawnCount++;
+
+          const x = cx + pt.bx * scale;
+          const y = cy + pt.by * scale;
+          const sz = pt.size * scale;
+
+          p.fill(pt.rgb[0], pt.rgb[1], pt.rgb[2]);
+          p.rect(x, y, sz, sz);
+        }
+
+        // 2. テキスト歌詞の描画（currentMode.drawText が true の場合のみ上から重ねる）
+        if (currentMode.drawText && lyricInfo.active) {
+          const textCenterX = cx + (posXOffsetPx * scale);
+          const textCenterY = cy + (lyricGridY / 112 - 0.5) * 236.25 * scale;
+          const scaledFontSize = fontSizePx * scale;
+          const letterSpacing = (letterSpacingPx / 14) * 6.5 * scale;
+          const scaledStrokeWidth = strokeWidthPx * scale * 0.9;
+
+          p.textFont('DotGothic16');
+          p.textSize(scaledFontSize);
+          p.textAlign(p.CENTER, p.CENTER);
+
+          const chars = Array.from(lyricInfo.text);
+          const widths = chars.map(c => p.textWidth(c));
+          const totalWidth = widths.reduce((a, b) => a + b, 0) + (chars.length - 1) * letterSpacing;
+
+          // Pass 1: 縁（アウトライン）の描画
+          if (strokeColor && scaledStrokeWidth > 0) {
+            p.stroke(strokeColor);
+            p.strokeWeight(scaledStrokeWidth * 2);
+            p.strokeJoin(p.ROUND);
+            p.fill(strokeColor);
+
+            let curX = textCenterX - totalWidth / 2;
+            for (let i = 0; i < chars.length; i++) {
+              const charW = widths[i];
+              const charCenterPos = curX + charW / 2;
+              p.text(chars[i], charCenterPos, textCenterY);
+              curX += charW + letterSpacing;
+            }
+          }
+
+          // Pass 2: 白文字本体の描画
+          p.noStroke();
+          p.fill(255, 255, 255);
+          let curX = textCenterX - totalWidth / 2;
+          for (let i = 0; i < chars.length; i++) {
+            const charW = widths[i];
+            const charCenterPos = curX + charW / 2;
+            p.text(chars[i], charCenterPos, textCenterY);
+            curX += charW + letterSpacing;
+          }
+        }
+        p.noStroke();
+
+        infoText.innerHTML = `
+          表示ドット数: <strong>${drawnCount.toLocaleString()}</strong>点 | 
+          楽曲: <strong>Lagtrain.mid (9,130音)</strong> | 
+          FPS: <strong>12</strong>
+        `;
+      };
+
+      p.windowResized = function() {
+        p.resizeCanvas(window.innerWidth, window.innerHeight);
+      };
+    });
+  </script>
+</body>
+</html>

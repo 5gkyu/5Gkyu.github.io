@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halcyon Particle Generator - 粒子座標・カラー生成ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #080811;
+      color: #e2e8f0;
+      font-family: 'Outfit', 'Zen Maru Gothic', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 上部ヘッダーバー */
+    header {
+      padding: 0.8rem 1.8rem;
+      background: rgba(15, 15, 25, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .logo-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #ffd700, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.05em;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    /* メインレイアウト */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      flex: 1;
+      height: calc(100vh - 58px);
+      overflow: hidden;
+    }
+
+    @media (max-width: 1024px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
+    }
+
+    /* 左カラム：コントロールパネル */
+    .sidebar {
+      background: rgba(15, 15, 25, 0.94);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.2rem 1.4rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ドラッグ＆ドロップゾーン */
+    .drop-zone {
+      border: 2px dashed rgba(74, 232, 255, 0.4);
+      border-radius: 14px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: rgba(74, 232, 255, 0.04);
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #ffd700;
+      background: rgba(255, 215, 0, 0.08);
+      transform: scale(1.01);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+
+    .drop-text {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .drop-text strong {
+      color: #4ae8ff;
+    }
+
+    /* プリセットボタン（4グリッド） */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+
+    .preset-btn {
+      padding: 0.65rem 0.5rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      text-align: center;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      border-color: #ffd700;
+      background: rgba(255, 215, 0, 0.15);
+      color: #ffd700;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+    }
+
+    .preset-btn.ultra-active {
+      border-color: #4ae8ff;
+      background: rgba(74, 232, 255, 0.2);
+      color: #4ae8ff;
+      box-shadow: 0 0 15px rgba(74, 232, 255, 0.35);
+    }
+
+    /* 設定カード */
+    .control-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .control-desc {
+      font-size: 0.68rem;
+      color: #94a3b8;
+    }
+
+    .control-val {
+      color: #ffd700;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4ae8ff;
+      cursor: pointer;
+      box-shadow: 0 0 8px #4ae8ff;
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* モード選択（ラジオカード） */
+    .radio-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+
+    .radio-card {
+      position: relative;
+    }
+
+    .radio-card input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .radio-card label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 0.4rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .radio-card input:checked + label {
+      border-color: #ff6b9d;
+      background: rgba(255, 107, 157, 0.18);
+      color: #ff6b9d;
+      box-shadow: 0 0 12px rgba(255, 107, 157, 0.25);
+    }
+
+    /* ボタン */
+    .btn {
+      padding: 0.6rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .btn-copy-main {
+      background: linear-gradient(135deg, #ffd700, #ff6b9d);
+      color: #080811;
+      font-size: 0.9rem;
+      padding: 0.8rem 1.2rem;
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+      width: 100%;
+    }
+
+    .btn-copy-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(255, 215, 0, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* 右側：大画面フルスケールプレビュー */
+    .preview-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #080811;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .canvas-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* プレビュー上のHUDオーバーレイ */
+    .preview-hud {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: flex;
+      gap: 0.6rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-chip {
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(15, 15, 25, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.76rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .hud-chip .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #7fff9f;
+      box-shadow: 0 0 8px #7fff9f;
+    }
+
+    .fps-badge {
+      font-family: monospace;
+      color: #7fff9f;
+      font-weight: 700;
+    }
+
+    /* 下部コード出力ドロワー */
+    .output-drawer {
+      background: rgba(15, 15, 25, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      z-index: 20;
+    }
+
+    .output-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-preview-box {
+      width: 100%;
+      height: 85px;
+      background: rgba(8, 8, 17, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      color: #7fff9f;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.74rem;
+      resize: none;
+      outline: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, #7fff9f, #4ae8ff);
+      color: #080811;
+      font-weight: 800;
+      padding: 0.9rem 1.6rem;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(127, 255, 159, 0.5);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header>
+    <div class="logo-title">Halcyon Particle Generator</div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" id="btn-sample-turtle">🐢 亀サンプル</button>
+      <button class="btn btn-secondary" id="btn-sample-star">⭐ 星サンプル</button>
+      <button class="btn btn-download" id="btn-download" style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.15);">💾 JSファイル保存</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- サイドバー：設定コントロール -->
+    <aside class="sidebar">
+      <div>
+        <div class="section-title">📁 1. 画像ファイルを読み込む</div>
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/*">
+          <span class="drop-icon">🖼️</span>
+          <p class="drop-text">
+            <strong>ここに画像をドロップ</strong><br>
+            またはクリックして選択<br>
+            <span style="font-size:0.7rem; color:#94a3b8;">PNG (透過推奨) / JPG / WebP</span>
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">⚡ 2. モード選択</div>
+        <div class="preset-grid">
+          <button class="preset-btn ultra-active" id="preset-photoreal">
+            <span style="font-weight:700; color:#4ae8ff;">💎 画像完全再現</span>
+            <span style="font-size:0.62rem; opacity:0.8;">高密度グリッド (推奨)</span>
+          </button>
+          <button class="preset-btn" id="preset-ultra">
+            <span>✨ 超細密・銀河</span>
+            <span style="font-size:0.62rem; opacity:0.8;">3,500粒子ランダム</span>
+          </button>
+          <button class="preset-btn" id="preset-dense">
+            <span>🌌 高密度・美光</span>
+            <span style="font-size:0.62rem; opacity:0.8;">1,800粒子</span>
+          </button>
+          <button class="preset-btn" id="preset-edge">
+            <span>✏️ 輪郭くっきり</span>
+            <span style="font-size:0.62rem; opacity:0.8;">エッジ重視</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">🎛️ 3. 詳細パラメータ調整</div>
+        <div class="control-card">
+          <!-- 粒子数 (Count) 直接入力 & スライダー -->
+          <div class="control-group" id="group-count">
+            <div class="control-label">
+              <span>粒子の数 (Count)</span>
+              <input type="number" id="param-count-num" min="100" max="25000" step="100" value="3500" 
+                     style="width: 90px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #ffd700; border-radius: 8px; padding: 0.25rem 0.5rem; font-family: monospace; font-size: 0.82rem; font-weight: 700; text-align: right; outline: none; transition: border-color 0.2s;"
+                     onfocus="this.style.borderColor='#ffd700'" onblur="this.style.borderColor='rgba(255,255,255,0.18)'">
+            </div>
+            <div class="control-desc">数値入力またはスライダーで調整できます (100〜25,000)</div>
+            <input type="range" id="param-count" min="100" max="15000" step="100" value="3500">
+          </div>
+
+          <!-- 粒子の自然なゆらぎ (配置ランダム感) -->
+          <div class="control-group" id="group-jitter">
+            <div class="control-label">
+              <span>配置の自然なゆらぎ (位置ランダム感)</span>
+              <span class="control-val" id="val-jitter">50 %</span>
+            </div>
+            <div class="control-desc">規則的な縦横 of points を崩し、有機的な自然さを加えます</div>
+            <input type="range" id="param-jitter" min="0" max="100" step="5" value="50">
+          </div>
+
+          <!-- 粒子のサイズゆらぎ (サイズランダム感) -->
+          <div class="control-group" id="group-size-jitter">
+            <div class="control-label">
+              <span>粒子のサイズゆらぎ (大小ランダム感)</span>
+              <span class="control-val" id="val-size-jitter">0 %</span>
+            </div>
+            <div class="control-desc">粒子の大きさに大小のバラつきを加えます</div>
+            <input type="range" id="param-size-jitter" min="0" max="100" step="5" value="0">
+          </div>
+
+          <!-- 粒子の太さ -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>粒子の太さ (サイズ)</span>
+              <span class="control-val" id="val-dot-size">1.3 px</span>
+            </div>
+            <div class="control-desc">粒子の大きさを調整して隙間なく敷き詰めます</div>
+            <input type="range" id="param-dot-size" min="0.6" max="3.5" step="0.1" value="1.3">
+          </div>
+
+          <!-- 表示サイズ（スケール） -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>全体の表示サイズ (Scale)</span>
+              <span class="control-val" id="val-scale">1.5 倍</span>
+            </div>
+            <div class="control-desc">大画面での広がり・迫力を調整します</div>
+            <input type="range" id="param-scale" min="0.8" max="3.5" step="0.1" value="1.5">
+          </div>
+
+          <!-- 背景の透明度しきい値 -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>背景の透明度しきい値</span>
+              <span class="control-val" id="val-threshold">20</span>
+            </div>
+            <div class="control-desc">薄い背景ノイズを除外する感度です</div>
+            <input type="range" id="param-threshold" min="5" max="240" step="5" value="20">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">🎨 4. カラーモード</div>
+        <div class="radio-group">
+          <div class="radio-card">
+            <input type="radio" name="color-mode" id="col-img" value="image" checked>
+            <label for="col-img">🖼️ 元画像の色 (忠実)</label>
+          </div>
+          <div class="radio-card">
+            <input type="radio" name="color-mode" id="col-palette" value="palette">
+            <label for="col-palette">🌈 虹色パレット</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-copy-main" id="btn-copy">📋 できたコードをコピーする</button>
+    </aside>
+
+    <!-- 右側：大画面フルスケールプレビュー -->
+    <main class="preview-stage">
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="preview-canvas"></canvas>
+        <div class="preview-hud">
+          <div class="hud-chip">
+            <span class="dot"></span>
+            <span id="hud-mode-title">💎 画像完全再現モード (自然なゆらぎ高密度)</span>
+          </div>
+          <div class="hud-chip">
+            <span>FPS: <span class="fps-badge" id="fps-counter">60</span></span>
+          </div>
+          <div class="hud-chip">
+            <span>✨ Halcyon 実機レンダリング完全同期</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下部コードプレビュードロワー -->
+      <div class="output-drawer">
+        <div class="output-drawer-header">
+          <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">
+            generated-template.js (indexcopy.html にそのまま使用できます)
+          </span>
+          <span style="font-size:0.75rem; color:#4ae8ff; font-weight:700;" id="info-point-count">総粒子数: 0 点</span>
+        </div>
+        <textarea class="code-preview-box" id="code-output" readonly spellcheck="false"></textarea>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">✨ コードをクリップボードにコピーしました！</div>
+
+  <script>
+    // サイトの虹色カラーパレット
+    const PALETTE = [
+      [255, 107, 157],  // ピンク
+      [255, 160, 74],   // オレンジ
+      [255, 215, 0],    // ゴールド
+      [127, 255, 159],  // グリーン
+      [74, 232, 255],   // シアン
+      [167, 139, 250],  // パープル
+    ];
+
+    let currentImage = null;
+    let extractedTemplate = [];
+    let currentSamplingMode = 'photoreal'; // 'photoreal' or 'random'
+
+    // DOM要素
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const paramJitter = document.getElementById('param-jitter');
+    const paramSizeJitter = document.getElementById('param-size-jitter');
+    const paramCount = document.getElementById('param-count');
+    const paramCountNum = document.getElementById('param-count-num');
+    const paramDotSize = document.getElementById('param-dot-size');
+    const paramThreshold = document.getElementById('param-threshold');
+    const paramScale = document.getElementById('param-scale');
+    const valJitter = document.getElementById('val-jitter');
+    const valSizeJitter = document.getElementById('val-size-jitter');
+    const valDotSize = document.getElementById('val-dot-size');
+    const valThreshold = document.getElementById('val-threshold');
+    const valScale = document.getElementById('val-scale');
+    const groupJitter = document.getElementById('group-jitter');
+    const groupSizeJitter = document.getElementById('group-size-jitter');
+    const groupCount = document.getElementById('group-count');
+    const hudModeTitle = document.getElementById('hud-mode-title');
+    const btnCopy = document.getElementById('btn-copy');
+    const btnDownload = document.getElementById('btn-download');
+    const btnSampleTurtle = document.getElementById('btn-sample-turtle');
+    const btnSampleStar = document.getElementById('btn-sample-star');
+    const codeOutput = document.getElementById('code-output');
+    const infoPointCount = document.getElementById('info-point-count');
+    const toast = document.getElementById('toast');
+    const fpsCounter = document.getElementById('fps-counter');
+
+    // プリセットボタン
+    const presetPhotoreal = document.getElementById('preset-photoreal');
+    const presetUltra = document.getElementById('preset-ultra');
+    const presetDense = document.getElementById('preset-dense');
+    const presetEdge = document.getElementById('preset-edge');
+
+    function setActivePreset(btn, mode) {
+      [presetPhotoreal, presetUltra, presetDense, presetEdge].forEach(b => {
+        b.classList.remove('active');
+        b.classList.remove('ultra-active');
+      });
+      if (btn) {
+        if (mode === 'photoreal') btn.classList.add('ultra-active');
+        else btn.classList.add('active');
+      }
+      currentSamplingMode = mode;
+      
+      if (groupJitter) groupJitter.style.display = mode === 'photoreal' ? 'flex' : 'none';
+      if (groupSizeJitter) groupSizeJitter.style.display = 'flex';
+      groupCount.style.display = 'flex';
+      
+      if (mode === 'photoreal') {
+        hudModeTitle.textContent = '💎 画像完全再現モード (自然なゆらぎ高密度)';
+      } else {
+        hudModeTitle.textContent = '✨ ランダム星屑モード';
+      }
+    }
+
+    presetPhotoreal.addEventListener('click', () => {
+      setActivePreset(presetPhotoreal, 'photoreal');
+      paramCount.value = 3500;
+      paramCountNum.value = 3500;
+      paramJitter.value = 50;
+      paramSizeJitter.value = 0;
+      paramDotSize.value = 1.3;
+      paramScale.value = 1.5;
+      paramThreshold.value = 20;
+      updateUIValues();
+      processImageAndGenerate();
+    });
+
+    presetUltra.addEventListener('click', () => {
+      setActivePreset(presetUltra, 'random');
+      paramCount.value = 3500;
+      paramCountNum.value = 3500;
+      paramDotSize.value = 1.1;
+      paramScale.value = 1.5;
+      paramThreshold.value = 25;
+      updateUIValues();
+      processImageAndGenerate();
+    });
+
+    presetDense.addEventListener('click', () => {
+      setActivePreset(presetDense, 'random');
+      paramCount.value = 1800;
+      paramCountNum.value = 1800;
+      paramDotSize.value = 1.2;
+      paramScale.value = 1.5;
+      paramThreshold.value = 30;
+      updateUIValues();
+      processImageAndGenerate();
+    });
+
+    presetEdge.addEventListener('click', () => {
+      setActivePreset(presetEdge, 'random');
+      paramCount.value = 1500;
+      paramCountNum.value = 1500;
+      paramDotSize.value = 1.0;
+      paramScale.value = 1.5;
+      paramThreshold.value = 35;
+      updateUIValues();
+      processImageAndGenerate();
+    });
+
+    function updateUIValues() {
+      if (valJitter && paramJitter) valJitter.textContent = paramJitter.value + ' %';
+      if (valSizeJitter && paramSizeJitter) valSizeJitter.textContent = paramSizeJitter.value + ' %';
+      if (valDotSize && paramDotSize) valDotSize.textContent = Number(paramDotSize.value).toFixed(1) + ' px';
+      if (valScale && paramScale) valScale.textContent = Number(paramScale.value).toFixed(1) + ' 倍';
+      if (valThreshold && paramThreshold) valThreshold.textContent = paramThreshold.value;
+    }
+
+    // 双方向連動の設定
+    if (paramCount && paramCountNum) {
+      paramCount.addEventListener('input', () => {
+        paramCountNum.value = paramCount.value;
+        processImageAndGenerate();
+      });
+      paramCountNum.addEventListener('input', () => {
+        let val = parseInt(paramCountNum.value, 10);
+        if (isNaN(val)) val = 1000;
+        val = Math.min(Math.max(val, 100), 25000);
+        paramCount.value = Math.min(val, 15000);
+        processImageAndGenerate();
+      });
+    }
+
+    [paramJitter, paramSizeJitter, paramDotSize, paramThreshold, paramScale].forEach(input => {
+      if (input) {
+        input.addEventListener('input', () => {
+          updateUIValues();
+          processImageAndGenerate();
+        });
+      }
+    });
+
+    document.querySelectorAll('input[name="color-mode"]').forEach(radio => {
+      radio.addEventListener('change', processImageAndGenerate);
+    });
+
+    // ファイルドラッグ＆ドロップ
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          currentImage = img;
+          processImageAndGenerate();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // サンプル亀画像
+    function loadSampleTurtle() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 600;
+      cvs.height = 450;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, 600, 450);
+
+      const cx = 290, cy = 225;
+
+      // 甲羅
+      ctx.fillStyle = '#7fff9f';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 140, 110, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 甲羅模様
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 頭
+      ctx.fillStyle = '#4ae8ff';
+      ctx.beginPath();
+      ctx.arc(cx + 175, cy, 50, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 目
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(cx + 195, cy - 15, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#080811';
+      ctx.beginPath();
+      ctx.arc(cx + 198, cy - 15, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 前ヒレ
+      ctx.fillStyle = '#ff6b9d';
+      ctx.beginPath();
+      ctx.ellipse(cx + 70, cy - 120, 85, 35, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + 70, cy + 120, 85, 35, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 後ろヒレ
+      ctx.fillStyle = '#a78bfa';
+      ctx.beginPath();
+      ctx.ellipse(cx - 120, cy - 85, 55, 26, -Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx - 120, cy + 85, 55, 26, Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        processImageAndGenerate();
+      };
+      img.src = cvs.toDataURL();
+    }
+
+    // サンプル星画像
+    function loadSampleStar() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 500;
+      cvs.height = 500;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, 500, 500);
+
+      // 星マーク
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      const cx = 250, cy = 250;
+      for (let i = 0; i < 5; i++) {
+        const a1 = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+        const a2 = a1 + Math.PI / 5;
+        const r1 = 160, r2 = 68;
+        if (i === 0) ctx.moveTo(cx + Math.cos(a1) * r1, cy + Math.sin(a1) * r1);
+        else ctx.lineTo(cx + Math.cos(a1) * r1, cy + Math.sin(a1) * r1);
+        ctx.lineTo(cx + Math.cos(a2) * r2, cy + Math.sin(a2) * r2);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // 外周リング
+      ctx.strokeStyle = '#4ae8ff';
+      ctx.lineWidth = 18;
+      ctx.beginPath();
+      ctx.arc(250, 250, 215, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        processImageAndGenerate();
+      };
+      img.src = cvs.toDataURL();
+    }
+
+    btnSampleTurtle.addEventListener('click', loadSampleTurtle);
+    btnSampleStar.addEventListener('click', loadSampleStar);
+
+    // ============================================================
+    // 💎 画像解析＆サンプリングエンジン
+    // ============================================================
+    function processImageAndGenerate() {
+      if (!currentImage) return;
+
+      const alphaThreshold = parseInt(paramThreshold.value, 10);
+      const sizeMultiplier = parseFloat(paramScale.value);
+      const colorMode = document.querySelector('input[name="color-mode"]:checked').value;
+
+      // オフスクリーンCanvas
+      const cvs = document.createElement('canvas');
+      const maxDim = 380;
+      const w = currentImage.width;
+      const h = currentImage.height;
+      const fitScale = Math.min(maxDim / w, maxDim / h);
+      const sw = Math.floor(w * fitScale);
+      const sh = Math.floor(h * fitScale);
+
+      cvs.width = sw;
+      cvs.height = sh;
+      const ctx = cvs.getContext('2d');
+      ctx.drawImage(currentImage, 0, 0, sw, sh);
+      const imgData = ctx.getImageData(0, 0, sw, sh);
+      const data = imgData.data;
+
+      // 1. バウンディングボックス検出
+      let minX = sw, maxX = 0, minY = sh, maxY = 0;
+      let validCount = 0;
+
+      for (let y = 0; y < sh; y++) {
+        for (let x = 0; x < sw; x++) {
+          const idx = (y * sw + x) * 4;
+          if (data[idx + 3] > alphaThreshold) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+            validCount++;
+          }
+        }
+      }
+
+      if (validCount === 0) {
+        alert('不透明なピクセルが見つかりませんでした。別の画像をお試しください。');
+        return;
+      }
+
+      const bboxW = Math.max(maxX - minX, 1);
+      const bboxH = Math.max(maxY - minY, 1);
+      const bboxCenterX = minX + bboxW / 2;
+      const bboxCenterY = minY + bboxH / 2;
+      const bboxMaxDim = Math.max(bboxW, bboxH);
+      const targetHalfSize = 260 * sizeMultiplier;
+
+      extractedTemplate = [];
+
+      if (currentSamplingMode === 'photoreal') {
+        // ==========================================
+        // 💎 画像完全再現モード：ジッタード・高密度グリッド
+        // ==========================================
+        const targetCount = parseInt(paramCountNum.value, 10) || 3500;
+        // 有効画素数と目標粒子数から最適なグリッドスキャン幅を逆算
+        const gridStep = Math.max(Math.sqrt(validCount / targetCount), 1.0);
+        const jitterRatio = (parseFloat(paramJitter.value) || 50) / 100;
+        const maxJitterOffset = gridStep * 0.45 * jitterRatio;
+
+        for (let y = minY; y <= maxY; y += gridStep) {
+          for (let x = minX; x <= maxX; x += gridStep) {
+            const jx = x + (Math.random() - 0.5) * 2 * maxJitterOffset;
+            const jy = y + (Math.random() - 0.5) * 2 * maxJitterOffset;
+            const px = Math.min(Math.max(Math.floor(jx), 0), sw - 1);
+            const py = Math.min(Math.max(Math.floor(jy), 0), sh - 1);
+
+            const idx = (py * sw + px) * 4;
+            const a = data[idx + 3];
+
+            if (a > alphaThreshold) {
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+
+              const ptX = ((jx - bboxCenterX) / (bboxMaxDim / 2)) * targetHalfSize;
+              const ptY = ((jy - bboxCenterY) / (bboxMaxDim / 2)) * targetHalfSize;
+
+              let colorIdx = -2;
+              let customRgb = [r, g, b];
+
+              if (colorMode === 'palette') {
+                let minDist = Infinity;
+                for (let pi = 0; pi < PALETTE.length; pi++) {
+                  const pcol = PALETTE[pi];
+                  const d = (r - pcol[0])**2 + (g - pcol[1])**2 + (b - pcol[2])**2;
+                  if (d < minDist) {
+                    minDist = d;
+                    colorIdx = pi;
+                  }
+                }
+                customRgb = null;
+              }
+
+              extractedTemplate.push({
+                bx: Math.round(ptX * 10) / 10,
+                by: Math.round(ptY * 10) / 10,
+                colorIdx: colorIdx,
+                rgb: customRgb,
+                layer: 'body'
+              });
+            }
+          }
+        }
+      } else {
+        // ==========================================
+        // ✨ ランダム星屑サンプリングモード
+        // ==========================================
+        const targetCount = parseInt(paramCountNum.value, 10) || 3500;
+        const validPixels = [];
+
+        for (let y = 0; y < sh; y++) {
+          for (let x = 0; x < sw; x++) {
+            const idx = (y * sw + x) * 4;
+            const a = data[idx + 3];
+            if (a > alphaThreshold) {
+              validPixels.push({
+                x: ((x - bboxCenterX) / (bboxMaxDim / 2)) * targetHalfSize,
+                y: ((y - bboxCenterY) / (bboxMaxDim / 2)) * targetHalfSize,
+                r: data[idx],
+                g: data[idx + 1],
+                b: data[idx + 2]
+              });
+            }
+          }
+        }
+
+        const count = Math.min(targetCount, validPixels.length);
+        for (let i = 0; i < count; i++) {
+          const rIdx = Math.floor(Math.random() * validPixels.length);
+          const pt = validPixels[rIdx];
+
+          let colorIdx = -2;
+          let customRgb = [pt.r, pt.g, pt.b];
+
+          if (colorMode === 'palette') {
+            let minDist = Infinity;
+            for (let pi = 0; pi < PALETTE.length; pi++) {
+              const pcol = PALETTE[pi];
+              const d = (pt.r - pcol[0])**2 + (pt.g - pcol[1])**2 + (pt.b - pcol[2])**2;
+              if (d < minDist) {
+                minDist = d;
+                colorIdx = pi;
+              }
+            }
+            customRgb = null;
+          }
+
+          extractedTemplate.push({
+            bx: Math.round(pt.x * 10) / 10,
+            by: Math.round(pt.y * 10) / 10,
+            colorIdx: colorIdx,
+            rgb: customRgb,
+            layer: 'body'
+          });
+        }
+      }
+
+      infoPointCount.textContent = `総粒子数: ${extractedTemplate.length.toLocaleString()} 点`;
+      updateCodeOutput();
+      initEngineWithTemplate(extractedTemplate);
+    }
+
+    function updateCodeOutput() {
+      const code = `// 生成された点群モデルデータ (総粒子数: ${extractedTemplate.length})\nfunction generateCustomTemplate() {\n  return ${JSON.stringify(extractedTemplate, null, 2)};\n}`;
+      codeOutput.value = code;
+    }
+
+    async function copyCodeToClipboard() {
+      const text = codeOutput.value;
+      if (!text) return;
+
+      let success = false;
+
+      // 1. まず標準の Clipboard API を試みる
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          success = true;
+        } catch (err) {
+          console.warn('Clipboard API failed, trying fallback:', err);
+        }
+      }
+
+      // 2. 失敗または非HTTPS/file環境の場合は execCommand で確実にコピー
+      if (!success) {
+        try {
+          codeOutput.focus();
+          codeOutput.select();
+          codeOutput.setSelectionRange(0, 9999999);
+          success = document.execCommand('copy');
+        } catch (err) {
+          console.error('execCommand copy failed:', err);
+        }
+      }
+
+      if (success) {
+        toast.textContent = '✨ コードをクリップボードにコピーしました！';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      } else {
+        // 万が一両方ブロックされた場合はテキストエリアを選択してユーザーにCtrl+Cを促す
+        codeOutput.focus();
+        codeOutput.select();
+        toast.textContent = '⚠️ 下のコード枠を選択しました。Ctrl+C でコピーしてください';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+      }
+    }
+
+    btnCopy.addEventListener('click', copyCodeToClipboard);
+
+    btnDownload.addEventListener('click', () => {
+      const blob = new Blob([codeOutput.value], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'generated-template.js';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ============================================================
+    // ⚡ Halcyon 実機レンダリング完全同期エンジン (indexcopy準拠)
+    // ============================================================
+    const canvas = document.getElementById('preview-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let canvasW = 0, canvasH = 0;
+
+    // --- 背景星空 & アンビエント光粒子 (indexcopyと完全同期) ---
+    const BG_STAR_COUNT = 120;
+    const bgStarX = new Float32Array(BG_STAR_COUNT);
+    const bgStarY = new Float32Array(BG_STAR_COUNT);
+    const bgStarSize = new Float32Array(BG_STAR_COUNT);
+    const bgStarBright = new Float32Array(BG_STAR_COUNT);
+    const bgStarSpeed = new Float32Array(BG_STAR_COUNT);
+    const bgStarPhase = new Float32Array(BG_STAR_COUNT);
+
+    const AMBIENT_COUNT = 80;
+    const ambX = new Float32Array(AMBIENT_COUNT);
+    const ambY = new Float32Array(AMBIENT_COUNT);
+    const ambVx = new Float32Array(AMBIENT_COUNT);
+    const ambVy = new Float32Array(AMBIENT_COUNT);
+    const ambSize = new Float32Array(AMBIENT_COUNT);
+    const ambColorIdx = new Uint8Array(AMBIENT_COUNT);
+    const ambAlphaPhase = new Float32Array(AMBIENT_COUNT);
+
+    let shootingStars = [];
+    let nextShootTime = 60;
+
+    function initBackgroundStars() {
+      for (let i = 0; i < BG_STAR_COUNT; i++) {
+        bgStarX[i] = Math.random() * (canvasW || 800);
+        bgStarY[i] = Math.random() * (canvasH || 600);
+        bgStarSize[i] = 0.8 + Math.random() * 1.6;
+        bgStarBright[i] = 0.2 + Math.random() * 0.8;
+        bgStarSpeed[i] = 0.5 + Math.random() * 2.0;
+        bgStarPhase[i] = Math.random() * Math.PI * 2;
+      }
+      for (let i = 0; i < AMBIENT_COUNT; i++) {
+        ambX[i] = Math.random() * (canvasW || 800);
+        ambY[i] = Math.random() * (canvasH || 600);
+        ambVx[i] = (Math.random() - 0.5) * 0.4;
+        ambVy[i] = -(0.3 + Math.random() * 0.5);
+        ambSize[i] = 1.6 + Math.random() * 2.4;
+        ambColorIdx[i] = Math.floor(Math.random() * PALETTE.length);
+        ambAlphaPhase[i] = Math.random() * Math.PI * 2;
+      }
+    }
+
+    // --- メイン粒子システム ---
+    let pCount = 0;
+    let posX, posY, velX, velY;
+    let baseTargetX, baseTargetY;
+    let curR, curG, curB, curSize, curAlpha;
+    let targetR, targetG, targetB, targetSize;
+    let pSpeed, pForce;
+    let shockwaves = [];
+
+    function initEngineWithTemplate(template) {
+      pCount = template.length;
+      posX = new Float32Array(pCount);
+      posY = new Float32Array(pCount);
+      velX = new Float32Array(pCount);
+      velY = new Float32Array(pCount);
+      baseTargetX = new Float32Array(pCount);
+      baseTargetY = new Float32Array(pCount);
+      
+      curR = new Float32Array(pCount);
+      curG = new Float32Array(pCount);
+      curB = new Float32Array(pCount);
+      curSize = new Float32Array(pCount);
+      curAlpha = new Float32Array(pCount);
+
+      targetR = new Uint8Array(pCount);
+      targetG = new Uint8Array(pCount);
+      targetB = new Uint8Array(pCount);
+      targetSize = new Float32Array(pCount);
+
+      pSpeed = new Float32Array(pCount);
+      pForce = new Float32Array(pCount);
+
+      const baseDot = parseFloat(paramDotSize.value) || 1.8;
+      const sizeJitterRatio = (parseFloat(paramSizeJitter.value) || 0) / 100;
+
+      for (let i = 0; i < pCount; i++) {
+        const t = template[i];
+        
+        // 画面外から自然に集合
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { posX[i] = Math.random() * canvasW; posY[i] = -20; velY[i] = 6 + Math.random() * 8; }
+        else if (side === 1) { posX[i] = canvasW + 20; posY[i] = Math.random() * canvasH; velX[i] = -(6 + Math.random() * 8); }
+        else if (side === 2) { posX[i] = Math.random() * canvasW; posY[i] = canvasH + 20; velY[i] = -(6 + Math.random() * 8); }
+        else { posX[i] = -20; posY[i] = Math.random() * canvasH; velX[i] = 6 + Math.random() * 8; }
+
+        baseTargetX[i] = t.bx;
+        baseTargetY[i] = t.by;
+
+        if (t.rgb) {
+          targetR[i] = t.rgb[0];
+          targetG[i] = t.rgb[1];
+          targetB[i] = t.rgb[2];
+        } else if (t.colorIdx >= 0) {
+          const col = PALETTE[t.colorIdx % PALETTE.length];
+          targetR[i] = col[0];
+          targetG[i] = col[1];
+          targetB[i] = col[2];
+        } else {
+          targetR[i] = 255;
+          targetG[i] = 255;
+          targetB[i] = 255;
+        }
+
+        curR[i] = 255;
+        curG[i] = 255;
+        curB[i] = 255;
+        curAlpha[i] = 0;
+
+        const jitterFactor = 1 + (Math.random() - 0.5) * 2 * (sizeJitterRatio * 0.75);
+        targetSize[i] = Math.max((t.size || baseDot) * jitterFactor, 0.5);
+        curSize[i] = 0.5;
+
+        pSpeed[i] = 5.5 + Math.random() * 3.5;
+        pForce[i] = 0.3 + Math.random() * 0.35;
+      }
+    }
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvas-container');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvasW = Math.floor(rect.width);
+      canvasH = Math.floor(rect.height);
+      canvas.width = canvasW * dpr;
+      canvas.height = canvasH * dpr;
+      canvas.style.width = canvasW + 'px';
+      canvas.style.height = canvasH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initBackgroundStars();
+    }
+
+    const containerEl = document.getElementById('canvas-container');
+    if (containerEl && window.ResizeObserver) {
+      new ResizeObserver(() => {
+        resizeCanvas();
+      }).observe(containerEl);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // アニメーションループ (indexcopyと完全同期)
+    let frameCount = 0;
+    let fpsFrames = 0;
+    let fpsLastTime = performance.now();
+
+    function render(now) {
+      requestAnimationFrame(render);
+      frameCount++;
+
+      fpsFrames++;
+      if (now - fpsLastTime >= 500) {
+        fpsCounter.textContent = Math.round((fpsFrames * 1000) / (now - fpsLastTime));
+        fpsFrames = 0;
+        fpsLastTime = now;
+      }
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 1. 半透明ブラック残像クリア (indexcopyと同一)
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(8, 8, 17, 0.32)';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+
+      const time = frameCount * 0.02;
+      const cx = canvasW * 0.5;
+      const cy = canvasH * 0.5;
+
+      // 2. 固定星空描画
+      for (let i = 0; i < BG_STAR_COUNT; i++) {
+        const twinkle = Math.sin(time * bgStarSpeed[i] + bgStarPhase[i]);
+        const alpha = bgStarBright[i] * (0.4 + twinkle * 0.6);
+        if (alpha < 0.05) continue;
+        const sz = bgStarSize[i] * (0.7 + twinkle * 0.3);
+        ctx.fillStyle = 'rgba(200, 220, 255, ' + alpha.toFixed(2) + ')';
+        ctx.fillRect(bgStarX[i] - sz * 0.5, bgStarY[i] - sz * 0.5, sz, sz);
+      }
+
+      // 3. 流れ星
+      if (frameCount > nextShootTime) {
+        nextShootTime = frameCount + 120 + Math.floor(Math.random() * 300);
+        const startX = Math.random() * canvasW;
+        const startY = Math.random() * canvasH * 0.4;
+        const angle = 0.3 + Math.random() * 0.8;
+        shootingStars.push({
+          x: startX, y: startY,
+          vx: Math.cos(angle) * (6 + Math.random() * 6),
+          vy: Math.sin(angle) * (6 + Math.random() * 6),
+          life: 1.0,
+          len: 25 + Math.random() * 40
+        });
+      }
+      for (let s = shootingStars.length - 1; s >= 0; s--) {
+        const ss = shootingStars[s];
+        ss.x += ss.vx;
+        ss.y += ss.vy;
+        ss.life -= 0.02;
+        if (ss.life <= 0) { shootingStars.splice(s, 1); continue; }
+        const tailX = ss.x - ss.vx * (ss.len / 8);
+        const tailY = ss.y - ss.vy * (ss.len / 8);
+        const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+        grad.addColorStop(0, 'rgba(180, 220, 255, 0)');
+        grad.addColorStop(1, 'rgba(220, 240, 255, ' + (ss.life * 0.8).toFixed(2) + ')');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(ss.x, ss.y);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + (ss.life * 0.9).toFixed(2) + ')';
+        ctx.fillRect(ss.x - 1, ss.y - 1, 2, 2);
+      }
+
+      // 4. 背後星雲グロー
+      const nebulaAlpha = 0.032 + Math.sin(time * 0.5) * 0.012;
+      const nebulaR = Math.min(canvasW, canvasH) * 0.38;
+      const nebGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, nebulaR);
+      nebGrad.addColorStop(0, 'rgba(255, 107, 157, ' + nebulaAlpha.toFixed(3) + ')');
+      nebGrad.addColorStop(0.4, 'rgba(74, 232, 255, ' + (nebulaAlpha * 0.6).toFixed(3) + ')');
+      nebGrad.addColorStop(1, 'rgba(8, 8, 17, 0)');
+      ctx.fillStyle = nebGrad;
+      ctx.fillRect(cx - nebulaR, cy - nebulaR, nebulaR * 2, nebulaR * 2);
+
+      // 5. 汎用アンビエント浮遊光粒子
+      for (let i = 0; i < AMBIENT_COUNT; i++) {
+        ambX[i] += ambVx[i] + Math.cos(time * 1.2 + ambAlphaPhase[i]) * 0.25;
+        ambY[i] += ambVy[i];
+
+        if (ambY[i] < -20) {
+          ambY[i] = canvasH + 20;
+          ambX[i] = Math.random() * canvasW;
+        }
+
+        const aTwinkle = 0.35 + Math.sin(time * 2.0 + ambAlphaPhase[i]) * 0.25;
+        const col = PALETTE[ambColorIdx[i]];
+        const sz = ambSize[i];
+        ctx.fillStyle = 'rgba(' + col[0] + ', ' + col[1] + ', ' + col[2] + ', ' + aTwinkle.toFixed(2) + ')';
+        ctx.fillRect(ambX[i] - sz * 0.5, ambY[i] - sz * 0.5, sz, sz);
+      }
+
+      // 衝撃波リングの描画
+      for (let s = shockwaves.length - 1; s >= 0; s--) {
+        const sw = shockwaves[s];
+        sw.radius += 16;
+        sw.life -= 0.035;
+        sw.power *= 0.93;
+        ctx.strokeStyle = 'rgba(100, 220, 255, ' + (sw.life * 0.85).toFixed(2) + ')';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        if (sw.life <= 0) shockwaves.splice(s, 1);
+      }
+
+      if (pCount === 0) return;
+
+      // 6. メインキャラクター粒子物理 (indexcopyと完全同期)
+      const swayTime1 = time * 1.5;
+      const swayTime2 = time * 1.1;
+      const charScale = (canvasH * 0.70) / 800;
+
+      for (let i = 0; i < pCount; i++) {
+        const bx = baseTargetX[i];
+        const by = baseTargetY[i];
+
+        const tx = cx + (bx * charScale) + Math.cos(swayTime2 + by * 0.015) * 1.0;
+        const ty = cy + (by * charScale) + Math.sin(swayTime1 + bx * 0.015) * 1.5;
+        const tr = targetR[i];
+        const tg = targetG[i];
+        const tb = targetB[i];
+        const ts = targetSize[i];
+
+        curAlpha[i] += (1.0 - curAlpha[i]) * 0.06;
+
+        const tdx = tx - posX[i];
+        const tdy = ty - posY[i];
+        const tdist = Math.sqrt(tdx * tdx + tdy * tdy);
+
+        const formRatio = Math.max(0, Math.min(1, 1 - tdist / 220));
+        const colorSpeed = 0.02 + formRatio * 0.06;
+
+        curR[i] += (tr - curR[i]) * colorSpeed;
+        curG[i] += (tg - curG[i]) * colorSpeed;
+        curB[i] += (tb - curB[i]) * colorSpeed;
+        curSize[i] += (ts - curSize[i]) * 0.08;
+
+        // ステアリング物理
+        let dx = tx - posX[i];
+        let dy = ty - posY[i];
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        let ds = pSpeed[i];
+        if (dist < 80) ds = (dist / 80) * ds;
+        if (dist > 0.001) {
+          dx = (dx / dist) * ds;
+          dy = (dy / dist) * ds;
+        }
+
+        let ax = dx - velX[i];
+        let ay = dy - velY[i];
+        const mag = Math.sqrt(ax * ax + ay * ay);
+        if (mag > pForce[i]) {
+          ax = (ax / mag) * pForce[i];
+          ay = (ay / mag) * pForce[i];
+        }
+
+        // 衝撃波（クリック／タップ）による吹き飛ばし
+        for (let s = 0; s < shockwaves.length; s++) {
+          const sw = shockwaves[s];
+          const sdx = posX[i] - sw.x;
+          const sdy = posY[i] - sw.y;
+          const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+          const diff = Math.abs(sdist - sw.radius);
+          if (diff < 45 && sdist > 0.01) {
+            const bl = sw.power * (1 - diff / 45);
+            ax += (sdx / sdist) * bl;
+            ay += (sdy / sdist) * bl;
+          }
+        }
+
+        velX[i] = (velX[i] + ax) * 0.93;
+        velY[i] = (velY[i] + ay) * 0.93;
+        posX[i] += velX[i];
+        posY[i] += velY[i];
+
+        ctx.fillStyle = 'rgba(' + (curR[i] | 0) + ', ' + (curG[i] | 0) + ', ' + (curB[i] | 0) + ', ' + curAlpha[i].toFixed(2) + ')';
+        ctx.fillRect(posX[i] - curSize[i] * 0.5, posY[i] - curSize[i] * 0.5, curSize[i], curSize[i]);
+      }
+    }
+
+    function triggerShockwave(x, y) {
+      if (x >= 0 && x <= canvasW && y >= 0 && y <= canvasH) {
+        shockwaves.push({ x: x, y: y, radius: 10, life: 1.0, power: 24 });
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      triggerShockwave(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (e.buttons > 0 && Math.random() < 0.3) {
+        const rect = canvas.getBoundingClientRect();
+        triggerShockwave(e.clientX - rect.left, e.clientY - rect.top);
+      }
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        triggerShockwave(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0 && Math.random() < 0.3) {
+        const rect = canvas.getBoundingClientRect();
+        triggerShockwave(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+      }
+    }, { passive: true });
+
+    // 初期化
+    resizeCanvas();
+    updateUIValues();
+    loadSampleTurtle();
+    requestAnimationFrame(render);
+  </script>
+</body>
+</html>

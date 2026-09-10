@@ -24,6 +24,7 @@
 ├── gear/index.html
 ├── policy/index.html
 ├── prologue/index.html
+├── app/                    # 過去に公開していたアプリのパス（既存リンク互換・移行保持のため残しているレガシーディレクトリ）
 ├── hl-char/                # キャラクター素材
 └── archive/                # コンテンツアーカイブ
     ├── index.html          # アーカイブトップ
@@ -45,6 +46,8 @@
     │   └── typography/
     ├── play/index.html
     └── other/index.html
+├── _local/                 # ローカル専用ディレクトリ（.gitignore除外・非公開の作業用ファイル置き場）
+├── discord/                # ローカル専用ディレクトリ（.gitignore除外・非公開）
 ```
 
 ---
@@ -192,7 +195,7 @@ FOUC防止スタイルを `<head>` 内に配置する:
 |---|---|
 | `<site-header site-name="...">` | 固定ヘッダー。`site-name` でページカテゴリ名を表示 |
 | `<site-footer copy="5Gkyu">` | フッター |
-| `<hl-layout cols="1\|2">` | メインレイアウト。`cols="2"` で `.hl-layout-main` + `.hl-layout-sidebar` の2カラム |
+| `<hl-layout cols="1\|2" size="wide\|full">` | メインレイアウト。標準は cols="1"(720px) / cols="2"(1100px)。`size="wide"` で 1280px、`size="full"` で min(1440px, 95vw) に拡張可能 |
 | `<page-title>` | ページ大見出し（`h1` 相当） |
 | `<section-heading>` | セクション区切り見出し（App/一覧ページ用） |
 | `<hl-breadcrumb level1-name="" level1-url="" ...>` | パンくずリスト |

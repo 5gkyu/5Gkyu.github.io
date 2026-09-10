@@ -1,0 +1,24 @@
+node -e "
+const fs = require('fs');
+let code = fs.readFileSync('particle/stargazer.js', 'utf8');
+
+// (function (root) { から始まる
+// 構造:
+// 1. NEBULA_DATA
+// 2. STARS_DATA
+// 3. MAJOR_STAR_PTS
+// 4. GIRL_DATA
+// 5. GIRL_REFL_DATA
+// 6. STAR_REFL_DATA
+// 7. WATER_RIPPLE_PTS
+// 8. WATER_STAR_REFL
+// 9. SHOOT_SLOT_COUNT
+// 10. TOTAL_POINTS
+// 11. templateBuffer
+// 12. generateStargazerTemplate(time = 0) { ... }
+// 13. buildStargazerParticles()
+// 14. exports & })(this);
+
+// 壊れた generateStargazerTemplate を綺麗に修復
+console.log('File length:', code.length);
+"

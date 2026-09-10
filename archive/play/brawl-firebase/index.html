@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ブロスタ キャラクター評価 (Firebase連携版) | Halcyon - 5Gkyu</title>
+  <meta name="description" content="ブロスタ（Brawl Stars）のキャラクター評価。Firebase Realtime Database リアルタイム連携版。" />
+
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+  </style>
+
+  <link rel="stylesheet" href="styles.css?v=20260815_5">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+  <site-header site-name="Brawl Stars 評価 (Firebase版)"></site-header>
+
+  <hl-layout cols="1" style="max-width: 1100px" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Play" level2-url="/archive/play/"
+        current="ブロスタ キャラクター評価 (Firebase連携)">
+      </hl-breadcrumb>
+
+      <page-title>ブロスタ キャラクター評価</page-title>
+
+      <hl-accordion title="評価基準" style="margin-bottom: 16px;">
+        <p>主に3対3(ガチバトル)を想定。<br>使用率・勝率などの具体的なデータに基づくものではなく、<strong>完全に私の個人的な感覚と独断</strong>によって決定しています。</p>
+        <p><hl-chip color="blue">強さ</hl-chip></p>
+        <ul class="strength-legend-list">
+          <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-5"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span></span></span><span>環境キャラの中でも特に強い</span></li>
+          <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-4"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span></span></span><span>環境キャラ</span></li>
+          <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-3"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>現役キャラ</span></li>
+          <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-2"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>使い所が少ないキャラ</span></li>
+          <li class="strength-legend-item"><span class="strength-wrap strength-table strength-level-1"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span><span>使い所がないキャラ</span></li>
+        </ul>
+        <p>育てるキャラに迷った場合は、<span class="strength-wrap strength-table strength-level-3"><span class="strength-meter"><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar is-on"></span><span class="strength-bar"></span><span class="strength-bar"></span></span></span>以上のキャラが推奨。</p>
+        <p><hl-chip>スタパとガジェット</hl-chip></p>
+        <p>「コインをケチるならまずはこっちを買え」という意味合いです。</p>
+        <p><hl-chip>ギア</hl-chip></p>
+        <p>左から順におすすめ。シールドとビジョン(明らかにビジョン不要なキャラはダメージ)はマスト。</p>
+      </hl-accordion>
+
+      <!-- 認証 & 管理ツールバー -->
+      <div class="admin-toolbar">
+        <div id="adminInfo" class="admin-info">
+          <span>閲覧モード</span>
+        </div>
+
+        <div class="admin-btn-group">
+          <button id="btnOpenTierModal" class="tier-generator-btn" type="button" title="現在の評価でTier表を生成・保存">
+            Tier表を生成
+          </button>
+          <button id="btnOpenYearModal" class="year-generator-btn" type="button" title="実装年ごとのキャラクター年表を生成・保存">
+            実装年別表
+          </button>
+          <hl-button id="btnLogin" variant="primary" size="small">Googleで管理者ログイン</hl-button>
+          <hl-button id="btnAddNew" variant="primary" size="small" style="display: none;">+ キャラ追加</hl-button>
+          <hl-button id="btnReseed" variant="outline" size="small" style="display: none;">データ再初期化</hl-button>
+          <hl-button id="btnLogout" variant="outline" size="small" style="display: none;">ログアウト</hl-button>
+        </div>
+      </div>
+
+      <p id="status" class="brawl-status">Firebaseへ接続中...</p>
+
+      <div class="brawl-filter-row">
+        <div class="brawl-search-wrap">
+          <input id="searchInput" type="text" placeholder="キャラ名で検索..." autocomplete="off" />
+        </div>
+        <div class="tag-filter-wrap">
+          <select id="sortSelect" class="sort-select" aria-label="並び順">
+            <option value="">レア度順</option>
+            <option value="date-desc">実装日 (新しい順)</option>
+            <option value="date-asc">実装日 (古い順)</option>
+            <option value="strength-desc">強さ (高い順)</option>
+            <option value="strength-asc">強さ (低い順)</option>
+            <option value="difficulty-desc">難易度 (高い順)</option>
+            <option value="difficulty-asc">難易度 (低い順)</option>
+            <option value="name-asc">50音順</option>
+          </select>
+          <select id="tagFilterSelect" class="tag-filter-select" aria-label="タグで絞り込み">
+            <option value="">すべてのタグ</option>
+          </select>
+          <button id="tagFilterToggleBtn" class="tag-filter-toggle-btn" type="button" title="タグ一覧から選択">
+            タグ一覧
+          </button>
+        </div>
+      </div>
+
+      <!-- タグクイックフィルターパネル -->
+      <div id="tagFilterPanel" class="tag-filter-panel" hidden>
+        <div class="tag-filter-panel-header">
+          <span class="tag-filter-panel-title">タグを選択して絞り込み</span>
+          <button id="btnResetTagFilter" class="tag-filter-reset-btn" type="button">解除</button>
+        </div>
+        <div id="tagFilterPanelBody" class="tag-filter-panel-body"></div>
+        <!-- タグ解説ボックス -->
+        <div id="tagExplanationBox" class="tag-explanation-box">
+          <span class="tag-explanation-badge">解説</span>
+          <span id="tagExplanationText" class="tag-explanation-text">タグにカーソルを合わせると簡単な解説が表示されます</span>
+        </div>
+      </div>
+
+      <!-- 選択中タグ表示バナー -->
+      <div id="activeTagBanner" class="active-tag-banner" hidden>
+        <div class="active-tag-main">
+          <span class="active-tag-label">絞り込み中:</span>
+          <span id="activeTagChip" class="active-tag-chip">
+            <span id="activeTagName"></span>
+            <button id="activeTagClearBtn" type="button" aria-label="タグ解除">×</button>
+          </span>
+        </div>
+        <div id="activeTagDesc" class="active-tag-desc"></div>
+      </div>
+
+      <div id="tableView" class="view-panel"></div>
+
+    </div>
+  </hl-layout>
+
+  <!-- キャラクター詳細モーダル -->
+  <div id="detailModal" class="modal" hidden>
+    <div id="modalBackdrop" class="modal-backdrop"></div>
+    <div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button id="modalCloseBtn" class="modal-close" type="button" aria-label="閉じる">×</button>
+      <h3 id="modalTitle"></h3>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- キャラクター追加・編集モーダル -->
+  <div id="editorModal" class="modal" hidden>
+    <div id="editorModalBackdrop" class="modal-backdrop"></div>
+    <div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="editorModalTitle">
+      <button id="editorModalCloseBtn" class="modal-close" type="button" aria-label="閉じる">×</button>
+      <div class="editor-hero-header">
+        <img id="editorCharIcon" class="editor-char-avatar" src="" alt="" />
+        <div class="editor-hero-info">
+          <h3 id="editorModalTitle" style="color: var(--clr-brown); font-family: var(--font-main); margin: 0;">キャラ情報の編集</h3>
+          <span id="editorCharSubtitle" class="editor-char-subtitle"></span>
+        </div>
+      </div>
+      
+      <form id="charEditorForm" class="editor-dashboard-grid">
+        <input type="hidden" id="editCharId" />
+        <input type="hidden" id="editRare" value="#97ee8d" />
+
+        <!-- 左カラム: ステータス・ビルド・モード評価 -->
+        <div class="editor-col-left">
+          <div class="editor-row-duo">
+            <div class="form-group">
+              <label>強さ (1〜5)</label>
+              <div class="img-toggle-group" id="tuyosaToggleGroup">
+                <button type="button" class="meter-toggle-btn" data-tuyosa="1">1</button>
+                <button type="button" class="meter-toggle-btn" data-tuyosa="2">2</button>
+                <button type="button" class="meter-toggle-btn active" data-tuyosa="3">3</button>
+                <button type="button" class="meter-toggle-btn" data-tuyosa="4">4</button>
+                <button type="button" class="meter-toggle-btn" data-tuyosa="5">5</button>
+              </div>
+              <input type="hidden" id="editTuyosa" value="3" />
+            </div>
+
+            <div class="form-group">
+              <label>難易度</label>
+              <div class="img-toggle-group" id="difficultyToggleGroup">
+                <button type="button" class="meter-toggle-btn active" data-diff="1">低</button>
+                <button type="button" class="meter-toggle-btn" data-diff="2">中</button>
+                <button type="button" class="meter-toggle-btn" data-diff="3">高</button>
+              </div>
+              <input type="hidden" id="editDifficulty" value="1" />
+            </div>
+          </div>
+
+          <div class="editor-row-duo sg-row">
+            <div class="sg-col">
+              <label>推奨スターパワー</label>
+              <div class="img-toggle-group" id="sutapaToggleGroup">
+                <button type="button" class="img-toggle-btn icon-only active" data-sutapa="1" title="スターパワー 1">
+                  <img src="/image/star1.png" alt="スタパ 1" />
+                </button>
+                <button type="button" class="img-toggle-btn icon-only" data-sutapa="2" title="スターパワー 2">
+                  <img src="/image/star2.png" alt="スタパ 2" />
+                </button>
+              </div>
+              <input type="hidden" id="editSutapa" value="1" />
+            </div>
+            <div class="sg-col">
+              <label>推奨ガジェット</label>
+              <div class="img-toggle-group" id="gajeToggleGroup">
+                <button type="button" class="img-toggle-btn icon-only active" data-gaje="1" title="ガジェット 1">
+                  <img src="/image/gad1.png" alt="ガジェット 1" />
+                </button>
+                <button type="button" class="img-toggle-btn icon-only" data-gaje="2" title="ガジェット 2">
+                  <img src="/image/gad2.png" alt="ガジェット 2" />
+                </button>
+              </div>
+              <input type="hidden" id="editGaje" value="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>推奨ギア（左から優先順）</label>
+            <div class="gear-slots" id="gearSlots">
+              <!-- スロット1〜4 はJSで生成 -->
+            </div>
+            <!-- ギア選択ピッカー（スロットタップ時に表示） -->
+            <div class="gear-picker" id="gearPicker" hidden>
+              <div class="gear-picker-label">ギアを選択（「なし」で解除）</div>
+              <div class="gear-picker-grid">
+                <button type="button" class="gear-pick-btn gear-pick-none" data-gear="">なし</button>
+                <button type="button" class="gear-pick-btn" data-gear="スピード"><img src="/image/gear1.png" alt="スピード" /><span>スピード</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ヒール"><img src="/image/gear2.png" alt="ヒール" /><span>ヒール</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ダメージ"><img src="/image/gear3.png" alt="ダメージ" /><span>ダメージ</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ビジョン"><img src="/image/gear4.png" alt="ビジョン" /><span>ビジョン</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="シールド"><img src="/image/gear5.png" alt="シールド" /><span>シールド</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ガジェット短縮"><img src="/image/gear6.png" alt="ガジェット短縮" /><span>ガジェ短縮</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ウルト回転"><img src="/image/gear7.png" alt="ウルト回転" /><span>ウルト回転</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="リロード速度"><img src="/image/gear8.png" alt="リロード速度" /><span>リロード</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="ペット"><img src="/image/gear9.png" alt="ペット" /><span>ペット</span></button>
+                <button type="button" class="gear-pick-btn" data-gear="赤"><img src="/image/gear10.png" alt="赤" /><span>赤</span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- モード別3段階評価 (6モード: 3行2列) -->
+          <div class="form-group">
+            <label>モード別評価 (1〜3)</label>
+            <div class="mode-edit-section">
+              <!-- 1行目：エメハン、サッカー -->
+              <div class="mode-edit-row">
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-eme.png" alt="エメハン" title="エメハン" /></div>
+                  <div class="mode-toggle-group" id="modeToggleGem" data-mode="gem">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-soccer.png" alt="サッカー" title="サッカー" /></div>
+                  <div class="mode-toggle-group" id="modeToggleBall" data-mode="ball">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+              </div>
+              <!-- 2行目：強奪、ホットゾーン -->
+              <div class="mode-edit-row">
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-godatu.png" alt="強奪" title="強奪" /></div>
+                  <div class="mode-toggle-group" id="modeToggleHeist" data-mode="heist">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-hotzone.png" alt="ホットゾーン" title="ホットゾーン" /></div>
+                  <div class="mode-toggle-group" id="modeToggleZone" data-mode="zone">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+              </div>
+              <!-- 3行目：賞金稼ぎ、ノックアウト -->
+              <div class="mode-edit-row">
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-syokin.png" alt="賞金稼ぎ" title="賞金稼ぎ" /></div>
+                  <div class="mode-toggle-group" id="modeToggleBounty" data-mode="bounty">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+                <div class="mode-edit-item">
+                  <div class="mode-edit-label"><img src="/image/e-knock.png" alt="ノックアウト" title="ノックアウト" /></div>
+                  <div class="mode-toggle-group" id="modeToggleKnockout" data-mode="knockout">
+                    <button type="button" class="meter-toggle-btn active" data-val="1">1</button>
+                    <button type="button" class="meter-toggle-btn" data-val="2">2</button>
+                    <button type="button" class="meter-toggle-btn" data-val="3">3</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右カラム: タグ設定・詳細情報・ボタン -->
+        <div class="editor-col-right">
+          <!-- タグ設定セクション -->
+          <div class="form-group">
+            <div class="tag-editor-header">
+              <label>タグ設定</label>
+              <span class="tag-editor-count" id="tagEditorCount">選択中: 0個</span>
+              <button type="button" class="tag-clear-btn" id="btnTagClear">全解除</button>
+            </div>
+            <div class="tag-editor-categories" id="tagEditorCategories">
+              <!-- JSでカテゴリ別にチップ生成 -->
+            </div>
+          </div>
+
+          <!-- 詳細情報折りたたみアコーディオン (コメント・URL・キャラ名・実装日) -->
+          <details class="edit-extra-details" id="editExtraDetails">
+            <summary class="edit-extra-summary">その他の詳細情報 (コメント・URL・基本情報)</summary>
+            <div class="edit-extra-content">
+              <div class="form-group full-width">
+                <label for="editCom">評価・コメント</label>
+                <textarea id="editCom" rows="2" placeholder="コメントを入力..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="editGuide">Brawl Insights URL</label>
+                <input type="url" id="editGuide" placeholder="https://brawlinsights.com/..." />
+              </div>
+
+              <div class="form-group">
+                <label for="editWiki">Fandom Wiki URL</label>
+                <input type="url" id="editWiki" placeholder="https://brawlstars.fandom.com/..." />
+              </div>
+
+              <div class="form-group">
+                <label for="editName">キャラ名 *</label>
+                <input type="text" id="editName" required placeholder="例: シェリー" />
+              </div>
+
+              <div class="form-group">
+                <label for="editAlias">読み (ひらがな)</label>
+                <input type="text" id="editAlias" placeholder="例: しぇりー" />
+              </div>
+
+              <div class="form-group">
+                <label for="editDate">実装日</label>
+                <input type="text" id="editDate" placeholder="例: 2017/06/15" />
+              </div>
+            </div>
+          </details>
+
+          <div class="editor-btn-group">
+            <hl-button id="btnCancelEdit" variant="secondary" type="button">キャンセル</hl-button>
+            <hl-button variant="primary" type="submit">Firebaseに保存</hl-button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tier表モーダル -->
+  <div id="tierModal" class="modal tier-modal" hidden>
+    <div id="tierModalBackdrop" class="modal-backdrop"></div>
+    <div class="modal-body tier-modal-body">
+      <button id="tierModalCloseBtn" class="modal-close" type="button" aria-label="閉じる">×</button>
+
+      <div class="tier-modal-header">
+        <div class="tier-modal-title-wrap">
+          <h2 class="tier-modal-title">ブロスタ キャラクター Tier表</h2>
+          <span class="tier-modal-subtitle">強さ評価（1〜5）に基づく自動分類 (S〜D)</span>
+          <span class="tier-modal-notice">※各Tier内での左右差はありません（レア度順に並んでいます）</span>
+        </div>
+        <div class="tier-action-btns">
+          <button id="btnExportTierImage" class="tier-action-btn btn-export-img" type="button">
+            画像で保存 (PNG)
+          </button>
+          <button id="btnExportTierPdf" class="tier-action-btn btn-export-pdf" type="button">
+            PDFで保存 / 印刷
+          </button>
+        </div>
+      </div>
+
+      <!-- エクスポート対象となるTier表コンテナ -->
+      <div id="tierCaptureArea" class="tier-capture-area">
+        <div class="tier-board-header">
+          <div class="tier-board-brand">
+            <span class="tier-board-logo">BRAWL STARS</span>
+            <span class="tier-board-sub">Halcyon Tier List</span>
+          </div>
+          <div id="tierBoardMeta" class="tier-board-meta"></div>
+        </div>
+
+        <div id="tierRowsContainer" class="tier-rows-container">
+          <!-- S, A, B, C, D の行が動的生成される -->
+        </div>
+
+        <div class="tier-board-footer">
+          <span>Halcyon - 5Gkyu (https://5gkyu.github.io/archive/play/brawl-firebase/)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 実装年別表モーダル -->
+  <div id="yearModal" class="modal year-modal" hidden>
+    <div id="yearModalBackdrop" class="modal-backdrop"></div>
+    <div class="modal-body tier-modal-body year-modal-body">
+      <button id="yearModalCloseBtn" class="modal-close" type="button" aria-label="閉じる">×</button>
+
+      <div class="tier-modal-header">
+        <div class="tier-modal-title-wrap">
+          <h2 class="tier-modal-title">ブロスタ 実装年別キャラクター表</h2>
+          <span class="tier-modal-subtitle">実装年（古い順・2017年〜現在）タイムライン</span>
+        </div>
+        <div class="tier-action-btns">
+          <button id="btnExportYearImage" class="tier-action-btn btn-export-img" type="button">
+            画像で保存 (PNG)
+          </button>
+          <button id="btnExportYearPdf" class="tier-action-btn btn-export-pdf" type="button">
+            PDFで保存 / 印刷
+          </button>
+        </div>
+      </div>
+
+      <!-- エクスポート対象となる年別表コンテナ -->
+      <div id="yearCaptureArea" class="tier-capture-area year-capture-area">
+        <div class="tier-board-header">
+          <div class="tier-board-brand">
+            <span class="tier-board-logo" style="color: #60a5fa;">BRAWL STARS</span>
+            <span class="tier-board-sub">Release Timeline</span>
+          </div>
+          <div id="yearBoardMeta" class="tier-board-meta"></div>
+        </div>
+
+        <div id="yearRowsContainer" class="tier-rows-container year-rows-container">
+          <!-- 各年の行が動的生成される -->
+        </div>
+
+        <div class="tier-board-footer">
+          <span>Halcyon - 5Gkyu (https://5gkyu.github.io/archive/play/brawl-firebase/)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script src="/components/components.js"></script>
+  <script type="module" src="app.js?v=20260815_5"></script>
+</body>
+
+</html>

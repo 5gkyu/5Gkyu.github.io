@@ -1,0 +1,5358 @@
+{
+  "by_rarity": {
+    "hyper": {
+      "brawler_20": {
+        "addedDate": "2017年06月15日",
+        "alias": "ボウ, ぼう, Bo, BO, ｂｏ, ボー, ﾎﾞｳ",
+        "com": "火力が高くて草もはがせる連射キャラ。強いけど積極的に選ぶ場面はない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000014",
+        "id": "brawler_20",
+        "image": "c-21-bo.png",
+        "modes": [
+          "賞金稼ぎ",
+          "強奪",
+          "エメハン",
+          "ホットゾーン"
+        ],
+        "name": "ボウ",
+        "order": 20,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bo"
+      },
+      "brawler_21": {
+        "addedDate": "2019年10月23日",
+        "alias": "emz, えむず, Emz, EMZ, ｅｍｚ, エムズ",
+        "com": "タンク、小物系、ニタサンディなどが2体いたら取る。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000030",
+        "id": "brawler_21",
+        "image": "c-22-emz.png",
+        "modes": [
+          "ホットゾーン",
+          "サッカー",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "emz",
+        "order": 21,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Emz"
+      },
+      "brawler_22": {
+        "addedDate": "2021年03月15日",
+        "alias": "ストゥー, すとぅー, Stu, STU, ｓｔｕ, すてゅー, すとうー, ｽﾄｩｰ",
+        "com": "アサシン以外にはかなり強い。今は火力不足気味。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000045",
+        "id": "brawler_22",
+        "image": "c-23-stu.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン",
+          "エメハン",
+          "賞金稼ぎ"
+        ],
+        "name": "ストゥー",
+        "order": 22,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Stu"
+      },
+      "brawler_23": {
+        "addedDate": "2017年07月03日",
+        "alias": "エリザベス, えりざべす, Piper, PIPER, ｐｉｐｅｒ, パイパー, ｴﾘｻﾞﾍﾞｽ, ベティ, べてぃ, ﾍﾞﾃｨ",
+        "com": "リロードが遅いので終盤の展開が弱くて逆転されやすい。環境に押しつぶされているキャラ。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000015",
+        "id": "brawler_23",
+        "image": "c-24-piper.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "エリザベス",
+        "order": 23,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Piper"
+      },
+      "brawler_24": {
+        "addedDate": "2017年09月04日",
+        "alias": "パム, ぱむ, Pam, PAM, ｐａｍ, ﾊﾟﾑ",
+        "com": "ゾーン1個のホットゾーンやエメハンのミッドなど。地味だけどタンクに強い。でも使わない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "赤",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000016",
+        "id": "brawler_24",
+        "image": "c-25-pam.png",
+        "modes": [
+          "ホットゾーン",
+          "エメハン",
+          "賞金稼ぎ"
+        ],
+        "name": "パム",
+        "order": 24,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Pam"
+      },
+      "brawler_25": {
+        "addedDate": "2018年05月21日",
+        "alias": "フランケン, ふらんけん, Frank, FRANK, ｆｒａｎｋ, フランク, ﾌﾗﾝｹﾝ",
+        "com": "体力多いだけ。火力がない敵に対して終盤ピック。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "ヒール",
+          "シールド",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000020",
+        "id": "brawler_25",
+        "image": "c-26-frank.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン"
+        ],
+        "name": "フランケン",
+        "order": 25,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Frank"
+      },
+      "brawler_26": {
+        "addedDate": "2019年05月22日",
+        "alias": "ビビ, びび, Bibi, BIBI, ｂｉｂｉ, ﾋﾞﾋﾞ",
+        "com": "機動力のあるタンク。ミナ、ケンジ、モーティス、アリー、カゼを差し置いて選ぶ場面がない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000026",
+        "id": "brawler_26",
+        "image": "c-27-bibi.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "ビビ",
+        "order": 26,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bibi"
+      },
+      "brawler_27": {
+        "addedDate": "2019年12月18日",
+        "alias": "ビー, びー, Bea, BEA, ｂｅａ, ﾋﾞｰ",
+        "com": "タンクに強いけどアサシンに弱い残念な弾キャラ。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000029",
+        "id": "brawler_27",
+        "image": "c-28-bea.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "ノックアウト",
+          "サッカー"
+        ],
+        "name": "ビー",
+        "order": 27,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bea"
+      },
+      "brawler_28": {
+        "addedDate": "2020年06月05日",
+        "alias": "ナーニ, なーに, Nani, NANI, ｎａｎｉ, なに, ﾅｰﾆ",
+        "com": "遠距離最強キャラ。エリザベスとマンディに有利とれる唯一のキャラ。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ウルト回転",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000036",
+        "id": "brawler_28",
+        "image": "c-29-0nani.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ノックアウト"
+        ],
+        "name": "ナーニ",
+        "order": 28,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Nani"
+      },
+      "brawler_29": {
+        "addedDate": "2020年12月19日",
+        "alias": "エドガー, えどがー, Edgar, EDGAR, ｅｄｇａｒ, ｴﾄﾞｶﾞｰ",
+        "com": "バフィーがあほすぎて全マップで強い。BAN候補筆頭。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000043",
+        "id": "brawler_29",
+        "image": "c-29-1edger.png",
+        "modes": [
+          "強奪",
+          "ホットゾーン",
+          "エメハン",
+          "サッカー"
+        ],
+        "name": "エドガー",
+        "order": 29,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Edgar"
+      },
+      "brawler_30": {
+        "addedDate": "2021年07月23日",
+        "alias": "グリフ, ぐりふ, Griff, GRIFF, ｇｒｉｆｆ, ｸﾞﾘﾌ",
+        "com": "壁草破壊をしつつタンクにも強い唯一の弾キャラ。\nバフィーで正当強化してかなりいい感じ。チェスター、クロウ、オーティスと競合が多い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000050",
+        "id": "brawler_30",
+        "image": "c-29-2griff.png",
+        "modes": [
+          "ホットゾーン",
+          "強奪",
+          "サッカー",
+          "エメハン"
+        ],
+        "name": "グリフ",
+        "order": 30,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Griff"
+      },
+      "brawler_31": {
+        "addedDate": "2021年12月23日",
+        "alias": "グロム, ぐろむ, Grom, GROM, ｇｒｏｍ, ｸﾞﾛﾑ",
+        "com": "弱すぎる",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000048",
+        "id": "brawler_31",
+        "image": "c-29-3grom.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "グロム",
+        "order": 31,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Grom"
+      },
+      "brawler_32": {
+        "addedDate": "2022年06月06日",
+        "alias": "ボニー, ぼにー, Bonnie, BONNIE, ｂｏｎｎｉｅ, ﾎﾞﾆｰ",
+        "com": "使わない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "ウルト回転",
+          "ヒール",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000058",
+        "id": "brawler_32",
+        "image": "c-29-4bonny.png",
+        "modes": [
+          "強奪",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "ボニー",
+        "order": 32,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bonnie"
+      },
+      "brawler_33": {
+        "addedDate": "2020年05月13日",
+        "alias": "ゲイル, げいる, Gale, GALE, ｇａｌｅ, ｹﾞｲﾙ",
+        "com": "タンクメタの下位候補。ウルトは強いけど素の展開力がないので序盤は押される。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000035",
+        "id": "brawler_33",
+        "image": "c-29-5gale.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "ゲイル",
+        "order": 33,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Gale"
+      },
+      "brawler_34": {
+        "addedDate": "2020年09月14日",
+        "alias": "コレット, これっと, Colette, COLETTE, ｃｏｌｅｔｔｅ, これつと, ｺﾚｯﾄ",
+        "com": "強奪無難ピック。取っておくだけでタンクケアと削りを確保できる。\nバフィーのおかげで他モードもタンクケアとして取れる。アサシンはきつい。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000039",
+        "id": "brawler_34",
+        "image": "c-29-6collet.png",
+        "modes": [
+          "強奪",
+          "ホットゾーン",
+          "サッカー",
+          "エメハン"
+        ],
+        "name": "コレット",
+        "order": 34,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Colette"
+      },
+      "brawler_35": {
+        "addedDate": "2021年04月12日",
+        "alias": "ベル, べる, Belle, BELLE, ｂｅｌｌｅ, ﾍﾞﾙ",
+        "com": "無難遠距離キャラ。タンクも見れて撃ち合いもできる。ガジェットが雑切りできて強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "リロード速度",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000046",
+        "id": "brawler_35",
+        "image": "c-29-7belle.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "ノックアウト",
+          "エメハン"
+        ],
+        "name": "ベル",
+        "order": 35,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Belle"
+      },
+      "brawler_36": {
+        "addedDate": "2021年08月30日",
+        "alias": "アッシュ, あっしゅ, Ash, ASH, ａｓｈ, あつしゅ, ｱｯｼｭ",
+        "com": "上位タンク。キャリー性能が抜群。スタパガジェットは人によって全然違うけど、私は右右ヒールギアが理論値で強いと思う。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "ヒール",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000051",
+        "id": "brawler_36",
+        "image": "c-29-8ash.png",
+        "modes": {
+          "ball": 3,
+          "bounty": 1,
+          "gem": 3,
+          "heist": 1,
+          "knockout": 1,
+          "zone": 3
+        },
+        "name": "アッシュ",
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Ash"
+      },
+      "brawler_37": {
+        "addedDate": "2021年11月08日",
+        "alias": "ローラ, ろーら, Lola, LOLA, ｌｏｌａ, ろら, ﾛｰﾗ",
+        "com": "エメハンやホットゾーンなどの中距離対面枠。メグなどのカウンター。バグで火力がでる。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "リロード速度",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000053",
+        "id": "brawler_37",
+        "image": "c-29-9lola.png",
+        "modes": [
+          "ホットゾーン",
+          "賞金稼ぎ",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "ローラ",
+        "order": 37,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Lola"
+      },
+      "brawler_38": {
+        "addedDate": "2022年09月05日",
+        "alias": "サム, さむ, Sam, SAM, ｓａｍ, ｻﾑ",
+        "com": "使わない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000060",
+        "id": "brawler_38",
+        "image": "c-29-10sam.png",
+        "modes": [
+          "強奪",
+          "サッカー"
+        ],
+        "name": "サム",
+        "order": 38,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Sam"
+      },
+      "brawler_39": {
+        "addedDate": "2022年12月12日",
+        "alias": "マンディ, まんでぃ, Mandy, MANDY, ｍａｎｄｙ, マンデイ, ﾏﾝﾃﾞｨ",
+        "com": "長射程枠。アンジェロでいい。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000065",
+        "id": "brawler_39",
+        "image": "c-29-11mandy.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ノックアウト"
+        ],
+        "name": "マンディ",
+        "order": 39,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Mandy"
+      },
+      "brawler_40": {
+        "addedDate": "2023年05月01日",
+        "alias": "メイジー, めいじー, Maisie, MAISIE, ｍａｉｓｉｅ, ﾒｲｼﾞｰ",
+        "com": "タンクメタ。火力は高いけどエイムが独特で難しめ。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000068",
+        "id": "brawler_40",
+        "image": "c-29-12maisie.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン"
+        ],
+        "name": "メイジー",
+        "order": 40,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Maisie"
+      },
+      "brawler_41": {
+        "addedDate": "2023年06月06日",
+        "alias": "ハンク, はんく, Hank, HANK, ｈａｎｋ, ﾊﾝｸ",
+        "com": "中堅タンク。脳みそ0でプレイできる。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "ヒール",
+          "シールド",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000069",
+        "id": "brawler_41",
+        "image": "c-29-13hank.png",
+        "modes": [
+          "サッカー",
+          "エメハン",
+          "ホットゾーン",
+          "賞金稼ぎ"
+        ],
+        "name": "ハンク",
+        "order": 41,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Hank"
+      },
+      "brawler_42": {
+        "addedDate": "2023年09月11日",
+        "alias": "パール, ぱーる, Pearl, PEARL, ｐｅａｒｌ, パル, ぱる, ﾊﾟｰﾙ",
+        "com": "タンクケアできる射程持ち。ノックアウトでアサシンに対しての最終ピックとか。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000072",
+        "id": "brawler_42",
+        "image": "c-29-14pearl.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 3,
+          "gem": 3,
+          "heist": 1,
+          "knockout": 3,
+          "zone": 1
+        },
+        "name": "パール",
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Pearl"
+      },
+      "brawler_43": {
+        "addedDate": "2024年02月01日",
+        "alias": "ラリー＆ローリー, らりー＆ろーりー, Larry & Lawrie, ｌａｒｒｙ ＆ ｌａｗｒｉｅ, ラリーアンドローリー, ラリロリ, ラリーローリー, ラリーとローリー",
+        "com": "投げ枠。タンクとシリウスが見れる。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000077",
+        "id": "brawler_43",
+        "image": "c-29-15larry.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン",
+          "賞金稼ぎ",
+          "エメハン"
+        ],
+        "name": "ラリー＆ローリー",
+        "order": 43,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Larry_&_Lawrie"
+      },
+      "brawler_44": {
+        "addedDate": "2024年03月07日",
+        "alias": "アンジェロ, あんじぇろ, Angelo, ANGELO, ａｎｇｅｌｏ, あんじえろ, ｱﾝｼﾞｪﾛ",
+        "com": "遠距離最強キャラ。長射程キャラなのに足が全キャラで最速で弾避けもできる。\n3本指で貫通ガジェットを使えるようになると化ける。アサシンにすこし弱め。",
+        "difficulty": 3,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ヒール",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000079",
+        "id": "brawler_44",
+        "image": "c-29-16angero.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ノックアウト",
+          "エメハン"
+        ],
+        "name": "アンジェロ",
+        "order": 44,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Angelo"
+      },
+      "brawler_45": {
+        "addedDate": "2024年07月04日",
+        "alias": "ベリー, べりー, Berry, BERRY, ｂｅｒｒｙ, ベリイ, ﾍﾞﾘｰ",
+        "com": "ホットゾーンで使ったり。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "シールド",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000082",
+        "id": "brawler_45",
+        "image": "c-29-17berry.png",
+        "modes": [
+          "ホットゾーン",
+          "強奪",
+          "ノックアウト"
+        ],
+        "name": "ベリー",
+        "order": 45,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Berry"
+      },
+      "brawler_46": {
+        "addedDate": "2024年11月29日",
+        "alias": "シェイド, しぇいど, Shade, SHADE, ｓｈａｄｅ, しえいど, ｼｪｲﾄﾞ",
+        "com": "純粋な弾避け能力がそのまま強さになるので難易度は高いけど最上位キャラ。",
+        "difficulty": 3,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000086",
+        "id": "brawler_46",
+        "image": "c-29-18shade.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "サッカー",
+          "エメハン"
+        ],
+        "name": "シェイド",
+        "order": 46,
+        "rare": "#D88BF6",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Shade"
+      },
+      "brawler_47": {
+        "addedDate": "2025年01月09日",
+        "alias": "ミープル, みーぷる, Meeple, MEEPLE, ｍｅｅｐｌｅ, メープル, ミプル, ミイプル",
+        "com": "両ガジェットの展開力が高い。ミナ、ストゥー、チェスター辺りにめちゃ強い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000089",
+        "id": "brawler_47",
+        "image": "c-29-19meeple.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "サッカー",
+          "ノックアウト"
+        ],
+        "name": "ミープル",
+        "order": 47,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Meeple"
+      },
+      "brawler_48": {
+        "addedDate": "2025年08月21日",
+        "alias": "トランク, とらんく, Trunk, TRUNK, ｔｒｕｎｋ, ﾄﾗﾝｸ",
+        "com": "ガジェットの回復量が多い相手、火力がない相手に強い。選ぶ場面は今まで一回もなかった。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000096",
+        "id": "brawler_48",
+        "image": "c-29-20trunk.png",
+        "modes": [
+          "ホットゾーン",
+          "エメハン",
+          "サッカー"
+        ],
+        "name": "トランク",
+        "order": 48,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Trunk"
+      },
+      "brawler_49": {
+        "addedDate": "",
+        "alias": "ボルト, ぼると, Bolt, Volt, BOLT, VOLT, ｂｏｌｔ, ｖｏｌｔ, ＢＯＬＴ, ＶＯＬＴ, ﾎﾞﾙﾄ",
+        "com": "",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "ヒール",
+          "ダメージ",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000106",
+        "id": "brawler_49",
+        "image": "c-29-21bolt.png",
+        "name": "ボルト",
+        "order": 49,
+        "rare": "#D88BF6",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bolt"
+      }
+    },
+    "legend": {
+      "brawler_100": {
+        "addedDate": "2024年01月04日",
+        "alias": "キット, きっと, Kit, KIT, ｋｉｔ, きつと, ｷｯﾄ",
+        "com": "エメハン、賞金、ノックアウトの癌。BAN候補。\nガジェットでマップを支配。キットモーティス、キットケンジとか組まれたら負け。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000076",
+        "id": "brawler_100",
+        "image": "c-49-1kit.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "キット",
+        "order": 100,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Kit"
+      },
+      "brawler_101": {
+        "addedDate": "2024年06月06日",
+        "alias": "ドラコ, どらこ, Draco, DRACO, ｄｒａｃｏ, ﾄﾞﾗｺ",
+        "com": "耐久力と機動力があるタンク。ホットゾーンやエメハンで使う。\n適当に2回捨て身で突っ込んでウルト貯めて、あとは歩くだけ。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "ヒール",
+          "シールド",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000080",
+        "id": "brawler_101",
+        "image": "c-49-2draco.png",
+        "modes": [
+          "ホットゾーン",
+          "サッカー",
+          "強奪",
+          "エメハン"
+        ],
+        "name": "ドラコ",
+        "order": 101,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Draco"
+      },
+      "brawler_102": {
+        "addedDate": "2024年10月03日",
+        "alias": "ケンジ, けんじ, Kenji, KENJI, ｋｅｎｊｉ, ｹﾝｼﾞ",
+        "com": "耐久力高い投げケアキャラ。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ガジェット短縮"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000085",
+        "id": "brawler_102",
+        "image": "c-49-3kenji.png",
+        "modes": [
+          "サッカー",
+          "エメハン",
+          "ホットゾーン",
+          "強奪"
+        ],
+        "name": "ケンジ",
+        "order": 102,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Kenji"
+      },
+      "brawler_103": {
+        "addedDate": "2025年12月18日",
+        "alias": "ピアス, ぴあす, Pierce, PIERCE, ｐｉｅｒｃｅ, ﾋﾟｱｽ",
+        "com": "黄色弾をうまく使えると無限に火力がでて強いけど、使えなかったらリロードも火力も少ない弾キャラ。",
+        "difficulty": 3,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000099",
+        "id": "brawler_103",
+        "image": "c-49-4pierce.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "ピアス",
+        "order": 103,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Pierce"
+      },
+      "brawler_104": {
+        "addedDate": "2026年7月9日",
+        "alias": "のり, ノリ, Nori, NORI, ｎｏｒｉ, ﾉﾘ",
+        "com": "",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ヒール",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000107",
+        "id": "brawler_104",
+        "image": "c-49-5nori.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 3,
+          "gem": 3,
+          "heist": 3,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "ノリ",
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 5,
+        "wiki": "https://brawlstars.fandom.com/wiki/Nori"
+      },
+      "brawler_91": {
+        "addedDate": "2017年06月15日",
+        "alias": "スパイク, すぱいく, Spike, SPIKE, ｓｐｉｋｅ, ｽﾊﾟｲｸ",
+        "com": "自分より射程が短いキャラをぼこるキャラ。ニタやタラ、チャーリーなんかに強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000005",
+        "id": "brawler_91",
+        "image": "c-41-spike.png",
+        "modes": [
+          "エメハン",
+          "サッカー",
+          "ホットゾーン"
+        ],
+        "name": "スパイク",
+        "order": 91,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Spike"
+      },
+      "brawler_92": {
+        "addedDate": "2017年06月15日",
+        "alias": "クロウ, くろう, Crow, CROW, ｃｒｏｗ, ｸﾛｳ",
+        "com": "アサシンやタンクが強い最近の環境にぶっ刺さりしてる。ミッド最強格。\n無難な序盤ピックキャラ。オーティスチェスターと同じ枠。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000012",
+        "id": "brawler_92",
+        "image": "c-42-crow.png",
+        "modes": {
+          "ball": 3,
+          "bounty": 3,
+          "gem": 3,
+          "heist": 1,
+          "knockout": 1,
+          "zone": 3
+        },
+        "name": "クロウ",
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Crow"
+      },
+      "brawler_93": {
+        "addedDate": "2018年12月05日",
+        "alias": "レオン, れおん, Leon, LEON, ｌｅｏｎ, ﾚｵﾝ",
+        "com": "バフィーで化けたあほキャラ。初動の展開力が高い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000023",
+        "id": "brawler_93",
+        "image": "c-43-leon.png",
+        "modes": [
+          "賞金稼ぎ",
+          "エメハン",
+          "ノックアウト",
+          "サッカー"
+        ],
+        "name": "レオン",
+        "order": 93,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Leon"
+      },
+      "brawler_94": {
+        "addedDate": "2019年09月18日",
+        "alias": "サンディ, さんでぃ, Sandy, SANDY, ｓａｎｄｙ, サンデイ, ｻﾝﾃﾞｨ",
+        "com": "ウルトがブロスタ最強。ごつごつ坑道やダブルレールなど。草が多めのところで強い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "スピード",
+          "ダメージ",
+          "シールド",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000028",
+        "id": "brawler_94",
+        "image": "c-44-sandy.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "サッカー"
+        ],
+        "name": "サンディ",
+        "order": 94,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Sandy"
+      },
+      "brawler_95": {
+        "addedDate": "2020年10月23日",
+        "alias": "アンバー, あんばー, Amber, AMBER, ａｍｂｅｒ, ｱﾝﾊﾞｰ",
+        "com": "万能サイドキャラ。エメハンやホットゾーンの開けたマップで対面をぼこる。\nアサシンにエイムを合わせ続けるのが難しい。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "リロード速度",
+          "ダメージ",
+          "赤"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000040",
+        "id": "brawler_95",
+        "image": "c-45-amber.png",
+        "modes": [
+          "強奪",
+          "エメハン",
+          "ホットゾーン",
+          "サッカー"
+        ],
+        "name": "アンバー",
+        "order": 95,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Amber"
+      },
+      "brawler_96": {
+        "addedDate": "2021年09月28日",
+        "alias": "メグ, めぐ, Meg, MEG, ｍｅｇ, ﾒｸﾞ",
+        "com": "タンクメタ兼長射程メタ。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000052",
+        "id": "brawler_96",
+        "image": "c-46-meg.png",
+        "modes": [
+          "ホットゾーン"
+        ],
+        "name": "メグ",
+        "order": 96,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Meg"
+      },
+      "brawler_97": {
+        "addedDate": "2020年07月06日",
+        "alias": "サージ, さーじ, Surge, SURGE, ｓｕｒｇｅ, さじ, ｻｰｼﾞ",
+        "com": "中堅タンクメタ。アサシン全般、ストゥー、チェスターに強い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000038",
+        "id": "brawler_97",
+        "image": "c-48-surge.png",
+        "modes": [
+          "サッカー",
+          "エメハン",
+          "ホットゾーン"
+        ],
+        "name": "サージ",
+        "order": 97,
+        "rare": "#FFF88F",
+        "sutapa": 2,
+        "tuyosa": 5,
+        "wiki": "https://brawlstars.fandom.com/wiki/Surge"
+      },
+      "brawler_98": {
+        "addedDate": "2022年12月12日",
+        "alias": "チェスター, ちぇすたー, Chester, CHESTER, ｃｈｅｓｔｅｒ, ちえすたー, ﾁｪｽﾀｰ",
+        "com": "上位タンクメタ。ミッドもサイドもいける。\n基本はクロウ、射程が必要ならオーティス、瞬間火力欲しいならチェスター。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000063",
+        "id": "brawler_98",
+        "image": "c-47-cheser.png",
+        "modes": [
+          "サッカー",
+          "ホットゾーン",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "チェスター",
+        "order": 98,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Chester"
+      },
+      "brawler_99": {
+        "addedDate": "2023年07月03日",
+        "alias": "コーデリアス, こーでりあす, Cordelius, CORDELIUS, ｃｏｒｄｅｌｉｕｓ, コデ, ｺｰﾃﾞﾘｱｽ",
+        "com": "タンクやチャックの対策。投げもわりとなんとかなる破壊キャラ。",
+        "difficulty": 3,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000070",
+        "id": "brawler_99",
+        "image": "c-49-0cordelious.png",
+        "modes": [
+          "サッカー",
+          "強奪",
+          "ホットゾーン",
+          "エメハン"
+        ],
+        "name": "コーデリアス",
+        "order": 99,
+        "rare": "#FFF88F",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Cordelius"
+      }
+    },
+    "rare": {
+      "brawler_1": {
+        "addedDate": "2017年06月15日",
+        "alias": "シェリー, しぇりー, Shelly, SHELLY, ｓｈｅｌｌｙ, シェリ, シエリー, ｼｪﾘｰ",
+        "com": "中堅タンクメタ。あまり使わない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000000",
+        "id": "brawler_1",
+        "image": "c-01-shelly.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 2,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "シェリー",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Shelly"
+      },
+      "brawler_107": {
+        "addedDate": "2024年12月10日",
+        "alias": "バズ・ライトイヤー, ばず・らいといやー, Buzz Lightyear, ｂｕｚｚ ｌｉｇｈｔｙｅａｒ, バズライトイヤー",
+        "com": "コラボキャラクター",
+        "difficulty": 1,
+        "gaje": 1,
+        "guide": "",
+        "id": "brawler_107",
+        "image": "c-c-1buzzl.png",
+        "name": "バズ・ライトイヤー",
+        "order": 107,
+        "rare": "コラボ",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Buzz_Lightyear"
+      },
+      "brawler_2": {
+        "addedDate": "2017年06月15日",
+        "alias": "ニタ, にた, Nita, NITA, ｎｉｔａ, ﾆﾀ",
+        "com": "タンク全般とタラサンディなどの選択肢を消せる万能タンクメタ。バフィー熊がつよすぎ。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000008",
+        "id": "brawler_2",
+        "image": "c-02-nita.png",
+        "modes": {
+          "ball": 3,
+          "bounty": 1,
+          "gem": 3,
+          "heist": 3,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "ニタ",
+        "rare": "#97EE8D",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Nita"
+      },
+      "brawler_3": {
+        "addedDate": "2017年06月15日",
+        "alias": "コルト, こると, Colt, COLT, ｃｏｌｔ, ｺﾙﾄ",
+        "com": "強奪の削り枠。射程持ちの中では一番火力が出るけど弱い",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000001",
+        "id": "brawler_3",
+        "image": "c-03-colt.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 2,
+          "gem": 1,
+          "heist": 3,
+          "knockout": 1,
+          "zone": 1
+        },
+        "name": "コルト",
+        "rare": "#97EE8D",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Colt"
+      },
+      "brawler_4": {
+        "addedDate": "2017年06月15日",
+        "alias": "ブル, ぶる, Bull, BULL, ｂｕｌｌ, ﾌﾞﾙ",
+        "com": "選ぶだけでビビやアサシンを消せる神キャラ。敵にアサシンがいなくても普通に強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000002",
+        "id": "brawler_4",
+        "image": "c-04-bull.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 1,
+          "gem": 2,
+          "heist": 3,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "ブル",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Bull"
+      },
+      "brawler_5": {
+        "addedDate": "2017年06月15日",
+        "alias": "ブロック, ぶろっく, Brock, BROCK, ｂｒｏｃｋ, ブロツク, ﾌﾞﾛｯｸ",
+        "com": "射程持ち壁草破壊枠。弾が遅すぎて上位だと当たらない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000003",
+        "id": "brawler_5",
+        "image": "c-05-block.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 3,
+          "gem": 1,
+          "heist": 3,
+          "knockout": 3,
+          "zone": 1
+        },
+        "name": "ブロック",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Brock"
+      },
+      "brawler_6": {
+        "addedDate": "2017年06月15日",
+        "alias": "エル・プリモ, える・ぷりも, El Primo, EL PRIMO, ｅｌ ｐｒｉｍｏ, ｅｌｐｒｉｍｏ, エルプリモ, えるぷりも",
+        "com": "フランケンやハンクに対してのカウンター。ほぼ使わない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "ウルト回転",
+          "シールド",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000010",
+        "id": "brawler_6",
+        "image": "c-06-elprimo.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 1,
+          "gem": 1,
+          "heist": 1,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "エル・プリモ",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/El_Primo"
+      },
+      "brawler_7": {
+        "addedDate": "2017年06月15日",
+        "alias": "バーリー, ばーりー, Barley, BARLEY, ｂａｒｌｅｙ, バリ, ばり, ﾊﾞｰﾘｰ",
+        "com": "投げ枠。総合的に見たらジュジュやシリウスの方が強い。ホットゾーンだとバーリーの方が強い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ガジェット短縮",
+          "ビジョン",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000006",
+        "id": "brawler_7",
+        "image": "c-07-barley.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 2,
+          "knockout": 2,
+          "zone": 3
+        },
+        "name": "バーリー",
+        "rare": "#97EE8D",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Barley"
+      },
+      "brawler_8": {
+        "addedDate": "2017年06月15日",
+        "alias": "ポコ, ぽこ, Poco, POCO, ｐｏｃｏ, ﾎﾟｺ",
+        "com": "オーリー、ビー、ルーのウルトをガジェットで全て無効化できる。強いけどあまり使う場面はない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ガジェット短縮",
+          "スピード",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000013",
+        "id": "brawler_8",
+        "image": "c-08-poco.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 1,
+          "knockout": 2,
+          "zone": 3
+        },
+        "name": "ポコ",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Poco"
+      },
+      "brawler_9": {
+        "addedDate": "2019年04月26日",
+        "alias": "ローサ, ろーさ, Rosa, ROSA, ｒｏｓａ, ロサ, ろさ, ﾛｰｻ",
+        "com": "草を生やせる唯一のキャラ。タンクに強いタンク。使わない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "スピード",
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000024",
+        "id": "brawler_9",
+        "image": "c-09-rosa.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 1,
+          "gem": 2,
+          "heist": 1,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "ローサ",
+        "rare": "#97EE8D",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Rosa"
+      }
+    },
+    "super": {
+      "brawler_10": {
+        "addedDate": "2017年06月15日",
+        "alias": "ジェシー, じぇしー, Jessie, JESSIE, ｊｅｓｓｉｅ, じえしー, ｼﾞｪｼｰ",
+        "com": "ほめる要素も下げる要素もない凡人キャラ。スタンやノックバックがないのでアサシンに弱くて今は使えない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000007",
+        "id": "brawler_10",
+        "image": "c-11-jessi.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 1,
+          "gem": 2,
+          "heist": 2,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "ジェシー",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Jessie"
+      },
+      "brawler_11": {
+        "addedDate": "2017年06月15日",
+        "alias": "ダイナマイク, だいなまいく, Dynamike, DYNAMIKE, ｄｙｎａｍｉｋｅ, マイク, ﾀﾞｲﾅﾏｲｸ",
+        "com": "使わない。投げキャラの中だと火力が一番高い。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ガジェット短縮"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000009",
+        "id": "brawler_11",
+        "image": "c-12-dynamike.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 1,
+          "gem": 1,
+          "heist": 2,
+          "knockout": 1,
+          "zone": 1
+        },
+        "name": "ダイナマイク",
+        "rare": "#80C3FD",
+        "sutapa": 2,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Dynamike"
+      },
+      "brawler_12": {
+        "addedDate": "2019年06月26日",
+        "alias": "ティック, てぃっく, Tick, TICK, ｔｉｃｋ, てぃつく, てく, ﾃｨｯｸ",
+        "com": "燃える不死鳥だけ最強だけど確定BANだから全く使わない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "赤",
+          "ヒール",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000022",
+        "id": "brawler_12",
+        "image": "c-13-tick.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 2,
+          "gem": 1,
+          "heist": 1,
+          "knockout": 3,
+          "zone": 1
+        },
+        "name": "ティック",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Tick"
+      },
+      "brawler_13": {
+        "addedDate": "2019年08月26日",
+        "alias": "8ビット, 8びっと, えいとびっと, 8-Bit, 8-BIT, 8bit, ８-ｂｉｔ, ８ｂｉｔ, ８ビット, エイトビット",
+        "com": "タンクもちょっと対応できるミッド枠。これくらい体力が高いとシールドよりヒールの方がいいと思う。\n強奪やエメがメイン。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ヒール",
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000027",
+        "id": "brawler_13",
+        "image": "c-14-bit.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 3,
+          "heist": 3,
+          "knockout": 2,
+          "zone": 3
+        },
+        "name": "8ビット",
+        "rare": "#80C3FD",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/8-Bit"
+      },
+      "brawler_14": {
+        "addedDate": "2017年06月15日",
+        "alias": "リコ, りこ, Rico, RICO, ｒｉｃｏ, ﾘｺ",
+        "com": "一部のマップで対面最強になるキャラ。意外と脆いのでアサシンに注意。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000004",
+        "id": "brawler_14",
+        "image": "c-15-rico.png",
+        "modes": {
+          "ball": 3,
+          "bounty": 2,
+          "gem": 3,
+          "heist": 3,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "リコ",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Rico"
+      },
+      "brawler_15": {
+        "addedDate": "2017年12月07日",
+        "alias": "ダリル, だりる, Darryl, DARRYL, ｄａｒｒｙｌ, ﾀﾞﾘﾙ",
+        "com": "理論値だけは最強のタンク。全然強くない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000018",
+        "id": "brawler_15",
+        "image": "c-16-darryl.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 1,
+          "heist": 3,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "ダリル",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Darryl"
+      },
+      "brawler_16": {
+        "addedDate": "2018年05月21日",
+        "alias": "ペニー, ぺにー, Penny, PENNY, ｐｅｎｎｙ, ペニイ, ﾍﾟﾆｰ",
+        "com": "アサシンと小物ケアできる弾キャラ。ノックバックも瞬間火力もあるのでリリーハイチャ以外はほぼ返せるから強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000019",
+        "id": "brawler_16",
+        "image": "c-17-penny.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 2,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "ペニー",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Penny"
+      },
+      "brawler_17": {
+        "addedDate": "2019年03月22日",
+        "alias": "カール, かーる, Carl, CARL, ｃａｒｌ, かる, ｶｰﾙ",
+        "com": "タンク、投げ、小物系の全てにそこそこ強いけどバフィー環境についていけない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000025",
+        "id": "brawler_17",
+        "image": "c-18-carl.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 3,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "カール",
+        "rare": "#80C3FD",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Carl"
+      },
+      "brawler_18": {
+        "addedDate": "2020年03月17日",
+        "alias": "ジャッキー, じゃっきー, Jacky, JACKY, ｊａｃｋｙ, じやつきー, ｼﾞｬｯｷｰ",
+        "com": "ケンジやシェイドのカウンター枠。\nグレイやヒールキャラと合わせればホットゾーンもちょっと強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000034",
+        "id": "brawler_18",
+        "image": "c-19-0jacky.png",
+        "modes": {
+          "ball": 2,
+          "bounty": 1,
+          "gem": 1,
+          "heist": 1,
+          "knockout": 1,
+          "zone": 2
+        },
+        "name": "ジャッキー",
+        "rare": "#80C3FD",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Jacky"
+      },
+      "brawler_19": {
+        "addedDate": "2022年09月23日",
+        "alias": "ガス, がす, Gus, GUS, ｇｕｓ, ｶﾞｽ",
+        "com": "火力耐久力共に強い長射程ミッドキャラ。バイロンが余ってたらバイロンの方がいい。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000061",
+        "id": "brawler_19",
+        "image": "c-19-1gas.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 2,
+          "gem": 2,
+          "heist": 1,
+          "knockout": 2,
+          "zone": 2
+        },
+        "name": "ガス",
+        "rare": "#80C3FD",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Gus"
+      }
+    },
+    "ultra": {
+      "brawler_50": {
+        "addedDate": "2017年06月15日",
+        "alias": "モーティス, もーてぃす, Mortis, MORTIS, ｍｏｒｔｉｓ, モテ, モーテイス, もうてぃす",
+        "com": "相性有利なキャラを確実に倒すキャラ。取るだけで投げは出てこなくなる。勝てるキャラには絶対勝てるし勝てないキャラには絶対勝てないので、以前ほど実力差はでない。",
+        "difficulty": 3,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000011",
+        "id": "brawler_50",
+        "image": "c-31-mortis.png",
+        "modes": [
+          "エメハン",
+          "賞金稼ぎ",
+          "ノックアウト",
+          "ホットゾーン"
+        ],
+        "name": "モーティス",
+        "order": 50,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Mortis"
+      },
+      "brawler_51": {
+        "addedDate": "2017年09月04日",
+        "alias": "タラ, たら, Tara, TARA, ｔａｒａ, ﾀﾗ",
+        "com": "ガジェットが刺さるなら強い。ニタやノイキャンフランケンがいると無力。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "スピード",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000017",
+        "id": "brawler_51",
+        "image": "c-32-tara.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "サッカー"
+        ],
+        "name": "タラ",
+        "order": 51,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Tara"
+      },
+      "brawler_52": {
+        "addedDate": "2019年02月15日",
+        "alias": "ジーン, じーん, Gene, GENE, ｇｅｎｅ, じん, ｼﾞｰﾝ",
+        "com": "長距離対面最強キャラ。索敵と圧迫力が高いのでノックアウトや賞金の序盤ピックで万能。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "赤",
+          "ガジェット短縮"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000021",
+        "id": "brawler_52",
+        "image": "c-33-gene.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "エメハン"
+        ],
+        "name": "ジーン",
+        "order": 52,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Gene"
+      },
+      "brawler_53": {
+        "addedDate": "2019年12月18日",
+        "alias": "MAX, まっくす, Max, max, ｍａｘ, マックス, ＭＡＸ",
+        "com": "刺さってたら後半ピック。ハイチャが強いキャラと合わせて使う。\nジェヨンの下位互換になる場面がほとんど。壁ないシリウスやピアスに対して使えたり。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ヒール",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000032",
+        "id": "brawler_53",
+        "image": "c-34-max.png",
+        "modes": [
+          "サッカー",
+          "賞金稼ぎ",
+          "エメハン",
+          "ノックアウト"
+        ],
+        "name": "MAX",
+        "order": 53,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 5,
+        "wiki": "https://brawlstars.fandom.com/wiki/Max"
+      },
+      "brawler_54": {
+        "addedDate": "2020年01月23日",
+        "alias": "ミスターP, みすたーぴー, Mr. P, Mr.P, ｍｒ. ｐ, ｍｒ.ｐ, ミスターピー, ミスピー, Mr P, ミスターＰ",
+        "com": "アサシン耐性が低すぎて使われない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000031",
+        "id": "brawler_54",
+        "image": "c-35-mrp.png",
+        "modes": [
+          "賞金稼ぎ",
+          "エメハン"
+        ],
+        "name": "ミスターP",
+        "order": 54,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Mr._P"
+      },
+      "brawler_55": {
+        "addedDate": "2020年04月10日",
+        "alias": "スプラウト, すぷらうと, Sprout, SPROUT, ｓｐｒｏｕｔ, ｽﾌﾟﾗｳﾄ",
+        "com": "刺さったら強い。ノックアウトや賞金のラストピック。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ウルト回転",
+          "シールド",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000037",
+        "id": "brawler_55",
+        "image": "c-36-sprout.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 3,
+          "gem": 1,
+          "heist": 1,
+          "knockout": 3,
+          "zone": 1
+        },
+        "name": "スプラウト",
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Sprout"
+      },
+      "brawler_56": {
+        "addedDate": "2020年12月16日",
+        "alias": "バイロン, ばいろん, Byron, BYRON, ｂｙｒｏｎ, ﾊﾞｲﾛﾝ",
+        "com": "無難遠距離枠。長射程キャラならバイロンが一番簡単で強い。アサシンが突っ込んできたら相打ち。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000042",
+        "id": "brawler_56",
+        "image": "c-37-byron.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "エメハン",
+          "ホットゾーン"
+        ],
+        "name": "バイロン",
+        "order": 56,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Byron"
+      },
+      "brawler_57": {
+        "addedDate": "2021年05月20日",
+        "alias": "スクウィーク, すくうぃーく, Squeak, SQUEAK, ｓｑｕｅａｋ, ｽｸｳｨｰｸ",
+        "com": "アサシン無理。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000047",
+        "id": "brawler_57",
+        "image": "c-38-squeak.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 3,
+          "gem": 3,
+          "heist": 1,
+          "knockout": 3,
+          "zone": 3
+        },
+        "name": "スクウィーク",
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Squeak"
+      },
+      "brawler_58": {
+        "addedDate": "2020年11月23日",
+        "alias": "ルー, るー, Lou, LOU, ｌｏｕ, ﾙｰ",
+        "com": "ホットゾーンでは最上位タンクメタ。ほかのモードではほぼでない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ウルト回転",
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000041",
+        "id": "brawler_58",
+        "image": "c-39-00lou.png",
+        "modes": [
+          "ホットゾーン",
+          "サッカー",
+          "エメハン"
+        ],
+        "name": "ルー",
+        "order": 58,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Lou"
+      },
+      "brawler_59": {
+        "addedDate": "2021年02月01日",
+        "alias": "ラフス, らふす, Ruffs, RUFFS, ｒｕｆｆｓ, ラフス大佐, ラフスたいさ, ﾗﾌｽ",
+        "com": "万能サイドキャラ。弾速アップの調整で対面力爆上がり。ガジェットで小物ケアしたり、ウルトで壁も壊せる。\nアサシン耐性皆無なので今は弱め。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000044",
+        "id": "brawler_59",
+        "image": "c-39-0ruffs.png",
+        "modes": [
+          "ホットゾーン",
+          "エメハン",
+          "賞金稼ぎ",
+          "ノックアウト"
+        ],
+        "name": "ラフス",
+        "order": 59,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Ruffs"
+      },
+      "brawler_60": {
+        "addedDate": "2021年06月21日",
+        "alias": "バズ, ばず, Buzz, BUZZ, ｂｕｚｚ, ﾊﾞｽﾞ",
+        "com": "中央コートでガジェット使って索敵するのが強い。\nカールやサンディなどのカウンターで出したら強い場面がある。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "シールド",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000049",
+        "id": "brawler_60",
+        "image": "c-39-1buzz.png",
+        "modes": [
+          "強奪",
+          "サッカー",
+          "ホットゾーン",
+          "エメハン"
+        ],
+        "name": "バズ",
+        "order": 60,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Buzz"
+      },
+      "brawler_61": {
+        "addedDate": "2022年01月17日",
+        "alias": "ファング, ふぁんぐ, Fang, FANG, ｆａｎｇ, ﾌｧﾝｸﾞ",
+        "com": "ミコボコるキャラ。\n遠距離マップの最終ピック。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "シールド",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000054",
+        "id": "brawler_61",
+        "image": "c-39-2fang.png",
+        "modes": [
+          "サッカー",
+          "賞金稼ぎ"
+        ],
+        "name": "ファング",
+        "order": 61,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Fang"
+      },
+      "brawler_62": {
+        "addedDate": "2022年03月07日",
+        "alias": "イヴ, いゔ, いぶ, Eve, EVE, ｅｖｅ, イブ, ｲｳﾞ",
+        "com": "アンジェロのバーター。グランドカナルのミッドで最強。\nオープンフィールドの左、安全地帯の右など水でエリアが狭いマップで強い。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "リロード速度",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000056",
+        "id": "brawler_62",
+        "image": "c-39-3eve.png",
+        "modes": [
+          "ノックアウト",
+          "強奪",
+          "賞金稼ぎ"
+        ],
+        "name": "イヴ",
+        "order": 62,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Eve"
+      },
+      "brawler_63": {
+        "addedDate": "2022年05月02日",
+        "alias": "ジャネット, じゃねっと, Janet, JANET, ｊａｎｅｔ, じゃねつと, ｼﾞｬﾈｯﾄ",
+        "com": "範囲攻撃と逃げ能力が魅力。タフなミッド。ウルト溜まるとほぼ倒せない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000057",
+        "id": "brawler_63",
+        "image": "c-39-4janet.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 3,
+          "gem": 3,
+          "heist": 1,
+          "knockout": 3,
+          "zone": 1
+        },
+        "name": "ジャネット",
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Janet"
+      },
+      "brawler_64": {
+        "addedDate": "2022年07月04日",
+        "alias": "オーティス, おーてぃす, Otis, OTIS, ｏｔｉｓ, おて, オーテイス, ｵｰﾃｨｽ",
+        "com": "タンクメタ最上位。射程や索敵を兼ねたタンクメタほしかったらオーティス。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000059",
+        "id": "brawler_64",
+        "image": "c-39-5otis.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "サッカー",
+          "賞金稼ぎ"
+        ],
+        "name": "オーティス",
+        "order": 64,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Otis"
+      },
+      "brawler_65": {
+        "addedDate": "2022年11月07日",
+        "alias": "バスター, ばすたー, Buster, BUSTER, ｂｕｓｔｅｒ, ﾊﾞｽﾀｰ",
+        "com": "スローペースのマップや、ビートルバトルなど狭いマップ、草が生えてるマップで使う。\nリコのカウンターとして優秀。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "スピード",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000062",
+        "id": "brawler_65",
+        "image": "c-39-6buster.png",
+        "modes": [
+          "ノックアウト",
+          "エメハン",
+          "賞金稼ぎ",
+          "サッカー"
+        ],
+        "name": "バスター",
+        "order": 65,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Buster"
+      },
+      "brawler_66": {
+        "addedDate": "2022年12月12日",
+        "alias": "グレイ, ぐれい, Gray, GRAY, ｇｒａｙ, グレー, ｸﾞﾚｲ",
+        "com": "ウルトと左ガジェットの投げ対策、右ガジェットの壁草破壊。何でもできる強キャラ。\n投げケアがメインだけど火力がなさすぎてタンクやアサシンが絶望的。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000064",
+        "id": "brawler_66",
+        "image": "c-39-7gray.png",
+        "modes": [
+          "ホットゾーン",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "グレイ",
+        "order": 66,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Gray"
+      },
+      "brawler_67": {
+        "addedDate": "2023年03月06日",
+        "alias": "R-T, あーるてぃー, RT, r-t, ｒ-ｔ, ｒｔ, アールティー, あるてぃ, あるてい, Ｒ－Ｔ",
+        "com": "タンクケアできる遠距離キャラ。賞金ノックアウトのタンクケア枠。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000066",
+        "id": "brawler_67",
+        "image": "c-39-8rt.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "エメハン",
+          "ホットゾーン"
+        ],
+        "name": "R-T",
+        "order": 67,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/R-T"
+      },
+      "brawler_68": {
+        "addedDate": "2023年04月03日",
+        "alias": "ウィロー, うぃろー, Willow, WILLOW, ｗｉｌｌｏｗ, ういろー, ｳｨﾛｰ",
+        "com": "アサシン耐性が魅力の投げキャラ。サッカーだとほかの投げより強め。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000067",
+        "id": "brawler_68",
+        "image": "c-39-9willow.png",
+        "modes": [
+          "サッカー",
+          "強奪",
+          "ホットゾーン"
+        ],
+        "name": "ウィロー",
+        "order": 68,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Willow"
+      },
+      "brawler_69": {
+        "addedDate": "2023年08月15日",
+        "alias": "ダグ, だぐ, Doug, DOUG, ｄｏｕｇ, ﾀﾞｸﾞ",
+        "com": "回復でウルトを貯められるのでシールドギアは邪魔になる。ノックアウトで終盤まで芋る編成で強い。グレイやジャネットにハイチャウルトをつけて破壊。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "スピード",
+          "ガジェット短縮",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000071",
+        "id": "brawler_69",
+        "image": "c-39-10dug.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "エメハン"
+        ],
+        "name": "ダグ",
+        "order": 69,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Doug"
+      },
+      "brawler_70": {
+        "addedDate": "2023年10月18日",
+        "alias": "チャック, ちゃっく, Chuck, CHUCK, ｃｈｕｃｋ, ちやつく, ﾁｬｯｸ",
+        "com": "安全地帯とどんぱち谷最強キャラ。後攻ならBANするべき。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000073",
+        "id": "brawler_70",
+        "image": "c-39-11chuck.png",
+        "modes": [
+          "強奪"
+        ],
+        "name": "チャック",
+        "order": 70,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Chuck"
+      },
+      "brawler_71": {
+        "addedDate": "2023年11月06日",
+        "alias": "チャーリー, ちゃーりー, Charlie, CHARLIE, ｃｈａｒｌｉｅ, ちやーりー, ﾁｬｰﾘｰ",
+        "com": "単発とタンクメタ。エドガーダミアンをBANすればモーティス以外のすべてに有利。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000074",
+        "id": "brawler_71",
+        "image": "c-39-12charlie.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "サッカー",
+          "賞金稼ぎ"
+        ],
+        "name": "チャーリー",
+        "order": 71,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Charlie"
+      },
+      "brawler_72": {
+        "addedDate": "2023年12月14日",
+        "alias": "ミコ, みこ, Mico, MICO, ｍｉｃｏ, ﾐｺ",
+        "com": "ピットストップと橋の彼方の削り枠。BANするほどでもない。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "ダメージ",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000075",
+        "id": "brawler_72",
+        "image": "c-39-13mico.png",
+        "modes": [
+          "強奪",
+          "ノックアウト"
+        ],
+        "name": "ミコ",
+        "order": 72,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Mico"
+      },
+      "brawler_73": {
+        "addedDate": "2024年04月04日",
+        "alias": "メロディー, めろでぃー, Melodie, MELODIE, ｍｅｌｏｄｉｅ, メロデイー, ﾒﾛﾃﾞｨｰ",
+        "com": "強奪最強削り枠。ほかのモードだと操作難易度高い。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ヒール",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000078",
+        "id": "brawler_73",
+        "image": "c-39-14melodhi.png",
+        "modes": {
+          "ball": 1,
+          "bounty": 1,
+          "gem": 1,
+          "heist": 3,
+          "knockout": 1,
+          "zone": 1
+        },
+        "name": "メロディー",
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Melodie"
+      },
+      "brawler_74": {
+        "addedDate": "2024年05月02日",
+        "alias": "リリー, りりー, Lily, LILY, ｌｉｌｙ, リリイ, ﾘﾘｰ",
+        "com": "最終ピックで試合を破壊するキャラ。逆転要素なのでBAN枠余ったらリリーに使う。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000081",
+        "id": "brawler_74",
+        "image": "c-39-15lily.png",
+        "modes": [
+          "エメハン",
+          "強奪",
+          "賞金稼ぎ",
+          "ノックアウト"
+        ],
+        "name": "リリー",
+        "order": 74,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Lily"
+      },
+      "brawler_75": {
+        "addedDate": "2024年08月01日",
+        "alias": "クランシー, くらんしー, Clancy, CLANCY, ｃｌａｎｃｙ, クランシイ, ｸﾗﾝｼｰ",
+        "com": "タンクメタだけどほかに強いタンクメタがたくさんいるのであまり使わない。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "スピード",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000083",
+        "id": "brawler_75",
+        "image": "c-39-16clancy.png",
+        "modes": [
+          "ホットゾーン",
+          "エメハン",
+          "サッカー"
+        ],
+        "name": "クランシー",
+        "order": 75,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Clancy"
+      },
+      "brawler_76": {
+        "addedDate": "2024年09月05日",
+        "alias": "モー, もー, Moe, MOE, ｍｏｅ, もう, ﾓｰ",
+        "com": "射程と奇襲の両要素がある貴重なキャラ。\nサージ、ストゥー、カール等のカウンターや投げ警戒。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000084",
+        "id": "brawler_76",
+        "image": "c-39-17moo.png",
+        "modes": [
+          "エメハン",
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "サッカー"
+        ],
+        "name": "モー",
+        "order": 76,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Moe"
+      },
+      "brawler_77": {
+        "addedDate": "2024年10月30日",
+        "alias": "ジュジュ, じゅじゅ, Juju, JUJU, ｊｕｊｕ, じゆじゆ, ｼﾞｭｼﾞｭ",
+        "com": "無難な投げキャラ。射程長すぎ。遅延ながすぎ。透明も加速もバリアも強すぎ。\nパラレルワールド最強キャラ。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000087",
+        "id": "brawler_77",
+        "image": "c-39-18juju.png",
+        "modes": [
+          "ノックアウト",
+          "賞金稼ぎ",
+          "強奪",
+          "ホットゾーン"
+        ],
+        "name": "ジュジュ",
+        "order": 77,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Juju"
+      },
+      "brawler_78": {
+        "addedDate": "2024年12月12日",
+        "alias": "オーリー, おーりー, Ollie, OLLIE, ｏｌｌｉｅ, おり, ｵｰﾘｰ",
+        "com": "ノックアウトや賞金がメインのタンクキャラ。操作難易度高いわりに瞬間火力がないので、味方が頑張らないと勝てない。",
+        "difficulty": 2,
+        "gaje": 2,
+        "gears": [
+          "ダメージ",
+          "シールド"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000090",
+        "id": "brawler_78",
+        "image": "c-39-19ollie.png",
+        "modes": [
+          "ノックアウト",
+          "サッカー",
+          "ホットゾーン",
+          "賞金稼ぎ"
+        ],
+        "name": "オーリー",
+        "order": 78,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Ollie"
+      },
+      "brawler_79": {
+        "addedDate": "2025年04月17日",
+        "alias": "フィンクス, ふぃんくす, Finx, FINX, ｆｉｎｘ, ﾌｨﾝｸｽ",
+        "com": "ホットゾーンの雑ピック。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000092",
+        "id": "brawler_79",
+        "image": "c-39-20finx.png",
+        "modes": [
+          "ホットゾーン",
+          "エメハン",
+          "サッカー",
+          "賞金稼ぎ"
+        ],
+        "name": "フィンクス",
+        "order": 79,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Finx"
+      },
+      "brawler_80": {
+        "addedDate": "2025年06月19日",
+        "alias": "ルミ, るみ, Lumi, LUMI, ｌｕｍｉ, ﾙﾐ",
+        "com": "盤面制圧力が高い。火力も高すぎる。",
+        "difficulty": 1,
+        "gaje": 2,
+        "gears": [
+          "シールド",
+          "ガジェット短縮",
+          "ビジョン",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000091",
+        "id": "brawler_80",
+        "image": "c-39-21lumi.png",
+        "modes": [
+          "ホットゾーン",
+          "サッカー",
+          "エメハン",
+          "強奪"
+        ],
+        "name": "ルミ",
+        "order": 80,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Lumi"
+      },
+      "brawler_81": {
+        "addedDate": "2026年05月14日",
+        "alias": "ジェヨン, じぇよん, Jae-Yong, JAEYONG, ｊａｅ-ｙｏｎｇ, ｊａｅｙｏｎｇ, じえよん, ｼﾞｪﾖﾝ",
+        "com": "若干火力不足。強く使うために求められる練度が高いのでほぼでない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000093",
+        "id": "brawler_81",
+        "image": "c-39-22jaeyong.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ホットゾーン",
+          "エメハン",
+          "ノックアウト"
+        ],
+        "name": "ジェヨン",
+        "order": 81,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Jae-Yong"
+      },
+      "brawler_82": {
+        "addedDate": "2026年05月14日",
+        "alias": "アリー, ありー, Alli, ALLI, ａｌｌｉ, ｱﾘｰ",
+        "com": "仕様が複雑で操作難易度はブロスタの中で最高レベル。\n近くの敵のHPで移動速度とリロード速度が変わり、自身の移動速度で射程が変わる。なのでスピードギアをつけるとジャンプの距離がのびるから必須。\nウルト中は一定時間ごとに透明状態と素の状態が入れ替わり、敵のHPが多いと初段の火力が上がる逆モーティス。",
+        "difficulty": 3,
+        "gaje": 2,
+        "gears": [
+          "スピード",
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000095",
+        "id": "brawler_82",
+        "image": "c-39-23alli.png",
+        "modes": [
+          "賞金稼ぎ",
+          "エメハン",
+          "ホットゾーン",
+          "ノックアウト"
+        ],
+        "name": "アリー",
+        "order": 82,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Alli"
+      },
+      "brawler_83": {
+        "addedDate": "2025年09月04日",
+        "alias": "ミナ, みな, Mina, MINA, ｍｉｎａ, ﾐﾅ",
+        "com": "キャリー力を代償にノックバックと瞬間火力を手に入れたビビ。\nガジェットでバリアを張れるので弾キャラにも強い。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000097",
+        "id": "brawler_83",
+        "image": "c-39-24mina.png",
+        "modes": [
+          "サッカー",
+          "エメハン",
+          "ホットゾーン",
+          "賞金稼ぎ"
+        ],
+        "name": "ミナ",
+        "order": 83,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Mina"
+      },
+      "brawler_84": {
+        "addedDate": "2025年09月04日",
+        "alias": "ジギー, ジギー, じぎー, Ziggy, ZIGGY, ｚｉｇｇｙ, ジギイ, ｼﾞｷﾞｰ",
+        "com": "ウルトは最強。ほかは普通の投げキャラ。射程が長めで、軌道がないのでよけにくい。\nガジェットと挟む感じで通常攻撃をだすとどちらかは絶対に当たる。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ガジェット短縮"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000098",
+        "id": "brawler_84",
+        "image": "c-39-25ziggy.png",
+        "modes": [
+          "ホットゾーン",
+          "賞金稼ぎ",
+          "ノックアウト",
+          "エメハン"
+        ],
+        "name": "ジギー",
+        "order": 84,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Ziggy"
+      },
+      "brawler_85": {
+        "addedDate": "2025年12月18日",
+        "alias": "ジジ, じじ, Gigi, GIGI, ｇｉｇｉ, ｼﾞｼﾞ",
+        "com": "敵の弾が体の近くを通るとウルトがたまり、そのウルトで敵に飛んで一瞬で溶かしてウルトで元の位置に戻るキャラ。\nノックバックされたら終わりなので使いにくい。ジジが最適ピックになる場面がない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000100",
+        "id": "brawler_85",
+        "image": "c-39-26gigi.png",
+        "modes": [
+          "エメハン",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "ジジ",
+        "order": 85,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Gigi"
+      },
+      "brawler_86": {
+        "addedDate": "2025年12月18日",
+        "alias": "グローウィー, ぐろーうぃー, Glowy, GLOWY, ｇｌｏｗｙ, グロウィー, グローウィ, グローウイー, グローバート, グロウバート, ぐろーばーと, ｸﾞﾛｰﾊﾞｰﾄ",
+        "com": "タンク、アサシン、小物以外の中距離キャラに対して対面最強。スタパの自己回復とガジェットの逃げでほぼ無敵。\n今はアサシン環境なので弱め。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000101",
+        "id": "brawler_86",
+        "image": "c-39-27glowy.png",
+        "modes": [
+          "ノックアウト",
+          "ホットゾーン"
+        ],
+        "name": "グローウィー",
+        "order": 86,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 2,
+        "wiki": "https://brawlstars.fandom.com/wiki/Glowy"
+      },
+      "brawler_87": {
+        "addedDate": "2026年02月26日",
+        "alias": "ナジア, なじあ, Najia, NAJIA, ｎａｊｉａ, ﾅｼﾞｱ",
+        "com": "弾の軌道がかわるくそキャラ。オートでも当たる。アサシン耐性はない。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ビジョン",
+          "ダメージ",
+          "ヒール"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000103",
+        "id": "brawler_87",
+        "image": "c-39-28najia.png",
+        "modes": [
+          "賞金稼ぎ",
+          "ノックアウト",
+          "エメハン",
+          "ホットゾーン"
+        ],
+        "name": "ナジア",
+        "order": 87,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Najia"
+      },
+      "brawler_88": {
+        "addedDate": "2026年04月16日",
+        "alias": "ダミアン, だみあん, Damian, DAMIAN, ｄａｍｉａｎ, ﾀﾞﾐｱﾝ",
+        "com": "欠点のないくそつよタンク。",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000104",
+        "id": "brawler_88",
+        "image": "c-39-29damian.png",
+        "modes": [
+          "ホットゾーン",
+          "サッカー",
+          "エメハン"
+        ],
+        "name": "ダミアン",
+        "order": 88,
+        "rare": "#FF8090",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Damian"
+      },
+      "brawler_89": {
+        "addedDate": "",
+        "alias": "スターノヴァ, スターノバ, すたーのゔぁ, すたーのば, Starnova, Star Nova, STARNOVA, STAR NOVA, ｓｔａｒｎｏｖａ, ＳＴＡＲＮＯＶＡ, すたーのうぁ, スターノウァ, ｽﾀｰﾉｳﾞｧ, ｽﾀｰﾉﾊﾞ",
+        "com": "",
+        "difficulty": 1,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000105",
+        "id": "brawler_89",
+        "image": "c-39-30starnova.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "スターノヴァ",
+        "order": 89,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 5,
+        "wiki": "https://brawlstars.fandom.com/wiki/Starnova"
+      },
+      "brawler_90": {
+        "addedDate": "",
+        "alias": "ウェンディ, うぇんでぃ, Wendy, WENDY, ｗｅｎｄｙ, ｳｪﾝﾃﾞｨ",
+        "com": "",
+        "difficulty": 1,
+        "gaje": 1,
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000108",
+        "id": "brawler_90",
+        "image": "c-39-31wendy.png",
+        "name": "ウェンディ",
+        "order": 90,
+        "rare": "#FF8090",
+        "sutapa": 1,
+        "tuyosa": 1,
+        "wiki": "https://brawlstars.fandom.com/wiki/Wendy"
+      }
+    },
+    "ultra_legend": {
+      "brawler_105": {
+        "addedDate": "2026年06月05日",
+        "alias": "カゼ, かぜ, Kaze, KAZE, ｋａｚｅ, ｶｾﾞ",
+        "com": "いつでも展開できるアサシン。ダッシュと透明のエリア取りと、芸者ウルト雑撃ちしてるだけで活躍。\n普通に突っ込むだけでも耐性ないキャラならキル取れる。",
+        "difficulty": 3,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ダメージ",
+          "スピード"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000094",
+        "id": "brawler_105",
+        "image": "c-51kaze.png",
+        "modes": [
+          "賞金稼ぎ",
+          "エメハン",
+          "ホットゾーン",
+          "強奪"
+        ],
+        "name": "カゼ",
+        "order": 105,
+        "rare": "#2C0249",
+        "sutapa": 2,
+        "tuyosa": 4,
+        "wiki": "https://brawlstars.fandom.com/wiki/Kaze"
+      },
+      "brawler_106": {
+        "addedDate": "2026年02月26日",
+        "alias": "シリウス, しりうす, Sirius, SIRIUS, ｓｉｒｉｕｓ, ｼﾘｳｽ",
+        "com": "アサシン以外には強い投げキャラ。初動だけ弱いけど影たまるとタンクも勝てる。",
+        "difficulty": 2,
+        "gaje": 1,
+        "gears": [
+          "シールド",
+          "ガジェット短縮",
+          "ビジョン"
+        ],
+        "guide": "https://brawlinsights.com/ja/tools/brawler_guide/stats/16000102",
+        "id": "brawler_106",
+        "image": "c-52sirius.png",
+        "modes": [
+          "エメハン",
+          "ホットゾーン",
+          "ノックアウト",
+          "賞金稼ぎ"
+        ],
+        "name": "シリウス",
+        "order": 106,
+        "rare": "#2C0249",
+        "sutapa": 2,
+        "tuyosa": 3,
+        "wiki": "https://brawlstars.fandom.com/wiki/Sirius"
+      }
+    }
+  },
+  "characters": [
+    {
+      "addedDate": "2026年06月05日",
+      "alias": "カゼ, かぜ, Kaze, KAZE, ｋａｚｅ, ｶｾﾞ",
+      "com": "いつでも展開できるアサシン。ダッシュと透明のエリア取りと、芸者ウルト雑撃ちしてるだけで活躍。\n普通に突っ込むだけでも耐性ないキャラならキル取れる。",
+      "difficulty": 3,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_105",
+      "image": "c-51kaze.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン",
+        "ホットゾーン",
+        "強奪"
+      ],
+      "name": "カゼ",
+      "rare": "#2C0249",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2026年02月26日",
+      "alias": "シリウス, しりうす, Sirius, SIRIUS, ｓｉｒｉｕｓ, ｼﾘｳｽ",
+      "com": "アサシン以外には強い投げキャラ。初動だけ弱いけど影たまるとタンクも勝てる。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ガジェット短縮",
+        "ビジョン"
+      ],
+      "id": "brawler_106",
+      "image": "c-52sirius.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "シリウス",
+      "rare": "#2C0249",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "スパイク, すぱいく, Spike, SPIKE, ｓｐｉｋｅ, ｽﾊﾟｲｸ",
+      "com": "自分より射程が短いキャラをぼこるキャラ。ニタやタラ、チャーリーなんかに強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_91",
+      "image": "c-41-spike.png",
+      "modes": [
+        "エメハン",
+        "サッカー",
+        "ホットゾーン"
+      ],
+      "name": "スパイク",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "クロウ, くろう, Crow, CROW, ｃｒｏｗ, ｸﾛｳ",
+      "com": "アサシンやタンクが強い最近の環境にぶっ刺さりしてる。ミッド最強格。\n無難な序盤ピックキャラ。オーティスチェスターと同じ枠。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード"
+      ],
+      "id": "brawler_92",
+      "image": "c-42-crow.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "賞金稼ぎ",
+        "サッカー"
+      ],
+      "name": "クロウ",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2018年12月05日",
+      "alias": "レオン, れおん, Leon, LEON, ｌｅｏｎ, ﾚｵﾝ",
+      "com": "バフィーで化けたあほキャラ。初動の展開力が高い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_93",
+      "image": "c-43-leon.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン",
+        "ノックアウト",
+        "サッカー"
+      ],
+      "name": "レオン",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2019年09月18日",
+      "alias": "サンディ, さんでぃ, Sandy, SANDY, ｓａｎｄｙ, サンデイ, ｻﾝﾃﾞｨ",
+      "com": "ウルトがブロスタ最強。ごつごつ坑道やダブルレールなど。草が多めのところで強い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "スピード",
+        "ダメージ",
+        "シールド",
+        "ビジョン"
+      ],
+      "id": "brawler_94",
+      "image": "c-44-sandy.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "サッカー"
+      ],
+      "name": "サンディ",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2020年10月23日",
+      "alias": "アンバー, あんばー, Amber, AMBER, ａｍｂｅｒ, ｱﾝﾊﾞｰ",
+      "com": "万能サイドキャラ。エメハンやホットゾーンの開けたマップで対面をぼこる。\nアサシンにエイムを合わせ続けるのが難しい。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "リロード速度",
+        "ダメージ",
+        "赤"
+      ],
+      "id": "brawler_95",
+      "image": "c-45-amber.png",
+      "modes": [
+        "強奪",
+        "エメハン",
+        "ホットゾーン",
+        "サッカー"
+      ],
+      "name": "アンバー",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2021年09月28日",
+      "alias": "メグ, めぐ, Meg, MEG, ｍｅｇ, ﾒｸﾞ",
+      "com": "タンクメタ兼長射程メタ。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ヒール"
+      ],
+      "id": "brawler_96",
+      "image": "c-46-meg.png",
+      "modes": [
+        "ホットゾーン"
+      ],
+      "name": "メグ",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2020年07月06日",
+      "alias": "サージ, さーじ, Surge, SURGE, ｓｕｒｇｅ, さじ, ｻｰｼﾞ",
+      "com": "中堅タンクメタ。アサシン全般、ストゥー、チェスターに強い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_97",
+      "image": "c-48-surge.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "サージ",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 5
+    },
+    {
+      "addedDate": "2022年12月12日",
+      "alias": "チェスター, ちぇすたー, Chester, CHESTER, ｃｈｅｓｔｅｒ, ちえすたー, ﾁｪｽﾀｰ",
+      "com": "上位タンクメタ。ミッドもサイドもいける。\n基本はクロウ、射程が必要ならオーティス、瞬間火力欲しいならチェスター。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_98",
+      "image": "c-47-cheser.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "チェスター",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2023年07月03日",
+      "alias": "コーデリアス, こーでりあす, Cordelius, CORDELIUS, ｃｏｒｄｅｌｉｕｓ, コデ, ｺｰﾃﾞﾘｱｽ",
+      "com": "タンクやチャックの対策。投げもわりとなんとかなる破壊キャラ。",
+      "difficulty": 3,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_99",
+      "image": "c-49-0cordelious.png",
+      "modes": [
+        "サッカー",
+        "強奪",
+        "ホットゾーン",
+        "エメハン"
+      ],
+      "name": "コーデリアス",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年01月04日",
+      "alias": "キット, きっと, Kit, KIT, ｋｉｔ, きつと, ｷｯﾄ",
+      "com": "エメハン、賞金、ノックアウトの癌。BAN候補。\nガジェットでマップを支配。キットモーティス、キットケンジとか組まれたら負け。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_100",
+      "image": "c-49-1kit.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "キット",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2024年06月06日",
+      "alias": "ドラコ, どらこ, Draco, DRACO, ｄｒａｃｏ, ﾄﾞﾗｺ",
+      "com": "耐久力と機動力があるタンク。ホットゾーンやエメハンで使う。\n適当に2回捨て身で突っ込んでウルト貯めて、あとは歩くだけ。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "ヒール",
+        "シールド",
+        "スピード"
+      ],
+      "id": "brawler_101",
+      "image": "c-49-2draco.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "強奪",
+        "エメハン"
+      ],
+      "name": "ドラコ",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年10月03日",
+      "alias": "ケンジ, けんじ, Kenji, KENJI, ｋｅｎｊｉ, ｹﾝｼﾞ",
+      "com": "耐久力高い投げケアキャラ。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ガジェット短縮"
+      ],
+      "id": "brawler_102",
+      "image": "c-49-3kenji.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ホットゾーン",
+        "強奪"
+      ],
+      "name": "ケンジ",
+      "rare": "#FFF88F",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2025年12月18日",
+      "alias": "ピアス, ぴあす, Pierce, PIERCE, ｐｉｅｒｃｅ, ﾋﾟｱｽ",
+      "com": "黄色弾をうまく使えると無限に火力がでて強いけど、使えなかったらリロードも火力も少ない弾キャラ。",
+      "difficulty": 3,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_103",
+      "image": "c-49-4pierce.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "ピアス",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2026年7月9日",
+      "alias": "のり, ノリ, Nori, NORI, ｎｏｒｉ, ﾉﾘ",
+      "com": "",
+      "difficulty": 1,
+      "gaje": 1,
+      "id": "brawler_104",
+      "image": "c-49-5nori.png",
+      "name": "ノリ",
+      "rare": "#FFF88F",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "モーティス, もーてぃす, Mortis, MORTIS, ｍｏｒｔｉｓ, モテ, モーテイス, もうてぃす",
+      "com": "相性有利なキャラを確実に倒すキャラ。取るだけで投げは出てこなくなる。勝てるキャラには絶対勝てるし勝てないキャラには絶対勝てないので、以前ほど実力差はでない。",
+      "difficulty": 3,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_50",
+      "image": "c-31-mortis.png",
+      "modes": [
+        "エメハン",
+        "賞金稼ぎ",
+        "ノックアウト",
+        "ホットゾーン"
+      ],
+      "name": "モーティス",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年09月04日",
+      "alias": "タラ, たら, Tara, TARA, ｔａｒａ, ﾀﾗ",
+      "com": "ガジェットが刺さるなら強い。ニタやノイキャンフランケンがいると無力。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "スピード",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_51",
+      "image": "c-32-tara.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "サッカー"
+      ],
+      "name": "タラ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2019年02月15日",
+      "alias": "ジーン, じーん, Gene, GENE, ｇｅｎｅ, じん, ｼﾞｰﾝ",
+      "com": "長距離対面最強キャラ。索敵と圧迫力が高いのでノックアウトや賞金の序盤ピックで万能。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "赤",
+        "ガジェット短縮"
+      ],
+      "id": "brawler_52",
+      "image": "c-33-gene.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "エメハン"
+      ],
+      "name": "ジーン",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2019年12月18日",
+      "alias": "MAX, まっくす, Max, max, ｍａｘ, マックス, ＭＡＸ",
+      "com": "刺さってたら後半ピック。ハイチャが強いキャラと合わせて使う。\nジェヨンの下位互換になる場面がほとんど。壁ないシリウスやピアスに対して使えたり。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ヒール",
+        "ビジョン"
+      ],
+      "id": "brawler_53",
+      "image": "c-34-max.png",
+      "modes": [
+        "サッカー",
+        "賞金稼ぎ",
+        "エメハン",
+        "ノックアウト"
+      ],
+      "name": "MAX",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 5
+    },
+    {
+      "addedDate": "2020年01月23日",
+      "alias": "ミスターP, みすたーぴー, Mr. P, Mr.P, ｍｒ. ｐ, ｍｒ.ｐ, ミスターピー, ミスピー, Mr P, ミスターＰ",
+      "com": "アサシン耐性が低すぎて使われない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_54",
+      "image": "c-35-mrp.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン"
+      ],
+      "name": "ミスターP",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2020年04月10日",
+      "alias": "スプラウト, すぷらうと, Sprout, SPROUT, ｓｐｒｏｕｔ, ｽﾌﾟﾗｳﾄ",
+      "com": "刺さったら強い。ノックアウトや賞金のラストピック。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ウルト回転",
+        "シールド",
+        "ビジョン"
+      ],
+      "id": "brawler_55",
+      "image": "c-36-sprout.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト"
+      ],
+      "name": "スプラウト",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2020年12月16日",
+      "alias": "バイロン, ばいろん, Byron, BYRON, ｂｙｒｏｎ, ﾊﾞｲﾛﾝ",
+      "com": "無難遠距離枠。長射程キャラならバイロンが一番簡単で強い。アサシンが突っ込んできたら相打ち。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_56",
+      "image": "c-37-byron.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "バイロン",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2021年05月20日",
+      "alias": "スクウィーク, すくうぃーく, Squeak, SQUEAK, ｓｑｕｅａｋ, ｽｸｳｨｰｸ",
+      "com": "アサシン無理。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_57",
+      "image": "c-38-squeak.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "スクウィーク",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2020年11月23日",
+      "alias": "ルー, るー, Lou, LOU, ｌｏｕ, ﾙｰ",
+      "com": "ホットゾーンでは最上位タンクメタ。ほかのモードではほぼでない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ウルト回転",
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_58",
+      "image": "c-39-00lou.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "エメハン"
+      ],
+      "name": "ルー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2021年02月01日",
+      "alias": "ラフス, らふす, Ruffs, RUFFS, ｒｕｆｆｓ, ラフス大佐, ラフスたいさ, ﾗﾌｽ",
+      "com": "万能サイドキャラ。弾速アップの調整で対面力爆上がり。ガジェットで小物ケアしたり、ウルトで壁も壊せる。\nアサシン耐性皆無なので今は弱め。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード",
+        "ダメージ"
+      ],
+      "id": "brawler_59",
+      "image": "c-39-0ruffs.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "賞金稼ぎ",
+        "ノックアウト"
+      ],
+      "name": "ラフス",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2021年06月21日",
+      "alias": "バズ, ばず, Buzz, BUZZ, ｂｕｚｚ, ﾊﾞｽﾞ",
+      "com": "中央コートでガジェット使って索敵するのが強い。\nカールやサンディなどのカウンターで出したら強い場面がある。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "シールド",
+        "スピード"
+      ],
+      "id": "brawler_60",
+      "image": "c-39-1buzz.png",
+      "modes": [
+        "強奪",
+        "サッカー",
+        "ホットゾーン",
+        "エメハン"
+      ],
+      "name": "バズ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2022年01月17日",
+      "alias": "ファング, ふぁんぐ, Fang, FANG, ｆａｎｇ, ﾌｧﾝｸﾞ",
+      "com": "ミコボコるキャラ。\n遠距離マップの最終ピック。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "シールド",
+        "スピード"
+      ],
+      "id": "brawler_61",
+      "image": "c-39-2fang.png",
+      "modes": [
+        "サッカー",
+        "賞金稼ぎ"
+      ],
+      "name": "ファング",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2022年03月07日",
+      "alias": "イヴ, いゔ, いぶ, Eve, EVE, ｅｖｅ, イブ, ｲｳﾞ",
+      "com": "アンジェロのバーター。グランドカナルのミッドで最強。\nオープンフィールドの左、安全地帯の右など水でエリアが狭いマップで強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "リロード速度",
+        "ビジョン"
+      ],
+      "id": "brawler_62",
+      "image": "c-39-3eve.png",
+      "modes": [
+        "ノックアウト",
+        "強奪",
+        "賞金稼ぎ"
+      ],
+      "name": "イヴ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2022年05月02日",
+      "alias": "ジャネット, じゃねっと, Janet, JANET, ｊａｎｅｔ, じゃねつと, ｼﾞｬﾈｯﾄ",
+      "com": "範囲攻撃と逃げ能力が魅力。タフなミッド。ウルト溜まるとほぼ倒せない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_63",
+      "image": "c-39-4janet.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン",
+        "ノックアウト"
+      ],
+      "name": "ジャネット",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2022年07月04日",
+      "alias": "オーティス, おーてぃす, Otis, OTIS, ｏｔｉｓ, おて, オーテイス, ｵｰﾃｨｽ",
+      "com": "タンクメタ最上位。射程や索敵を兼ねたタンクメタほしかったらオーティス。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_64",
+      "image": "c-39-5otis.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "サッカー",
+        "賞金稼ぎ"
+      ],
+      "name": "オーティス",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2022年11月07日",
+      "alias": "バスター, ばすたー, Buster, BUSTER, ｂｕｓｔｅｒ, ﾊﾞｽﾀｰ",
+      "com": "スローペースのマップや、ビートルバトルなど狭いマップ、草が生えてるマップで使う。\nリコのカウンターとして優秀。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "スピード",
+        "シールド"
+      ],
+      "id": "brawler_65",
+      "image": "c-39-6buster.png",
+      "modes": [
+        "ノックアウト",
+        "エメハン",
+        "賞金稼ぎ",
+        "サッカー"
+      ],
+      "name": "バスター",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2022年12月12日",
+      "alias": "グレイ, ぐれい, Gray, GRAY, ｇｒａｙ, グレー, ｸﾞﾚｲ",
+      "com": "ウルトと左ガジェットの投げ対策、右ガジェットの壁草破壊。何でもできる強キャラ。\n投げケアがメインだけど火力がなさすぎてタンクやアサシンが絶望的。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_66",
+      "image": "c-39-7gray.png",
+      "modes": [
+        "ホットゾーン",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "グレイ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2023年03月06日",
+      "alias": "R-T, あーるてぃー, RT, r-t, ｒ-ｔ, ｒｔ, アールティー, あるてぃ, あるてい, Ｒ－Ｔ",
+      "com": "タンクケアできる遠距離キャラ。賞金ノックアウトのタンクケア枠。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_67",
+      "image": "c-39-8rt.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "R-T",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2023年04月03日",
+      "alias": "ウィロー, うぃろー, Willow, WILLOW, ｗｉｌｌｏｗ, ういろー, ｳｨﾛｰ",
+      "com": "アサシン耐性が魅力の投げキャラ。サッカーだとほかの投げより強め。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード"
+      ],
+      "id": "brawler_68",
+      "image": "c-39-9willow.png",
+      "modes": [
+        "サッカー",
+        "強奪",
+        "ホットゾーン"
+      ],
+      "name": "ウィロー",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2023年08月15日",
+      "alias": "ダグ, だぐ, Doug, DOUG, ｄｏｕｇ, ﾀﾞｸﾞ",
+      "com": "回復でウルトを貯められるのでシールドギアは邪魔になる。ノックアウトで終盤まで芋る編成で強い。グレイやジャネットにハイチャウルトをつけて破壊。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "スピード",
+        "ガジェット短縮",
+        "シールド"
+      ],
+      "id": "brawler_69",
+      "image": "c-39-10dug.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "エメハン"
+      ],
+      "name": "ダグ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2023年10月18日",
+      "alias": "チャック, ちゃっく, Chuck, CHUCK, ｃｈｕｃｋ, ちやつく, ﾁｬｯｸ",
+      "com": "安全地帯とどんぱち谷最強キャラ。後攻ならBANするべき。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ヒール"
+      ],
+      "id": "brawler_70",
+      "image": "c-39-11chuck.png",
+      "modes": [
+        "強奪"
+      ],
+      "name": "チャック",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2023年11月06日",
+      "alias": "チャーリー, ちゃーりー, Charlie, CHARLIE, ｃｈａｒｌｉｅ, ちやーりー, ﾁｬｰﾘｰ",
+      "com": "単発とタンクメタ。エドガーダミアンをBANすればモーティス以外のすべてに有利。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_71",
+      "image": "c-39-12charlie.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "サッカー",
+        "賞金稼ぎ"
+      ],
+      "name": "チャーリー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2023年12月14日",
+      "alias": "ミコ, みこ, Mico, MICO, ｍｉｃｏ, ﾐｺ",
+      "com": "ピットストップと橋の彼方の削り枠。BANするほどでもない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "シールド"
+      ],
+      "id": "brawler_72",
+      "image": "c-39-13mico.png",
+      "modes": [
+        "強奪",
+        "ノックアウト"
+      ],
+      "name": "ミコ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年04月04日",
+      "alias": "メロディー, めろでぃー, Melodie, MELODIE, ｍｅｌｏｄｉｅ, メロデイー, ﾒﾛﾃﾞｨｰ",
+      "com": "強奪最強削り枠。ほかのモードだと操作難易度高い。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ヒール",
+        "ダメージ"
+      ],
+      "id": "brawler_73",
+      "image": "c-39-14melodhi.png",
+      "modes": [
+        "強奪"
+      ],
+      "name": "メロディー",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年05月02日",
+      "alias": "リリー, りりー, Lily, LILY, ｌｉｌｙ, リリイ, ﾘﾘｰ",
+      "com": "最終ピックで試合を破壊するキャラ。逆転要素なのでBAN枠余ったらリリーに使う。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_74",
+      "image": "c-39-15lily.png",
+      "modes": [
+        "エメハン",
+        "強奪",
+        "賞金稼ぎ",
+        "ノックアウト"
+      ],
+      "name": "リリー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2024年08月01日",
+      "alias": "クランシー, くらんしー, Clancy, CLANCY, ｃｌａｎｃｙ, クランシイ, ｸﾗﾝｼｰ",
+      "com": "タンクメタだけどほかに強いタンクメタがたくさんいるのであまり使わない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード",
+        "ダメージ"
+      ],
+      "id": "brawler_75",
+      "image": "c-39-16clancy.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "サッカー"
+      ],
+      "name": "クランシー",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年09月05日",
+      "alias": "モー, もー, Moe, MOE, ｍｏｅ, もう, ﾓｰ",
+      "com": "射程と奇襲の両要素がある貴重なキャラ。\nサージ、ストゥー、カール等のカウンターや投げ警戒。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_76",
+      "image": "c-39-17moo.png",
+      "modes": [
+        "エメハン",
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "サッカー"
+      ],
+      "name": "モー",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年10月30日",
+      "alias": "ジュジュ, じゅじゅ, Juju, JUJU, ｊｕｊｕ, じゆじゆ, ｼﾞｭｼﾞｭ",
+      "com": "無難な投げキャラ。射程長すぎ。遅延ながすぎ。透明も加速もバリアも強すぎ。\nパラレルワールド最強キャラ。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_77",
+      "image": "c-39-18juju.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "強奪",
+        "ホットゾーン"
+      ],
+      "name": "ジュジュ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年12月12日",
+      "alias": "オーリー, おーりー, Ollie, OLLIE, ｏｌｌｉｅ, おり, ｵｰﾘｰ",
+      "com": "ノックアウトや賞金がメインのタンクキャラ。操作難易度高いわりに瞬間火力がないので、味方が頑張らないと勝てない。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "シールド"
+      ],
+      "id": "brawler_78",
+      "image": "c-39-19ollie.png",
+      "modes": [
+        "ノックアウト",
+        "サッカー",
+        "ホットゾーン",
+        "賞金稼ぎ"
+      ],
+      "name": "オーリー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2025年04月17日",
+      "alias": "フィンクス, ふぃんくす, Finx, FINX, ｆｉｎｘ, ﾌｨﾝｸｽ",
+      "com": "ホットゾーンの雑ピック。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_79",
+      "image": "c-39-20finx.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "サッカー",
+        "賞金稼ぎ"
+      ],
+      "name": "フィンクス",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2025年06月19日",
+      "alias": "ルミ, るみ, Lumi, LUMI, ｌｕｍｉ, ﾙﾐ",
+      "com": "盤面制圧力が高い。火力も高すぎる。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ガジェット短縮",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_80",
+      "image": "c-39-21lumi.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "ルミ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2026年05月14日",
+      "alias": "ジェヨン, じぇよん, Jae-Yong, JAEYONG, ｊａｅ-ｙｏｎｇ, ｊａｅｙｏｎｇ, じえよん, ｼﾞｪﾖﾝ",
+      "com": "若干火力不足。強く使うために求められる練度が高いのでほぼでない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_81",
+      "image": "c-39-22jaeyong.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "エメハン",
+        "ノックアウト"
+      ],
+      "name": "ジェヨン",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2026年05月14日",
+      "alias": "アリー, ありー, Alli, ALLI, ａｌｌｉ, ｱﾘｰ",
+      "com": "仕様が複雑で操作難易度はブロスタの中で最高レベル。\n近くの敵のHPで移動速度とリロード速度が変わり、自身の移動速度で射程が変わる。なのでスピードギアをつけるとジャンプの距離がのびるから必須。\nウルト中は一定時間ごとに透明状態と素の状態が入れ替わり、敵のHPが多いと初段の火力が上がる逆モーティス。",
+      "difficulty": 3,
+      "gaje": 2,
+      "gears": [
+        "スピード",
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_82",
+      "image": "c-39-23alli.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン",
+        "ホットゾーン",
+        "ノックアウト"
+      ],
+      "name": "アリー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2025年09月04日",
+      "alias": "ミナ, みな, Mina, MINA, ｍｉｎａ, ﾐﾅ",
+      "com": "キャリー力を代償にノックバックと瞬間火力を手に入れたビビ。\nガジェットでバリアを張れるので弾キャラにも強い。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_83",
+      "image": "c-39-24mina.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ホットゾーン",
+        "賞金稼ぎ"
+      ],
+      "name": "ミナ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2025年09月04日",
+      "alias": "ジギー, ジギー, じぎー, Ziggy, ZIGGY, ｚｉｇｇｙ, ジギイ, ｼﾞｷﾞｰ",
+      "com": "ウルトは最強。ほかは普通の投げキャラ。射程が長めで、軌道がないのでよけにくい。\nガジェットと挟む感じで通常攻撃をだすとどちらかは絶対に当たる。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ガジェット短縮"
+      ],
+      "id": "brawler_84",
+      "image": "c-39-25ziggy.png",
+      "modes": [
+        "ホットゾーン",
+        "賞金稼ぎ",
+        "ノックアウト",
+        "エメハン"
+      ],
+      "name": "ジギー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2025年12月18日",
+      "alias": "ジジ, じじ, Gigi, GIGI, ｇｉｇｉ, ｼﾞｼﾞ",
+      "com": "敵の弾が体の近くを通るとウルトがたまり、そのウルトで敵に飛んで一瞬で溶かしてウルトで元の位置に戻るキャラ。\nノックバックされたら終わりなので使いにくい。ジジが最適ピックになる場面がない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_85",
+      "image": "c-39-26gigi.png",
+      "modes": [
+        "エメハン",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "ジジ",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2025年12月18日",
+      "alias": "グローウィー, ぐろーうぃー, Glowy, GLOWY, ｇｌｏｗｙ, グロウィー, グローウィ, グローウイー, グローバート, グロウバート, ぐろーばーと, ｸﾞﾛｰﾊﾞｰﾄ",
+      "com": "タンク、アサシン、小物以外の中距離キャラに対して対面最強。スタパの自己回復とガジェットの逃げでほぼ無敵。\n今はアサシン環境なので弱め。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_86",
+      "image": "c-39-27glowy.png",
+      "modes": [
+        "ノックアウト",
+        "ホットゾーン"
+      ],
+      "name": "グローウィー",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2026年02月26日",
+      "alias": "ナジア, なじあ, Najia, NAJIA, ｎａｊｉａ, ﾅｼﾞｱ",
+      "com": "弾の軌道がかわるくそキャラ。オートでも当たる。アサシン耐性はない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ",
+        "ヒール"
+      ],
+      "id": "brawler_87",
+      "image": "c-39-28najia.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "ナジア",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2026年04月16日",
+      "alias": "ダミアン, だみあん, Damian, DAMIAN, ｄａｍｉａｎ, ﾀﾞﾐｱﾝ",
+      "com": "欠点のないくそつよタンク。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_88",
+      "image": "c-39-29damian.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "エメハン"
+      ],
+      "name": "ダミアン",
+      "rare": "#FF8090",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "",
+      "alias": "スターノヴァ, スターノバ, すたーのゔぁ, すたーのば, Starnova, Star Nova, STARNOVA, STAR NOVA, ｓｔａｒｎｏｖａ, ＳＴＡＲＮＯＶＡ, すたーのうぁ, スターノウァ, ｽﾀｰﾉｳﾞｧ, ｽﾀｰﾉﾊﾞ",
+      "com": "",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_89",
+      "image": "c-39-30starnova.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "スターノヴァ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 5
+    },
+    {
+      "addedDate": "",
+      "alias": "ウェンディ, うぇんでぃ, Wendy, WENDY, ｗｅｎｄｙ, ｳｪﾝﾃﾞｨ",
+      "com": "",
+      "difficulty": 1,
+      "gaje": 1,
+      "id": "brawler_90",
+      "image": "c-39-31wendy.png",
+      "name": "ウェンディ",
+      "rare": "#FF8090",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ボウ, ぼう, Bo, BO, ｂｏ, ボー, ﾎﾞｳ",
+      "com": "火力が高くて草もはがせる連射キャラ。強いけど積極的に選ぶ場面はない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_20",
+      "image": "c-21-bo.png",
+      "modes": [
+        "賞金稼ぎ",
+        "強奪",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "ボウ",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2019年10月23日",
+      "alias": "emz, えむず, Emz, EMZ, ｅｍｚ, エムズ",
+      "com": "タンク、小物系、ニタサンディなどが2体いたら取る。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_21",
+      "image": "c-22-emz.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "emz",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2021年03月15日",
+      "alias": "ストゥー, すとぅー, Stu, STU, ｓｔｕ, すてゅー, すとうー, ｽﾄｩｰ",
+      "com": "アサシン以外にはかなり強い。今は火力不足気味。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_22",
+      "image": "c-23-stu.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン",
+        "エメハン",
+        "賞金稼ぎ"
+      ],
+      "name": "ストゥー",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年07月03日",
+      "alias": "エリザベス, えりざべす, Piper, PIPER, ｐｉｐｅｒ, パイパー, ｴﾘｻﾞﾍﾞｽ, ベティ, べてぃ, ﾍﾞﾃｨ",
+      "com": "リロードが遅いので終盤の展開が弱くて逆転されやすい。環境に押しつぶされているキャラ。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_23",
+      "image": "c-24-piper.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "エリザベス",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年09月04日",
+      "alias": "パム, ぱむ, Pam, PAM, ｐａｍ, ﾊﾟﾑ",
+      "com": "ゾーン1個のホットゾーンやエメハンのミッドなど。地味だけどタンクに強い。でも使わない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "赤",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_24",
+      "image": "c-25-pam.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "賞金稼ぎ"
+      ],
+      "name": "パム",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2018年05月21日",
+      "alias": "フランケン, ふらんけん, Frank, FRANK, ｆｒａｎｋ, フランク, ﾌﾗﾝｹﾝ",
+      "com": "体力多いだけ。火力がない敵に対して終盤ピック。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "ヒール",
+        "シールド",
+        "スピード"
+      ],
+      "id": "brawler_25",
+      "image": "c-26-frank.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン"
+      ],
+      "name": "フランケン",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2019年05月22日",
+      "alias": "ビビ, びび, Bibi, BIBI, ｂｉｂｉ, ﾋﾞﾋﾞ",
+      "com": "機動力のあるタンク。ミナ、ケンジ、モーティス、アリー、カゼを差し置いて選ぶ場面がない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "シールド"
+      ],
+      "id": "brawler_26",
+      "image": "c-27-bibi.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "ビビ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2019年12月18日",
+      "alias": "ビー, びー, Bea, BEA, ｂｅａ, ﾋﾞｰ",
+      "com": "タンクに強いけどアサシンに弱い残念な弾キャラ。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_27",
+      "image": "c-28-bea.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "ノックアウト",
+        "サッカー"
+      ],
+      "name": "ビー",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2020年06月05日",
+      "alias": "ナーニ, なーに, Nani, NANI, ｎａｎｉ, なに, ﾅｰﾆ",
+      "com": "遠距離最強キャラ。エリザベスとマンディに有利とれる唯一のキャラ。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ウルト回転",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_28",
+      "image": "c-29-0nani.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト"
+      ],
+      "name": "ナーニ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2020年12月19日",
+      "alias": "エドガー, えどがー, Edgar, EDGAR, ｅｄｇａｒ, ｴﾄﾞｶﾞｰ",
+      "com": "バフィーがあほすぎて全マップで強い。BAN候補筆頭。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_29",
+      "image": "c-29-1edger.png",
+      "modes": [
+        "強奪",
+        "ホットゾーン",
+        "エメハン",
+        "サッカー"
+      ],
+      "name": "エドガー",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2021年07月23日",
+      "alias": "グリフ, ぐりふ, Griff, GRIFF, ｇｒｉｆｆ, ｸﾞﾘﾌ",
+      "com": "壁草破壊をしつつタンクにも強い唯一の弾キャラ。\nバフィーで正当強化してかなりいい感じ。チェスター、クロウ、オーティスと競合が多い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_30",
+      "image": "c-29-2griff.png",
+      "modes": [
+        "ホットゾーン",
+        "強奪",
+        "サッカー",
+        "エメハン"
+      ],
+      "name": "グリフ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2021年12月23日",
+      "alias": "グロム, ぐろむ, Grom, GROM, ｇｒｏｍ, ｸﾞﾛﾑ",
+      "com": "弱すぎる",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_31",
+      "image": "c-29-3grom.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "グロム",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2022年06月06日",
+      "alias": "ボニー, ぼにー, Bonnie, BONNIE, ｂｏｎｎｉｅ, ﾎﾞﾆｰ",
+      "com": "使わない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "ウルト回転",
+        "ヒール",
+        "ダメージ"
+      ],
+      "id": "brawler_32",
+      "image": "c-29-4bonny.png",
+      "modes": [
+        "強奪",
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "ボニー",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2020年05月13日",
+      "alias": "ゲイル, げいる, Gale, GALE, ｇａｌｅ, ｹﾞｲﾙ",
+      "com": "タンクメタの下位候補。ウルトは強いけど素の展開力がないので序盤は押される。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_33",
+      "image": "c-29-5gale.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "ゲイル",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2020年09月14日",
+      "alias": "コレット, これっと, Colette, COLETTE, ｃｏｌｅｔｔｅ, これつと, ｺﾚｯﾄ",
+      "com": "強奪無難ピック。取っておくだけでタンクケアと削りを確保できる。\nバフィーのおかげで他モードもタンクケアとして取れる。アサシンはきつい。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_34",
+      "image": "c-29-6collet.png",
+      "modes": [
+        "強奪",
+        "ホットゾーン",
+        "サッカー",
+        "エメハン"
+      ],
+      "name": "コレット",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2021年04月12日",
+      "alias": "ベル, べる, Belle, BELLE, ｂｅｌｌｅ, ﾍﾞﾙ",
+      "com": "無難遠距離キャラ。タンクも見れて撃ち合いもできる。ガジェットが雑切りできて強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "リロード速度",
+        "ビジョン"
+      ],
+      "id": "brawler_35",
+      "image": "c-29-7belle.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "ノックアウト",
+        "エメハン"
+      ],
+      "name": "ベル",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2021年08月30日",
+      "alias": "アッシュ, あっしゅ, Ash, ASH, ａｓｈ, あつしゅ, ｱｯｼｭ",
+      "com": "上位タンク。キャリー性能が抜群。スタパガジェットは人によって全然違うけど、私は右右ヒールギアが理論値で強いと思う。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "ヒール",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_36",
+      "image": "c-29-8ash.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "アッシュ",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2021年11月08日",
+      "alias": "ローラ, ろーら, Lola, LOLA, ｌｏｌａ, ろら, ﾛｰﾗ",
+      "com": "エメハンやホットゾーンなどの中距離対面枠。メグなどのカウンター。バグで火力がでる。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "リロード速度",
+        "ビジョン"
+      ],
+      "id": "brawler_37",
+      "image": "c-29-9lola.png",
+      "modes": [
+        "ホットゾーン",
+        "賞金稼ぎ",
+        "エメハン",
+        "強奪"
+      ],
+      "name": "ローラ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2022年09月05日",
+      "alias": "サム, さむ, Sam, SAM, ｓａｍ, ｻﾑ",
+      "com": "使わない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ"
+      ],
+      "id": "brawler_38",
+      "image": "c-29-10sam.png",
+      "modes": [
+        "強奪",
+        "サッカー"
+      ],
+      "name": "サム",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2022年12月12日",
+      "alias": "マンディ, まんでぃ, Mandy, MANDY, ｍａｎｄｙ, マンデイ, ﾏﾝﾃﾞｨ",
+      "com": "長射程枠。アンジェロでいい。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_39",
+      "image": "c-29-11mandy.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト"
+      ],
+      "name": "マンディ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2023年05月01日",
+      "alias": "メイジー, めいじー, Maisie, MAISIE, ｍａｉｓｉｅ, ﾒｲｼﾞｰ",
+      "com": "タンクメタ。火力は高いけどエイムが独特で難しめ。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_40",
+      "image": "c-29-12maisie.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン"
+      ],
+      "name": "メイジー",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2023年06月06日",
+      "alias": "ハンク, はんく, Hank, HANK, ｈａｎｋ, ﾊﾝｸ",
+      "com": "中堅タンク。脳みそ0でプレイできる。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ダメージ",
+        "ヒール",
+        "シールド",
+        "ビジョン"
+      ],
+      "id": "brawler_41",
+      "image": "c-29-13hank.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ホットゾーン",
+        "賞金稼ぎ"
+      ],
+      "name": "ハンク",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2023年09月11日",
+      "alias": "パール, ぱーる, Pearl, PEARL, ｐｅａｒｌ, パル, ぱる, ﾊﾟｰﾙ",
+      "com": "タンクケアできる射程持ち。ノックアウトでアサシンに対しての最終ピックとか。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_42",
+      "image": "c-29-14pearl.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "エメハン"
+      ],
+      "name": "パール",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年02月01日",
+      "alias": "ラリー＆ローリー, らりー＆ろーりー, Larry & Lawrie, ｌａｒｒｙ ＆ ｌａｗｒｉｅ, ラリーアンドローリー, ラリロリ, ラリーローリー, ラリーとローリー",
+      "com": "投げ枠。タンクとシリウスが見れる。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_43",
+      "image": "c-29-15larry.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン",
+        "賞金稼ぎ",
+        "エメハン"
+      ],
+      "name": "ラリー＆ローリー",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年03月07日",
+      "alias": "アンジェロ, あんじぇろ, Angelo, ANGELO, ａｎｇｅｌｏ, あんじえろ, ｱﾝｼﾞｪﾛ",
+      "com": "遠距離最強キャラ。長射程キャラなのに足が全キャラで最速で弾避けもできる。\n3本指で貫通ガジェットを使えるようになると化ける。アサシンにすこし弱め。",
+      "difficulty": 3,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ヒール",
+        "ビジョン"
+      ],
+      "id": "brawler_44",
+      "image": "c-29-16angero.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ノックアウト",
+        "エメハン"
+      ],
+      "name": "アンジェロ",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2024年07月04日",
+      "alias": "ベリー, べりー, Berry, BERRY, ｂｅｒｒｙ, ベリイ, ﾍﾞﾘｰ",
+      "com": "ホットゾーンで使ったり。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "シールド",
+        "ビジョン"
+      ],
+      "id": "brawler_45",
+      "image": "c-29-17berry.png",
+      "modes": [
+        "ホットゾーン",
+        "強奪",
+        "ノックアウト"
+      ],
+      "name": "ベリー",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年11月29日",
+      "alias": "シェイド, しぇいど, Shade, SHADE, ｓｈａｄｅ, しえいど, ｼｪｲﾄﾞ",
+      "com": "純粋な弾避け能力がそのまま強さになるので難易度は高いけど最上位キャラ。",
+      "difficulty": 3,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_46",
+      "image": "c-29-18shade.png",
+      "modes": [
+        "賞金稼ぎ",
+        "ホットゾーン",
+        "サッカー",
+        "エメハン"
+      ],
+      "name": "シェイド",
+      "rare": "#D88BF6",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2025年01月09日",
+      "alias": "ミープル, みーぷる, Meeple, MEEPLE, ｍｅｅｐｌｅ, メープル, ミプル, ミイプル",
+      "com": "両ガジェットの展開力が高い。ミナ、ストゥー、チェスター辺りにめちゃ強い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_47",
+      "image": "c-29-19meeple.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "サッカー",
+        "ノックアウト"
+      ],
+      "name": "ミープル",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2025年08月21日",
+      "alias": "トランク, とらんく, Trunk, TRUNK, ｔｒｕｎｋ, ﾄﾗﾝｸ",
+      "com": "ガジェットの回復量が多い相手、火力がない相手に強い。選ぶ場面は今まで一回もなかった。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_48",
+      "image": "c-29-20trunk.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン",
+        "サッカー"
+      ],
+      "name": "トランク",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "",
+      "alias": "ボルト, ぼると, Bolt, Volt, BOLT, VOLT, ｂｏｌｔ, ｖｏｌｔ, ＢＯＬＴ, ＶＯＬＴ, ﾎﾞﾙﾄ",
+      "com": "",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "ヒール",
+        "ダメージ",
+        "シールド"
+      ],
+      "id": "brawler_49",
+      "image": "c-29-21bolt.png",
+      "name": "ボルト",
+      "rare": "#D88BF6",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ジェシー, じぇしー, Jessie, JESSIE, ｊｅｓｓｉｅ, じえしー, ｼﾞｪｼｰ",
+      "com": "ほめる要素も下げる要素もない凡人キャラ。スタンやノックバックがないのでアサシンに弱くて今は使えない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_10",
+      "image": "c-11-jessi.png",
+      "modes": [
+        "ホットゾーン",
+        "エメハン"
+      ],
+      "name": "ジェシー",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ダイナマイク, だいなまいく, Dynamike, DYNAMIKE, ｄｙｎａｍｉｋｅ, マイク, ﾀﾞｲﾅﾏｲｸ",
+      "com": "使わない。投げキャラの中だと火力が一番高い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ガジェット短縮"
+      ],
+      "id": "brawler_11",
+      "image": "c-12-dynamike.png",
+      "modes": [
+        "強奪",
+        "サッカー"
+      ],
+      "name": "ダイナマイク",
+      "rare": "#80C3FD",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2019年06月26日",
+      "alias": "ティック, てぃっく, Tick, TICK, ｔｉｃｋ, てぃつく, てく, ﾃｨｯｸ",
+      "com": "燃える不死鳥だけ最強だけど確定BANだから全く使わない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "赤",
+        "ヒール",
+        "ビジョン"
+      ],
+      "id": "brawler_12",
+      "image": "c-13-tick.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ"
+      ],
+      "name": "ティック",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2019年08月26日",
+      "alias": "8ビット, 8びっと, えいとびっと, 8-Bit, 8-BIT, 8bit, ８-ｂｉｔ, ８ｂｉｔ, ８ビット, エイトビット",
+      "com": "タンクもちょっと対応できるミッド枠。これくらい体力が高いとシールドよりヒールの方がいいと思う。\n強奪やエメがメイン。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "ヒール",
+        "シールド",
+        "ビジョン",
+        "ダメージ"
+      ],
+      "id": "brawler_13",
+      "image": "c-14-bit.png",
+      "modes": [
+        "強奪",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "8ビット",
+      "rare": "#80C3FD",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "リコ, りこ, Rico, RICO, ｒｉｃｏ, ﾘｺ",
+      "com": "一部のマップで対面最強になるキャラ。意外と脆いのでアサシンに注意。",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_14",
+      "image": "c-15-rico.png",
+      "modes": [
+        "ノックアウト",
+        "サッカー",
+        "強奪",
+        "エメハン"
+      ],
+      "name": "リコ",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年12月07日",
+      "alias": "ダリル, だりる, Darryl, DARRYL, ｄａｒｒｙｌ, ﾀﾞﾘﾙ",
+      "com": "理論値だけは最強のタンク。全然強くない。",
+      "difficulty": 2,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "シールド"
+      ],
+      "id": "brawler_15",
+      "image": "c-16-darryl.png",
+      "modes": [
+        "ノックアウト",
+        "強奪",
+        "サッカー"
+      ],
+      "name": "ダリル",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2018年05月21日",
+      "alias": "ペニー, ぺにー, Penny, PENNY, ｐｅｎｎｙ, ペニイ, ﾍﾟﾆｰ",
+      "com": "アサシンと小物ケアできる弾キャラ。ノックバックも瞬間火力もあるのでリリーハイチャ以外はほぼ返せるから強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード",
+        "ダメージ"
+      ],
+      "id": "brawler_16",
+      "image": "c-17-penny.png",
+      "modes": [
+        "エメハン",
+        "ホットゾーン",
+        "賞金稼ぎ",
+        "強奪"
+      ],
+      "name": "ペニー",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2019年03月22日",
+      "alias": "カール, かーる, Carl, CARL, ｃａｒｌ, かる, ｶｰﾙ",
+      "com": "タンク、投げ、小物系の全てにそこそこ強いけどバフィー環境についていけない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ビジョン"
+      ],
+      "id": "brawler_17",
+      "image": "c-18-carl.png",
+      "modes": [
+        "賞金稼ぎ",
+        "強奪",
+        "エメハン"
+      ],
+      "name": "カール",
+      "rare": "#80C3FD",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2020年03月17日",
+      "alias": "ジャッキー, じゃっきー, Jacky, JACKY, ｊａｃｋｙ, じやつきー, ｼﾞｬｯｷｰ",
+      "com": "ケンジやシェイドのカウンター枠。\nグレイやヒールキャラと合わせればホットゾーンもちょっと強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_18",
+      "image": "c-19-0jacky.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン"
+      ],
+      "name": "ジャッキー",
+      "rare": "#80C3FD",
+      "sutapa": 1,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2022年09月23日",
+      "alias": "ガス, がす, Gus, GUS, ｇｕｓ, ｶﾞｽ",
+      "com": "火力耐久力共に強い長射程ミッドキャラ。バイロンが余ってたらバイロンの方がいい。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "ダメージ",
+        "スピード"
+      ],
+      "id": "brawler_19",
+      "image": "c-19-1gas.png",
+      "modes": [
+        "賞金稼ぎ",
+        "エメハン",
+        "ノックアウト",
+        "ホットゾーン"
+      ],
+      "name": "ガス",
+      "rare": "#80C3FD",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "シェリー, しぇりー, Shelly, SHELLY, ｓｈｅｌｌｙ, シェリ, シエリー, ｼｪﾘｰ",
+      "com": "中堅タンクメタ。あまり使わない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン",
+        "スピード"
+      ],
+      "id": "brawler_1",
+      "image": "c-01-shelly.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "ノックアウト"
+      ],
+      "name": "シェリー",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ニタ, にた, Nita, NITA, ｎｉｔａ, ﾆﾀ",
+      "com": "タンク全般とタラサンディなどの選択肢を消せる万能タンクメタ。バフィー熊がつよすぎ。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ビジョン",
+        "スピード",
+        "ダメージ"
+      ],
+      "id": "brawler_2",
+      "image": "c-02-nita.png",
+      "modes": [
+        "サッカー",
+        "強奪",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "ニタ",
+      "rare": "#97EE8D",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "コルト, こると, Colt, COLT, ｃｏｌｔ, ｺﾙﾄ",
+      "com": "強奪の削り枠。射程持ちの中では一番火力が出るけど弱い",
+      "difficulty": 2,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_3",
+      "image": "c-03-colt.png",
+      "modes": [
+        "強奪"
+      ],
+      "name": "コルト",
+      "rare": "#97EE8D",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ブル, ぶる, Bull, BULL, ｂｕｌｌ, ﾌﾞﾙ",
+      "com": "選ぶだけでビビやアサシンを消せる神キャラ。敵にアサシンがいなくても普通に強い。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ダメージ",
+        "スピード",
+        "ヒール"
+      ],
+      "id": "brawler_4",
+      "image": "c-04-bull.png",
+      "modes": [
+        "サッカー",
+        "強奪",
+        "エメハン",
+        "ホットゾーン"
+      ],
+      "name": "ブル",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ブロック, ぶろっく, Brock, BROCK, ｂｒｏｃｋ, ブロツク, ﾌﾞﾛｯｸ",
+      "com": "射程持ち壁草破壊枠。弾が遅すぎて上位だと当たらない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ヒール"
+      ],
+      "id": "brawler_5",
+      "image": "c-05-block.png",
+      "modes": [
+        "ノックアウト",
+        "賞金稼ぎ",
+        "強奪"
+      ],
+      "name": "ブロック",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 4
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "エル・プリモ, える・ぷりも, El Primo, EL PRIMO, ｅｌ ｐｒｉｍｏ, ｅｌｐｒｉｍｏ, エルプリモ, えるぷりも",
+      "com": "フランケンやハンクに対してのカウンター。ほぼ使わない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "ダメージ",
+        "ウルト回転",
+        "シールド",
+        "ヒール"
+      ],
+      "id": "brawler_6",
+      "image": "c-06-elprimo.png",
+      "modes": [
+        "サッカー",
+        "ホットゾーン"
+      ],
+      "name": "エル・プリモ",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 1
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "バーリー, ばーりー, Barley, BARLEY, ｂａｒｌｅｙ, バリ, ばり, ﾊﾞｰﾘｰ",
+      "com": "投げ枠。総合的に見たらジュジュやシリウスの方が強い。ホットゾーンだとバーリーの方が強い。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "シールド",
+        "ガジェット短縮",
+        "ビジョン",
+        "スピード"
+      ],
+      "id": "brawler_7",
+      "image": "c-07-barley.png",
+      "modes": [
+        "ホットゾーン",
+        "強奪",
+        "エメハン",
+        "賞金稼ぎ"
+      ],
+      "name": "バーリー",
+      "rare": "#97EE8D",
+      "sutapa": 1,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2017年06月15日",
+      "alias": "ポコ, ぽこ, Poco, POCO, ｐｏｃｏ, ﾎﾟｺ",
+      "com": "オーリー、ビー、ルーのウルトをガジェットで全て無効化できる。強いけどあまり使う場面はない。",
+      "difficulty": 1,
+      "gaje": 1,
+      "gears": [
+        "シールド",
+        "ガジェット短縮",
+        "スピード",
+        "ヒール"
+      ],
+      "id": "brawler_8",
+      "image": "c-08-poco.png",
+      "modes": [
+        "ホットゾーン",
+        "サッカー",
+        "エメハン",
+        "ノックアウト"
+      ],
+      "name": "ポコ",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 3
+    },
+    {
+      "addedDate": "2019年04月26日",
+      "alias": "ローサ, ろーさ, Rosa, ROSA, ｒｏｓａ, ロサ, ろさ, ﾛｰｻ",
+      "com": "草を生やせる唯一のキャラ。タンクに強いタンク。使わない。",
+      "difficulty": 1,
+      "gaje": 2,
+      "gears": [
+        "スピード",
+        "シールド",
+        "ダメージ",
+        "ビジョン"
+      ],
+      "id": "brawler_9",
+      "image": "c-09-rosa.png",
+      "modes": [
+        "サッカー",
+        "エメハン",
+        "賞金稼ぎ"
+      ],
+      "name": "ローサ",
+      "rare": "#97EE8D",
+      "sutapa": 2,
+      "tuyosa": 2
+    },
+    {
+      "addedDate": "2024年12月10日",
+      "alias": "バズ・ライトイヤー, ばず・らいといやー, Buzz Lightyear, ｂｕｚｚ ｌｉｇｈｔｙｅａｒ, バズライトイヤー",
+      "com": "コラボキャラクター",
+      "difficulty": 1,
+      "gaje": 1,
+      "id": "brawler_107",
+      "image": "c-c-1buzzl.png",
+      "name": "バズ・ライトイヤー",
+      "rare": "コラボ",
+      "sutapa": 1,
+      "tuyosa": 1
+    }
+  ]
+}

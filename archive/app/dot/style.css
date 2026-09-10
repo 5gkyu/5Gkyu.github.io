@@ -402,10 +402,23 @@ header .secondary:hover {
 .dstArea {
   flex: 1;
   display: flex;
-  gap: 2px;
+  gap: 4px;
   align-items: stretch;
   overflow: hidden;
   min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dstArea.srcHidden #srcPanel {
+  display: none !important;
+}
+
+.dstArea.srcHidden #dstPanel {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
 }
 
 .panel {
@@ -432,6 +445,129 @@ header .secondary:hover {
   background: var(--bg-tertiary);
   position: relative;
   min-height: 0;
+  cursor: grab;
+}
+
+.canvasWrapper:active {
+  cursor: grabbing;
+}
+
+/* ズームバー */
+.canvasZoomBar {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(18, 18, 26, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  padding: 4px 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+  user-select: none;
+}
+
+.zoomBtn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.zoomBtn:hover {
+  background: var(--accent);
+  border-color: var(--accent-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.zoomBtn--text {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+}
+
+.zoomBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 復帰用フローティングボタン */
+.floatingMenuBtn {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: rgba(18, 18, 26, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 25;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.floatingMenuBtn:hover {
+  background: var(--accent);
+  border-color: var(--accent-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* フォーカスモード（最大化モード） */
+body.focusMode header {
+  display: none !important;
+}
+
+body.focusMode aside.left {
+  display: none !important;
+}
+
+body.focusMode .container {
+  display: block !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: calc(100vh - 84px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+body.focusMode .right {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+body.focusMode .dstArea {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+body.focusMode .floatingMenuBtn {
+  display: inline-flex !important;
 }
 
 canvas.srcCanvas {
@@ -857,16 +993,17 @@ button.small, button[class*="small"] {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
   color: var(--text-muted);
   font-size: 11px;
-  height: var(--footer-h);
-  min-height: var(--footer-h);
-  max-height: var(--footer-h);
+  height: 84px;
+  min-height: 84px;
+  max-height: 84px;
   overflow: hidden;
   flex-shrink: 0;
+  z-index: 50;
 }
 
 .footerCenter,
@@ -874,14 +1011,16 @@ button.small, button[class*="small"] {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  min-width: 100px;
+  height: 100%;
+  justify-content: center;
 }
 
 .footerCenter {
-  flex: 0 0 280px;
-  max-width: 280px;
-  align-items: flex-start;
-  overflow: hidden;
+  flex: 0 0 330px;
+  max-width: 330px;
+  min-width: 310px;
+  border-right: 1px solid var(--border);
+  padding-right: 14px;
 }
 
 .footerRight {
@@ -898,6 +1037,9 @@ button.small, button[class*="small"] {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .footerValue {
@@ -907,36 +1049,77 @@ button.small, button[class*="small"] {
 }
 
 .footerPalette {
+  display: flex;
   flex-wrap: nowrap;
   gap: 6px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 4px 2px 6px 2px;
-  scroll-snap-type: x proximity;
+  padding: 3px 2px 5px 2px;
+  align-items: center;
 }
 
 .footerCenter .palettePreview {
-  max-width: 100%;
-  overflow: hidden;
-  max-height: 72px;
+  width: 100%;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
 }
 
 .footerCenter .paletteRow {
-  max-width: 100%;
-  gap: 6px;
-  align-items: flex-start;
-  max-height: 72px;
-  overflow: hidden;
-}
-
-.footerCenter .paletteRow > div {
-  min-width: 0;
-}
-
-.footerCenter .paletteName,
-.footerCenter .paletteHexInput {
-  max-width: 160px;
   width: 100%;
+  gap: 10px;
+  align-items: center;
+  overflow: visible;
+  display: flex;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 5px 8px;
+  margin: 0;
+}
+
+.footerCenter .paletteSwatchBtn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.footerCenter .paletteRow > div:last-child {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.footerCenter .paletteName {
+  width: 100%;
+  padding: 2px 6px;
+  font-size: 11px;
+  height: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+.footerCenter .paletteHexInput {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  height: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 .footerCenter .paletteRow .small {
@@ -944,11 +1127,40 @@ button.small, button[class*="small"] {
 }
 
 .footerPalette .swatch {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
-  aspect-ratio: 1 / 1;
-  scroll-snap-align: start;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.footerPalette .swatch:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 0 1px var(--accent);
+  z-index: 2;
+}
+
+.footerPalette .swatch.active {
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 10px rgba(124,92,252,0.4);
+  transform: scale(1.1);
+  z-index: 3;
+}
+
+.footerEmptyGuide {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  height: 36px;
 }
 
 .paletteHorizontal {
@@ -1013,6 +1225,31 @@ button.small, button[class*="small"] {
   animation: modalIn 0.2s ease-out;
 }
 
+/* PC向け大型モーダル（テスト画像選択など） */
+.modalContent--wide {
+  max-width: min(1000px, calc(100vw - 48px));
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalContent--wide .modalBody {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalContent--wide .testImageGrid {
+  flex: 1;
+  max-height: unset;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.modalContent--wide .testImgCardThumb {
+  aspect-ratio: 4 / 3;
+}
+
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -1038,6 +1275,69 @@ button.small, button[class*="small"] {
   gap: 6px;
 }
 
+/* テスト画像グリッド（動的生成版） */
+.testImageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.testGridLoading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.testImgCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.testImgCard:hover {
+  border-color: rgba(124,92,252,0.5);
+  box-shadow: 0 0 0 2px rgba(124,92,252,0.18), 0 4px 12px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+
+.testImgCard:active {
+  transform: translateY(0);
+}
+
+.testImgCardThumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-secondary);
+}
+
+.testImgCardLabel {
+  padding: 5px 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+/* 古いtestSelectBtnとの互換（バックアップHTML向け） */
 .testSelectBtn {
   padding: 12px 10px;
   border-radius: var(--radius-md);
@@ -1131,4 +1431,353 @@ button.small, button[class*="small"] {
     border-bottom: 1px solid var(--border);
     max-height: 45vh;
   }
+}
+
+/* ============== COMPARE MODAL ============== */
+.compareModalContent {
+  width: 92vw !important;
+  max-width: 1200px !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.compareModalBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px !important;
+  position: relative;
+  min-height: 300px;
+}
+
+.compareLoading {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.compareGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.compareCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.compareCard:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.compareCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.compareCardTitle {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.compareCardBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.compareCanvasWrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+}
+
+.compareCanvasWrap canvas {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+}
+
+.compareCanvasWrap::after {
+  content: "クリックで適用";
+  position: absolute;
+  inset: 0;
+  background: rgba(124, 92, 252, 0.7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.compareCanvasWrap:hover::after {
+  opacity: 1;
+}
+
+.comparePaletteRow {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.comparePaletteChip {
+  flex: 1;
+  height: 100%;
+}
+
+.compareCardDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.compareCardActions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.compareCardActions button {
+  flex: 1;
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+}
+
+/* ============== TOAST ============== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hover);
+  box-shadow: var(--shadow-lg), 0 0 15px var(--accent-glow);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============== AI GENERATE MODAL ============== */
+.aiGenModalContent {
+  width: 920px;
+  max-width: min(920px, calc(100vw - 32px)) !important;
+  max-height: min(720px, calc(100vh - 48px));
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 20px 24px;
+}
+
+.aiGenModalContent .aiGenModalBody {
+  display: grid !important;
+  grid-template-columns: 1.15fr 0.85fr !important;
+  gap: 20px !important;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.aiGenLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.aiGenRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.aiGenSection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.aiGenLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.aiGenHint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.aiGenStyleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.aiGenStyleChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.aiGenStyleChip:has(input:checked) {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.aiGenStyleChip input[type="radio"] {
+  display: none;
+}
+
+/* プレビュー枠：ドット絵がくっきり見える適正サイズ (220px) */
+.aiGenPreviewArea {
+  width: 220px;
+  height: 220px;
+  min-height: 220px;
+  max-width: 220px;
+  max-height: 220px;
+  border: 2px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  background: repeating-conic-gradient(#1f1f2e 0% 25%, #181824 0% 50%) 50% / 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 16px rgba(0,0,0,0.6);
+  margin: 0 auto;
+}
+
+.aiGenPlaceholder {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.aiGenPreviewArea img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.aiGenStatus {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-align: center;
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.aiGenStatus.error {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--danger);
+  animation: none;
+}
+
+.aiGenSpinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: statusSpin 0.8s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.aiGenRightActions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 260px;
+  margin-top: 4px;
+}
+
+.aiGenRightActions button {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }

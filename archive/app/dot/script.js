@@ -1,6 +1,43 @@
 // ドット絵パレット変換 - メインスクリプト
 const RECENT_KEY = "recentPalettes";
 
+function getPatternThreshold(x, y, pattern) {
+  switch(pattern) {
+    case 'check': return ((x + y) % 2 === 0) ? 0.25 : -0.25;
+    case 'ichimatsu': return ((Math.floor(x/2) + Math.floor(y/2)) % 2 === 0) ? 0.3 : -0.3;
+    case 'tile': {
+      const tx = x % 4, ty = y % 4;
+      const tileMatrix = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+      return (tileMatrix[ty][tx] / 16 - 0.5);
+    }
+    case 'vertical': return (x % 2 === 0) ? 0.3 : -0.3;
+    case 'horizontal': return (y % 2 === 0) ? 0.3 : -0.3;
+    case 'diagonalUp': return ((x + y) % 3 === 0) ? 0.35 : (((x + y) % 3 === 1) ? 0 : -0.35);
+    case 'diagonalDown': return ((x - y + 1000) % 3 === 0) ? 0.35 : (((x - y + 1000) % 3 === 1) ? 0 : -0.35);
+    case 'mesh': return ((x % 3 === 0) || (y % 3 === 0)) ? 0.3 : -0.2;
+    case 'halftone': {
+      const cx = (x % 4) - 1.5, cy = (y % 4) - 1.5;
+      const dist = Math.sqrt(cx*cx + cy*cy) / 2.12;
+      return (dist - 0.5) * 0.8;
+    }
+    case 'basic':
+    default: return 0;
+  }
+}
+
+function getKernel(name){
+  switch(name){
+    case "atkinson": return { div:8, pts:[[1,0,1],[2,0,1],[-1,1,1],[0,1,1],[1,1,1],[0,2,1]] };
+    case "jarvis": return { div:48, pts:[[1,0,7],[2,0,5],[-2,1,3],[-1,1,5],[0,1,7],[1,1,5],[2,1,3],[-2,2,1],[-1,2,3],[0,2,5],[1,2,3],[2,2,1]] };
+    case "stucki": return { div:42, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2],[-2,2,1],[-1,2,2],[0,2,4],[1,2,2],[2,2,1]] };
+    case "burkes": return { div:32, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2]] };
+    case "sierra": return { div:32, pts:[[1,0,5],[2,0,3],[-2,1,2],[-1,1,4],[0,1,5],[1,1,4],[2,1,2],[-1,2,2],[0,2,3],[1,2,2]] };
+    case "sierra2": return { div:16, pts:[[1,0,4],[2,0,3],[-2,1,1],[-1,1,2],[0,1,3],[1,1,2],[2,1,1],[-1,2,1],[0,2,2],[1,2,1]] };
+    case "sierraLite": return { div:4, pts:[[1,0,2],[-1,1,1],[0,1,1]] };
+    default: return { div:16, pts:[[1,0,7],[-1,1,3],[0,1,5],[1,1,1]] };
+  }
+}
+
 document.addEventListener("DOMContentLoaded", ()=> {
   // DOM refs
   const fileInput = document.getElementById("file");
@@ -53,6 +90,168 @@ document.addEventListener("DOMContentLoaded", ()=> {
   const openTestModalBtn = document.getElementById("openTestModalBtn");
   const testModal = document.getElementById("testModal");
   const closeTestModalBtn = document.getElementById("closeTestModalBtn");
+
+  // 新機能用DOM refs
+  const openCompareModalBtn = document.getElementById("openCompareModalBtn");
+  const compareModal = document.getElementById("compareModal");
+  const closeCompareModalBtn = document.getElementById("closeCompareModalBtn");
+  const refreshCompareBtn = document.getElementById("refreshCompareBtn");
+  const compareGrid = document.getElementById("compareGrid");
+  const compareLoading = document.getElementById("compareLoading");
+  const quickPresetSelect = document.getElementById("quickPresetSelect");
+  const exportScale = document.getElementById("exportScale");
+  const copyImageBtn = document.getElementById("copyImageBtn");
+  const toast = document.getElementById("toast");
+
+  // トースト通知表示関数
+  let toastTimer = null;
+  function showToast(msg) {
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.style.display = "block";
+    toast.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => { toast.style.display = "none"; }, 250);
+    }, 2400);
+  }
+
+  // レトロスタイル・プリセット定義集
+  const RETRO_PRESETS = {
+    gb: {
+      name: "ゲームボーイ風",
+      badge: "4色 / GB Green",
+      desc: "懐かしい初代ゲームボーイの緑系4色パレットとディザリング。",
+      palette: ["#0f380f", "#306230", "#8bac0f", "#9bbc0f"],
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 100,
+      edgeStrength: 100,
+      filters: { contrast: 110, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    nes: {
+      name: "ファミコン風 (NES)",
+      badge: "16色 / 8bit",
+      desc: "80年代のファミコンを思わせる鮮やかなレトロ8bit配色。",
+      palette: [
+        "#000000", "#fcfcfc", "#f83800", "#e45c10", "#ac7c00", "#00a800",
+        "#00a844", "#008888", "#004058", "#0000fc", "#6844fc", "#bc00bc",
+        "#e40058", "#f87858", "#fca044", "#f8b800"
+      ],
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 90,
+      edgeStrength: 110,
+      filters: { contrast: 105, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    pico8: {
+      name: "PICO-8風",
+      badge: "16色 / Modern Retro",
+      desc: "大人気の仮想レトロゲーム機PICO-8公式16色カラーパレット。",
+      palette: [
+        "#000000", "#1d2b53", "#7e2553", "#008751", "#ab5236", "#5f574f",
+        "#c2c3c7", "#fff1e8", "#ff004d", "#ffa300", "#ffec27", "#00e436",
+        "#29adff", "#83769c", "#ff77a8", "#ffccaa"
+      ],
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 80,
+      edgeStrength: 100,
+      filters: { contrast: 100, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    sfc: {
+      name: "SFC 16bit風",
+      badge: "32色 / 16bit SFC",
+      desc: "豊かな表現力を持つスーパーファミコン・アーケード黄金期風の32色減色。",
+      palette: null, // 自動減色 32色
+      autoColorCount: 32,
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 60,
+      edgeStrength: 95,
+      filters: { contrast: 100, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "wu",
+      useLab: true
+    },
+    cyberpunk: {
+      name: "サイバーパンク風",
+      badge: "10色 / Neon Vivid",
+      desc: "鮮烈なネオンピンクとシアンが映える近未来サイバー調のドット絵。",
+      palette: [
+        "#08001a", "#1a0033", "#2e004f", "#670080", "#b00086",
+        "#ff007f", "#00f0ff", "#00ff9f", "#ffe600", "#ffffff"
+      ],
+      dither: true,
+      ditherPattern: "ichimatsu",
+      ditherStrength: 100,
+      edgeStrength: 130,
+      filters: { contrast: 120, brightness: 105, hue: 0, saturation: 125, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    mono: {
+      name: "モノクロ4階調",
+      badge: "4色 / 1bit風階調",
+      desc: "クラシックな携帯機やマッキントッシュ風のグレースケール表現。",
+      palette: ["#111111", "#555555", "#aaaaaa", "#ffffff"],
+      dither: true,
+      ditherPattern: "ordered4",
+      ditherStrength: 120,
+      edgeStrength: 110,
+      filters: { contrast: 115, brightness: 100, hue: 0, saturation: 0, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    natural: {
+      name: "自然なドット絵",
+      badge: "48色 / 自然減色",
+      desc: "ディザを抑え、元のイラストや写真の雰囲気を残す滑らかな仕上がり。",
+      palette: null,
+      autoColorCount: 48,
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 40,
+      edgeStrength: 90,
+      filters: { contrast: 100, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    retro: {
+      name: "レトロディザー強調",
+      badge: "12色 / 市松模様",
+      desc: "市松模様ディザリングを強調し、強いレトロ質感を表現。",
+      palette: null,
+      autoColorCount: 12,
+      dither: true,
+      ditherPattern: "ichimatsu",
+      ditherStrength: 130,
+      edgeStrength: 100,
+      filters: { contrast: 105, brightness: 100, hue: 0, saturation: 100, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    },
+    edge: {
+      name: "エッジ輪郭重視",
+      badge: "24色 / 輪郭くっきり",
+      desc: "輪郭線のエッジをシャープに強調したアニメ調・メリハリドット絵。",
+      palette: null,
+      autoColorCount: 24,
+      dither: true,
+      ditherPattern: "basic",
+      ditherStrength: 40,
+      edgeStrength: 145,
+      filters: { contrast: 110, brightness: 100, hue: 0, saturation: 105, luminance: 100 },
+      reduceMethod: "standard",
+      useLab: true
+    }
+  };
 
   const AUTO_REDUCE_COUNTS = [8, 16, 32, 64, 128, 256];
   const PALETTE_CACHE_LIMIT = 12;
@@ -406,8 +605,52 @@ document.addEventListener("DOMContentLoaded", ()=> {
     updateDitherStrengthDisplay();
   }
 
+  function applyRetroPresetByKey(key){
+    const config = RETRO_PRESETS[key];
+    if(!config) return;
+
+    if(useLabInput) useLabInput.checked = !!config.useLab;
+    if(ditherCheckbox) ditherCheckbox.checked = !!config.dither;
+    if(ditherPatternSelect && config.ditherPattern) ditherPatternSelect.value = config.ditherPattern;
+    if(typeof config.ditherStrength === "number") setDitherStrength(config.ditherStrength);
+    if(typeof config.edgeStrength === "number") setEdgeStrength(config.edgeStrength);
+    if(config.filters) setFilterState(config.filters);
+    if(reduceMethodSelect && config.reduceMethod) reduceMethodSelect.value = config.reduceMethod;
+
+    if(config.palette && config.palette.length > 0){
+      paletteInput.value = config.palette.join("\n");
+      currentHexList = parsePalette(paletteInput.value || "");
+      paletteNames = new Array(currentHexList.length).fill("");
+      ensureNamesSize(currentHexList.length);
+      refreshPalettePreview(currentHexList);
+      buildPaletteEditor(currentHexList);
+    } else if(config.autoColorCount && srcImageData){
+      const colorCount = syncAutoReduceControls(config.autoColorCount);
+      updatePaletteFromSourceImage(colorCount);
+    }
+
+    if(srcImageData){
+      doProcess();
+    }
+    showToast(config.name + " を適用しました");
+  }
+
+  if(quickPresetSelect){
+    quickPresetSelect.addEventListener("change", (ev)=>{
+      const val = ev.target.value;
+      if(val){
+        applyRetroPresetByKey(val);
+        ev.target.value = ""; // リセットして再選択可能に
+      }
+    });
+  }
+
   function applyConvertPreset(preset){
     if(!convertPreset) return;
+    if(RETRO_PRESETS[preset]){
+      applyRetroPresetByKey(preset);
+      return;
+    }
     if(preset === "default"){
       const colorCount = syncAutoReduceControls(32);
       if(useLabInput) useLabInput.checked = true;
@@ -614,7 +857,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     return {
       paletteText: paletteInput ? paletteInput.value : "",
       paletteNames: paletteNames.slice(0),
-      selectedPaletteIndex,
+      selectedPaletteIndices: Array.from(selectedPaletteIndices),
       outWidth: outW ? outW.value : "",
       outHeight: outH ? outH.value : "",
       keepAspect: autoAdjustMode,
@@ -657,12 +900,13 @@ document.addEventListener("DOMContentLoaded", ()=> {
   function buildStateSignature(state){
     const paletteText = state.paletteText || "";
     const namesText = Array.isArray(state.paletteNames) ? state.paletteNames.join("|") : "";
+    const selText = Array.isArray(state.selectedPaletteIndices) ? state.selectedPaletteIndices.join(",") : "";
     const f = state.filterState || {};
     const cam = state.camera || {};
     return [
       paletteText.length, hashString(paletteText),
       namesText.length, hashString(namesText),
-      state.selectedPaletteIndex,
+      selText,
       state.outWidth, state.outHeight, state.keepAspect,
       state.dotScale, state.edgeStrength,
       f.contrast, f.brightness, f.hue, f.saturation, f.luminance,
@@ -686,7 +930,13 @@ document.addEventListener("DOMContentLoaded", ()=> {
       currentHexList = parsePalette(paletteInput.value || "");
       paletteNames = Array.isArray(state.paletteNames) ? state.paletteNames.slice(0) : new Array(currentHexList.length).fill("");
       ensureNamesSize(currentHexList.length);
-      selectedPaletteIndex = typeof state.selectedPaletteIndex === "number" ? state.selectedPaletteIndex : -1;
+      if (Array.isArray(state.selectedPaletteIndices)) {
+        selectedPaletteIndices = new Set(state.selectedPaletteIndices);
+      } else if (typeof state.selectedPaletteIndex === "number" && state.selectedPaletteIndex >= 0) {
+        selectedPaletteIndices = new Set([state.selectedPaletteIndex]);
+      } else {
+        selectedPaletteIndices = new Set([0]);
+      }
       refreshPalettePreview(currentHexList);
       buildPaletteEditor(currentHexList);
       renderSelectedPalette();
@@ -1392,18 +1642,27 @@ document.addEventListener("DOMContentLoaded", ()=> {
     return network.map(c=>rgbToHex({r:Math.round(c[0]), g:Math.round(c[1]), b:Math.round(c[2])}));
   }
 
-  // UI: palette preview/editor
-  let selectedPaletteIndex = -1;
+  // UI: palette preview/editor (複数色選択対応)
+  let selectedPaletteIndices = new Set([0]);
 
   function countSelectedColorPixels(){
-    if(!lastRecoloredImage || selectedPaletteIndex < 0 || selectedPaletteIndex >= currentHexList.length) return null;
-    const target = hexToRgbObj(currentHexList[selectedPaletteIndex]);
+    if(!lastRecoloredImage || selectedPaletteIndices.size === 0) return null;
+    const targetRgbList = [];
+    selectedPaletteIndices.forEach(idx => {
+      if(currentHexList[idx]) targetRgbList.push(hexToRgbObj(currentHexList[idx]));
+    });
+    if(targetRgbList.length === 0) return null;
+    
     const data = lastRecoloredImage.data;
     let count = 0;
     for(let i=0;i<data.length;i+=4){
       if(data[i+3] === 0) continue;
-      if(data[i] === target.r && data[i+1] === target.g && data[i+2] === target.b){
-        count++;
+      const r = data[i], g = data[i+1], b = data[i+2];
+      for(let j=0;j<targetRgbList.length;j++){
+        if(r === targetRgbList[j].r && g === targetRgbList[j].g && b === targetRgbList[j].b){
+          count++;
+          break;
+        }
       }
     }
     const total = lastRecoloredImage.width * lastRecoloredImage.height;
@@ -1446,21 +1705,116 @@ document.addEventListener("DOMContentLoaded", ()=> {
   function renderSelectedPalette(){
     if(!selectedPalettePreview) return;
     selectedPalettePreview.innerHTML = "";
-    if(selectedPaletteIndex < 0 || selectedPaletteIndex >= currentHexList.length) return;
 
-    const idx = selectedPaletteIndex;
+    // スウォッチのアクティブ表示を更新
+    if(palettePreview){
+      const swatches = palettePreview.querySelectorAll(".swatch");
+      swatches.forEach((sw, sIdx) => {
+        if(selectedPaletteIndices.has(sIdx)){
+          sw.classList.add("active");
+        } else {
+          sw.classList.remove("active");
+        }
+      });
+    }
+
+    if(selectedPaletteIndices.size === 0){
+      const emptyGuide = document.createElement("div");
+      emptyGuide.className = "footerEmptyGuide";
+      emptyGuide.textContent = "スウォッチをクリックして色選択（Ctrl+クリックで複数選択）";
+      selectedPalettePreview.appendChild(emptyGuide);
+      return;
+    }
+
+    // 複数色選択時の表示
+    if(selectedPaletteIndices.size > 1){
+      const multiRow = document.createElement("div");
+      multiRow.className = "paletteRow";
+      multiRow.style.gap = "8px";
+      multiRow.style.padding = "4px 8px";
+
+      const titleDiv = document.createElement("div");
+      titleDiv.style.display = "flex";
+      titleDiv.style.flexDirection = "column";
+      titleDiv.style.gap = "2px";
+      titleDiv.style.minWidth = "60px";
+
+      const badge = document.createElement("span");
+      badge.style.fontSize = "11px";
+      badge.style.fontWeight = "700";
+      badge.style.color = "var(--accent)";
+      badge.textContent = `${selectedPaletteIndices.size}色 選択中`;
+      titleDiv.appendChild(badge);
+
+      const clearBtn = document.createElement("button");
+      clearBtn.className = "small secondary";
+      clearBtn.style.padding = "1px 4px";
+      clearBtn.style.fontSize = "9px";
+      clearBtn.textContent = "全解除";
+      clearBtn.addEventListener("click", ()=>{
+        selectedPaletteIndices.clear();
+        renderSelectedPalette();
+        drawViewport();
+        scheduleHistory();
+      });
+      titleDiv.appendChild(clearBtn);
+      multiRow.appendChild(titleDiv);
+
+      const swList = document.createElement("div");
+      swList.style.display = "flex";
+      swList.style.gap = "4px";
+      swList.style.flexWrap = "wrap";
+      swList.style.flex = "1";
+      swList.style.maxHeight = "48px";
+      swList.style.overflowY = "auto";
+
+      selectedPaletteIndices.forEach(idx => {
+        const h = currentHexList[idx];
+        if(!h) return;
+        const s = document.createElement("div");
+        s.style.width = "20px";
+        s.style.height = "20px";
+        s.style.borderRadius = "3px";
+        s.style.background = h;
+        s.style.border = "1px solid rgba(255,255,255,0.2)";
+        s.style.fontSize = "9px";
+        s.style.display = "flex";
+        s.style.alignItems = "center";
+        s.style.justifyContent = "center";
+        s.style.cursor = "pointer";
+        const c = hexToRgbObj(h);
+        s.style.color = ((0.299*c.r + 0.587*c.g + 0.114*c.b) > 180) ? "#000" : "#fff";
+        s.textContent = idx+1;
+        s.title = `#${idx+1}: ${h}（クリックで単体選択）`;
+        s.addEventListener("click", ()=>{
+          selectedPaletteIndices.clear();
+          selectedPaletteIndices.add(idx);
+          renderSelectedPalette();
+          drawViewport();
+          scheduleHistory();
+        });
+        swList.appendChild(s);
+      });
+      multiRow.appendChild(swList);
+      selectedPalettePreview.appendChild(multiRow);
+      return;
+    }
+
+    // 単一色選択時の詳細編集表示
+    const idx = Array.from(selectedPaletteIndices)[0];
     const hex = currentHexList[idx];
+    if(!hex) return;
 
     const row = document.createElement("div");
     row.className = "paletteRow";
 
     const left = document.createElement("div");
-    left.style.width = "44px";
+    left.style.width = "40px";
 
     const swBtn = document.createElement("button");
     swBtn.className = "paletteSwatchBtn";
     swBtn.style.background = hex;
-    swBtn.title = `色 ${idx+1}`;
+    swBtn.title = `色 #${idx+1}（クリックで解除）`;
 
     const badge = document.createElement("span");
     badge.className = "swatchBadge";
@@ -1468,9 +1822,9 @@ document.addEventListener("DOMContentLoaded", ()=> {
     swBtn.appendChild(badge);
     swBtn.style.cursor = "pointer";
     swBtn.addEventListener("click", ()=>{
-      selectedPaletteIndex = -1;
+      selectedPaletteIndices.clear();
       renderSelectedPalette();
-      highlightColorInImage(idx);
+      drawViewport();
       scheduleHistory();
     });
     left.appendChild(swBtn);
@@ -1479,26 +1833,31 @@ document.addEventListener("DOMContentLoaded", ()=> {
     right.style.flex = "1";
     right.style.display = "flex";
     right.style.flexDirection = "column";
-    right.style.gap = "4px";
+    right.style.gap = "2px";
 
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.className = "paletteName";
     nameInput.value = paletteNames[idx] || "";
-    nameInput.placeholder = `色${idx+1} 名称`;
+    nameInput.placeholder = `色#${idx+1} 名称`;
     nameInput.name = `pname_${idx}`;
-    nameInput.setAttribute("aria-label", `色${idx+1} の名前`);
+    nameInput.setAttribute("aria-label", `色#${idx+1} の名前`);
 
     const hexRow = document.createElement("div");
     hexRow.style.display = "flex";
-    hexRow.style.gap = "8px";
+    hexRow.style.gap = "6px";
     hexRow.style.alignItems = "center";
 
     const colorPicker = document.createElement("input");
     colorPicker.type = "color";
     colorPicker.value = hex;
     colorPicker.name = `picker_${idx}`;
-    colorPicker.setAttribute("aria-label", `色${idx+1} カラーピッカー`);
+    colorPicker.style.width = "24px";
+    colorPicker.style.height = "24px";
+    colorPicker.style.padding = "0";
+    colorPicker.style.border = "none";
+    colorPicker.style.cursor = "pointer";
+    colorPicker.setAttribute("aria-label", `色#${idx+1} カラーピッカー`);
 
     const hexInput = document.createElement("input");
     hexInput.type = "text";
@@ -1506,7 +1865,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     hexInput.value = hex;
     hexInput.style.flex = "1";
     hexInput.name = `hex_${idx}`;
-    hexInput.setAttribute("aria-label", `色${idx+1} HEX`);
+    hexInput.setAttribute("aria-label", `色#${idx+1} HEX`);
 
     nameInput.addEventListener("input", (ev)=>{
       paletteNames[idx] = ev.target.value;
@@ -1537,34 +1896,39 @@ document.addEventListener("DOMContentLoaded", ()=> {
     hexRow.appendChild(colorPicker); hexRow.appendChild(hexInput);
     right.appendChild(nameInput); right.appendChild(hexRow);
 
-    const stats = document.createElement("div");
-    stats.className = "small";
-    stats.style.color = "var(--muted)";
-    const statsData = countSelectedColorPixels();
-    if(statsData){
-      const percent = statsData.total > 0 ? (statsData.count / statsData.total) * 100 : 0;
-      stats.textContent = `占有率: ${percent.toFixed(3)}%（${statsData.count} / ${statsData.total} px）`;
-    } else {
-      stats.textContent = "占有率: -（変換後に表示）";
-    }
-    right.appendChild(stats);
     row.appendChild(left); row.appendChild(right);
     selectedPalettePreview.appendChild(row);
   }
 
   function refreshPalettePreview(list){
+    if(!palettePreview) return;
     palettePreview.innerHTML="";
+    const countEl = document.getElementById("footerPaletteCount");
+    if(countEl) countEl.textContent = `(${list.length}色)`;
+
     list.forEach((hex,i)=>{
       const c = hexToRgbObj(hex);
       const d = document.createElement("div");
-      d.className="swatch";
+      d.className="swatch" + (selectedPaletteIndices.has(i) ? " active" : "");
       d.style.background = hex;
       d.style.color = ((0.299*c.r + 0.587*c.g + 0.114*c.b) > 180) ? "#000" : "#fff";
       d.textContent = i+1;
-      d.addEventListener("click", ()=>{
-        selectedPaletteIndex = (selectedPaletteIndex === i) ? -1 : i;
+      d.title = `#${i+1}: ${hex}` + (paletteNames[i] ? ` (${paletteNames[i]})` : "") + " (Ctrl+クリックで複数選択)";
+      d.addEventListener("click", (ev)=>{
+        if(ev.ctrlKey || ev.shiftKey || ev.metaKey){
+          // 複数選択トグル
+          if(selectedPaletteIndices.has(i)){
+            selectedPaletteIndices.delete(i);
+          } else {
+            selectedPaletteIndices.add(i);
+          }
+        } else {
+          // 単一選択
+          selectedPaletteIndices.clear();
+          selectedPaletteIndices.add(i);
+        }
         renderSelectedPalette();
-        highlightColorInImage(i);
+        drawViewport();
         scheduleHistory();
       });
       palettePreview.appendChild(d);
@@ -1644,10 +2008,20 @@ document.addEventListener("DOMContentLoaded", ()=> {
         scheduleHistory();
       });
       
-        swBtn.addEventListener("click", ()=>{
-          selectedPaletteIndex = (selectedPaletteIndex === idx) ? -1 : idx;
+        swBtn.addEventListener("click", (ev)=>{
+          if(ev.ctrlKey || ev.shiftKey || ev.metaKey){
+            if(selectedPaletteIndices.has(idx)){
+              selectedPaletteIndices.delete(idx);
+            } else {
+              selectedPaletteIndices.add(idx);
+            }
+          } else {
+            selectedPaletteIndices.clear();
+            selectedPaletteIndices.add(idx);
+          }
           renderSelectedPalette();
-          highlightColorInImage(idx); 
+          drawViewport();
+          scheduleHistory();
         });
 
       function setHex(newHex){
@@ -2042,7 +2416,8 @@ document.addEventListener("DOMContentLoaded", ()=> {
     const oldNames = paletteNames.slice(0);
     currentHexList = parsePalette(paletteInput.value || "");
     ensureNamesSize(currentHexList.length);
-    if(selectedPaletteIndex >= currentHexList.length) selectedPaletteIndex = -1;
+    selectedPaletteIndices = new Set(Array.from(selectedPaletteIndices).filter(idx => idx < currentHexList.length));
+    if(selectedPaletteIndices.size === 0 && currentHexList.length > 0) selectedPaletteIndices.add(0);
     for(let i=0;i<Math.min(oldNames.length, paletteNames.length); i++){
       if(!paletteNames[i]) paletteNames[i] = oldNames[i];
     }
@@ -2187,10 +2562,83 @@ document.addEventListener("DOMContentLoaded", ()=> {
     img.src = url;
   });
 
+  // assets/ フォルダを自動スキャンしてサムネイルカードを生成する
+  const ASSETS_DIR = "assets/";
+  const IMAGE_EXTS = /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i;
+  let testImagesLoaded = false;
+
+  async function loadTestImagesIntoGrid() {
+    const grid = document.getElementById("testImageGrid");
+    if (!grid) return;
+
+    // 2回目以降はスキャンしない（既にカードがある場合）
+    if (testImagesLoaded) return;
+
+    grid.innerHTML = "<div class=\"testGridLoading\">画像を検索中...</div>";
+
+    try {
+      // HTTPサーバーのディレクトリ一覧ページをfetchしてリンクをパース
+      const res = await fetch(ASSETS_DIR);
+      const html = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // ディレクトリ一覧のアンカータグからファイル名を抽出
+      const links = Array.from(doc.querySelectorAll("a[href]"));
+      const imageFiles = links
+        .map(a => a.getAttribute("href"))
+        .filter(href => href && IMAGE_EXTS.test(href))
+        .map(href => href.replace(/^.*\//, "")); // パスを除いてファイル名のみ
+
+      if (imageFiles.length === 0) {
+        grid.innerHTML = "<div class=\"testGridLoading\">assets/ に画像ファイルが見つかりませんでした。</div>";
+        return;
+      }
+
+      grid.innerHTML = "";
+      imageFiles.forEach(filename => {
+        const src = ASSETS_DIR + filename;
+        const card = document.createElement("button");
+        card.className = "testImgCard";
+        card.title = filename;
+
+        const img = document.createElement("img");
+        img.className = "testImgCardThumb";
+        img.src = src;
+        img.alt = filename;
+        img.loading = "lazy";
+        img.onerror = () => {
+          img.style.display = "none";
+        };
+
+        const label = document.createElement("div");
+        label.className = "testImgCardLabel";
+        label.textContent = filename;
+
+        card.appendChild(img);
+        card.appendChild(label);
+
+        card.addEventListener("click", () => {
+          loadTestImage(src);
+        });
+
+        grid.appendChild(card);
+      });
+
+      testImagesLoaded = true;
+
+    } catch (e) {
+      grid.innerHTML = "<div class=\"testGridLoading\">画像の自動検出に失敗しました。<br>サーバー経由でお試しください。</div>";
+      console.warn("assets/ スキャンエラー:", e);
+    }
+  }
+
   function openTestModal(){
     if(!testModal) return;
     testModal.classList.add("active");
     testModal.setAttribute("aria-hidden", "false");
+    // モーダルを開いた時に自動スキャンを実行
+    loadTestImagesIntoGrid();
   }
 
   function closeTestModal(){
@@ -2221,6 +2669,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     testModal.addEventListener("click", (ev)=>{
       if(ev.target === testModal) closeTestModal();
     });
+    // 静的HTMLに残っている旧ボタンがあれば互換対応
     const testButtons = testModal.querySelectorAll(".testSelectBtn");
     testButtons.forEach(btn => {
       btn.addEventListener("click", ()=>{
@@ -2251,6 +2700,21 @@ document.addEventListener("DOMContentLoaded", ()=> {
       scheduleHistory();
     });
     updateKeepAspectModeUI();
+  }
+
+  const set64x64Btn = document.getElementById("set64x64Btn");
+  if(set64x64Btn){
+    set64x64Btn.addEventListener("click", ()=>{
+      if(outW) outW.value = 64;
+      if(outH) outH.value = 64;
+      autoAdjustMode = false;
+      updateKeepAspectModeUI();
+      if(srcImageData){
+        requestProcess(0);
+      }
+      scheduleHistory();
+      showToast("解像度を 64×64 に固定しました");
+    });
   }
 
   function queueOutputSizeReprocess(){
@@ -2578,43 +3042,6 @@ document.addEventListener("DOMContentLoaded", ()=> {
               }
             }
           } else {
-            function getPatternThreshold(x, y, pattern) {
-              switch(pattern) {
-                case 'check': return ((x + y) % 2 === 0) ? 0.25 : -0.25;
-                case 'ichimatsu': return ((Math.floor(x/2) + Math.floor(y/2)) % 2 === 0) ? 0.3 : -0.3;
-                case 'tile': {
-                  const tx = x % 4, ty = y % 4;
-                  const tileMatrix = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
-                  return (tileMatrix[ty][tx] / 16 - 0.5);
-                }
-                case 'vertical': return (x % 2 === 0) ? 0.3 : -0.3;
-                case 'horizontal': return (y % 2 === 0) ? 0.3 : -0.3;
-                case 'diagonalUp': return ((x + y) % 3 === 0) ? 0.35 : (((x + y) % 3 === 1) ? 0 : -0.35);
-                case 'diagonalDown': return ((x - y + 1000) % 3 === 0) ? 0.35 : (((x - y + 1000) % 3 === 1) ? 0 : -0.35);
-                case 'mesh': return ((x % 3 === 0) || (y % 3 === 0)) ? 0.3 : -0.2;
-                case 'halftone': {
-                  const cx = (x % 4) - 1.5, cy = (y % 4) - 1.5;
-                  const dist = Math.sqrt(cx*cx + cy*cy) / 2.12;
-                  return (dist - 0.5) * 0.8;
-                }
-                case 'basic':
-                default: return 0;
-              }
-            }
-
-            function getKernel(name){
-              switch(name){
-                case "atkinson": return { div:8, pts:[[1,0,1],[2,0,1],[-1,1,1],[0,1,1],[1,1,1],[0,2,1]] };
-                case "jarvis": return { div:48, pts:[[1,0,7],[2,0,5],[-2,1,3],[-1,1,5],[0,1,7],[1,1,5],[2,1,3],[-2,2,1],[-1,2,3],[0,2,5],[1,2,3],[2,2,1]] };
-                case "stucki": return { div:42, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2],[-2,2,1],[-1,2,2],[0,2,4],[1,2,2],[2,2,1]] };
-                case "burkes": return { div:32, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2]] };
-                case "sierra": return { div:32, pts:[[1,0,5],[2,0,3],[-2,1,2],[-1,1,4],[0,1,5],[1,1,4],[2,1,2],[-1,2,2],[0,2,3],[1,2,2]] };
-                case "sierra2": return { div:16, pts:[[1,0,4],[2,0,3],[-2,1,1],[-1,1,2],[0,1,3],[1,1,2],[2,1,1],[-1,2,1],[0,2,2],[1,2,1]] };
-                case "sierraLite": return { div:4, pts:[[1,0,2],[-1,1,1],[0,1,1]] };
-                default: return { div:16, pts:[[1,0,7],[-1,1,3],[0,1,5],[1,1,1]] };
-              }
-            }
-            
             for(let y=0;y<h;y++){
               const serpentine = (y % 2) === 1;
               for(let x=0;x<w;x++){
@@ -2750,6 +3177,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
         
         drawViewport();
         dlBtn.disabled = false;
+        if(copyImageBtn) copyImageBtn.disabled = false;
         if(exportImageBtn) exportImageBtn.disabled = false;
         renderSelectedPalette();
         updateUsedColorCount();
@@ -2846,22 +3274,27 @@ document.addEventListener("DOMContentLoaded", ()=> {
     if(!offscreen || !lastRecoloredImage) return;
 
     const imgW = offscreen.width, imgH = offscreen.height;
-    const sw = Math.max(1, imgW / camera.zoom);
-    const sh = Math.max(1, imgH / camera.zoom);
-    let sx = camera.centerX - sw/2, sy = camera.centerY - sh/2;
-    sx = Math.max(0, Math.min(imgW - sw, sx)); 
-    sy = Math.max(0, Math.min(imgH - sh, sy));
-
-    const scaleX = vw / sw, scaleY = vh / sh;
-    const scaleDest = Math.min(scaleX, scaleY);
-    const destW = sw * scaleDest, destH = sh * scaleDest;
-    const destX = (vw - destW) / 2, destY = (vh - destH) / 2;
+    // 基準スケール（全体が画面内に収まる比率）
+    const baseScale = Math.min(vw / imgW, vh / imgH);
+    const currentScale = baseScale * camera.zoom;
+    const destW = imgW * currentScale;
+    const destH = imgH * currentScale;
+    
+    // カメラの中心オフセットを考慮した画面上の描画位置
+    const destX = (vw / 2) - (destW / 2) - (camera.centerX * currentScale);
+    const destY = (vh / 2) - (destH / 2) - (camera.centerY * currentScale);
 
     ctx.imageSmoothingEnabled = false;
     
-    if(highlightedColorIndex >= 0 && highlightedColorIndex < currentHexList.length){
-      const highlightedHex = currentHexList[highlightedColorIndex];
-      const highlightedRgb = hexToRgbObj(highlightedHex);
+    // 複数色ハイライト（選択色が1色以上かつ全色未満のとき）
+    if(selectedPaletteIndices && selectedPaletteIndices.size > 0 && selectedPaletteIndices.size < currentHexList.length){
+      const selectedRgbSet = new Set();
+      selectedPaletteIndices.forEach(idx => {
+        if(currentHexList[idx]){
+          const rgb = hexToRgbObj(currentHexList[idx]);
+          selectedRgbSet.add(`${rgb.r},${rgb.g},${rgb.b}`);
+        }
+      });
       
       const maskCanvas = document.createElement("canvas");
       maskCanvas.width = lastRecoloredImage.width;
@@ -2872,157 +3305,90 @@ document.addEventListener("DOMContentLoaded", ()=> {
       const imgData = lastRecoloredImage.data;
       
       for(let i = 0; i < imgData.length; i += 4){
-        if(Math.abs(imgData[i] - highlightedRgb.r) <= 2 &&
-           Math.abs(imgData[i+1] - highlightedRgb.g) <= 2 &&
-           Math.abs(imgData[i+2] - highlightedRgb.b) <= 2){
+        if(imgData[i+3] === 0) continue;
+        const key = `${imgData[i]},${imgData[i+1]},${imgData[i+2]}`;
+        if(selectedRgbSet.has(key)){
           maskData[i] = imgData[i];
           maskData[i+1] = imgData[i+1];
           maskData[i+2] = imgData[i+2];
-          maskData[i+3] = 255;
+          maskData[i+3] = imgData[i+3];
         } else {
-          maskData[i] = maskData[i+1] = maskData[i+2] = 128;
-          maskData[i+3] = 80;
+          // 非選択色は半透明グレー
+          const gray = Math.round(0.299 * imgData[i] + 0.587 * imgData[i+1] + 0.114 * imgData[i+2]);
+          maskData[i] = gray;
+          maskData[i+1] = gray;
+          maskData[i+2] = gray;
+          maskData[i+3] = 90;
         }
       }
       maskCtx.putImageData(maskImageData, 0, 0);
-      ctx.drawImage(maskCanvas, sx, sy, sw, sh, destX, destY, destW, destH);
+      ctx.drawImage(maskCanvas, 0, 0, imgW, imgH, destX, destY, destW, destH);
     } else {
-      ctx.drawImage(offscreen, sx, sy, sw, sh, destX, destY, destW, destH);
+      ctx.drawImage(offscreen, 0, 0, imgW, imgH, destX, destY, destW, destH);
     }
 
-    if(borderCheckbox.checked){
-      drawBordersViewport(ctx, lastRecoloredImage, sx, sy, sw, sh, destX, destY, destW, destH);
+    if(borderCheckbox && borderCheckbox.checked){
+      drawBordersViewport(ctx, lastRecoloredImage, destX, destY, destW, destH, currentScale);
     }
 
-    lastViewport = { sx, sy, sw, sh, destX, destY, destW, destH, vw, vh };
+    lastViewport = { destX, destY, destW, destH, vw, vh, currentScale, imgW, imgH, sx: 0, sy: 0, sw: imgW, sh: imgH };
+    if (typeof updateZoomBadge === "function") updateZoomBadge();
   }
 
-  function drawBordersViewport(ctx,imgData,sx,sy,sw,sh,destX,destY,destW,destH){
-    const pixelSize = destW / sw;
-    const startX = Math.max(0, Math.floor(sx));
-    const endX = Math.min(imgData.width, Math.ceil(sx + sw));
-    const startY = Math.max(0, Math.floor(sy));
-    const endY = Math.min(imgData.height, Math.ceil(sy + sh));
-    
+  function drawBordersViewport(ctx, imgData, destX, destY, destW, destH, currentScale){
+    const pixelSize = currentScale;
     if(pixelSize >= 6){
       const baseWidth = Math.max(0.5, 1 / pixelSize);
       ctx.save();
       ctx.lineWidth = baseWidth * 2.2; 
       ctx.strokeStyle = "rgba(255,255,255,0.75)";
-      for(let x=startX;x<=endX;x++){ 
-        const screenX = destX + ((x - sx) / sw) * destW + 0.5; 
+      for(let x = 0; x <= imgData.width; x++){ 
+        const screenX = destX + x * pixelSize + 0.5; 
         ctx.beginPath(); 
-        ctx.moveTo(screenX,destY); 
-        ctx.lineTo(screenX,destY+destH); 
+        ctx.moveTo(screenX, destY); 
+        ctx.lineTo(screenX, destY + destH); 
         ctx.stroke(); 
       }
-      for(let y=startY;y<=endY;y++){ 
-        const screenY = destY + ((y - sy) / sh) * destH + 0.5; 
+      for(let y = 0; y <= imgData.height; y++){ 
+        const screenY = destY + y * pixelSize + 0.5; 
         ctx.beginPath(); 
-        ctx.moveTo(destX,screenY); 
-        ctx.lineTo(destX+destW,screenY); 
+        ctx.moveTo(destX, screenY); 
+        ctx.lineTo(destX + destW, screenY); 
         ctx.stroke(); 
       }
       ctx.lineWidth = baseWidth * 0.9; 
       ctx.strokeStyle = "rgba(0,0,0,0.45)";
-      for(let x=startX;x<=endX;x++){ 
-        const screenX = destX + ((x - sx) / sw) * destW + 0.5; 
+      for(let x = 0; x <= imgData.width; x++){ 
+        const screenX = destX + x * pixelSize + 0.5; 
         ctx.beginPath(); 
-        ctx.moveTo(screenX,destY); 
-        ctx.lineTo(screenX,destY+destH); 
+        ctx.moveTo(screenX, destY); 
+        ctx.lineTo(screenX, destY + destH); 
         ctx.stroke(); 
       }
-      for(let y=startY;y<=endY;y++){ 
-        const screenY = destY + ((y - sy) / sh) * destH + 0.5; 
+      for(let y = 0; y <= imgData.height; y++){ 
+        const screenY = destY + y * pixelSize + 0.5; 
         ctx.beginPath(); 
-        ctx.moveTo(destX,screenY); 
-        ctx.lineTo(destX+destW,screenY); 
+        ctx.moveTo(destX, screenY); 
+        ctx.lineTo(destX + destW, screenY); 
         ctx.stroke(); 
-      }
-      ctx.restore();
-    } else {
-      ctx.save(); 
-      ctx.lineWidth = Math.max(0.35, 0.9 * (pixelSize/6)); 
-      ctx.strokeStyle = "rgba(255,255,255,0.7)";
-      for(let y=startY;y<endY;y++){ 
-        for(let x=startX;x<endX;x++){
-          if(x+1<imgData.width && !pixelEquals(imgData,x,y,x+1,y)){ 
-            const sxpos = destX + ((x+1 - sx)/sw)*destW; 
-            const y0 = destY + ((y - sy)/sh)*destH; 
-            const y1 = destY + ((y+1 - sy)/sh)*destH; 
-            ctx.beginPath(); 
-            ctx.moveTo(sxpos,y0); 
-            ctx.lineTo(sxpos,y1); 
-            ctx.stroke(); 
-          }
-          if(y+1<imgData.height && !pixelEquals(imgData,x,y,x,y+1)){ 
-            const sypos = destY + ((y+1 - sy)/sh)*destH; 
-            const x0 = destX + ((x - sx)/sw)*destW; 
-            const x1 = destX + ((x+1 - sx)/sw)*destW; 
-            ctx.beginPath(); 
-            ctx.moveTo(x0,sypos); 
-            ctx.lineTo(x1,sypos); 
-            ctx.stroke(); 
-          }
-        } 
-      }
-      ctx.restore();
-      ctx.save(); 
-      ctx.lineWidth=Math.max(0.18,0.6*(pixelSize/6)); 
-      ctx.strokeStyle="rgba(0,0,0,0.45)";
-      for(let y=startY;y<endY;y++){ 
-        for(let x=startX;x<endX;x++){
-          if(x+1<imgData.width && !pixelEquals(imgData,x,y,x+1,y)){ 
-            const sxpos = destX + ((x+1 - sx)/sw)*destW; 
-            const y0 = destY + ((y - sy)/sh)*destH; 
-            const y1 = destY + ((y+1 - sy)/sh)*destH; 
-            ctx.beginPath(); 
-            ctx.moveTo(sxpos,y0); 
-            ctx.lineTo(sxpos,y1); 
-            ctx.stroke(); 
-          }
-          if(y+1<imgData.height && !pixelEquals(imgData,x,y,x,y+1)){ 
-            const sypos = destY + ((y+1 - sy)/sh)*destH; 
-            const x0 = destX + ((x - sx)/sw)*destW; 
-            const x1 = destX + ((x+1 - sx)/sw)*destW; 
-            ctx.beginPath(); 
-            ctx.moveTo(x0,sypos); 
-            ctx.lineTo(x1,sypos); 
-            ctx.stroke(); 
-          }
-        } 
       }
       ctx.restore();
     }
   }
 
-  function pixelEquals(imgData,x1,y1,x2,y2){
-    if(x2<0||y2<0||x2>=imgData.width||y2>=imgData.height) return false;
-    const off1 = (y1*imgData.width + x1)*4;
-    const off2 = (y2*imgData.width + x2)*4;
-    return imgData.data[off1]===imgData.data[off2] && 
-           imgData.data[off1+1]===imgData.data[off2+1] && 
-           imgData.data[off1+2]===imgData.data[off2+2] && 
-           imgData.data[off1+3]===imgData.data[off2+3];
-  }
-
-  // tooltip on hover
+  // ツールチップ用 座標計算
   dstWrapper.addEventListener("mousemove",(ev)=>{
-    if(!lastRecoloredImage || !showNumber.checked || !lastViewport){ 
-      tooltip.style.display="none"; 
-      return; 
-    }
+    if(!lastRecoloredImage || !lastViewport) return;
     const rect = dstWrapper.getBoundingClientRect();
     const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
-    const { sx, sy, sw, sh, destX, destY, destW, destH } = lastViewport;
-    if(mx<destX||my<destY||mx>destX+destW||my>destY+destH){ 
+    const { destX, destY, destW, destH, imgW, imgH } = lastViewport;
+    if(mx < destX || my < destY || mx >= destX + destW || my >= destY + destH){
       tooltip.style.display="none"; 
-      return; 
+      return;
     }
-    const imgX = sx + ((mx - destX)/destW)*sw;
-    const imgY = sy + ((my - destY)/destH)*sh;
-    const ix = Math.floor(imgX), iy = Math.floor(imgY);
-    if(ix<0||iy<0||ix>=lastRecoloredImage.width||iy>=lastRecoloredImage.height){ 
+    const ix = Math.floor(((mx - destX) / destW) * imgW);
+    const iy = Math.floor(((my - destY) / destH) * imgH);
+    if(ix<0 || ix>=lastRecoloredImage.width || iy<0 || iy>=lastRecoloredImage.height){ 
       tooltip.style.display="none"; 
       return; 
     }
@@ -3055,35 +3421,76 @@ document.addEventListener("DOMContentLoaded", ()=> {
   
   dstWrapper.addEventListener("mouseleave", ()=> tooltip.style.display="none");
 
-  // wheel zoom
-  dstWrapper.addEventListener("wheel",(ev)=>{
-    if(!offscreen) return;
-    ev.preventDefault();
-    const before = clientToImageCoord(ev.clientX, ev.clientY);
-    const imgXBefore = before ? before.imgX : camera.centerX;
-    const imgYBefore = before ? before.imgY : camera.centerY;
-    const factor = ev.deltaY < 0 ? wheelFactor : 1/wheelFactor;
-    const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.zoom * factor));
-    const imgW = offscreen.width, imgH = offscreen.height;
-    const swNew = Math.max(1, imgW / newZoom);
-    const shNew = Math.max(1, imgH / newZoom);
+  // ズームUI連携
+  const zoomInBtn = document.getElementById("zoomInBtn");
+  const zoomOutBtn = document.getElementById("zoomOutBtn");
+  const zoomLevelBadge = document.getElementById("zoomLevelBadge");
+  const fitWidthBtn = document.getElementById("fitWidthBtn");
+  const fitAllBtn = document.getElementById("fitAllBtn");
+
+  function updateZoomBadge() {
+    if (zoomLevelBadge) {
+      zoomLevelBadge.textContent = Math.round(camera.zoom * 100) + "%";
+    }
+  }
+
+  function fitToWidth() {
+    if (!offscreen || !dstWrapper) return;
     const rect = dstWrapper.getBoundingClientRect();
     const vw = Math.max(1, rect.width), vh = Math.max(1, rect.height);
-    const scaleDest = Math.min(vw / swNew, vh / shNew);
-    const destW = swNew * scaleDest; const destH = shNew * scaleDest;
-    const destX = (vw - destW) / 2; const destY = (vh - destH) / 2;
-    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
-    const ux = destW > 0 ? (mx - destX) / destW : 0.5;
-    const uy = destH > 0 ? (my - destY) / destH : 0.5;
-    const uxClamped = Math.max(0, Math.min(1, ux)), uyClamped = Math.max(0, Math.min(1, uy));
-    const sxNew = imgXBefore - uxClamped * swNew;
-    const syNew = imgYBefore - uyClamped * shNew;
-    camera.zoom = newZoom;
-    camera.centerX = sxNew + swNew/2;
-    camera.centerY = syNew + shNew/2;
-    camera.centerX = Math.max(swNew/2, Math.min(imgW - swNew/2, camera.centerX));
-    camera.centerY = Math.max(shNew/2, Math.min(imgH - shNew/2, camera.centerY));
+    const imgW = offscreen.width, imgH = offscreen.height;
+    const baseScale = Math.min(vw / imgW, vh / imgH);
+    // 横幅いっぱいに拡大するためのズーム倍率
+    const targetZoom = (vw / imgW) / Math.max(0.001, baseScale);
+    camera.zoom = Math.max(1, targetZoom);
+    camera.centerX = 0;
+    camera.centerY = 0;
     drawViewport();
+    updateZoomBadge();
+  }
+
+  function fitToAll() {
+    if (!offscreen) return;
+    camera.zoom = 1;
+    camera.centerX = 0;
+    camera.centerY = 0;
+    drawViewport();
+    updateZoomBadge();
+  }
+
+  if (zoomInBtn) {
+    zoomInBtn.addEventListener("click", () => {
+      if (offscreen) {
+        camera.zoom = Math.min(MAX_ZOOM, camera.zoom * 1.25);
+        drawViewport();
+        updateZoomBadge();
+      }
+    });
+  }
+
+  if (zoomOutBtn) {
+    zoomOutBtn.addEventListener("click", () => {
+      if (offscreen) {
+        camera.zoom = Math.max(MIN_ZOOM, camera.zoom / 1.25);
+        drawViewport();
+        updateZoomBadge();
+      }
+    });
+  }
+
+  if (fitWidthBtn) fitWidthBtn.addEventListener("click", fitToWidth);
+  if (fitAllBtn)   fitAllBtn.addEventListener("click", fitToAll);
+
+  // wheel zoom
+  dstWrapper.addEventListener("wheel",(ev)=>{
+    if(!offscreen || !lastViewport) return;
+    ev.preventDefault();
+    const rect = dstWrapper.getBoundingClientRect();
+    const factor = ev.deltaY < 0 ? 1.2 : 1 / 1.2;
+    const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.zoom * factor));
+    camera.zoom = newZoom;
+    drawViewport();
+    updateZoomBadge();
   }, { passive:false });
 
   srcWrapper.addEventListener("wheel", (ev)=>{
@@ -3113,7 +3520,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     return { imgX, imgY, sx, sy, sw, sh, destX, destY, destW, destH };
   }
 
-  // pan
+  // pan (通常ドラッグでもスムーズに移動可能)
   let isPanning=false, panStart=null, spaceDown=false;
   let isSrcPanning = false, srcPanStart = null;
   window.addEventListener("keydown",(ev)=>{ 
@@ -3127,15 +3534,16 @@ document.addEventListener("DOMContentLoaded", ()=> {
   });
   
   dstWrapper.addEventListener("mousedown",(ev)=>{
-    if(ev.button===0 && (spaceDown || ev.ctrlKey || ev.metaKey) && offscreen){
+    // ズームバー上のクリックは除外
+    if(ev.target.closest(".canvasZoomBar")) return;
+    if((ev.button===0 || ev.button===1 || ev.button===2) && offscreen){
       ev.preventDefault();
       isPanning=true;
       panStart = { 
         clientX:ev.clientX, 
         clientY:ev.clientY, 
         centerX:camera.centerX, 
-        centerY:camera.centerY, 
-        viewport:lastViewport ? Object.assign({}, lastViewport) : null 
+        centerY:camera.centerY
       };
       dstWrapper.style.cursor="grabbing";
     }
@@ -3156,18 +3564,13 @@ document.addEventListener("DOMContentLoaded", ()=> {
   });
   
   window.addEventListener("mousemove",(ev)=>{
-    if(!isPanning || !offscreen || !panStart) return;
+    if(!isPanning || !offscreen || !panStart || !lastViewport) return;
     ev.preventDefault();
-    if(!panStart.viewport) return;
-    const { sw, destW, sh, destH } = panStart.viewport;
-    const dx = ev.clientX - panStart.clientX, dy = ev.clientY - panStart.clientY;
-    const moveX = -dx * (sw / destW), moveY = -dy * (sh / destH);
-    camera.centerX = panStart.centerX + moveX; 
-    camera.centerY = panStart.centerY + moveY;
-    const imgW=offscreen.width, imgH=offscreen.height;
-    const swNow = Math.max(1, imgW/camera.zoom), shNow=Math.max(1,imgH/camera.zoom);
-    camera.centerX = Math.max(swNow/2, Math.min(imgW - swNow/2, camera.centerX));
-    camera.centerY = Math.max(shNow/2, Math.min(imgH - shNow/2, camera.centerY));
+    const dx = ev.clientX - panStart.clientX;
+    const dy = ev.clientY - panStart.clientY;
+    const scale = lastViewport.currentScale || 1;
+    camera.centerX = panStart.centerX - (dx / scale); 
+    camera.centerY = panStart.centerY - (dy / scale);
     drawViewport();
   });
 
@@ -3185,7 +3588,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     if(isPanning){ 
       isPanning=false; 
       panStart=null; 
-      dstWrapper.style.cursor="default"; 
+      dstWrapper.style.cursor=""; 
     } 
   });
 
@@ -3193,7 +3596,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     if(isSrcPanning){
       isSrcPanning = false;
       srcPanStart = null;
-      srcWrapper.style.cursor = "default";
+      srcWrapper.style.cursor = "";
       scheduleHistory();
     }
   });
@@ -3202,111 +3605,78 @@ document.addEventListener("DOMContentLoaded", ()=> {
   window.addEventListener("keydown",(ev)=>{
     if(ev.key === "+" || ev.key === "="){ 
       if(offscreen){ 
-        camera.zoom = Math.min(MAX_ZOOM, camera.zoom * 1.2); 
+        camera.zoom = Math.min(MAX_ZOOM, camera.zoom * 1.25); 
         drawViewport(); 
+        updateZoomBadge();
       }
     } else if(ev.key === "-"){ 
       if(offscreen){ 
-        camera.zoom = Math.max(MIN_ZOOM, camera.zoom / 1.2); 
+        camera.zoom = Math.max(MIN_ZOOM, camera.zoom / 1.25); 
         drawViewport(); 
+        updateZoomBadge();
       } 
     }
   });
 
-  // pointer/touch
-  const pointers = new Map();
-  let initialPinch = null;
-  
-  dstWrapper.addEventListener("pointerdown",(ev)=>{
-    dstWrapper.setPointerCapture(ev.pointerId);
-    pointers.set(ev.pointerId, ev);
-    if(pointers.size === 2){
-      const pts = Array.from(pointers.values());
-      initialPinch = { 
-        a: pts[0], 
-        b: pts[1], 
-        zoom: camera.zoom, 
-        centerX: camera.centerX, 
-        centerY: camera.centerY 
-      };
-    }
-  });
-  
-  dstWrapper.addEventListener("pointermove",(ev)=>{
-    if(!pointers.has(ev.pointerId)) return;
-    pointers.set(ev.pointerId, ev);
-    if(pointers.size === 2 && initialPinch && offscreen){
-      const pts = Array.from(pointers.values());
-      const p0 = pts[0], p1 = pts[1];
-      function dist(a,b){ 
-        const dx=a.clientX-b.clientX, dy=a.clientY-b.clientY; 
-        return Math.hypot(dx,dy); 
-      }
-      const initialDist = dist(initialPinch.a, initialPinch.b);
-      const nowDist = dist(p0,p1);
-      const factor = nowDist / Math.max(1, initialDist);
-      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, initialPinch.zoom * factor));
-      const cx = (p0.clientX + p1.clientX)/2, cy = (p0.clientY + p1.clientY)/2;
-      const before = clientToImageCoord(cx, cy);
-      const imgXBefore = before ? before.imgX : camera.centerX;
-      const imgYBefore = before ? before.imgY : camera.centerY;
-      const imgW = offscreen.width, imgH = offscreen.height;
-      const swNew = Math.max(1, imgW / newZoom);
-      const shNew = Math.max(1, imgH / newZoom);
-      const rect = dstWrapper.getBoundingClientRect();
-      const vw = Math.max(1, rect.width), vh = Math.max(1, rect.height);
-      const scaleDest = Math.min(vw / swNew, vh / shNew);
-      const destW = swNew * scaleDest; const destH = shNew * scaleDest;
-      const destX = (vw - destW)/2; const destY = (vh - destH)/2;
-      const mx = cx - rect.left, my = cy - rect.top;
-      const ux = destW > 0 ? (mx - destX) / destW : 0.5; 
-      const uy = destH > 0 ? (my - destY) / destH : 0.5;
-      const uxClamped = Math.max(0, Math.min(1, ux)), uyClamped = Math.max(0, Math.min(1, uy));
-      const sxNew = imgXBefore - uxClamped * swNew;
-      const syNew = imgYBefore - uyClamped * shNew;
-      camera.zoom = newZoom;
-      camera.centerX = sxNew + swNew/2;
-      camera.centerY = syNew + shNew/2;
-      camera.centerX = Math.max(swNew/2, Math.min(imgW - swNew/2, camera.centerX));
-      camera.centerY = Math.max(shNew/2, Math.min(imgH - shNew/2, camera.centerY));
-      drawViewport();
-    }
-  });
-  
-  dstWrapper.addEventListener("pointerup",(ev)=>{ 
-    pointers.delete(ev.pointerId); 
-    initialPinch = null; 
-    dstWrapper.releasePointerCapture(ev.pointerId); 
-  });
-  
-  dstWrapper.addEventListener("pointercancel",(ev)=>{ 
-    pointers.delete(ev.pointerId); 
-    initialPinch = null; 
-  });
-
-  // double click reset
-  dstWrapper.addEventListener("dblclick", ()=>{ 
+  // double click: 「幅フィット」と「全体表示」をトグル
+  dstWrapper.addEventListener("dblclick", (ev)=>{ 
+    if(ev.target.closest(".canvasZoomBar")) return;
     if(offscreen){ 
-      camera.zoom=1; 
-      camera.centerX = offscreen.width/2; 
-      camera.centerY = offscreen.height/2; 
-      drawViewport(); 
+      if (camera.zoom <= 1.05) {
+        fitToWidth();
+      } else {
+        fitToAll();
+      }
     } 
   });
 
-  // download PNG
+  // download PNG (拡大倍率対応)
   dlBtn.addEventListener("click", ()=>{
     if(!offscreen) return;
+    const scale = exportScale ? (parseInt(exportScale.value, 10) || 1) : 1;
     const c = document.createElement("canvas"); 
-    c.width = offscreen.width; 
-    c.height = offscreen.height;
+    c.width = offscreen.width * scale; 
+    c.height = offscreen.height * scale;
     const ctx = c.getContext("2d"); 
-    ctx.imageSmoothingEnabled=false; 
-    ctx.drawImage(offscreen,0,0);
+    ctx.imageSmoothingEnabled = false; 
+    ctx.drawImage(offscreen, 0, 0, c.width, c.height);
     c.toBlob(blob=>{ 
       if(blob) downloadBlob(blob, "png");
     }, "image/png");
   });
+
+  // クリップボードへコピー
+  if(copyImageBtn){
+    copyImageBtn.addEventListener("click", async ()=>{
+      if(!offscreen) return;
+      try {
+        const scale = exportScale ? (parseInt(exportScale.value, 10) || 1) : 1;
+        const c = document.createElement("canvas"); 
+        c.width = offscreen.width * scale; 
+        c.height = offscreen.height * scale;
+        const ctx = c.getContext("2d"); 
+        ctx.imageSmoothingEnabled = false; 
+        ctx.drawImage(offscreen, 0, 0, c.width, c.height);
+        c.toBlob(async (blob)=>{
+          if(!blob){
+            showToast("コピー用画像の生成に失敗しました");
+            return;
+          }
+          if(navigator.clipboard && navigator.clipboard.write){
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob })
+            ]);
+            showToast("画像をクリップボードにコピーしました！");
+          } else {
+            showToast("お使いのブラウザではクリップボード画像コピーがサポートされていません");
+          }
+        }, "image/png");
+      } catch(err){
+        console.error(err);
+        showToast("クリップボードへのコピーに失敗しました");
+      }
+    });
+  }
 
   function resetView(){ 
     lastRecoloredImage = null; 
@@ -3317,6 +3687,7 @@ document.addEventListener("DOMContentLoaded", ()=> {
     lastViewport=null; 
     tooltip.style.display='none'; 
     dlBtn.disabled=true; 
+    if(copyImageBtn) copyImageBtn.disabled = true;
     if(exportImageBtn) exportImageBtn.disabled = true;
     updateUsedColorCount();
     showIdle(); 
@@ -3631,22 +4002,67 @@ document.addEventListener("DOMContentLoaded", ()=> {
   let srcVisible = true;
 
   function updateSrcVisibility() {
+    const dstArea = document.querySelector('.dstArea');
     if (srcVisible) {
+      if (dstArea) dstArea.classList.remove('srcHidden');
       srcPanel.style.display = '';
       dstPanel.style.flex = '1';
+      dstPanel.style.width = '';
       toggleSrcBtn.textContent = '元画像を非表示';
     } else {
+      if (dstArea) dstArea.classList.add('srcHidden');
       srcPanel.style.display = 'none';
-      dstPanel.style.flex = '2';
+      dstPanel.style.flex = '1 1 100%';
+      dstPanel.style.width = '100%';
       toggleSrcBtn.textContent = '元画像を表示';
     }
-    setTimeout(() => drawViewport(), 50);
+    drawViewport();
+    setTimeout(() => {
+      adjustSrcCssSize();
+      drawViewport();
+    }, 40);
   }
 
   toggleSrcBtn.addEventListener('click', () => {
     srcVisible = !srcVisible;
     updateSrcVisibility();
     scheduleHistory();
+  });
+
+  // フォーカスモード（ヘッダー・サイドバー非表示最大化）
+  const toggleFocusModeBtn = document.getElementById('toggleFocusModeBtn');
+  const headerFocusModeBtn = document.getElementById('headerFocusModeBtn');
+  const exitFocusModeBtn = document.getElementById('exitFocusModeBtn');
+
+  function setFocusMode(enable) {
+    if (enable) {
+      document.body.classList.add('focusMode');
+    } else {
+      document.body.classList.remove('focusMode');
+    }
+    requestAnimationFrame(() => {
+      adjustSrcCssSize();
+      drawViewport();
+      setTimeout(() => {
+        adjustSrcCssSize();
+        drawViewport();
+      }, 50);
+    });
+  }
+
+  function toggleFocusMode() {
+    const isFocus = document.body.classList.contains('focusMode');
+    setFocusMode(!isFocus);
+  }
+
+  if (toggleFocusModeBtn) toggleFocusModeBtn.addEventListener('click', toggleFocusMode);
+  if (headerFocusModeBtn) headerFocusModeBtn.addEventListener('click', toggleFocusMode);
+  if (exitFocusModeBtn) exitFocusModeBtn.addEventListener('click', () => setFocusMode(false));
+
+  window.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && document.body.classList.contains('focusMode')) {
+      setFocusMode(false);
+    }
   });
 
   if(borderCheckbox){
@@ -3715,6 +4131,337 @@ document.addEventListener("DOMContentLoaded", ()=> {
     }
   });
 
+  // 複数パターン一括レンダリング用ヘルパー
+  function renderSinglePresetPreview(presetKey, targetW, targetH) {
+    const config = RETRO_PRESETS[presetKey];
+    if(!config || !srcC || !srcC.width) return null;
+
+    function getLocalPatternThreshold(x, y, pattern) {
+      switch(pattern) {
+        case 'check': return ((x + y) % 2 === 0) ? 0.25 : -0.25;
+        case 'ichimatsu': return ((Math.floor(x/2) + Math.floor(y/2)) % 2 === 0) ? 0.3 : -0.3;
+        case 'tile': {
+          const tx = x % 4, ty = y % 4;
+          const tileMatrix = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+          return (tileMatrix[ty][tx] / 16 - 0.5);
+        }
+        case 'vertical': return (x % 2 === 0) ? 0.3 : -0.3;
+        case 'horizontal': return (y % 2 === 0) ? 0.3 : -0.3;
+        case 'diagonalUp': return ((x + y) % 3 === 0) ? 0.35 : (((x + y) % 3 === 1) ? 0 : -0.35);
+        case 'diagonalDown': return ((x - y + 1000) % 3 === 0) ? 0.35 : (((x - y + 1000) % 3 === 1) ? 0 : -0.35);
+        case 'mesh': return ((x % 3 === 0) || (y % 3 === 0)) ? 0.3 : -0.2;
+        case 'halftone': {
+          const cx = (x % 4) - 1.5, cy = (y % 4) - 1.5;
+          const dist = Math.sqrt(cx*cx + cy*cy) / 2.12;
+          return (dist - 0.5) * 0.8;
+        }
+        case 'basic':
+        default: return 0;
+      }
+    }
+
+    function getLocalKernel(name){
+      switch(name){
+        case "atkinson": return { div:8, pts:[[1,0,1],[2,0,1],[-1,1,1],[0,1,1],[1,1,1],[0,2,1]] };
+        case "jarvis": return { div:48, pts:[[1,0,7],[2,0,5],[-2,1,3],[-1,1,5],[0,1,7],[1,1,5],[2,1,3],[-2,2,1],[-1,2,3],[0,2,5],[1,2,3],[2,2,1]] };
+        case "stucki": return { div:42, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2],[-2,2,1],[-1,2,2],[0,2,4],[1,2,2],[2,2,1]] };
+        case "burkes": return { div:32, pts:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2]] };
+        case "sierra": return { div:32, pts:[[1,0,5],[2,0,3],[-2,1,2],[-1,1,4],[0,1,5],[1,1,4],[2,1,2],[-2,2,1],[-2,2,3],[1,2,2]] };
+        case "sierra2": return { div:16, pts:[[1,0,4],[2,0,3],[-2,1,1],[-1,1,2],[0,1,3],[1,1,2],[2,1,1],[-1,2,1],[0,2,2],[1,2,1]] };
+        case "sierraLite": return { div:4, pts:[[1,0,2],[-1,1,1],[0,1,1]] };
+        default: return { div:16, pts:[[1,0,7],[-1,1,3],[0,1,5],[1,1,1]] };
+      }
+    }
+
+    // プレビュー用解像度（最大 180px 程度にスケール）
+    const maxDim = 180;
+    let w = targetW, h = targetH;
+    if(w > maxDim || h > maxDim) {
+      if(w >= h) {
+        h = Math.max(1, Math.round(h * (maxDim / w)));
+        w = maxDim;
+      } else {
+        w = Math.max(1, Math.round(w * (maxDim / h)));
+        h = maxDim;
+      }
+    }
+
+    const tmp = document.createElement("canvas");
+    tmp.width = w;
+    tmp.height = h;
+    const tctx = tmp.getContext("2d");
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(srcC, 0, 0, srcC.width, srcC.height, 0, 0, w, h);
+    let id = tctx.getImageData(0, 0, w, h);
+
+    // フィルター適用
+    if (config.filters) {
+      const origFilter = Object.assign({}, filterState);
+      filterState = Object.assign({}, config.filters);
+      id = applyFilters(id);
+      filterState = origFilter;
+    }
+
+    // パレット決定
+    let hexes = [];
+    if(config.palette && config.palette.length > 0){
+      hexes = config.palette;
+    } else if(config.autoColorCount){
+      const k = config.autoColorCount;
+      if(config.reduceMethod === "wu"){
+        hexes = wuQuantize(id, k);
+      } else {
+        hexes = buildPaletteByKMeans(id, k, 4);
+      }
+      if(!hexes || hexes.length === 0){
+        hexes = extractPaletteFromImageData(id, k);
+      }
+    }
+    if(!hexes || hexes.length === 0) hexes = currentHexList.slice(0);
+
+    const paletteObjs = hexes.map(h => hexToRgbObj(h));
+    const useLab = !!config.useLab;
+    const paletteLab = useLab ? paletteObjs.map(c => {
+      const lab = rgbToLab(c.r, c.g, c.b);
+      return { L: lab.L, a: lab.a, b: lab.b };
+    }) : null;
+
+    function findNearestLocal(r, g, b) {
+      let bestIdx = 0; let bestDist = Infinity;
+      if(useLab){
+        const lab = rgbToLab(r, g, b);
+        for(let j=0; j<paletteObjs.length; j++){ 
+          const d = labDist2(lab, paletteLab[j]); 
+          if(d < bestDist){ bestDist = d; bestIdx = j; } 
+        }
+        return { idx: bestIdx, dist: bestDist };
+      }
+      for(let j=0; j<paletteObjs.length; j++){ 
+        const d = rgbDist2({r,g,b}, paletteObjs[j]); 
+        if(d < bestDist){ bestDist = d; bestIdx = j; } 
+      }
+      return { idx: bestIdx, dist: bestDist };
+    }
+
+    const data = id.data;
+    const dither = !!config.dither;
+    const ditherPattern = config.ditherPattern || "basic";
+    const ditherStrength = (typeof config.ditherStrength === "number" ? config.ditherStrength : 100) / 100;
+
+    if(!dither){
+      for(let i=0; i<data.length; i+=4){
+        const best = findNearestLocal(data[i], data[i+1], data[i+2]);
+        const pc = paletteObjs[best.idx];
+        data[i] = pc.r; data[i+1] = pc.g; data[i+2] = pc.b; data[i+3] = 255;
+      }
+    } else {
+      const buf = new Float32Array(w * h * 4);
+      for(let i=0; i<data.length; i++) buf[i] = data[i];
+
+      const orderedPatterns = new Set(["ordered4","ordered8","blue8","blue16"]);
+      if(orderedPatterns.has(ditherPattern)){
+        const size = ditherPattern === "ordered4" ? 4 : 8;
+        const matrix = generateBayerMatrix(size);
+        const denom = size * size;
+        for(let y=0; y<h; y++){
+          for(let x=0; x<w; x++){
+            const off = (y*w + x)*4;
+            const t = (matrix[y%size][x%size] / denom - 0.5) * 64 * ditherStrength;
+            const r = Math.max(0, Math.min(255, Math.round(data[off] + t)));
+            const g = Math.max(0, Math.min(255, Math.round(data[off+1] + t)));
+            const b = Math.max(0, Math.min(255, Math.round(data[off+2] + t)));
+            const best = findNearestLocal(r, g, b);
+            const pc = paletteObjs[best.idx];
+            data[off] = pc.r; data[off+1] = pc.g; data[off+2] = pc.b; data[off+3] = 255;
+          }
+        }
+      } else {
+        for(let y=0; y<h; y++){
+          const serpentine = (y % 2) === 1;
+          const xStart = serpentine ? (w - 1) : 0;
+          const xEnd = serpentine ? -1 : w;
+          const xStep = serpentine ? -1 : 1;
+          for(let x = xStart; x !== xEnd; x += xStep){
+            const off = (y*w + x)*4;
+            const patternOffset = getLocalPatternThreshold(x, y, ditherPattern) * 64 * ditherStrength;
+            const r = Math.max(0, Math.min(255, Math.round(buf[off+0] + patternOffset)));
+            const g = Math.max(0, Math.min(255, Math.round(buf[off+1] + patternOffset)));
+            const b = Math.max(0, Math.min(255, Math.round(buf[off+2] + patternOffset)));
+            const best = findNearestLocal(r, g, b);
+            const pc = paletteObjs[best.idx];
+            buf[off+0] = pc.r; buf[off+1] = pc.g; buf[off+2] = pc.b; buf[off+3] = 255;
+            const er = r - pc.r, eg = g - pc.g, eb = b - pc.b;
+            const kernel = getLocalKernel(ditherPattern);
+            for(const [dx0, dy, weight] of kernel.pts){
+              const dx = serpentine ? -dx0 : dx0;
+              const nx = x + dx, ny = y + dy;
+              if(nx<0 || nx>=w || ny<0 || ny>=h) continue;
+              const o = (ny*w + nx)*4;
+              const wgt = (weight / kernel.div) * ditherStrength;
+              buf[o+0] += er * wgt;
+              buf[o+1] += eg * wgt;
+              buf[o+2] += eb * wgt;
+            }
+          }
+        }
+        for(let i=0; i<data.length; i+=4){
+          data[i] = Math.max(0, Math.min(255, Math.round(buf[i])));
+          data[i+1] = Math.max(0, Math.min(255, Math.round(buf[i+1])));
+          data[i+2] = Math.max(0, Math.min(255, Math.round(buf[i+2])));
+          data[i+3] = 255;
+        }
+      }
+    }
+
+    const outCanvas = document.createElement("canvas");
+    outCanvas.width = w;
+    outCanvas.height = h;
+    const octx = outCanvas.getContext("2d");
+    octx.putImageData(id, 0, 0);
+
+    return { canvas: outCanvas, hexList: hexes, config };
+  }
+
+  // 複数パターン一括比較モーダルを開いて生成
+  function openAndRenderCompareGrid() {
+    if(!srcC || !srcC.width || !srcImageData){
+      alert("まずは画像を読み込んでください（またはテスト画像を選択してください）");
+      if(testModal) testModal.setAttribute("aria-hidden", "false");
+      return;
+    }
+
+    if(compareModal) compareModal.setAttribute("aria-hidden", "false");
+    if(compareGrid) compareGrid.innerHTML = "";
+    if(compareLoading) compareLoading.style.display = "flex";
+
+    const baseW = Math.max(1, parseInt(outW.value, 10) || srcC.width);
+    const baseH = Math.max(1, parseInt(outH.value, 10) || srcC.height);
+
+    const keys = Object.keys(RETRO_PRESETS);
+    let index = 0;
+
+    function renderNext() {
+      if(index >= keys.length){
+        if(compareLoading) compareLoading.style.display = "none";
+        return;
+      }
+
+      const key = keys[index];
+      const result = renderSinglePresetPreview(key, baseW, baseH);
+      if(result && compareGrid){
+        const card = document.createElement("div");
+        card.className = "compareCard";
+
+        // ヘッダー
+        const header = document.createElement("div");
+        header.className = "compareCardHeader";
+        const title = document.createElement("div");
+        title.className = "compareCardTitle";
+        title.textContent = result.config.name;
+        const badge = document.createElement("div");
+        badge.className = "compareCardBadge";
+        badge.textContent = result.config.badge;
+        header.appendChild(title);
+        header.appendChild(badge);
+        card.appendChild(header);
+
+        // Canvasプレビュー
+        const canvasWrap = document.createElement("div");
+        canvasWrap.className = "compareCanvasWrap";
+        canvasWrap.title = "クリックしてこのスタイルをエディタに適用";
+        canvasWrap.appendChild(result.canvas);
+        canvasWrap.addEventListener("click", () => {
+          applyRetroPresetByKey(key);
+          if(compareModal) compareModal.setAttribute("aria-hidden", "true");
+        });
+        card.appendChild(canvasWrap);
+
+        // パレットカラーバー
+        const paletteRow = document.createElement("div");
+        paletteRow.className = "comparePaletteRow";
+        result.hexList.slice(0, 16).forEach(hex => {
+          const chip = document.createElement("div");
+          chip.className = "comparePaletteChip";
+          chip.style.backgroundColor = hex;
+          chip.title = hex;
+          paletteRow.appendChild(chip);
+        });
+        card.appendChild(paletteRow);
+
+        // 説明文
+        const desc = document.createElement("div");
+        desc.className = "compareCardDesc";
+        desc.textContent = result.config.desc;
+        card.appendChild(desc);
+
+        // アクションボタン
+        const actions = document.createElement("div");
+        actions.className = "compareCardActions";
+        
+        const applyBtn = document.createElement("button");
+        applyBtn.className = "primary";
+        applyBtn.style.cssText = "background:var(--accent);color:#fff;font-weight:600;";
+        applyBtn.textContent = "適用する";
+        applyBtn.addEventListener("click", () => {
+          applyRetroPresetByKey(key);
+          if(compareModal) compareModal.setAttribute("aria-hidden", "true");
+        });
+
+        const dlCardBtn = document.createElement("button");
+        dlCardBtn.className = "secondary";
+        dlCardBtn.textContent = "4x 保存";
+        dlCardBtn.title = "4倍に拡大してPNG保存";
+        dlCardBtn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const scale = 4;
+          const sc = document.createElement("canvas");
+          sc.width = result.canvas.width * scale;
+          sc.height = result.canvas.height * scale;
+          const sctx = sc.getContext("2d");
+          sctx.imageSmoothingEnabled = false;
+          sctx.drawImage(result.canvas, 0, 0, sc.width, sc.height);
+          sc.toBlob(blob => {
+            if(blob) {
+              downloadBlob(blob, "png");
+              showToast(`${result.config.name} (4x) を保存しました`);
+            }
+          }, "image/png");
+        });
+
+        actions.appendChild(applyBtn);
+        actions.appendChild(dlCardBtn);
+        card.appendChild(actions);
+
+        compareGrid.appendChild(card);
+      }
+
+      index++;
+      setTimeout(renderNext, 16);
+    }
+
+    setTimeout(renderNext, 30);
+  }
+
+  // モーダルイベント
+  if(openCompareModalBtn){
+    openCompareModalBtn.addEventListener("click", openAndRenderCompareGrid);
+  }
+  if(closeCompareModalBtn){
+    closeCompareModalBtn.addEventListener("click", () => {
+      if(compareModal) compareModal.setAttribute("aria-hidden", "true");
+    });
+  }
+  if(refreshCompareBtn){
+    refreshCompareBtn.addEventListener("click", openAndRenderCompareGrid);
+  }
+  if(compareModal){
+    compareModal.addEventListener("click", (ev) => {
+      if(ev.target === compareModal){
+        compareModal.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
   const historyTargets = [
     paletteInput, outW, outH, dotScale, dotScaleNumber,
     edgeStrengthSlider, edgeStrengthNumber, ditherCheckbox, paletteOnlyCheckbox,
@@ -3738,4 +4485,301 @@ document.addEventListener("DOMContentLoaded", ()=> {
   dlBtn.disabled = true;
   showIdle();
   console.log("初期化完了（完全版）");
-});
+
+  // ============================================================
+  // AI 生成機能（Imagen 3 / Gemini Flash via Google AI API）
+  // ============================================================
+  (function setupAiGen() {
+    const STORAGE_KEY = "dotArtAiApiKey";
+    // デフォルトAPIキー（ローカル利用専用）
+    const DEFAULT_API_KEY = "AIzaSyB1QESnxsV9W3PaFqImc4i__xfOYHIxweo";
+
+    const openBtn      = document.getElementById("openAiGenModalBtn");
+    const closeBtn     = document.getElementById("closeAiGenModalBtn");
+    const modal        = document.getElementById("aiGenModal");
+    const apiKeyInput  = document.getElementById("aiApiKeyInput");
+    const keyToggleBtn = document.getElementById("aiApiKeyToggleBtn");
+    const promptInput  = document.getElementById("aiPromptInput");
+    const genBtn       = document.getElementById("aiGenBtn");
+    const statusEl     = document.getElementById("aiGenStatus");
+    const previewArea  = document.getElementById("aiGenPreviewArea");
+    const applyBtn     = document.getElementById("aiGenApplyBtn");
+    const retryBtn     = document.getElementById("aiGenRetryBtn");
+    const useCurrentImgChk = document.getElementById("aiUseCurrentImg");
+
+    if (!modal) return;
+
+    // APIキーを復元（localStorage または デフォルトAPIキー）
+    let savedKey = localStorage.getItem(STORAGE_KEY);
+    if (!savedKey || savedKey.startsWith("AQ.")) {
+      savedKey = DEFAULT_API_KEY;
+      localStorage.setItem(STORAGE_KEY, DEFAULT_API_KEY);
+    }
+    if (apiKeyInput) {
+      apiKeyInput.value = savedKey;
+    }
+
+    // APIキー表示トグル
+    if (keyToggleBtn && apiKeyInput) {
+      keyToggleBtn.addEventListener("click", () => {
+        const isHidden = apiKeyInput.type === "password";
+        apiKeyInput.type = isHidden ? "text" : "password";
+        keyToggleBtn.textContent = isHidden ? "非表示" : "表示";
+      });
+    }
+
+    // APIキー変更時にlocalStorageへ保存
+    if (apiKeyInput) {
+      apiKeyInput.addEventListener("change", () => {
+        const v = apiKeyInput.value.trim();
+        if (v) localStorage.setItem(STORAGE_KEY, v);
+      });
+    }
+
+    // モーダル開閉
+    if (openBtn) openBtn.addEventListener("click", () => {
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      // 現在の画像有無でチェックボックスの状態を更新
+      if (useCurrentImgChk) {
+        const hasImg = srcC && srcC.width > 0;
+        useCurrentImgChk.disabled = !hasImg;
+        useCurrentImgChk.parentElement.title = hasImg ? "" : "画像を読み込んでから使用できます";
+      }
+    });
+    if (closeBtn) closeBtn.addEventListener("click", closeAiModal);
+    modal.addEventListener("click", ev => { if (ev.target === modal) closeAiModal(); });
+
+    function closeAiModal() {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    // スタイル別プロンプトテンプレート
+    const STYLE_PROMPTS = {
+      rpg:        "JRPG style top-down character sprite, RPG game character",
+      platformer: "side-scrolling platform game character sprite, action game",
+      fantasy:    "fantasy game character, magical warrior or wizard, detailed costume",
+      scifi:      "sci-fi game character, futuristic armor, space soldier",
+      chibi:      "chibi style game character, cute and small, super deformed proportions",
+      monster:    "game monster sprite, creature, enemy character for a video game",
+    };
+
+    let generatedImageDataUrl = null;
+
+    if (genBtn)   genBtn.addEventListener("click",  () => runGenerate());
+    if (retryBtn) retryBtn.addEventListener("click", () => runGenerate());
+
+    // ---------------------------------------------------------
+    // 現在のキャンバス画像をbase64で取得
+    // ---------------------------------------------------------
+    function getCurrentCanvasBase64() {
+      try {
+        if (!srcC || srcC.width === 0) return null;
+        return srcC.toDataURL("image/png").split(",")[1];
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ---------------------------------------------------------
+    // メイン生成処理
+    // ---------------------------------------------------------
+    async function runGenerate() {
+      const apiKey     = apiKeyInput ? apiKeyInput.value.trim() : "";
+      const userPrompt = promptInput ? promptInput.value.trim() : "";
+      const useCurrentImg = useCurrentImgChk && useCurrentImgChk.checked && !useCurrentImgChk.disabled;
+
+      if (!userPrompt && !useCurrentImg) {
+        showStatus("キャラクターの説明を入力するか、現在の画像を参照する設定にしてください。", true);
+        return;
+      }
+
+      const styleRadio  = modal.querySelector("input[name='aiStyle']:checked");
+      const colorsRadio = modal.querySelector("input[name='aiColors']:checked");
+      const styleKey    = styleRadio  ? styleRadio.value  : "rpg";
+      const colorCount  = colorsRadio ? parseInt(colorsRadio.value) : 16;
+      const stylePart   = STYLE_PROMPTS[styleKey] || STYLE_PROMPTS.rpg;
+
+      setGenerating(true);
+      generatedImageDataUrl = null;
+      applyBtn.style.display = "none";
+      retryBtn.style.display = "none";
+
+      const currentB64  = useCurrentImg ? getCurrentCanvasBase64() : null;
+
+      // 64x64 ドット絵特化プロンプト構築
+      const finalPrompt = [
+        "pixel art game character sprite,",
+        "64x64 pixel resolution, 64x64 pixel art grid,",
+        stylePart + ",",
+        userPrompt ? (userPrompt + ",") : "",
+        "retro 8-bit / 16-bit video game sprite style, limited color palette,",
+        "crisp clean pixel edges, sharp individual pixels, no anti-aliasing, no blurry gradients,",
+        "solid white or clean background, front-facing full body sprite, perfectly centered in frame, classic video game art"
+      ].join(" ");
+
+      showStatus('<span class="aiGenSpinner"></span>64×64 ドット絵キャラクターを生成中...', false);
+
+      try {
+        let b64Result = null;
+        let mimeResult = "image/png";
+        let usedService = "Google AI";
+
+        // 1. Google AI API が利用可能な場合（Gemini / Imagen）
+        if (apiKey) {
+          try {
+            if (currentB64) {
+              // 元画像がある場合：Geminiマルチモーダル
+              const parts = [
+                { inlineData: { mimeType: "image/png", data: currentB64 } },
+                { text: `この画像を参考に、64x64ピクセルのゲーム用ドット絵キャラクタースプライトを生成してください。${stylePart}。${userPrompt}。pixel art style, 64x64 resolution, crisp clean pixel grid, limited color palette, solid background.` }
+              ];
+              const isBearer = apiKey.startsWith("AQ.");
+              const geminiUrl = isBearer
+                ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent`
+                : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+              const headers = { "Content-Type": "application/json" };
+              if (isBearer) headers["Authorization"] = `Bearer ${apiKey}`;
+
+              const res = await fetch(geminiUrl, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                  contents: [{ parts }],
+                  generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
+                })
+              });
+              if (res.ok) {
+                const json = await res.json();
+                const parts2 = json?.candidates?.[0]?.content?.parts || [];
+                const imgPart = parts2.find(p => p.inlineData);
+                if (imgPart) {
+                  b64Result = imgPart.inlineData.data;
+                  mimeResult = imgPart.inlineData.mimeType || "image/png";
+                }
+              }
+            } else {
+              // テキストから生成
+              const isBearer = apiKey.startsWith("AQ.");
+              if (isBearer) {
+                const res = await fetch(
+                  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                      contents: [{ parts: [{ text: finalPrompt }] }],
+                      generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
+                    })
+                  }
+                );
+                if (res.ok) {
+                  const json = await res.json();
+                  const parts2 = json?.candidates?.[0]?.content?.parts || [];
+                  const imgPart = parts2.find(p => p.inlineData);
+                  if (imgPart) {
+                    b64Result = imgPart.inlineData.data;
+                    mimeResult = imgPart.inlineData.mimeType || "image/png";
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.warn("Google AI 直接呼び出しをスキップ:", e);
+          }
+        }
+
+        // 2. 高精度画像生成（フォールバック / 直接生成）
+        if (!b64Result) {
+          showStatus('<span class="aiGenSpinner"></span>ドット絵エンジンで生成中...', false);
+          usedService = "Pixel Engine";
+          const promptEncoded = encodeURIComponent(finalPrompt);
+          const seed = Math.floor(Math.random() * 999999);
+          const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
+
+          // 画像をfetchしてbase64に変換
+          const imgRes = await fetch(imageUrl);
+          if (!imgRes.ok) throw new Error("画像生成サーバーへの接続に失敗しました。");
+          const blob = await imgRes.blob();
+          const reader = new FileReader();
+          b64Result = await new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          mimeResult = blob.type || "image/png";
+        }
+
+        generatedImageDataUrl = `data:${mimeResult};base64,${b64Result}`;
+        showPreview(generatedImageDataUrl);
+        applyBtn.dataset.colorCount = colorCount;
+        applyBtn.style.display = "block";
+        retryBtn.style.display  = "block";
+        hideStatus();
+        if (apiKey) localStorage.setItem(STORAGE_KEY, apiKey);
+
+      } catch (err) {
+        console.error("AI生成エラー:", err);
+        showStatus("エラー: " + err.message + "<br><span style=\"font-size:11px;\">プロンプトを少し変更して「再生成」をお試しください。</span>", true);
+        retryBtn.style.display = "block";
+      } finally {
+        setGenerating(false);
+      }
+    }
+
+    function showPreview(dataUrl) {
+      previewArea.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = dataUrl;
+      img.alt = "AI生成プレビュー";
+      previewArea.appendChild(img);
+    }
+
+    if (applyBtn) {
+      applyBtn.addEventListener("click", () => {
+        if (!generatedImageDataUrl) return;
+        const colorCount = parseInt(applyBtn.dataset.colorCount || "16");
+        if (autoReduceColorCount) autoReduceColorCount.value = colorCount;
+        if (autoReduceColorSlider) {
+          const steps = [8, 16, 32, 64, 128, 256];
+          const idx = steps.findIndex(s => s >= colorCount);
+          autoReduceColorSlider.value = Math.max(0, idx);
+        }
+        
+        // 64×64に固定 & 自動調整OFF
+        if (outW) outW.value = 64;
+        if (outH) outH.value = 64;
+        autoAdjustMode = false;
+        updateKeepAspectModeUI();
+
+        const img = new Image();
+        img.onload = () => {
+          loadImageToCanvas(img, "AI生成画像 (64×64)");
+          closeAiModal();
+          showToast("AI生成画像を読み込み、64×64でドット絵変換しました");
+        };
+        img.src = generatedImageDataUrl;
+      });
+    }
+
+    function setGenerating(isGen) {
+      if (genBtn)   genBtn.disabled   = isGen;
+      if (retryBtn) retryBtn.disabled = isGen;
+    }
+    function showStatus(html, isError) {
+      if (!statusEl) return;
+      statusEl.innerHTML = html;
+      statusEl.className = "aiGenStatus" + (isError ? " error" : "");
+      statusEl.style.display = "block";
+    }
+    function hideStatus() {
+      if (!statusEl) return;
+      statusEl.style.display = "none";
+    }
+
+  })(); // end setupAiGen
+
+}); // end DOMContentLoaded
+

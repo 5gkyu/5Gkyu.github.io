@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ほろ酔い診断テスト (Sober Check) | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="お酒を飲む前と飲んだ後で同じ7つのミニテスト（反射・認知抑制・記憶・探索・時間感覚・リスク判断・二重課題）を行い、平常時からの変化から現在の酔い度合いを優しく測定・診断するセルフチェックツールです。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/sober-check/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="ほろ酔い診断テスト (Sober Check) | Halcyon - 5Gkyu">
+  <meta property="og:description" content="飲む前と飲んだ後で能力を比較。反射・認知抑制・記憶・探索・時間感覚・リスク・分割注意の7項目から今の酔い度合いを優しく可視化します。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/sober-check/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <!-- チラつき防止（FOUC） -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
+
+  <!-- Google Fonts: DotGothic16, Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- 共通コンポーネント & アプリ固有CSS -->
+  <script src="/components/components.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- サイト共通ヘッダーコンポーネント -->
+  <site-header site-name="ほろ酔い診断テスト"></site-header>
+
+  <!-- サイト共通レイアウトコンポーネント (1カラム) -->
+  <hl-layout cols="1">
+    
+    <div class="sober-app-container">
+
+      <!-- パンくずリストコンポーネント -->
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/"
+        current="ほろ酔い診断テスト">
+      </hl-breadcrumb>
+
+      <!-- ページタイトルコンポーネント -->
+      <page-title>ほろ酔い診断テスト</page-title>
+
+      <!-- ================================================================= -->
+      <!-- 1. ホーム画面（モード選択 & イントロ） -->
+      <!-- ================================================================= -->
+      <div id="sober-home-view">
+        <div class="sober-hero-card">
+          <h1 class="sober-hero-title">お酒の酔い度をやさしく測定</h1>
+          <p class="sober-hero-lead">
+            お酒を飲む前と飲んだ後で同じ7つのミニテスト（反射神経・認知判断・短期記憶・視野探索・時間感覚・リスク判断・二重課題）を行い、普段の冴えと現在の状態を比較して、どれくらい身体がリラックス（酔い）しているかを優しく診断します。
+          </p>
+
+          <!-- 基準値の記録状況ステータス -->
+          <div id="baseline-status-badge" class="baseline-status-bar">
+            <span class="status-dot not-recorded"></span> 飲む前の基準値: まだ記録されていません
+          </div>
+
+          <!-- モード選択カード群 -->
+          <div class="mode-selection-grid">
+            
+            <!-- 飲む前モード -->
+            <div class="mode-card primary" id="btn-start-baseline">
+              <div>
+                <span class="mode-tag">STEP 1：まずはこちら</span>
+                <h2 class="mode-title">飲む前テスト</h2>
+                <p class="mode-desc">
+                  シラフの平常時に行います。あなたの普段の反応速度や集中力を測定し、基準スコアとして保存します。
+                </p>
+              </div>
+              <button type="button" class="mode-btn">飲む前の基準を記録する</button>
+            </div>
+
+            <!-- 飲んだ後モード -->
+            <div class="mode-card secondary" id="btn-start-check">
+              <div>
+                <span class="mode-tag">STEP 2：お酒のおともに</span>
+                <h2 class="mode-title">飲んだ後テスト</h2>
+                <p class="mode-desc">
+                  お酒を飲んでいる最中や飲んだ後に行います。飲む前の基準値と比較し、現在の酔い度合を診断します。
+                </p>
+              </div>
+              <button type="button" class="mode-btn">酔い度を比較・判定する</button>
+            </div>
+
+            <!-- クイック診断モード -->
+            <div class="mode-card quick" id="btn-start-quick">
+              <div>
+                <span class="mode-tag">飲む前を忘れた時</span>
+                <h2 class="mode-title">クイック診断</h2>
+                <p class="mode-desc">
+                  飲む前に測定していなかった場合でも大丈夫。一般的な成人の標準データと比較して現在の状態を測定します。
+                </p>
+              </div>
+              <button type="button" class="mode-btn">今すぐ手軽に測る</button>
+            </div>
+
+          </div>
+
+          <div style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 1.2rem; flex-wrap: wrap;">
+            <button type="button" id="btn-open-history" class="btn-secondary-outline" style="font-size: 0.85rem; padding: 0.5rem 1.4rem;">
+              過去の記録を確認する（履歴）
+            </button>
+            <button type="button" id="btn-reset-baseline" style="background: none; border: none; color: var(--app-brown-light); font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+              保存されている飲む前の基準値を消去する
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- 2. テスト実施画面 (ステップ1〜7) -->
+      <!-- ================================================================= -->
+      <div id="sober-test-screen" class="test-screen-container">
+        
+        <!-- プログレスバー -->
+        <div class="test-progress-bar-wrap">
+          <div id="test-progress-fill" class="test-progress-fill"></div>
+        </div>
+
+        <!-- 3, 2, 1 カウントダウン用オーバーレイ (初期非表示) -->
+        <div id="step-countdown-overlay" class="countdown-overlay" style="display: none;">
+          <div id="countdown-number" class="countdown-num">3</div>
+          <div id="countdown-msg" class="countdown-msg">まもなくスタートします…</div>
+        </div>
+
+        <!-- 各ステップ開始前のルール説明カード -->
+        <div id="step-intro-overlay" class="step-intro-overlay">
+          <span id="intro-step-badge" class="step-intro-badge">STEP 1 / 7 のルール</span>
+          <h3 id="intro-step-title" class="step-intro-title">反射神経テスト</h3>
+          <div class="step-rule-list" id="intro-rule-list">
+            <!-- ルール箇条書きはJSで挿入 -->
+          </div>
+          <button type="button" id="btn-confirm-start-step" class="btn-start-step">
+            準備完了（テストを開始する）
+          </button>
+        </div>
+
+        <!-- 実際のテスト実行コンテナ (ルール確認後に表示) -->
+        <div id="active-test-workspace" style="display: none;">
+
+          <div class="test-step-header">
+            <div>
+              <div id="test-step-label" class="test-step-label">STEP 1 / 7</div>
+              <h2 id="test-step-title" class="test-step-title">反射神経テスト</h2>
+            </div>
+          </div>
+
+          <p id="test-step-inst" class="test-step-inst">
+            画面が「緑色」に変わった瞬間に、できるだけ素早くタップしてください。
+          </p>
+
+          <!-- テスト1: 反射神経 (Reflex) -->
+          <div id="test-area-reflex">
+            <div id="reflex-interactive-box" class="reflex-box state-ready">
+              <div id="reflex-main-text" class="reflex-main-text">タップして計測開始 (1 / 5回目)</div>
+              <div id="reflex-sub-text" class="reflex-sub-text">画面をタップすると準備に入ります</div>
+            </div>
+          </div>
+
+          <!-- テスト2: ストループ認知テスト (Cognition) -->
+          <div id="test-area-stroop" style="display: none;">
+            <div class="stroop-header-info">
+              <span id="stroop-q-num" style="font-size: 0.9rem; font-weight: 700; color: var(--app-brown);">問題 1 / 10</span>
+              <span id="stroop-feedback-badge" class="stroop-feedback-badge">正解！ 0.85秒</span>
+              <span id="stroop-live-timer" class="stroop-live-timer">回答時間: 0.00 秒</span>
+            </div>
+            <div class="stroop-display-wrap">
+              <div id="stroop-word" class="stroop-target-word">あか</div>
+              <div style="font-size: 0.85rem; color: var(--app-brown-light); margin-top: 0.5rem;">文字の「色」を素早く選んでください（時間も測定中）</div>
+            </div>
+            <div id="stroop-options" class="stroop-options-grid">
+              <!-- ボタンはJSで生成 -->
+            </div>
+          </div>
+
+          <!-- テスト3: 短期記憶・順序テスト (Memory) -->
+          <div id="test-area-memory" style="display: none;">
+            <div id="memory-status-text" style="text-align: center; font-weight: 600; color: var(--app-brown); margin-bottom: 1rem;">
+              タイルが光る順番をよく見て覚えてください…
+            </div>
+            <div id="memory-grid-container" class="memory-grid">
+              <!-- 9個のタイルをJSで生成 -->
+            </div>
+          </div>
+
+          <!-- テスト4: 視野・数字探索テスト (Trail) -->
+          <div id="test-area-trail" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="trail-target-indicator">次に押す数字: <strong id="trail-next-target" style="font-size: 1.15rem; color: var(--app-sage);">1</strong></span>
+              <span id="trail-live-timer" class="stroop-live-timer">経過時間: 0.00 秒</span>
+            </div>
+            <div id="trail-interactive-area" class="trail-area">
+              <!-- 1〜8の数字バブルはJSで動的配置 -->
+            </div>
+          </div>
+
+          <!-- テスト5: 時間感覚テスト (Time) -->
+          <div id="test-area-time" style="display: none;">
+            <div class="time-test-wrap">
+              <div id="time-round-label" class="time-round-badge">計測 1 / 2 回目</div>
+              <div class="time-target-banner">目標時間：<strong>10 秒</strong></div>
+              <p class="time-hint-desc">「スタート」を押すと体内時計の計測が始まります。<br>「ちょうど10秒経った」と感じたタイミングで「ストップ」を押してください。</p>
+              <div id="time-warning-msg" class="time-warning-box" style="display: none;">
+                画面から離れた（タブが切り替わった）ため測定を無効にしました。もう一度落ち着いてやり直しましょう。
+              </div>
+              <div class="time-action-area">
+                <button type="button" id="btn-time-start" class="btn-time-act btn-time-start">スタート</button>
+                <button type="button" id="btn-time-stop" class="btn-time-act btn-time-stop" style="display: none;">10秒経った！ストップ</button>
+              </div>
+              <div id="time-feedback-box" class="time-feedback-card" style="display: none;">
+                <!-- 測定後の結果表示 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- テスト6: リスク判断テスト (Risk) -->
+          <div id="test-area-risk" style="display: none;">
+            <div class="risk-test-wrap">
+              <div class="risk-header-info">
+                <span id="risk-q-num" style="font-weight: 700; color: var(--app-brown);">試行 1 / 5</span>
+                <span class="risk-current-pts">現在のポイント: <strong id="risk-total-pts">0</strong> pt</span>
+              </div>
+              <div class="risk-disclaimer">
+                ※本テストは実際の金銭や賞品を伴わない、ポイントのみの疑似ゲームです。
+              </div>
+              <div class="risk-cards-grid">
+                <!-- 安全選択肢 -->
+                <button type="button" id="btn-risk-safe" class="risk-choice-card card-safe">
+                  <span class="risk-card-tag">安全オプション</span>
+                  <div class="risk-card-value">+10 pt</div>
+                  <div class="risk-card-sub">100% 確実に獲得</div>
+                </button>
+                <!-- リスク選択肢 -->
+                <button type="button" id="btn-risk-gamble" class="risk-choice-card card-gamble">
+                  <span class="risk-card-tag gamble-tag">リスクオプション</span>
+                  <div class="risk-card-value">+30 pt</div>
+                  <div class="risk-card-sub">50%で獲得 / 50%で0pt</div>
+                </button>
+              </div>
+              <div id="risk-feedback-msg" class="risk-feedback-banner" style="display: none;"></div>
+            </div>
+          </div>
+
+          <!-- テスト7: 二重課題テスト (Dual) -->
+          <div id="test-area-dual" style="display: none;">
+            <div class="dual-test-wrap">
+              <div class="dual-header-info">
+                <span id="dual-round-label" style="font-weight: 700; color: var(--app-brown);">試行 1 / 4</span>
+                <span id="dual-error-counter" class="dual-error-badge">お手つき: 0回</span>
+              </div>
+              <div class="dual-rule-banner">
+                画面が緑になっても、数字が<strong style="color: #c44;">【3の倍数】(3, 6, 9)</strong>の時はタップ禁止！
+              </div>
+              <div class="dual-number-display-wrap">
+                <div class="dual-number-label">現在の数字</div>
+                <div id="dual-active-number" class="dual-active-number">5</div>
+              </div>
+              <div id="dual-interactive-box" class="reflex-box state-ready" style="min-height: 200px;">
+                <div id="dual-main-text" class="reflex-main-text">タップして開始</div>
+                <div id="dual-sub-text" class="reflex-sub-text">画面をタップすると準備に入ります</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- 3. 結果レポート画面 -->
+      <!-- ================================================================= -->
+      <div id="sober-result-screen" class="result-screen-container">
+        
+        <div class="result-header">
+          <span id="result-badge-text" class="result-badge">ほろ酔い診断結果</span>
+          <div class="result-score-wrap">
+            <span id="result-score-num" class="result-score-num">35</span>
+            <span id="result-score-unit" class="result-score-unit">%（酔い度）</span>
+          </div>
+          <h2 id="result-status-title" class="result-status-title">心地よいリラックス状態です</h2>
+          <div id="result-warm-msg" class="result-warm-msg">
+            身体の緊張がふんわりとほぐれ、適度にリラックスできている素敵な状態です。感覚のわずかな変化はありますが、楽しくおしゃべりしたり音楽を楽しむのにちょうど良い時間ですね。
+          </div>
+        </div>
+
+        <!-- レーダーチャート & 詳細数値比較 -->
+        <div class="comparison-section">
+          <div class="chart-box">
+            <canvas id="sober-radar-canvas" class="radar-canvas"></canvas>
+          </div>
+          <div class="metrics-list" id="metrics-list-container">
+            <!-- 各項目の比較バーがJSで挿入されます -->
+          </div>
+        </div>
+
+        <!-- 水分補給 & 代謝時間ケアセクション -->
+        <div id="care-advice-section" class="care-advice-card">
+          <h3 class="care-card-title">お水と休息のワンポイントアドバイス</h3>
+          <p class="care-card-desc">
+            今日飲んだ大体の杯数を選ぶと、アルコールが抜ける目安時間とお水の推奨摂取量を計算できます。
+          </p>
+          <div class="drink-input-row">
+            <button type="button" class="drink-chip active" data-drinks="1">1杯（グラス1杯/缶1本）</button>
+            <button type="button" class="drink-chip" data-drinks="2">2杯</button>
+            <button type="button" class="drink-chip" data-drinks="3">3杯</button>
+            <button type="button" class="drink-chip" data-drinks="4">4杯以上</button>
+          </div>
+          <div id="calc-estimate-result" class="estimated-calc-box">
+            <span>アルコール分解の目安時間: <strong>約 3.5 時間</strong></span>
+            <span>推奨水分補給量: <strong>約 280 ml</strong></span>
+          </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="result-actions">
+          <button type="button" id="btn-result-open-history" class="btn-secondary-outline">過去の記録（履歴）を見る</button>
+          <button type="button" id="btn-retry-test" class="btn-primary-action">トップに戻る / もう一度測定する</button>
+        </div>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- 4. 履歴確認モーダル (飲む前・飲む後 各最大10件) -->
+      <!-- ================================================================= -->
+      <div id="history-modal-overlay" class="history-modal-overlay">
+        <div class="history-modal-card">
+          <div class="history-modal-header">
+            <h3 class="history-modal-title">測定の履歴記録 (最大10件)</h3>
+            <button type="button" id="btn-close-history" class="history-modal-close" aria-label="閉じる">&times;</button>
+          </div>
+
+          <!-- タブ切り替え -->
+          <div class="history-tab-bar">
+            <button type="button" id="tab-btn-before" class="history-tab-btn active">飲む前（基準）の記録 (<span id="count-before">0</span>/10)</button>
+            <button type="button" id="tab-btn-after" class="history-tab-btn">飲んだ後の記録 (<span id="count-after">0</span>/10)</button>
+          </div>
+
+          <!-- 履歴リスト一覧 -->
+          <div class="history-modal-body" id="history-list-container">
+            <!-- JSで動的生成 -->
+          </div>
+
+          <!-- フッター -->
+          <div class="history-modal-footer">
+            <button type="button" id="btn-clear-all-history" class="btn-history-action btn-del" style="font-size: 0.82rem;">
+              このタブの履歴をすべて消去
+            </button>
+            <button type="button" id="btn-modal-close-footer" class="btn-secondary-outline" style="padding: 0.4rem 1.2rem; font-size: 0.85rem;">
+              閉じる
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </hl-layout>
+
+  <!-- サイト共通フッターコンポーネント -->
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <!-- アプリ専用スクリプト -->
+  <script src="app.js"></script>
+</body>
+</html>

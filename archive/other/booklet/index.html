@@ -35,6 +35,8 @@
   </style>
 
   <script src="/components/components.js" defer></script>
+  <!-- ブックマークレット定義（launcher.js との共有データ） -->
+  <script src="bookmarklets-data.js"></script>
 
   <style>
     :root {
@@ -167,31 +169,6 @@
       font-weight: 700;
     }
 
-    /* ── カードリスト ── */
-    .card-list {
-      padding: 0 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--accent-light);
-      transition: transform .15s;
-    }
-
-    .card:active {
-      transform: scale(.98);
-    }
-
-    .card[hidden] {
-      display: none !important;
-    }
-
     .card-header {
       display: flex;
       align-items: flex-start;
@@ -234,34 +211,48 @@
     .card h2 {
       font-size: 1rem;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
-    .card p {
-      font-size: .83rem;
-      color: rgba(106, 86, 74, 0.65);
-      line-height: 1.6;
-      margin-bottom: 14px;
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .card-actions .btn-copy,
+    .card-actions .btn-view-code {
+      flex: 1;
+      width: auto;
+      white-space: nowrap;
+      text-align: center;
     }
 
     .btn-copy {
-      display: block;
-      width: 100%;
-      padding: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
       border: 1.5px solid var(--accent-light);
       border-radius: 10px;
       background: var(--accent-tag);
       color: var(--accent-dark);
-      font-size: .9rem;
+      font-size: .85rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background .2s, border-color .2s, color .2s, opacity .2s;
+      transition: background .2s, border-color .2s, color .2s, transform .1s;
       -webkit-tap-highlight-color: transparent;
       letter-spacing: .02em;
     }
 
+    .btn-copy:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
     .btn-copy:active {
-      opacity: .8;
+      transform: scale(.97);
     }
 
     .btn-copy.copied {
@@ -270,34 +261,30 @@
       color: #1a7a45;
     }
 
-    .card-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .card-actions .btn-copy,
-    .card-actions .btn-view-code {
-      flex: 1;
-      width: auto;
-    }
-
     .btn-view-code {
-      display: block;
-      padding: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
       border: 1.5px solid var(--accent-light);
       border-radius: 10px;
       background: #fff;
-      color: var(--accent);
-      font-size: .9rem;
+      color: var(--accent-dark);
+      font-size: .85rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background .2s, opacity .2s;
+      transition: background .2s, border-color .2s, color .2s, transform .1s;
       -webkit-tap-highlight-color: transparent;
       letter-spacing: .02em;
     }
 
+    .btn-view-code:hover {
+      background: var(--accent-pale);
+      border-color: var(--accent);
+    }
+
     .btn-view-code:active {
-      opacity: .8;
+      transform: scale(.97);
     }
 
     /* ── 空状態 ── */
@@ -436,26 +423,118 @@
       scroll-margin-top: 122px;
     }
 
-    @media (min-width: 500px) {
+    /* ── カードリスト（レスポンシブ・グリッド） ── */
+    .card-list {
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 560px) {
       .card-list {
-        display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-      }
-
-      .card {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .card p {
-        flex: 1;
+        gap: 16px;
       }
     }
 
-    @media (min-width: 900px) {
+    @media (min-width: 1120px) {
       .card-list {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+    }
+
+    @media (min-width: 1600px) {
+      .card-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--accent-light);
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    @media (hover: hover) {
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(146, 181, 188, 0.22);
+        border-color: var(--accent);
+      }
+    }
+
+    .card:active {
+      transform: scale(.98);
+    }
+
+    .card[hidden] {
+      display: none !important;
+    }
+
+    .card p {
+      flex: 1;
+      font-size: .85rem;
+      color: rgba(106, 86, 74, 0.7);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    /* ── ランチャー専用ヒーローカード ── */
+    .launcher-card {
+      background: linear-gradient(135deg, #ffffff 0%, rgba(146, 181, 188, 0.12) 100%);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 4px 16px rgba(146, 181, 188, 0.18);
+      border: 1.5px solid var(--accent);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .launcher-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--clr-sage));
+    }
+
+    @media (min-width: 640px) {
+      .launcher-card-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .launcher-card-body {
+        flex: 1;
+      }
+      .launcher-card-actions {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 170px;
+      }
+      .launcher-card-actions button {
+        width: 100% !important;
+      }
+    }
+
+    @media (min-width: 680px) {
+      .tag-filter {
+        flex-wrap: wrap;
+        padding: 8px 0 14px;
       }
     }
   </style>
@@ -465,7 +544,7 @@
 
   <site-header site-name="ブックマークレット集"></site-header>
 
-  <hl-layout cols="2" class="fluffy-entry delay-1">
+  <hl-layout cols="2" size="wide" class="fluffy-entry delay-1">
     <div class="hl-layout-main">
 
       <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Other" level2-url="/archive/other/"
@@ -484,7 +563,28 @@
         <hl-step-item num="4" title="使いたいページで実行">効果を試したいWebページを開いて、登録したブックマークをクリックするだけでスクリプトが実行されます。</hl-step-item>
       </hl-step>
 
-      <section-heading id="bookmarklets" style="margin-top: 2rem;">ブックマークレット一覧</section-heading>
+      <section-heading id="launcher" style="margin-top: 2rem;">統合ランチャー</section-heading>
+      <p class="hl-content-text" style="margin-bottom: 1rem;">
+        すべてのブックマークレットをまとめて選択・実行できる「ランチャー」を用意しています。下のコードを1つだけブックマークに登録するだけで、あとはクリック一発でこのページのすべてのツールを使い分けられます。
+      </p>
+      <div class="launcher-card">
+        <div class="launcher-card-inner">
+          <div class="launcher-card-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);font-size:.75rem;font-weight:800;">L</span>
+              <span style="font-size:.72rem;font-weight:700;background:var(--accent-tag);color:var(--accent-dark);padding:2px 9px;border-radius:8px;">ランチャー</span>
+            </div>
+            <h2 style="font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--clr-brown);">ブックマークレットランチャー</h2>
+            <p style="font-size:.85rem;color:rgba(106,86,74,.75);line-height:1.6;margin-bottom:0;">このコードを1つブックマークに登録するだけで、全ブックマークレットを検索・カテゴリ絞り込み付きで選べる統合メニューがどこでも呼び出せます。</p>
+          </div>
+          <div class="launcher-card-actions">
+            <button class="btn-copy" id="btn-copy-launcher">コピーする</button>
+            <button class="btn-view-code" id="btn-view-launcher">コードを見る</button>
+            <button class="btn-copy" id="btn-try-launcher" style="background:var(--accent);color:#fff;border-color:var(--accent);">ここで試す</button>
+          </div>
+        </div>
+      </div>
+      <section-heading id="bookmarklets" style="margin-top: 0;">ブックマークレット一覧</section-heading>
 
       <!-- 検索バー -->
       <div class="search-bar">
@@ -544,99 +644,33 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ── ブックマークレット定義 ─────────────────────────────
-    const bookmarklets = [
-      {
-        num: 1,
-        id: "copy-title-url",
-        tag: "便利ツール",
-        title: "タイトル＆URLコピー",
-        description: "閲覧中のページタイトルとURLをクリップボードにコピーします。共有やメモに便利。",
-        code: `javascript:void(function(){var t=document.title,u=location.href;navigator.clipboard.writeText(t+'\\n'+u).then(function(){alert('コピーしました!\\n'+t)}).catch(function(){prompt('コピーしてください:',t+' '+u)})})()`
-      },
-      {
-        num: 2,
-        id: "simple-reader",
-        tag: "読みやすさ",
-        title: "かんたんリーダー",
-        description: "ページの本文を中央寄せ・大きめフォントにして、読みやすく整えます。",
-        code: `javascript:void(function(){var d=document,b=d.body;b.style.maxWidth='640px';b.style.margin='0 auto';b.style.padding='16px';b.style.fontSize='18px';b.style.lineHeight='1.8';b.style.color='%23333';b.style.background='%23fefefe';var imgs=d.querySelectorAll('img');for(var i=0;i<imgs.length;i++){imgs[i].style.maxWidth='100%25';imgs[i].style.height='auto'}alert('読みやすくしました!')})()`
-      },
-      {
-        num: 3,
-        id: "image-picker-downloader",
-        tag: "画像ツール",
-        title: "ページ内の画像を一覧表示",
-        description: "ページ内の画像を一覧表示します。カードをクリックすると画像を新しいタブで開きます。",
-        code: `javascript:void(function(){try{var list=[],seen=new Set();Array.prototype.forEach.call(document.images,function(im){var u=(im.currentSrc||im.src||'').trim();if(!u||u.indexOf('https://')!==0||seen.has(u))return;seen.add(u);list.push({url:u,alt:(im.alt||'').trim(),w:im.naturalWidth||im.width||0,h:im.naturalHeight||im.height||0});});if(!list.length){alert('画像が見つかりませんでした。');return;}var old=document.getElementById('__bm_img_dl_overlay__');if(old)old.remove();var ov=document.createElement('div');ov.id='__bm_img_dl_overlay__';ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px;';var panel=document.createElement('div');panel.style.cssText='width:min(960px,96vw);max-height:92vh;background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;font-family:sans-serif;';var head=document.createElement('div');head.style.cssText='padding:10px 12px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;gap:8px;';var strong=document.createElement('strong');strong.style.fontSize='14px';strong.textContent='画像をクリックして開く';var span=document.createElement('span');span.style.cssText='font-size:12px;color:#666';span.textContent=list.length+'件';head.appendChild(strong);head.appendChild(span);var body=document.createElement('div');body.style.cssText='padding:8px 10px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;';var foot=document.createElement('div');foot.style.cssText='padding:10px;border-top:1px solid #eee;display:flex;gap:8px;flex-wrap:wrap;';function mkBtn(text,bg,color){var b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='border:none;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;background:'+bg+';color:'+color+';';return b;}var btnClose=mkBtn('閉じる','#fff','#333');btnClose.style.border='1px solid #ddd';foot.appendChild(btnClose);list.forEach(function(it,i){var item=document.createElement('div');item.style.cssText='display:flex;gap:8px;align-items:flex-start;border:1px solid #eee;border-radius:8px;padding:8px;cursor:pointer;';item.onmouseover=function(){item.style.background='#f5f5f5';};item.onmouseout=function(){item.style.background='';};var img=document.createElement('img');img.src=it.url;img.loading='lazy';img.style.cssText='width:56px;height:56px;object-fit:cover;border-radius:6px;background:#f4f4f4;flex-shrink:0;';var meta=document.createElement('div');meta.style.cssText='min-width:0;flex:1;';var d1=document.createElement('div');d1.style.cssText='font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';d1.textContent=(it.alt||('image_'+(i+1)));var d2=document.createElement('div');d2.style.cssText='font-size:11px;color:#666';d2.textContent=it.w+'x'+it.h;var d3=document.createElement('div');d3.style.cssText='font-size:10px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';d3.textContent=it.url;meta.appendChild(d1);meta.appendChild(d2);meta.appendChild(d3);item.appendChild(img);item.appendChild(meta);item.onclick=function(){window.open(it.url,'_blank');};body.appendChild(item);});panel.appendChild(head);panel.appendChild(body);panel.appendChild(foot);ov.appendChild(panel);document.body.appendChild(ov);btnClose.onclick=function(){ov.remove();};ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});}catch(e){alert('エラー: '+e);}})()`
-      },
-      {
-        num: 4,
-        id: "yt-url-toolkit",
-        tag: "YouTube",
-        title: "YouTube URL ツール（統合版）",
-        description: "YouTubeの動画ページで実行。短縮URL・現在時刻付き・クリーンURL・再生リスト除去URLをまとめて一覧表示し、個別にコピーできます。",
-        code: `javascript:void(function(){try{var host=(location.hostname||'').replace(/^www\./,''),u=new URL(location.href),vid='';if(host==='youtu.be'){vid=u.pathname.split('/').filter(Boolean)[0]||'';}else if(host==='youtube.com'||host==='m.youtube.com'){vid=u.searchParams.get('v')||(u.pathname.indexOf('/shorts/')===0?u.pathname.split('/')[2]||'':'');}if(!vid){alert('YouTube動画ページで実行してください');return;}var v=document.querySelector('video'),t=v?Math.floor(v.currentTime):0;var cu=new URL(location.href);['list','index','pp'].forEach(function(p){cu.searchParams.delete(p);});var cleanUrl=cu.toString();var rows=[{label:'短縮 URL',url:'https://youtu.be/'+vid},{label:'短縮 URL＋現在時刻（'+t+'s）',url:'https://youtu.be/'+vid+'?t='+t,skip:t<=0},{label:'クリーン URL',url:'https://www.youtube.com/watch?v='+vid},{label:'クリーン URL＋現在時刻（'+t+'s）',url:'https://www.youtube.com/watch?v='+vid+'&t='+t+'s',skip:t<=0},{label:'再生リスト除去 URL',url:cleanUrl,skip:cleanUrl===location.href}].filter(function(r){return!r.skip;});var old=document.getElementById('__bm_yt_url__');if(old)old.remove();var ov=document.createElement('div');ov.id='__bm_yt_url__';ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;';var box=document.createElement('div');box.style.cssText='width:min(560px,96vw);background:#fff;border-radius:14px;overflow:hidden;font-family:sans-serif;';var hd=document.createElement('div');hd.style.cssText='padding:12px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;';var ht=document.createElement('strong');ht.style.fontSize='14px';ht.textContent='YouTube URL ツール';var hx=document.createElement('button');hx.type='button';hx.textContent='';hx.style.cssText='border:none;background:none;font-size:16px;cursor:pointer;color:#666;padding:0 4px;';hx.onclick=function(){ov.remove();};hd.appendChild(ht);hd.appendChild(hx);var bd=document.createElement('div');bd.style.cssText='padding:4px 0;';rows.forEach(function(row){var item=document.createElement('div');item.style.cssText='display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid #f5f5f5;gap:8px;';var left=document.createElement('div');left.style.cssText='flex:1;min-width:0;';var lbl=document.createElement('div');lbl.style.cssText='font-size:11px;color:#888;margin-bottom:2px;';lbl.textContent=row.label;var urlDiv=document.createElement('div');urlDiv.style.cssText='font-size:11px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';urlDiv.textContent=row.url;left.appendChild(lbl);left.appendChild(urlDiv);var btn=document.createElement('button');btn.type='button';btn.textContent='コピー';btn.style.cssText='flex-shrink:0;border:1.5px solid #e0e0e0;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;background:#fff;color:#333;white-space:nowrap;';btn.onclick=function(){navigator.clipboard.writeText(row.url).then(function(){btn.textContent='<hl-icon name="check"></hl-icon> コピー済み';btn.style.background='#e8f9ef';btn.style.borderColor='#a8e6c1';btn.style.color='#1a7a45';setTimeout(function(){btn.textContent='コピー';btn.style.background='#fff';btn.style.borderColor='#e0e0e0';btn.style.color='#333';},1800);}).catch(function(){prompt('URLをコピーしてください:',row.url);});};item.appendChild(left);item.appendChild(btn);bd.appendChild(item);});var ft=document.createElement('div');ft.style.cssText='padding:10px;';var bClose=document.createElement('button');bClose.type='button';bClose.textContent='閉じる';bClose.style.cssText='width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#555;';bClose.onclick=function(){ov.remove();};ft.appendChild(bClose);box.appendChild(hd);box.appendChild(bd);box.appendChild(ft);ov.appendChild(box);document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});}catch(e){alert('エラー: '+e);}})()`
-      },
-      {
-        num: 5,
-        id: "yt-embed-code",
-        tag: "YouTube",
-        title: "埋め込みコード生成（iframe）",
-        description: "YouTubeの動画ページで実行。iframeタグ形式の埋め込みコードを自動生成します。現在時刻から開始・自動再生のオプションをチェックで切り替えられます。",
-        code: `javascript:void(function(){try{var host=(location.hostname||'').replace(/^www\./,''),u=new URL(location.href),vid='';if(host==='youtu.be'){vid=u.pathname.split('/').filter(Boolean)[0]||'';}else if(host==='youtube.com'||host==='m.youtube.com'){vid=u.searchParams.get('v')||(u.pathname.indexOf('/shorts/')===0?u.pathname.split('/')[2]||'':'');}if(!vid){alert('YouTube動画ページで実行してください');return;}var v=document.querySelector('video'),t=v?Math.floor(v.currentTime):0;var useTime=false,useAuto=false;function buildCode(){var params=[];if(useAuto)params.push('autoplay=1','mute=1');if(useTime&&t>0)params.push('start='+t);var src='https://www.youtube.com/embed/'+vid+(params.length?'?'+params.join('&'):'');return'<iframe width="560" height="315" src="'+src+'" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';}var old=document.getElementById('__bm_yt_embed__');if(old)old.remove();var ov=document.createElement('div');ov.id='__bm_yt_embed__';ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;';var box=document.createElement('div');box.style.cssText='width:min(560px,96vw);background:#fff;border-radius:14px;overflow:hidden;font-family:sans-serif;';var hd=document.createElement('div');hd.style.cssText='padding:12px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;';var ht=document.createElement('strong');ht.style.fontSize='14px';ht.textContent='YouTube 埋め込みコード生成';var hx=document.createElement('button');hx.type='button';hx.textContent='';hx.style.cssText='border:none;background:none;font-size:16px;cursor:pointer;color:#666;padding:0 4px;';hx.onclick=function(){ov.remove();};hd.appendChild(ht);hd.appendChild(hx);var bd=document.createElement('div');bd.style.cssText='padding:14px;display:flex;flex-direction:column;gap:10px;';function mkChk(labelText,dis,onChange){var wrap=document.createElement('label');wrap.style.cssText='display:flex;align-items:center;gap:8px;font-size:13px;color:'+(dis?'#aaa':'#333')+';cursor:'+(dis?'default':'pointer')+';user-select:none;';var cb=document.createElement('input');cb.type='checkbox';cb.style.cssText='accent-color:#f0446e;width:15px;height:15px;cursor:'+(dis?'default':'pointer')+';';if(dis)cb.disabled=true;cb.onchange=function(){onChange(cb.checked);ta.value=buildCode();};var sp=document.createElement('span');sp.textContent=labelText;wrap.appendChild(cb);wrap.appendChild(sp);return wrap;}var ta=document.createElement('textarea');ta.readOnly=true;ta.style.cssText='width:100%;height:76px;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:10px;font-family:ui-monospace,monospace;resize:vertical;line-height:1.5;color:#333;background:#fafafa;';ta.value=buildCode();bd.appendChild(mkChk('現在時刻から開始（'+t+'s）'+(t<=0?' — 動画再生中のみ有効':''),t<=0,function(v){useTime=v;}));bd.appendChild(mkChk('自動再生する（ミュートで開始）',false,function(v){useAuto=v;}));bd.appendChild(ta);var btnCopy=document.createElement('button');btnCopy.type='button';btnCopy.textContent='<hl-icon name="file"></hl-icon> コードをコピー';btnCopy.style.cssText='width:100%;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;background:#f0446e;color:#fff;';btnCopy.onclick=function(){navigator.clipboard.writeText(ta.value).then(function(){btnCopy.textContent='<hl-icon name="check"></hl-icon> コピーしました！';btnCopy.style.background='#27ae60';setTimeout(function(){btnCopy.textContent='<hl-icon name="file"></hl-icon> コードをコピー';btnCopy.style.background='#f0446e';},1800);}).catch(function(){ta.focus();ta.select();document.execCommand('copy');});};bd.appendChild(btnCopy);var btnClose=document.createElement('button');btnClose.type='button';btnClose.textContent='閉じる';btnClose.style.cssText='width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#555;';btnClose.onclick=function(){ov.remove();};bd.appendChild(btnClose);box.appendChild(hd);box.appendChild(bd);ov.appendChild(box);document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});}catch(e){alert('エラー: '+e);}})()`
-      },
-      {
-        num: 6,
-        id: "thumbnail-viewer",
-        tag: "動画ツール",
-        title: "サムネイルを取得して開く",
-        description: "YouTube または niconico の動画ページで実行。サムネイル画像の一覧を表示し、クリックで新しいタブに開きます。YouTubeは4サイズ（maxres / SD / HQ / MQ）対応。",
-        code: String.raw`javascript:void(function(){try{var host=(location.hostname||'').replace(/^www\./,'');var u=new URL(location.href);var thumbs=[],title='';if(host==='youtube.com'||host==='m.youtube.com'||host==='youtu.be'){var vid=host==='youtu.be'?(u.pathname.split('/').filter(Boolean)[0]||''):(u.searchParams.get('v')||(u.pathname.indexOf('/shorts/')===0?u.pathname.split('/')[2]||'':''));if(!vid){alert('動画IDを取得できませんでした。');return;}title='YouTube サムネイル';var b='https://img.youtube.com/vi/'+vid+'/';thumbs=[{label:'maxres (1280×720)',url:b+'maxresdefault.jpg'},{label:'SD (640×480)',url:b+'sddefault.jpg'},{label:'HQ (480×360)',url:b+'hqdefault.jpg'},{label:'MQ (320×180)',url:b+'mqdefault.jpg'}];}else if(host.indexOf('nicovideo.jp')>=0){title='niconico サムネイル';var og=document.querySelector('meta[property="og:image"]');if(og&&og.content){thumbs=[{label:'サムネイル',url:og.content}];}else{alert('サムネイルが取得できませんでした。');return;}}else{alert('YouTube または niconico の動画ページで実行してください。');return;}if(!thumbs.length){alert('サムネイルが取得できませんでした。');return;}var old=document.getElementById('__bm_thumb__');if(old)old.remove();var ov=document.createElement('div');ov.id='__bm_thumb__';ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;';var box=document.createElement('div');box.style.cssText='width:min(640px,96vw);max-height:90vh;background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;font-family:sans-serif;';var hd=document.createElement('div');hd.style.cssText='padding:12px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;';var ht=document.createElement('strong');ht.style.fontSize='14px';ht.textContent=title;var hx=document.createElement('button');hx.type='button';hx.textContent='';hx.style.cssText='border:none;background:none;font-size:16px;cursor:pointer;color:#666;padding:0 4px;';hx.onclick=function(){ov.remove();};hd.appendChild(ht);hd.appendChild(hx);var bd=document.createElement('div');bd.style.cssText='padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto;';thumbs.forEach(function(th){var card=document.createElement('div');card.style.cssText='border:1px solid #eee;border-radius:8px;overflow:hidden;cursor:pointer;';card.onmouseover=function(){card.style.borderColor='#f0446e';};card.onmouseout=function(){card.style.borderColor='#eee';};var img=document.createElement('img');img.src=th.url;img.style.cssText='width:100%;height:auto;display:block;background:#f4f4f4;min-height:40px;';img.alt=th.label;var lbl=document.createElement('div');lbl.style.cssText='padding:6px 10px;font-size:11px;color:#666;background:#fafafa;border-top:1px solid #eee;';lbl.textContent=th.label;card.appendChild(img);card.appendChild(lbl);card.onclick=function(){window.open(th.url,'_blank');};bd.appendChild(card);});box.appendChild(hd);box.appendChild(bd);ov.appendChild(box);document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});}catch(e){alert('エラー: '+e);}})()`
-      },
-      {
-        num: 7,
-        id: "vocaloid-cross-url",
-        tag: "ボカロ変換",
-        title: "YouTube⇔niconico URL取得",
-        description: "YouTubeまたはniconicoの動画ページで実行すると、VocaDB経由で逆サイトの対応URLを取得してコピーします。データ提供: VocaDB（利用規約/APIルールを遵守して利用）",
-        code: String.raw`javascript:void((async function(){try{var host=(location.hostname||'').replace(/^www\./,''),u=new URL(location.href),src='',pvId='';if(host==='youtube.com'||host==='m.youtube.com'||host==='youtu.be'){src='Youtube';pvId=host==='youtu.be'?(u.pathname.split('/').filter(Boolean)[0]||''):(u.searchParams.get('v')||(u.pathname.indexOf('/shorts/')===0?u.pathname.split('/')[2]||'':''));}else if(host.indexOf('nicovideo.jp')>=0){src='NicoNicoDouga';var p=(u.pathname||'').match(/\/watch\/([a-z]{2}\d+)/i);pvId=p?p[1]:'';}else{alert('YouTube または niconico の動画ページで実行してください。');return;}if(!pvId){alert('動画IDを取得できませんでした。');return;}var byPv='https://vocadb.net/api/songs/byPv?pvService='+encodeURIComponent(src)+'&pvId='+encodeURIComponent(pvId);var r1=await fetch(byPv);if(!r1.ok){throw new Error('VocaDB byPv: HTTP '+r1.status);}var song=await r1.json();if(!song||!song.id){alert('VocaDBに該当曲が見つかりませんでした。\nデータ提供: VocaDB\n規約: https://wiki.vocadb.net/docs/terms-of-service');return;}var r2=await fetch('https://vocadb.net/api/songs/'+encodeURIComponent(song.id)+'?fields=PVs');if(!r2.ok){throw new Error('VocaDB song: HTTP '+r2.status);}var detail=await r2.json(),pvs=Array.isArray(detail&&detail.pvs)?detail.pvs:[];var target='',targetSite=(src==='Youtube'?'niconico':'YouTube');if(src==='Youtube'){for(var i=0;i<pvs.length;i++){var n=pvs[i];if(n&&!n.disabled&&String(n.service||'').indexOf('NicoNico')===0){target=n.url||('https://www.nicovideo.jp/watch/'+n.pvId);break;}}}else{for(var j=0;j<pvs.length;j++){var y=pvs[j];if(y&&!y.disabled&&String(y.service||'')==='Youtube'){target=y.url||('https://youtu.be/'+y.pvId);break;}}}if(!target){alert(targetSite+' の動画URLが見つかりませんでした。\nデータ提供: VocaDB');return;}try{await navigator.clipboard.writeText(target);}catch(e){}var old=document.getElementById('__bm_voca_result__');if(old)old.remove();var ov=document.createElement('div');ov.id='__bm_voca_result__';ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;';var box=document.createElement('div');box.style.cssText='width:min(560px,94vw);background:#fff;border-radius:12px;padding:14px;font-family:sans-serif;';var ttl=document.createElement('div');ttl.style.cssText='font-size:14px;font-weight:700;margin-bottom:8px';ttl.textContent=targetSite+' のURLを取得しました';var urlText=document.createElement('div');urlText.style.cssText='font-size:12px;word-break:break-all;line-height:1.5;margin-bottom:10px';urlText.textContent=target;box.appendChild(ttl);box.appendChild(urlText);var actions=document.createElement('div');actions.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';function mk(t,b,c){var bt=document.createElement('button');bt.type='button';bt.textContent=t;bt.style.cssText='border:none;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;background:'+b+';color:'+c+';';return bt;}var bCopy=mk('リンクを再コピー','#f0f0f0','#333');var bOpen=mk(targetSite+'で開く','#f0446e','#fff');var bClose=mk('閉じる','#fff','#333');bClose.style.border='1px solid #ddd';actions.appendChild(bCopy);actions.appendChild(bOpen);actions.appendChild(bClose);box.appendChild(actions);ov.appendChild(box);document.body.appendChild(ov);bCopy.onclick=async function(){try{await navigator.clipboard.writeText(target);alert(targetSite+' のURLをコピーしました。\n'+target+'\n\nデータ提供: VocaDB');}catch(e){prompt(targetSite+' のURL:',target);}};bOpen.onclick=function(){location.href=target;};bClose.onclick=function(){ov.remove();};ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});}catch(err){alert('エラー: '+(err&&err.message?err.message:err)+'\\n(データ提供: VocaDB)');}})())`
-      },
-      {
-        num: 8,
-        id: "vocaloid-x-search",
-        tag: "ボカロ変換",
-        title: "X感想検索（YouTube/niconico）",
-        description: "YouTubeまたはniconicoの動画ページで実行すると、VocaDB経由で曲名・両サイトの動画IDを取得し、Xで感想を検索します。データ提供: VocaDB（利用規約/APIルールを遵守して利用）",
-        code: String.raw`javascript:void((async function(){try{var host=(location.hostname||'').replace(/^www\./,''),u=new URL(location.href),src='',pvId='';if(host==='youtube.com'||host==='m.youtube.com'||host==='youtu.be'){src='Youtube';pvId=host==='youtu.be'?(u.pathname.split('/').filter(Boolean)[0]||''):(u.searchParams.get('v')||(u.pathname.indexOf('/shorts/')===0?u.pathname.split('/')[2]||'':''));}else if(host.indexOf('nicovideo.jp')>=0){src='NicoNicoDouga';var p=(u.pathname||'').match(/\/watch\/([a-z]{2}\d+)/i);pvId=p?p[1]:'';}else{alert('YouTube または niconico の動画ページで実行してください。');return;}if(!pvId){alert('動画IDを取得できませんでした。');return;}var r1=await fetch('https://vocadb.net/api/songs/byPv?pvService='+encodeURIComponent(src)+'&pvId='+encodeURIComponent(pvId));if(!r1.ok){throw new Error('VocaDB byPv: HTTP '+r1.status);}var song=await r1.json();if(!song||!song.id){alert('VocaDBに該当曲が見つかりませんでした。\nデータ提供: VocaDB\n規約: https://wiki.vocadb.net/docs/terms-of-service');return;}var r2=await fetch('https://vocadb.net/api/songs/'+encodeURIComponent(song.id)+'?fields=PVs,Names');if(!r2.ok){throw new Error('VocaDB song: HTTP '+r2.status);}var detail=await r2.json(),pvs=Array.isArray(detail&&detail.pvs)?detail.pvs:[],names=Array.isArray(detail&&detail.names)?detail.names:[];var title=song.name||'';for(var k=0;k<names.length;k++){if(names[k]&&names[k].language==='Japanese'){title=names[k].value||title;break;}}if(!title)title=detail.defaultName||song.name||'';var ytId='',nicoId='';for(var i=0;i<pvs.length;i++){var pv=pvs[i];if(!pv||pv.disabled)continue;if(!ytId&&String(pv.service||'')==='Youtube')ytId=pv.pvId||'';if(!nicoId&&String(pv.service||'').indexOf('NicoNico')===0)nicoId=pv.pvId||'';}var parts=[];if(title)parts.push('"""'+title+'"""');if(ytId)parts.push(ytId);if(nicoId)parts.push(nicoId);if(!parts.length){alert('検索クエリを生成できませんでした。\nデータ提供: VocaDB');return;}var query=(parts.length===1?parts[0]:'('+parts.join(' OR ')+')')+' lang:ja';window.open('https://x.com/search?q='+encodeURIComponent(query)+'&src=typed_query&f=live','_blank');}catch(err){alert('エラー: '+(err&&err.message?err.message:err)+'\n(データ提供: VocaDB)');}})())`
-      },
-      {
-        num: 9,
-        id: "kiite-niconico-transfer",
-        tag: "Kiite→ニコニコ",
-        title: "Kiite→ニコニコ 一括追加",
-        description: "Kiiteのプレイリストで実行してIDをコピーし、その後ニコニコ動画のマイリストページで再度同じブックマークレットを実行してマイリストに追加する統合版ツールです。",
-        code: String.raw`javascript:void((async function(){var h=location.hostname;if(h.indexOf('kiite.jp')>=0){var b=document.querySelectorAll('[data-type="song"][data-video-id]');if(!b.length)b=document.querySelectorAll('[data-video-id]');var s=new Set(),items=[];Array.prototype.forEach.call(b,function(e){var id=(e.getAttribute('data-video-id')||'').trim().toLowerCase();if(id&&/^[a-z]{2}\d+$/.test(id)&&!s.has(id)){s.add(id);var m='',ct=e.querySelector('.playlist-cmnt-txt');if(!ct){var p=e;for(var i=0;i<6;i++){p=p&&p.parentElement;if(!p)break;ct=p.querySelector('.playlist-cmnt-txt');if(ct)break;}}if(ct)m=ct.textContent.trim();items.push({id:id,memo:m});}});if(!items.length){document.querySelectorAll('a[href]').forEach(function(a){var m=(a.href||'').match(/\/([a-z]{2})(\d+)/i);if(m){var id=(m[1]+m[2]).toLowerCase();if(!s.has(id)){s.add(id);items.push({id:id,memo:''});}}});}if(!items.length){alert('動画IDが見つかりませんでした。\nKiiteのプレイリストページで実行してください。');return;}var msg=items.length+' 件を取得してコピーしました！\n\nニコニコのマイリスト一覧を開きますか？\n(キャンセルを押すとそのまま閉じます)';function o(){if(confirm(msg))window.open('https://www.nicovideo.jp/my/mylist/','_blank');}try{await navigator.clipboard.writeText(JSON.stringify(items));o();}catch(e){msg+='\n\n※自動コピーに失敗しました';o();}}else if(h.indexOf('nicovideo.jp')>=0){var m=(location.pathname||'').match(/\/mylist\/(\d+)/);if(!m){alert('ニコニコのマイリストページ（URLに /mylist/数字 を含む）で実行してください。');return;}var id=m[1],raw=prompt('Kiiteで取得したIDリストを貼り付けてください:');if(!raw)return;var p;try{p=JSON.parse(raw);}catch(e){alert('形式が正しくありません。\nKiiteでコピーし直してください。');return;}if(!p||!p.length){alert('IDリストが空です。');return;}var items=p.map(function(x){return typeof x==='string'?{id:x,memo:''}:x;});if(!confirm('マイリスト(ID: '+id+')に追加します。\n完了まで約'+Math.ceil(items.length*0.5)+'秒かかります。\nよろしいですか？'))return;var ov=document.createElement('div');ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;';var txt=document.createElement('div');txt.style.cssText='font-size:22px;font-weight:bold;margin-bottom:20px;';txt.textContent='登録中... (残り約'+Math.ceil(items.length*0.5)+'秒)';var bg=document.createElement('div');bg.style.cssText='width:300px;height:20px;background:#444;border-radius:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);';var bar=document.createElement('div');bar.style.cssText='width:0%;height:100%;background:#00a3ff;transition:width 0.3s ease;';bg.appendChild(bar);ov.appendChild(txt);ov.appendChild(bg);document.body.appendChild(ov);var ok=0,fail=0,skip=0,err='';for(var i=0;i<items.length;i++){var it=items[i],vid=it.id,memo=it.memo||'';try{var d=memo?encodeURI(memo):'',url='https://nvapi.nicovideo.jp/v1/users/me/mylists/'+encodeURIComponent(id)+'/items?itemId='+encodeURIComponent(vid)+(d?'&description='+d:''),res=await fetch(url,{method:'POST',credentials:'include',mode:'cors',headers:{'X-Frontend-Id':'23','X-Request-With':'N-garage'}});var j=await res.json().catch(function(){return null;});var st=(j&&j.meta)?j.meta.status:res.status,ec=(j&&j.meta&&j.meta.errorCode)?j.meta.errorCode:'';if((st===201||st===200)&&j)ok++;else if(st===409){if(/EXIST|ALREADY|DUPLICATE/i.test(ec))skip++;else{fail++;if(!err)err=(ec||'上限エラー等')+' ('+vid+')';}}else{fail++;if(!err)err=(ec||'HTTP '+st+(j?'':'(空応答)'))+' ('+vid+')';}}catch(e){fail++;if(!err)err=String(e)+' ('+vid+')';}txt.textContent='登録中... (残り約'+Math.ceil((items.length-(i+1))*0.5)+'秒)';bar.style.width=Math.floor(((i+1)/items.length)*100)+'%';if(i<items.length-1)await new Promise(function(r){setTimeout(r,500);});}ov.remove();alert(fail>0?'完了しましたが、一部でエラーが発生しました。\n詳細: '+err:'完了しました！');location.reload();}else{alert('Kiiteのプレイリスト、またはニコニコのマイリストページで実行してください。');}})())`
-      },
-      {
-        num: 10,
-        id: "kyulink-add",
-        tag: "KyuLink",
-        title: "KyuLink 新規リンク追加",
-        description: "現在開いているページの情報を取得し、KyuLinkの追加画面を開きます。KyuLinkの管理者用です。",
-        code: `javascript:(function(){const absolutize=(u)=>{if(!u)return'';try{return new URL(u,window.location.href).href;}catch(e){return u;}};const getMeta=(name)=>{const el=document.querySelector(\`meta[property="\${name}"], meta[name="\${name}"]\`);return el?(el.getAttribute('content')||''):'';};const getFavicon=()=>{const el=document.querySelector('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');return el?el.href:'';};const data={url:window.location.href,title:document.title||getMeta('og:title'),desc:getMeta('og:description')||getMeta('description'),og_image:absolutize(getMeta('og:image')||getMeta('twitter:image')),favicon_url:getFavicon()};const jsonStr=JSON.stringify([data]);const ta=document.createElement('textarea');ta.style.position='fixed';ta.style.opacity='0';ta.value=jsonStr;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(err){}finally{document.body.removeChild(ta);}const params=new URLSearchParams();params.append('add','1');params.append('url',data.url);params.append('title',data.title);params.append('desc',data.desc);params.append('og_image',data.og_image);params.append('favicon_url',data.favicon_url);const kyuUrl='https://5gkyu.github.io/KyuLink/?'+params.toString();window.open(kyuUrl,'_blank')||(window.location.href=kyuUrl);})();`
-      },
-      {
-        num: 11,
-        id: "github-pages-url",
-        tag: "便利ツール",
-        title: "GitHub Pages URL変換",
-        description: "GitHubのファイルページで実行するか、任意のページで実行してURLを入力すると、対応するGitHub PagesのURLに変換してクリップボードにコピーします。",
-        code: `javascript:(function(){var u=location.href,r=/^https:\\/\\/github\\.com\\/([^\\/]+)\\/([^\\/]+)\\/blob\\/[^\\/]+\\/(.+)$/,m=u.match(r);if(!m){u=prompt('GitHubのファイルURLを入力するか貼り付けてください:\\n(例: https://github.com/user/repo/blob/main/...)');if(!u)return;m=u.match(r)}if(m){var user=m[1].toLowerCase(),repo=m[2],path=m[3],res="https://"+(repo.toLowerCase()===user+".github.io"?user+".github.io/"+path:user+".github.io/"+repo+"/"+path);navigator.clipboard.writeText(res).then(function(){alert('コピーしました!\\n'+res)}).catch(function(){prompt('コピーしてください:',res)})}else{alert('正しいGitHubのファイルURLではありません。')}})()`
-      }
-    ];
+    // ── ランチャーコード定義（GitHub Pagesの本番URLで読み込み）──
+    // Live Server環境でコピーした場合でも、常に本番URLがクリップボードに入るようにします
+    const LAUNCHER_URL = 'https://5gkyu.github.io/archive/other/booklet/launcher.js';
+    const LAUNCHER_CODE = `javascript:void(function(){var s=document.createElement('script');s.src='${LAUNCHER_URL}?_='+Date.now();document.head.appendChild(s);}())`;
 
-    // ── タグリスト生成 ─────────────────────────────────────
+    // ── ランチャーボタンイベント ───────────────────────────
+    document.getElementById('btn-copy-launcher').addEventListener('click', async function() {
+      const btn = this;
+      try { await navigator.clipboard.writeText(LAUNCHER_CODE); }
+      catch { const ta = document.createElement('textarea'); ta.value = LAUNCHER_CODE; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+      btn.textContent = 'コピーしました';
+      btn.classList.add('copied');
+      showToast('クリップボードにコピーしました');
+      setTimeout(() => { btn.textContent = 'コピーする'; btn.classList.remove('copied'); }, 2500);
+    });
+    document.getElementById('btn-view-launcher').addEventListener('click', function() {
+      openCodeModal(LAUNCHER_CODE);
+    });
+    document.getElementById('btn-try-launcher').addEventListener('click', function() {
+      const s = document.createElement('script');
+      s.src = 'launcher.js?_=' + Date.now();
+      document.head.appendChild(s);
+    });
+
+    // ── ブックマークレット定義（bookmarklets-data.js から読み込み） ──
+    const bookmarklets = window.BOOKMARKLETS || [];
+
     const tags = ["すべて", ...new Set(bookmarklets.map(b => b.tag))];
     let activeTag = "すべて";
 

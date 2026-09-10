@@ -289,7 +289,7 @@
     }
 
     // =========================================================
-    // 6. オーラグローグラデーション（外側へ向けて徐々に減衰する光）
+    // 6. オーラグローグラデーション（左右に行くほど徐々に減衰する水平グラデーション）
     // =========================================================
     for (let i = 0; i < AURA_GRADIENT_PTS.length; i++) {
       const p = AURA_GRADIENT_PTS[i];
@@ -302,17 +302,31 @@
       } else {
         const auraWave = Math.sin(time * 0.9 + p.phase);
         const waveGlow = 0.85 + 0.15 * auraWave;
-        const animX = Math.cos(time * 0.6 + p.phase) * (p.fade * 0.8);
-        const animY = Math.sin(time * 0.8 + p.phase) * (p.fade * 0.8);
+        const animX = Math.cos(time * 0.6 + p.phase) * 0.6;
+        const animY = Math.sin(time * 0.8 + p.phase) * 0.6;
 
         item.bx = p.bx + animX;
         item.by = p.by + animY;
+
+        // X座標の絶対値に基づく水平グラデーション減衰
+        // 中央（absX=0）付近で最大輝度、左右に広がるほど線形に減衰
+        const absX = Math.abs(p.bx);
+        const AURA_FADE_START = 30;  // この距離から減衰開始
+        const AURA_FADE_END   = 180; // この距離で消える
+        const xFade = absX <= AURA_FADE_START
+          ? 1.0
+          : Math.max(0, 1.0 - (absX - AURA_FADE_START) / (AURA_FADE_END - AURA_FADE_START));
+        // 滑らかなイーズアウト
+        const smoothFade = xFade * xFade;
+
+        const alpha = smoothFade * waveGlow;
+
         item.rgb = [
-          Math.min(255, Math.round(p.rgb[0] * waveGlow)),
-          Math.min(255, Math.round(p.rgb[1] * waveGlow)),
-          Math.min(255, Math.round(p.rgb[2] * waveGlow))
+          Math.min(255, Math.round(p.rgb[0] * alpha)),
+          Math.min(255, Math.round(p.rgb[1] * alpha)),
+          Math.min(255, Math.round(p.rgb[2] * alpha))
         ];
-        item.size = Math.max(0.6, p.size * waveGlow);
+        item.size = Math.max(0.4, p.size * alpha);
       }
     }
 
