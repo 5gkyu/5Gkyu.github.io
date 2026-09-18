@@ -1359,6 +1359,8 @@ function generateMeadowAndFlowersData() {
       }
     }
 
+    // 周囲の草原と均一に草むらを配置（足元特化の密集塊は削除されたまま、自然な草むらで空間を埋める）
+
     pts.push({
       gx: spreadX,
       gy: depthY,
@@ -1372,31 +1374,7 @@ function generateMeadowAndFlowersData() {
     });
   }
 
-  // 少女の足元・手前（X: -110 .. -50, Y: -4 .. 30）に、少女の足元を自然に包む草・月光花を約 180点配置
-  for (let i = 0; i < 180; i++) {
-    const r0 = pseudoRandom(i * 2.87 + 0.1);
-    const r1 = pseudoRandom(i * 2.87 + 0.2);
-    const r2 = pseudoRandom(i * 2.87 + 0.3);
-    const r3 = pseudoRandom(i * 2.87 + 0.4);
-
-    const gx = (GIRL_BASE_X - 30) + r0 * 60;
-    const gy = (GIRL_BASE_Y - 2) + r1 * 34; // 少女の接地Y(-5)より手前
-    const depthRatio = (gy + 35) / 175;
-    const tuftH = 7 + r2 * 9;
-    const isFlower = (r3 < 0.40);
-
-    pts.push({
-      gx: gx,
-      gy: gy,
-      depthRatio: depthRatio,
-      tuftH: tuftH,
-      isFlower: isFlower,
-      flowerType: isFlower ? 'luminous_cyan' : 'grass',
-      flowerCol: isFlower ? PALETTE_MEADOW.flowerLuminousCyan : PALETTE_MEADOW.mgGrassEdge,
-      phaseOffset: gx * 0.008 + gy * 0.012,
-      size: 1.6 + depthRatio * 0.7
-    });
-  }
+  // ※ キャラクターの足元の草はユーザー指示により削除
 
   return pts;
 }
@@ -1667,24 +1645,14 @@ function generateMeadowTemplate(time = 0) {
     }
   }
 
-  // (B) 少女モデル（画像準拠：後ろ姿で直立、夜風に揺らめく光の少女）
+  // (B) 少女モデル（後ろ姿で静かに佇む光の少女：全粒子統一した自然な呼吸）
   const { baseX, baseY, pts: gPts } = girlData;
   const girlBreathe = Math.sin(time * 1.8) * 0.8;
-  const windLoose = Math.sin(time * 2.4) * 2.2;
-  const windDress = Math.sin(time * 2.0) * 2.5;
 
   for (let i = 0; i < gPts.length; i++) {
     const p = gPts[i];
-    let animX = 0;
-    let animY = girlBreathe;
-
-    if (p.part === 'loose_hair') {
-      animX += windLoose;
-      animY += Math.cos(time * 2.0) * 0.8;
-    } else if (p.part === 'rim' && p.ry > -40 && p.rx > 4) {
-      const ratio = (p.ry - (-40)) / 40;
-      animX += windDress * ratio;
-    }
+    const animX = 0;
+    const animY = girlBreathe;
 
     let [pr, pg, pb] = p.rgb;
     let pSize = p.size;

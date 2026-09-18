@@ -1,0 +1,3567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重力反転コネクトフォー | Halcyon - 5Gkyu</title>
+  <meta name="description" content="3手ごとに重力が反転する新感覚の四目並べ。石を落とさずに重力を操作する特殊スキルを駆使してAIと対決しよう。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/gravity-connect-four/">
+
+  <!-- アイコン類 -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+  <link rel="manifest" href="/icon/site.webmanifest">
+
+  <!-- Google Fonts: Zen Maru Gothic & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- FOUC防止スタイル -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
+
+  <style>
+    :root {
+      --clr-cream: #FBF6EA;
+      --clr-sage: #9AB08F;
+      --clr-sage-light: #edf2eb;
+      --clr-sage-dark: #6e8862;
+      --clr-peach: #EEAFA1;
+      --clr-peach-light: #fef0ee;
+      --clr-dusty-blue: #92B5BC;
+      --clr-dusty-blue-light: #eef5f6;
+      --clr-brown: #6A564A;
+      --clr-brown-light: #8d7a6e;
+      --clr-brown-pale: rgba(106, 86, 74, 0.08);
+
+      --clr-card-bg: #FFFFFF;
+      --clr-card-border: rgba(106, 86, 74, 0.12);
+
+      --clr-red-disc: #e06d53;
+      --clr-red-disc-light: #f69d89;
+      --clr-yellow-disc: #f0b83b;
+      --clr-yellow-disc-light: #f9d57a;
+
+      --board-tray: #e8decc;
+      --board-inner: #d8c7af;
+      --cell-hole: #fdfbf7;
+
+      --font-main: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+      --font-logo: 'Quicksand', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--clr-cream);
+      color: var(--clr-brown);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    /* メイン対戦アリーナ（PC時は3カラム対角線レイアウト） */
+    .arena-main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3.5rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* パンくずリスト */
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--clr-brown-light);
+    }
+
+    .breadcrumb-nav a {
+      color: var(--clr-brown);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .breadcrumb-nav a:hover {
+      color: var(--clr-sage-dark);
+      text-decoration: underline;
+    }
+
+    .breadcrumb-sep {
+      opacity: 0.5;
+    }
+
+    /* タイトルヘッダー */
+    .page-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .page-title {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      letter-spacing: 0.02em;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-pill-btn {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-card-border);
+      color: var(--clr-brown);
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .icon-pill-btn:hover {
+      background: var(--clr-cream);
+      border-color: rgba(106, 86, 74, 0.25);
+    }
+
+    /* 盤面を挟んで左下にユーザー、右上にAIを配置するバトルフィールドグリッド */
+    .arena-battlefield {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 280px minmax(360px, 480px) 280px;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    /* 左下：ユーザープレイヤーエリア */
+    .arena-slot-bottom-left {
+      align-self: end;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      width: 100%;
+    }
+
+    /* 中央：ゲーム盤面エリア */
+    .arena-slot-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* 右上：AIプレイヤーエリア */
+    .arena-slot-top-right {
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    @media (max-width: 980px) {
+      .arena-battlefield {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        gap: 1.25rem;
+      }
+      .arena-slot-top-right {
+        order: 1;
+        align-self: flex-end;
+        align-items: flex-end;
+      }
+      .arena-slot-center {
+        order: 2;
+      }
+      .arena-slot-bottom-left {
+        order: 3;
+        align-self: flex-start;
+        align-items: flex-start;
+      }
+    }
+
+    .player-card {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 20px;
+      padding: 0.85rem 1.1rem;
+      box-shadow: 0 6px 20px rgba(106, 86, 74, 0.06);
+      width: 100%;
+      max-width: 380px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .player-card.active-turn {
+      border-color: var(--clr-sage);
+      box-shadow: 0 8px 24px rgba(154, 176, 143, 0.25);
+      background: #ffffff;
+    }
+
+    .player-card.ai-card.active-turn {
+      border-color: var(--clr-yellow-disc);
+      box-shadow: 0 8px 24px rgba(240, 184, 59, 0.25);
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .player-identity {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .player-disc-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    .player-name-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-weight: 700;
+      background: var(--clr-cream);
+      color: var(--clr-brown-light);
+      border: 1px solid var(--clr-card-border);
+    }
+
+    .status-badge.thinking {
+      background: var(--clr-peach-light);
+      color: var(--clr-red-disc);
+      border-color: var(--clr-peach);
+      animation: pulse-think 1s infinite alternate;
+    }
+
+    @keyframes pulse-think {
+      0% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    .status-badge.my-turn {
+      background: var(--clr-sage-light);
+      color: var(--clr-sage-dark);
+      border-color: var(--clr-sage);
+    }
+
+    /* スキル残数バー */
+    /* MPステータスボックス */
+    .mp-status-box {
+      background: var(--clr-cream);
+      border: 1px solid var(--clr-card-border);
+      border-radius: 14px;
+      padding: 0.5rem 0.8rem;
+      margin-top: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .mp-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mp-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--clr-brown);
+      letter-spacing: 0.04em;
+    }
+
+    .mp-val-text {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--clr-sage-dark);
+      font-family: var(--font-logo);
+    }
+
+    .ai-card .mp-val-text {
+      color: #b87a0f;
+    }
+
+    /* 8分割MPプログレスゲージ */
+    .mp-track {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+      height: 7px;
+    }
+
+    .mp-segment {
+      flex: 1;
+      height: 100%;
+      border-radius: 2px;
+      background: rgba(106, 86, 74, 0.15);
+      transition: all 0.25s ease;
+    }
+
+    .mp-segment.charged {
+      background: var(--clr-sage);
+      box-shadow: 0 1px 4px rgba(154, 176, 143, 0.4);
+    }
+
+    .ai-card .mp-segment.charged {
+      background: var(--clr-yellow-disc);
+      box-shadow: 0 1px 4px rgba(240, 184, 59, 0.4);
+    }
+
+    /* 3大スキルボタングリッド (上段2つ、下段に必殺即時転換) */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-top: 0.6rem;
+    }
+
+    .btn-skill-card.shift-full {
+      grid-column: span 2;
+    }
+
+    .btn-skill-card {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 12px;
+      padding: 0.45rem 0.5rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      transition: all 0.2s ease;
+      text-align: left;
+      position: relative;
+    }
+
+    .btn-skill-card:hover:not(:disabled) {
+      border-color: var(--clr-sage);
+      background: var(--clr-sage-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(154, 176, 143, 0.25);
+    }
+
+    .btn-skill-card:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-skill-card:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: #faf8f5;
+      border-color: rgba(106, 86, 74, 0.12);
+    }
+
+    .btn-skill-card.active-selecting {
+      border-color: var(--clr-sage-dark);
+      background: var(--clr-sage-light);
+      box-shadow: 0 0 0 2px var(--clr-sage);
+    }
+
+    .skill-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .skill-card-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--clr-brown);
+      white-space: nowrap;
+    }
+
+    .skill-cost-pill {
+      font-size: 0.66rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: var(--clr-sage-dark);
+      padding: 1px 6px;
+      border-radius: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .skill-card-desc {
+      font-size: 0.66rem;
+      color: var(--clr-brown-light);
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* スキル操作補助・キャンセルバナー */
+    .skill-guide-panel {
+      margin-top: 0.5rem;
+      background: var(--clr-sage-light);
+      border: 1.5px solid var(--clr-sage);
+      border-radius: 12px;
+      padding: 0.5rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      animation: fadeInDown 0.2s ease;
+    }
+
+    .skill-guide-panel.hidden {
+      display: none;
+    }
+
+    .skill-guide-text {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--clr-sage-dark);
+      line-height: 1.35;
+    }
+
+    .skill-guide-actions {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .btn-skill-cancel {
+      background: #ffffff;
+      border: 1px solid var(--clr-card-border);
+      color: var(--clr-brown);
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-skill-cancel:hover {
+      background: var(--clr-cream);
+    }
+
+
+    /* 4方向即時転換パネル */
+    .direction-select-panel {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .direction-select-panel.hidden {
+      display: none;
+    }
+
+    .dir-select-btn {
+      background: #ffffff;
+      border: 1px solid var(--clr-sage);
+      border-radius: 8px;
+      padding: 0.35rem 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: all 0.15s ease;
+    }
+
+    .dir-select-btn:hover:not(:disabled) {
+      background: var(--clr-sage);
+      color: #ffffff;
+    }
+
+    .dir-select-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      border-color: rgba(106, 86, 74, 0.15);
+      background: #faf8f5;
+    }
+
+
+
+
+    /* 周期反転表示バッジ */
+    .cycle-dir-indicator {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--clr-brown-light);
+      background: var(--clr-cream);
+      border: 1px solid var(--clr-card-border);
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+
+    /* ========================================================
+       中央ゲーム盤面カード
+    ======================================================== */
+    .arena-board-card {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 24px;
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px rgba(106, 86, 74, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* 盤面上部コントロール（大型で直感的なクリア表示） */
+    .board-header-bar {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .gravity-badge-large {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #ffffff;
+      border: 2px solid var(--clr-sage);
+      padding: 0.5rem 1rem;
+      border-radius: 18px;
+      box-shadow: 0 4px 14px rgba(154, 176, 143, 0.22);
+      flex: 1;
+      max-width: 240px;
+      transition: all 0.3s ease;
+    }
+
+    .compass-dial-large {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--clr-sage-light);
+      border: 2px solid var(--clr-sage);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(106, 86, 74, 0.1);
+      flex-shrink: 0;
+      color: var(--clr-sage-dark);
+    }
+
+    .compass-svg-large {
+      width: 20px;
+      height: 20px;
+      stroke: var(--clr-sage-dark);
+    }
+
+    .gravity-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .gravity-sub-label {
+      font-size: 0.7rem;
+      color: var(--clr-brown-light);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .gravity-next-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--clr-sage-dark);
+      background: var(--clr-sage-light);
+      padding: 1px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(154, 176, 143, 0.4);
+      white-space: nowrap;
+    }
+
+    .gravity-main-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--clr-brown);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .shift-badge-large {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      background: #ffffff;
+      border: 2px solid var(--clr-card-border);
+      padding: 0.5rem 1rem;
+      border-radius: 18px;
+      gap: 0.35rem;
+      flex: 1;
+      max-width: 210px;
+      box-shadow: 0 4px 14px rgba(106, 86, 74, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    .shift-text-wrap {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      width: 100%;
+      gap: 0.5rem;
+    }
+
+    .shift-sub-label {
+      font-size: 0.7rem;
+      color: var(--clr-brown-light);
+      font-weight: 700;
+    }
+
+    .shift-main-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--clr-sage-dark);
+      font-family: var(--font-logo);
+      letter-spacing: -0.01em;
+    }
+
+    .shift-bars-progress {
+      display: flex;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .shift-bar-step {
+      flex: 1;
+      height: 7px;
+      border-radius: 4px;
+      background: rgba(106, 86, 74, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .shift-bar-step.active {
+      background: var(--clr-sage);
+      box-shadow: 0 2px 5px rgba(154, 176, 143, 0.45);
+    }
+
+    /* 残り1手の警戒スタイル */
+    .shift-badge-large.warning {
+      border-color: var(--clr-peach);
+      background: var(--clr-peach-light);
+      box-shadow: 0 4px 16px rgba(224, 109, 83, 0.25);
+      animation: alert-border-pulse 1.4s infinite alternate ease-in-out;
+    }
+
+    @keyframes alert-border-pulse {
+      0% { transform: scale(1); border-color: var(--clr-peach); }
+      100% { transform: scale(1.02); border-color: var(--clr-red-disc); }
+    }
+
+    .shift-badge-large.warning .shift-main-val {
+      color: var(--clr-red-disc);
+    }
+
+    .shift-badge-large.warning .shift-bar-step.active {
+      background: var(--clr-red-disc);
+      box-shadow: 0 2px 6px rgba(224, 109, 83, 0.5);
+    }
+
+    /* 警告アラートバナー */
+    .alert-banner {
+      width: 100%;
+      max-width: 480px;
+      background: var(--clr-peach-light);
+      border: 1.5px solid var(--clr-peach);
+      border-radius: 12px;
+      padding: 0.55rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--clr-red-disc);
+      margin-bottom: 0.85rem;
+      box-shadow: 0 4px 12px rgba(238, 175, 161, 0.25);
+      animation: alert-pulse 1.6s infinite alternate;
+    }
+
+    .alert-banner.hidden {
+      display: none;
+    }
+
+    @keyframes alert-pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.01); box-shadow: 0 6px 16px rgba(238, 175, 161, 0.35); }
+    }
+
+    /* ========================================================
+       投入レーン矢印インジケーター (絶対配置でトレイサイズに一切影響しない)
+    ======================================================== */
+    .lane-arrows-bar {
+      position: absolute;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .lane-arrows-bar.is-active {
+      display: grid;
+      pointer-events: auto;
+      animation: fadeInArrow 0.2s ease forwards;
+    }
+
+    @keyframes fadeInArrow {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* 上下バー（7列）: トレイの内側グリッド(12px+7px=19px)と完全整列 */
+    .lane-arrows-bar.bar-top {
+      top: -30px;
+      left: 19px;
+      right: 19px;
+      height: 24px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+    }
+
+    .lane-arrows-bar.bar-bottom {
+      bottom: -30px;
+      left: 19px;
+      right: 19px;
+      height: 24px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+    }
+
+    /* 左右バー（7行）: トレイの内側グリッド(12px+7px=19px)と完全整列 */
+    .lane-arrows-bar.bar-left {
+      left: -30px;
+      top: 19px;
+      bottom: 19px;
+      width: 24px;
+      grid-template-rows: repeat(7, 1fr);
+      gap: 7px;
+    }
+
+    .lane-arrows-bar.bar-right {
+      right: -30px;
+      top: 19px;
+      bottom: 19px;
+      width: 24px;
+      grid-template-rows: repeat(7, 1fr);
+      gap: 7px;
+    }
+
+    /* 矢印ボタン本体 */
+    .lane-arrow-btn {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-sage);
+      border-radius: 7px;
+      color: var(--clr-sage-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(154, 176, 143, 0.25);
+      transition: all 0.15s ease;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .lane-arrow-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--clr-sage-dark);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.15s ease, stroke 0.15s ease;
+    }
+
+    .lane-arrow-btn:hover:not(:disabled) {
+      background: var(--clr-sage);
+      border-color: var(--clr-sage-dark);
+      box-shadow: 0 3px 8px rgba(154, 176, 143, 0.45);
+      transform: scale(1.08);
+    }
+
+    .lane-arrow-btn:hover:not(:disabled) svg {
+      stroke: #ffffff;
+    }
+
+    /* バウンドアニメーション */
+    .bar-top .lane-arrow-btn:not(:disabled) {
+      animation: bounce-down 1.4s infinite ease-in-out;
+    }
+    .bar-bottom .lane-arrow-btn:not(:disabled) {
+      animation: bounce-up 1.4s infinite ease-in-out;
+    }
+    .bar-left .lane-arrow-btn:not(:disabled) {
+      animation: bounce-right 1.4s infinite ease-in-out;
+    }
+    .bar-right .lane-arrow-btn:not(:disabled) {
+      animation: bounce-left 1.4s infinite ease-in-out;
+    }
+
+    @keyframes bounce-down {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(3px); }
+    }
+    @keyframes bounce-up {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes bounce-right {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(3px); }
+    }
+    @keyframes bounce-left {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-3px); }
+    }
+
+    /* 満杯で落とせないレーンのスタイル */
+    .lane-arrow-btn:disabled {
+      opacity: 0.18;
+      cursor: not-allowed;
+      border-color: rgba(106, 86, 74, 0.2);
+      background: #f5f0e8;
+      animation: none !important;
+      box-shadow: none;
+      transform: none !important;
+    }
+    .lane-arrow-btn:disabled svg {
+      stroke: var(--clr-brown-light);
+    }
+
+    /* ゲーム盤面トレイ（元の480pxサイズを完全維持） */
+    .board-tray-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1 / 1;
+      padding: 12px;
+      background: var(--board-tray);
+      border-radius: 26px;
+      border: 3.5px solid rgba(154, 176, 143, 0.3);
+      box-shadow: 
+        0 12px 30px rgba(106, 86, 74, 0.12),
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 -3px 6px rgba(106, 86, 74, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      margin: 30px auto;
+    }
+
+    /* 重力方向に応じたエッジ光彩 & 背景グラデーション */
+    .board-tray-wrapper[data-gravity="down"] {
+      background: linear-gradient(180deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
+      border-bottom-color: var(--clr-sage);
+      border-bottom-width: 5.5px;
+      box-shadow: 
+        0 18px 38px rgba(154, 176, 143, 0.38),
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 -4px 8px rgba(154, 176, 143, 0.25);
+    }
+    .board-tray-wrapper[data-gravity="down"] .board-grid-inner {
+      background: 
+        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
+        linear-gradient(180deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
+    }
+    .board-tray-wrapper[data-gravity="down"] .board-cell {
+      box-shadow: 
+        inset 0 3px 5px rgba(106, 86, 74, 0.32),
+        inset 0 -1.5px 2px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .board-tray-wrapper[data-gravity="right"] {
+      background: linear-gradient(90deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
+      border-right-color: var(--clr-sage);
+      border-right-width: 5.5px;
+      box-shadow: 
+        18px 0 38px rgba(154, 176, 143, 0.38),
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset -4px 0 8px rgba(154, 176, 143, 0.25);
+    }
+    .board-tray-wrapper[data-gravity="right"] .board-grid-inner {
+      background: 
+        linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
+        linear-gradient(90deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
+    }
+    .board-tray-wrapper[data-gravity="right"] .board-cell {
+      box-shadow: 
+        inset 3px 0 5px rgba(106, 86, 74, 0.32),
+        inset -1.5px 0 2px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .board-tray-wrapper[data-gravity="up"] {
+      background: linear-gradient(0deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
+      border-top-color: var(--clr-sage);
+      border-top-width: 5.5px;
+      box-shadow: 
+        0 -18px 38px rgba(154, 176, 143, 0.38),
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 4px 8px rgba(154, 176, 143, 0.25);
+    }
+    .board-tray-wrapper[data-gravity="up"] .board-grid-inner {
+      background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
+        linear-gradient(0deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
+    }
+    .board-tray-wrapper[data-gravity="up"] .board-cell {
+      box-shadow: 
+        inset 0 -3px 5px rgba(106, 86, 74, 0.32),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .board-tray-wrapper[data-gravity="left"] {
+      background: linear-gradient(270deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
+      border-left-color: var(--clr-sage);
+      border-left-width: 5.5px;
+      box-shadow: 
+        -18px 0 38px rgba(154, 176, 143, 0.38),
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 4px 0 8px rgba(154, 176, 143, 0.25);
+    }
+    .board-tray-wrapper[data-gravity="left"] .board-grid-inner {
+      background: 
+        linear-gradient(270deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
+        linear-gradient(270deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
+    }
+    .board-tray-wrapper[data-gravity="left"] .board-cell {
+      box-shadow: 
+        inset -3px 0 5px rgba(106, 86, 74, 0.32),
+        inset 1.5px 0 2px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .screen-shake {
+      animation: gentle-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes gentle-shake {
+      10%, 90% { transform: translate3d(-3px, 1px, 0); }
+      20%, 80% { transform: translate3d(3px, -2px, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 2px, 0); }
+      40%, 60% { transform: translate3d(4px, 1px, 0); }
+    }
+
+    .board-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .board-grid-inner {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(7, 1fr);
+      gap: 7px;
+      background: var(--board-inner);
+      padding: 7px;
+      border-radius: 18px;
+      box-shadow: inset 0 3px 10px rgba(106, 86, 74, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      touch-action: manipulation;
+    }
+
+    /* セル穴 */
+    .board-cell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--cell-hole);
+      border-radius: 50%;
+      box-shadow: 
+        inset 0 3px 6px rgba(106, 86, 74, 0.35),
+        inset 0 -1px 2px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+    }
+
+    .board-cell:hover {
+      background: #f4eee2;
+    }
+
+    /* 落下プレビュー（着地点のセル穴そのものをハイライトするため100%ズレない） */
+    .board-cell.preview-red {
+      background: radial-gradient(circle, rgba(224, 109, 83, 0.45) 50%, rgba(224, 109, 83, 0.15) 100%) !important;
+      outline: 2.5px dashed var(--clr-red-disc);
+      outline-offset: -2.5px;
+      box-shadow: inset 0 2px 4px rgba(224, 109, 83, 0.3), 0 0 10px rgba(224, 109, 83, 0.35);
+    }
+
+    .board-cell.preview-yellow {
+      background: radial-gradient(circle, rgba(240, 184, 59, 0.45) 50%, rgba(240, 184, 59, 0.15) 100%) !important;
+      outline: 2.5px dashed var(--clr-yellow-disc);
+      outline-offset: -2.5px;
+      box-shadow: inset 0 2px 4px rgba(240, 184, 59, 0.3), 0 0 10px rgba(240, 184, 59, 0.35);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 石コンテナ */
+    .discs-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* 石のベーススタイル */
+    .disc-item {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      transition: transform 0.34s cubic-bezier(0.2, 0.8, 0.3, 1);
+      box-shadow: 0 4px 8px rgba(106, 86, 74, 0.25);
+      will-change: transform;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disc-item::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 14%;
+      width: 38%;
+      height: 26%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 80%);
+    }
+
+    .disc-item::after {
+      content: '';
+      position: absolute;
+      inset: 5%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    /* 赤の石（あなた / 先手） */
+    .disc-item.red {
+      background: radial-gradient(circle at 35% 35%, var(--clr-red-disc-light), var(--clr-red-disc) 70%, #ba4d36 100%);
+      box-shadow: 0 4px 10px rgba(224, 109, 83, 0.38), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    /* 黄の石（AI / 後手） */
+    .disc-item.yellow {
+      background: radial-gradient(circle at 35% 35%, var(--clr-yellow-disc-light), var(--clr-yellow-disc) 70%, #c98816 100%);
+      box-shadow: 0 4px 10px rgba(240, 184, 59, 0.38), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    /* 勝利ラインのハイライト */
+    .disc-item.winning-disc {
+      z-index: 10;
+      animation: win-pulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes win-pulse {
+      0% {
+        transform: translate(var(--dx), var(--dy)) scale(1);
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(1.12);
+        filter: drop-shadow(0 0 14px #ffffff) brightness(1.2);
+      }
+    }
+
+    /* 下部ヒント */
+    .board-hint-text {
+      margin-top: 0.75rem;
+      font-size: 0.86rem;
+      color: var(--clr-brown-light);
+      text-align: center;
+    }
+
+    /* フッターアクション */
+    .bottom-controls-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-main-action {
+      background: var(--clr-cream);
+      border: 1.5px solid var(--clr-card-border);
+      color: var(--clr-brown);
+      padding: 0.55rem 1.25rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-main-action:hover {
+      background: #f4ecda;
+      border-color: rgba(106, 86, 74, 0.25);
+    }
+
+    /* モーダルダイアログ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(106, 86, 74, 0.4);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.is-active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog-box {
+      background: #ffffff;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 24px;
+      padding: 2rem 1.75rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(106, 86, 74, 0.2);
+      transform: translateY(20px) scale(0.96);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-backdrop.is-active .modal-dialog-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--clr-sage-dark);
+      background: var(--clr-sage-light);
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-main-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      margin-bottom: 1rem;
+    }
+
+    .modal-winner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 24px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-body-text {
+      font-size: 0.95rem;
+      color: var(--clr-brown-light);
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+
+    .btn-modal-primary {
+      width: 100%;
+      background: var(--clr-sage);
+      color: #fff;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-primary:hover {
+      background: var(--clr-sage-dark);
+    }
+
+    /* Markdown読み込みコンテンツのスタイル */
+    .rules-md-content h1 { font-size: 1.15rem; margin-bottom: 0.8rem; color: var(--clr-brown); border-bottom: 1.5px solid var(--clr-sage); padding-bottom: 0.35rem; }
+    .rules-md-content h2 { font-size: 1.05rem; margin-top: 1rem; margin-bottom: 0.45rem; color: var(--clr-brown); }
+    .rules-md-content h3 { font-size: 0.95rem; margin-top: 0.8rem; margin-bottom: 0.35rem; color: var(--clr-sage-dark); }
+    .rules-md-content p { margin-bottom: 0.6rem; }
+    .rules-md-content ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .rules-md-content li { margin-bottom: 0.35rem; }
+    .rules-md-content hr { border: none; border-top: 1px dashed var(--clr-card-border); margin: 0.85rem 0; }
+    .rules-md-content strong { color: var(--clr-brown); font-weight: 700; }
+
+    /* -------------------------------------------------------------
+       必殺技・能力発動カットイン演出 (Skill Cut-in Overlay)
+    ------------------------------------------------------------- */
+    .skill-cutin-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(20, 15, 12, 0.55);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+      pointer-events: none;
+    }
+
+    .skill-cutin-overlay.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .skill-cutin-banner {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+      color: #FFFFFF;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45), 0 0 50px rgba(255, 255, 255, 0.3);
+      transform: scale(0.65) translateY(24px);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.22s ease;
+    }
+
+    .skill-cutin-overlay.is-active .skill-cutin-banner {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    /* あなた（赤）発動時テーマ */
+    .skill-cutin-banner.theme-red {
+      background: linear-gradient(135deg, #c94c34 0%, #e06d53 50%, #f69d89 100%);
+      border-top: 4px solid rgba(255, 255, 255, 0.85);
+      border-bottom: 4px solid rgba(255, 255, 255, 0.85);
+    }
+
+    /* AI（黄）発動時テーマ */
+    .skill-cutin-banner.theme-yellow {
+      background: linear-gradient(135deg, #b87c12 0%, #e59e1e 50%, #f7ca5e 100%);
+      border-top: 4px solid rgba(255, 255, 255, 0.85);
+      border-bottom: 4px solid rgba(255, 255, 255, 0.85);
+    }
+
+    /* 必殺技の走る光彩エフェクト */
+    .cutin-shimmer {
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: skewX(-25deg);
+      pointer-events: none;
+    }
+
+    .skill-cutin-overlay.is-active .cutin-shimmer {
+      animation: cutinShimmerAnim 0.7s ease 0.08s forwards;
+    }
+
+    @keyframes cutinShimmerAnim {
+      0% { left: -150%; }
+      100% { left: 220%; }
+    }
+
+    .cutin-user-tag {
+      display: inline-block;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.24);
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      padding: 4px 18px;
+      border-radius: 24px;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .cutin-skill-name {
+      font-size: clamp(2.3rem, 7vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0.22em;
+      line-height: 1.15;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.45);
+      margin: 0.2rem 0;
+    }
+
+    .cutin-skill-ruby {
+      font-family: var(--font-logo);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      opacity: 0.95;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .cutin-skill-desc {
+      font-size: clamp(1.05rem, 3vw, 1.35rem);
+      font-weight: 700;
+      margin-top: 0.85rem;
+      color: #FFF9EE;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 520px) {
+      .arena-main {
+        padding: 1rem 0.6rem 2.5rem;
+        gap: 1rem;
+      }
+      .board-tray-wrapper {
+        padding: 8px;
+        border-radius: 20px;
+      }
+      .board-grid-inner {
+        gap: 4px;
+        padding: 4px;
+        border-radius: 14px;
+      }
+      .page-title {
+        font-size: 1.4rem;
+      }
+      .player-card {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Halcyon サイトヘッダー -->
+  <site-header site-name="Play"></site-header>
+
+  <!-- 対戦アリーナ (1カラム中央レイアウト) -->
+  <main class="arena-main">
+
+    <!-- パンくずリスト -->
+    <nav class="breadcrumb-nav" aria-label="パンくずリスト">
+      <a href="/">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="/archive/">Archive</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="/archive/play/">Play</a>
+      <span class="breadcrumb-sep">/</span>
+      <span style="color: var(--clr-brown); font-weight: 700;">重力反転コネクトフォー</span>
+    </nav>
+
+    <!-- ページタイトル & アクション -->
+    <div class="page-title-row">
+      <h1 class="page-title">重力反転コネクトフォー</h1>
+      <div class="top-actions">
+        <button class="icon-pill-btn" id="btn-sound-toggle" title="サウンド切替">
+          <span id="sound-icon">♪</span>
+          <span id="sound-label">音: ON</span>
+        </button>
+        <button class="icon-pill-btn" id="btn-open-rules">あそびかた</button>
+      </div>
+    </div>
+
+    <!-- 対戦バトルフィールド (左下にユーザー、中央に盤面、右上にAI) -->
+    <div class="arena-battlefield">
+
+      <!-- 左下：ユーザープレイヤーエリア -->
+      <div class="arena-slot-bottom-left">
+        <div class="player-card user-card active-turn" id="card-user">
+          <div class="player-header">
+            <div class="player-identity">
+              <div class="player-disc-icon" style="background: var(--clr-red-disc);"></div>
+              <span class="player-name-text">あなた (PLAYER)</span>
+            </div>
+            <span class="status-badge my-turn" id="user-status-badge">あなたの番</span>
+          </div>
+
+          <!-- ユーザー MPステータスゲージ (最大8) -->
+          <div class="mp-status-box">
+            <div class="mp-header-row">
+              <span class="mp-label">ENERGY (MP)</span>
+              <span class="mp-val-text" id="user-mp-text">2 / 8 MP</span>
+            </div>
+            <div class="mp-track" id="user-mp-track">
+              <div class="mp-segment charged"></div>
+              <div class="mp-segment charged"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+            </div>
+          </div>
+
+          <!-- 3大スキルボタングリッド (上段2つ、下段に必殺即時転換) -->
+          <div class="skills-grid">
+            <button class="btn-skill-card" id="btn-skill-reverse" title="重力の自動巡回順を反転（時計回り ⇔ 反時計回り）させます">
+              <div class="skill-card-top">
+                <span class="skill-card-title">周期反転</span>
+                <span class="skill-cost-pill">2 MP</span>
+              </div>
+              <span class="skill-card-desc">巡回の向きを時計/反時計で逆転</span>
+            </button>
+
+            <button class="btn-skill-card" id="btn-skill-forward" title="周期に従い、今すぐ次の重力方向へ移動させて全石をスライドします">
+              <div class="skill-card-top">
+                <span class="skill-card-title">重力前進</span>
+                <span class="skill-cost-pill" style="background: var(--clr-dusty-blue-dark, #5e8f99);">4 MP</span>
+              </div>
+              <span class="skill-card-desc">今すぐ次の重力方向へ進める</span>
+            </button>
+
+            <button class="btn-skill-card shift-full" id="btn-skill-shift" title="巡回を無視して、今すぐ好きな方向へ重力を切り替えます">
+              <div class="skill-card-top">
+                <span class="skill-card-title">即時転換</span>
+                <span class="skill-cost-pill" style="background: var(--clr-red-disc);">8 MP (MAX)</span>
+              </div>
+              <span class="skill-card-desc">今すぐ好きな方向へ重力を即時変更（全エネルギー消費）</span>
+            </button>
+          </div>
+
+          <!-- スキル操作補助・選択パネル (発動時に展開) -->
+          <div class="skill-guide-panel hidden" id="skill-guide-panel">
+            <span class="skill-guide-text" id="skill-guide-text">説明テキスト</span>
+
+            <!-- 即時転換用の4方向選択パネル -->
+            <div class="direction-select-panel hidden" id="direction-select-panel">
+              <button class="dir-select-btn" data-dir="up">↑ 上</button>
+              <button class="dir-select-btn" data-dir="right">→ 右</button>
+              <button class="dir-select-btn" data-dir="down">↓ 下</button>
+              <button class="dir-select-btn" data-dir="left">← 左</button>
+            </div>
+
+            <div class="skill-guide-actions">
+              <button class="btn-skill-cancel" id="btn-cancel-skill">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中央：ゲーム盤面カード -->
+      <div class="arena-slot-center">
+        <div class="arena-board-card">
+          <!-- 盤面上部コントロール（大型で直感的なクリア表示） -->
+          <div class="board-header-bar">
+            <!-- 現在の重力方向バッジ -->
+            <div class="gravity-badge-large" id="gravity-badge-large" title="現在の重力方向と次の反転先">
+              <div class="compass-dial-large" id="large-compass-dial">
+                <svg class="compass-svg-large" viewBox="0 0 24 24">
+                  <path d="M12 4v13m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div class="gravity-text-wrap">
+                <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                  <span class="gravity-sub-label">重力</span>
+                  <span class="gravity-next-tag" id="gravity-next-preview">次: 右 →</span>
+                  <span class="cycle-dir-indicator" id="cycle-dir-badge">時計回り</span>
+                </div>
+                <span class="gravity-main-val" id="current-gravity-name">下方向 (↓)</span>
+              </div>
+            </div>
+
+            <!-- 自動反転カウントダウンバッジ -->
+            <div class="shift-badge-large" id="shift-badge-large" title="石を打つたびにカウントが減り、0で自動反転します">
+              <div class="shift-text-wrap">
+                <span class="shift-sub-label">自動反転まで</span>
+                <span class="shift-main-val" id="shift-moves-text">あと 3 手</span>
+              </div>
+              <div class="shift-bars-progress" id="shift-bars-progress">
+                <div class="shift-bar-step active" id="s-bar-1"></div>
+                <div class="shift-bar-step active" id="s-bar-2"></div>
+                <div class="shift-bar-step active" id="s-bar-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 警告バナー (残り1手) -->
+          <div class="alert-banner hidden" id="alert-banner">
+            <span>!</span>
+            <span id="alert-banner-text">警告: 次の手で【右】方向に重力が反転します！</span>
+          </div>
+
+          <!-- 7x7 正方形ボード（元の480pxサイズを完全維持） -->
+          <div class="board-tray-wrapper" id="board-tray-wrapper" data-gravity="down">
+            <!-- 4辺の投入レーン矢印インジケーター (絶対配置でトレイサイズに一切影響しない) -->
+            <div class="lane-arrows-bar bar-top is-active" id="lane-arrows-top">
+              <button class="lane-arrow-btn" data-lane="top" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+            </div>
+
+            <div class="lane-arrows-bar bar-bottom" id="lane-arrows-bottom">
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+            </div>
+
+            <div class="lane-arrows-bar bar-left" id="lane-arrows-left">
+              <button class="lane-arrow-btn" data-lane="left" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+            </div>
+
+            <div class="lane-arrows-bar bar-right" id="lane-arrows-right">
+              <button class="lane-arrow-btn" data-lane="right" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+            </div>
+
+            <div class="board-stage" id="board-stage">
+              <!-- 穴のグリッド -->
+              <div class="board-grid-inner" id="board-grid-inner"></div>
+
+              <!-- スライドする石レイヤー -->
+              <div class="discs-layer" id="discs-layer"></div>
+            </div>
+          </div>
+
+          <p class="board-hint-text" id="board-hint-text">あなたの番です。空いているマスをクリックしてください</p>
+        </div>
+      </div>
+
+      <!-- 右上：AIプレイヤーエリア -->
+      <div class="arena-slot-top-right">
+        <div class="player-card ai-card" id="card-ai">
+          <div class="player-header">
+            <div class="player-identity">
+              <div class="player-disc-icon" style="background: var(--clr-yellow-disc);"></div>
+              <span class="player-name-text">AI (CPU)</span>
+            </div>
+            <span class="status-badge" id="ai-status-badge">待機中</span>
+          </div>
+          <!-- AI MPステータスゲージ (最大8) -->
+          <div class="mp-status-box">
+            <div class="mp-header-row">
+              <span class="mp-label">ENERGY (MP)</span>
+              <span class="mp-val-text" id="ai-mp-text">2 / 8 MP</span>
+            </div>
+            <div class="mp-track" id="ai-mp-track">
+              <div class="mp-segment charged"></div>
+              <div class="mp-segment charged"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+              <div class="mp-segment"></div>
+            </div>
+          </div>
+
+          <!-- AI状態アナウンス -->
+          <div style="margin-top: 0.5rem; font-size: 0.74rem; font-weight: 700; color: var(--clr-brown-light); text-align: center; background: var(--clr-cream); padding: 0.35rem 0.6rem; border-radius: 10px; border: 1px solid var(--clr-card-border);" id="ai-status-note">
+            石を置くごとに MP が 1 溜まります
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- リセットボタンバー -->
+    <div class="bottom-controls-bar">
+      <button class="btn-main-action" id="btn-restart-match">
+        <span>↺</span> 最初からやり直す
+      </button>
+    </div>
+
+  </main>
+
+  <!-- 必殺技・能力発動カットイン演出オーバーレイ -->
+  <div class="skill-cutin-overlay" id="skill-cutin-overlay" aria-live="assertive">
+    <div class="skill-cutin-banner theme-red" id="skill-cutin-banner">
+      <div class="cutin-shimmer"></div>
+      <div class="cutin-user-tag" id="cutin-user-tag">PLAYER SPECIAL SKILL</div>
+      <div class="cutin-skill-name" id="cutin-skill-name">重 力 前 進</div>
+      <div class="cutin-skill-ruby" id="cutin-skill-ruby">GRAVITY FORWARD</div>
+      <p class="cutin-skill-desc" id="cutin-skill-desc">即座に次の重力へ進行！石が一斉に崩落する！</p>
+    </div>
+  </div>
+
+  <!-- 勝敗結果モーダル -->
+  <div class="modal-backdrop" id="modal-result-backdrop">
+    <div class="modal-dialog-box">
+      <span class="modal-header-tag">GAME RESULT</span>
+      <h2 class="modal-main-title" id="modal-result-title">VICTORY</h2>
+      <div class="modal-winner-pill" id="modal-winner-pill">
+        <span id="modal-winner-text">あなたの勝利！</span>
+      </div>
+      <p class="modal-body-text" id="modal-result-description">石が4つ揃いました！</p>
+      <button class="btn-modal-primary" id="btn-modal-restart">
+        もう一度プレイする
+      </button>
+    </div>
+  </div>
+
+  <!-- あそびかたルールモーダル (rules.md を動的読み込み) -->
+  <div class="modal-backdrop" id="modal-rules-backdrop">
+    <div class="modal-dialog-box" style="max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; text-align: left; padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--clr-brown-pale); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+        <div>
+          <span class="modal-header-tag" style="margin-bottom: 0;">HOW TO PLAY</span>
+          <span style="font-size: 0.78rem; color: var(--clr-brown-light); margin-left: 0.5rem; font-family: monospace;">rules.md</span>
+        </div>
+        <button id="btn-modal-close-rules-x" style="background: none; border: none; font-size: 1.25rem; color: var(--clr-brown); cursor: pointer; padding: 0.2rem 0.5rem; line-height: 1;">✕</button>
+      </div>
+
+      <!-- Markdownのレンダリングコンテナ (スクロール可能) -->
+      <div class="rules-md-content" id="rules-md-content" style="overflow-y: auto; padding-right: 0.5rem; flex: 1; font-size: 0.88rem; line-height: 1.7; color: var(--clr-brown);">
+        読み込み中...
+      </div>
+
+      <div style="margin-top: 0.85rem; border-top: 1.5px solid var(--clr-brown-pale); padding-top: 0.75rem;">
+        <button class="btn-modal-primary" id="btn-modal-close-rules">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Halcyon サイトフッター -->
+  <site-footer copy="5Gkyu Play"></site-footer>
+
+  <!-- Halcyon Web Components 読込 -->
+  <script src="/components/components.js"></script>
+  <script>
+    if (!window.customElements || !customElements.get('site-header')) {
+      const fbScript = document.createElement('script');
+      fbScript.src = '../components/components.js';
+      document.body.appendChild(fbScript);
+    }
+  </script>
+
+  <!-- ゲームロジック & AIエンジン -->
+  <script>
+    /* -------------------------------------------------------------
+       サウンドシステム (Web Audio API によるシンセ音)
+    ------------------------------------------------------------- */
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playDrop() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.1);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+
+      playLand() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.08);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      playShift() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(130, now);
+        osc.frequency.linearRampToValueAtTime(220, now + 0.18);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.38);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      }
+
+      playWarn() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(660, now);
+        osc.frequency.setValueAtTime(880, now + 0.07);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      }
+
+      playWin() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + idx * 0.11;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.32);
+        });
+      }
+
+      playSkillCutin(player) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // 重低音の迫力あるインパクト音
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(player === 'red' ? 140 : 120, now);
+        osc1.frequency.exponentialRampToValueAtTime(45, now + 0.35);
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.35);
+
+        // 必殺技のきらびやかな上昇アルペジオ
+        const notes = player === 'red' ? [392, 523.25, 659.25, 783.99, 1046.5] : [349.23, 440, 523.25, 698.46, 880];
+        notes.forEach((freq, idx) => {
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq, now + idx * 0.05);
+          gain2.gain.setValueAtTime(0, now + idx * 0.05);
+          gain2.gain.linearRampToValueAtTime(0.2, now + idx * 0.05 + 0.02);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.25);
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start(now + idx * 0.05);
+          osc2.stop(now + idx * 0.05 + 0.25);
+        });
+      }
+    }
+
+    const sound = new SoundController();
+
+    /* -------------------------------------------------------------
+       ゲーム定数 & スキルコスト
+    ------------------------------------------------------------- */
+    const ROWS = 7;
+    const COLS = 7;
+    const MAX_MP = 8;
+    const REVERSE_COST = 2;  // スキル1: 周期反転
+    const FORWARD_COST = 4;  // スキル2: 重力前進（即次の重力移動実行）
+    const SHIFT_COST = 8;    // スキル3: 即時転換
+
+    const GRAVITY_CYCLE = [
+      { name: '下', id: 'down', deg: 0, dr: 1, dc: 0 },
+      { name: '右', id: 'right', deg: 270, dr: 0, dc: 1 },
+      { name: '上', id: 'up', deg: 180, dr: -1, dc: 0 },
+      { name: '左', id: 'left', deg: 90, dr: 0, dc: -1 }
+    ];
+
+    /* -------------------------------------------------------------
+       ゲーム状態
+    ------------------------------------------------------------- */
+    let grid = [];
+    let discs = new Map();
+    let currentPlayer = 'red'; // 'red'(ユーザー) または 'yellow'(AI)
+    let gravityIndex = 0; // 0:下, 1:右, 2:上, 3:左
+    let movesLeft = 3;
+    let isAnimating = false;
+    let isGameOver = false;
+    let nextId = 1;
+
+    // MPシステム & 新スキル状態
+    let userMP = MAX_MP;
+    let aiMP = MAX_MP;
+    let isClockwise = true; // 重力巡回順（true: 時計回り, false: 反時計回り）
+    let currentSkillMode = null; // 'anchor' | 'shift' | null
+
+    /* DOM要素 */
+    const gridInnerEl = document.getElementById('board-grid-inner');
+    const discsLayerEl = document.getElementById('discs-layer');
+    const boardTrayEl = document.getElementById('board-tray-wrapper');
+    const boardHintTextEl = document.getElementById('board-hint-text');
+
+    const cardUserEl = document.getElementById('card-user');
+    const cardAiEl = document.getElementById('card-ai');
+    const userStatusBadgeEl = document.getElementById('user-status-badge');
+    const aiStatusBadgeEl = document.getElementById('ai-status-badge');
+
+    // MP関連DOM
+    const userMpTextEl = document.getElementById('user-mp-text');
+    const userMpTrackEl = document.getElementById('user-mp-track');
+    const aiMpTextEl = document.getElementById('ai-mp-text');
+    const aiMpTrackEl = document.getElementById('ai-mp-track');
+    const aiStatusNoteEl = document.getElementById('ai-status-note');
+
+    // スキル関連DOM
+    const btnSkillReverseEl = document.getElementById('btn-skill-reverse');
+    const btnSkillForwardEl = document.getElementById('btn-skill-forward');
+    const btnSkillShiftEl = document.getElementById('btn-skill-shift');
+
+    const skillGuidePanelEl = document.getElementById('skill-guide-panel');
+    const skillGuideTextEl = document.getElementById('skill-guide-text');
+    const directionSelectPanelEl = document.getElementById('direction-select-panel');
+    const btnCancelSkillEl = document.getElementById('btn-cancel-skill');
+
+    const largeCompassDialEl = document.getElementById('large-compass-dial');
+    const currentGravityNameEl = document.getElementById('current-gravity-name');
+    const gravityNextPreviewEl = document.getElementById('gravity-next-preview');
+    const cycleDirBadgeEl = document.getElementById('cycle-dir-badge');
+
+    const shiftBadgeLargeEl = document.getElementById('shift-badge-large');
+    const shiftMovesTextEl = document.getElementById('shift-moves-text');
+    const shiftBars = [document.getElementById('s-bar-1'), document.getElementById('s-bar-2'), document.getElementById('s-bar-3')];
+    const alertBannerEl = document.getElementById('alert-banner');
+    const alertBannerTextEl = document.getElementById('alert-banner-text');
+
+    const modalResultEl = document.getElementById('modal-result-backdrop');
+    const modalResultTitleEl = document.getElementById('modal-result-title');
+    const modalWinnerPillEl = document.getElementById('modal-winner-pill');
+    const modalWinnerTextEl = document.getElementById('modal-winner-text');
+    const modalResultDescEl = document.getElementById('modal-result-description');
+    const btnModalRestartEl = document.getElementById('btn-modal-restart');
+
+    const modalRulesEl = document.getElementById('modal-rules-backdrop');
+    const btnOpenRulesEl = document.getElementById('btn-open-rules');
+    const btnModalCloseRulesEl = document.getElementById('btn-modal-close-rules');
+
+    const btnRestartMatchEl = document.getElementById('btn-restart-match');
+    const btnSoundToggleEl = document.getElementById('btn-sound-toggle');
+    const soundLabelEl = document.getElementById('sound-label');
+
+    // 必殺技カットイン演出DOM
+    const skillCutinOverlayEl = document.getElementById('skill-cutin-overlay');
+    const skillCutinBannerEl = document.getElementById('skill-cutin-banner');
+    const cutinUserTagEl = document.getElementById('cutin-user-tag');
+    const cutinSkillNameEl = document.getElementById('cutin-skill-name');
+    const cutinSkillRubyEl = document.getElementById('cutin-skill-ruby');
+    const cutinSkillDescEl = document.getElementById('cutin-skill-desc');
+
+    /* -------------------------------------------------------------
+       盤面セル生成
+    ------------------------------------------------------------- */
+    function buildBoardDOM() {
+      gridInnerEl.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'board-cell';
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          cell.addEventListener('click', () => handleUserClick(r, c));
+          cell.addEventListener('mouseenter', () => handleCellHover(r, c));
+          gridInnerEl.appendChild(cell);
+        }
+      }
+      gridInnerEl.addEventListener('mouseleave', clearHoverPreview);
+    }
+
+    /* -------------------------------------------------------------
+       ゲーム開始・リセット
+    ------------------------------------------------------------- */
+    function startNewGame() {
+      grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+      discs.clear();
+      discsLayerEl.innerHTML = '';
+      currentPlayer = 'red';
+      gravityIndex = 0;
+      movesLeft = 3;
+      isAnimating = false;
+      isGameOver = false;
+      nextId = 1;
+
+      userMP = MAX_MP;
+      aiMP = MAX_MP;
+      isClockwise = true;
+      closeSkillMode();
+
+      clearHoverPreview();
+      updateDashboardUI();
+      modalResultEl.classList.remove('is-active');
+      boardHintTextEl.textContent = 'あなたの番です。空いているマスをクリックするか、スキルを使用できます';
+    }
+
+    /* -------------------------------------------------------------
+       UI更新処理
+    ------------------------------------------------------------- */
+    function updateDashboardUI() {
+      const isUserTurn = currentPlayer === 'red';
+
+      // プレイヤーカードのアクティブ表示
+      if (isUserTurn) {
+        cardUserEl.classList.add('active-turn');
+        cardAiEl.classList.remove('active-turn');
+        userStatusBadgeEl.className = 'status-badge my-turn';
+        userStatusBadgeEl.textContent = 'あなたの番';
+        aiStatusBadgeEl.className = 'status-badge';
+        aiStatusBadgeEl.textContent = '待機中';
+      } else {
+        cardUserEl.classList.remove('active-turn');
+        cardAiEl.classList.add('active-turn');
+        userStatusBadgeEl.className = 'status-badge';
+        userStatusBadgeEl.textContent = '待機中';
+        aiStatusBadgeEl.className = 'status-badge thinking';
+        aiStatusBadgeEl.textContent = '思考中...';
+      }
+
+      // MPゲージ更新 (ユーザー)
+      if (userMpTextEl) userMpTextEl.textContent = `${userMP} / ${MAX_MP} MP`;
+      if (userMpTrackEl) {
+        const segs = userMpTrackEl.children;
+        for (let i = 0; i < segs.length; i++) {
+          if (i < userMP) segs[i].classList.add('charged');
+          else segs[i].classList.remove('charged');
+        }
+      }
+
+      // MPゲージ更新 (AI)
+      if (aiMpTextEl) aiMpTextEl.textContent = `${aiMP} / ${MAX_MP} MP`;
+      if (aiMpTrackEl) {
+        const segs = aiMpTrackEl.children;
+        for (let i = 0; i < segs.length; i++) {
+          if (i < aiMP) segs[i].classList.add('charged');
+          else segs[i].classList.remove('charged');
+        }
+      }
+
+      // ユーザーの3大スキルボタンの利用可否制御 (自分のターンならMPに応じて活性化)
+      const canUseSkills = isUserTurn && !isGameOver;
+
+      if (btnSkillReverseEl) {
+        btnSkillReverseEl.disabled = !canUseSkills || userMP < REVERSE_COST;
+      }
+      if (btnSkillForwardEl) {
+        btnSkillForwardEl.disabled = !canUseSkills || userMP < FORWARD_COST;
+      }
+      if (btnSkillShiftEl) {
+        btnSkillShiftEl.disabled = !canUseSkills || userMP < SHIFT_COST;
+        btnSkillShiftEl.classList.toggle('active-selecting', currentSkillMode === 'shift');
+      }
+
+      // 重力インジケーター更新
+      const grav = GRAVITY_CYCLE[gravityIndex];
+      const nextStep = isClockwise ? 1 : -1;
+      const nextIndex = (gravityIndex + nextStep + 4) % 4;
+      const nextGrav = GRAVITY_CYCLE[nextIndex];
+      const arrowMap = { down: '↓', right: '→', up: '↑', left: '←' };
+
+      currentGravityNameEl.textContent = `${grav.name}方向 (${arrowMap[grav.id]})`;
+      if (gravityNextPreviewEl) {
+        gravityNextPreviewEl.textContent = `次: ${nextGrav.name} ${arrowMap[nextGrav.id]}`;
+      }
+      if (cycleDirBadgeEl) {
+        cycleDirBadgeEl.textContent = isClockwise ? '時計回り ↻' : '反時計回り ↺';
+      }
+      if (largeCompassDialEl) {
+        largeCompassDialEl.style.transform = `rotate(${grav.deg}deg)`;
+      }
+
+      // 盤面トレイの重力光彩エッジ更新
+      if (boardTrayEl) {
+        boardTrayEl.dataset.gravity = grav.id;
+      }
+
+      // 投入レーン矢印バーの表示切り替え & レーン空きチェック
+      const topBar = document.getElementById('lane-arrows-top');
+      const bottomBar = document.getElementById('lane-arrows-bottom');
+      const leftBar = document.getElementById('lane-arrows-left');
+      const rightBar = document.getElementById('lane-arrows-right');
+
+      if (topBar) topBar.classList.toggle('is-active', grav.id === 'down');
+      if (bottomBar) bottomBar.classList.toggle('is-active', grav.id === 'up');
+      if (leftBar) leftBar.classList.toggle('is-active', grav.id === 'right');
+      if (rightBar) rightBar.classList.toggle('is-active', grav.id === 'left');
+
+      const canClickLane = isUserTurn && !isAnimating && !isGameOver && currentSkillMode === null;
+
+      document.querySelectorAll('.lane-arrow-btn').forEach((btn) => {
+        const lane = btn.dataset.lane;
+        const idx = parseInt(btn.dataset.idx, 10);
+        let startR = 0, startC = 0;
+
+        if (lane === 'top') { startR = 0; startC = idx; }
+        else if (lane === 'bottom') { startR = ROWS - 1; startC = idx; }
+        else if (lane === 'left') { startR = idx; startC = 0; }
+        else if (lane === 'right') { startR = idx; startC = COLS - 1; }
+
+        if (!grid || grid.length === 0) return;
+        const landing = getLandingPosition(startR, startC, grid, grav);
+        btn.disabled = !canClickLane || landing === null;
+      });
+
+
+
+      // 自動反転カウントダウン（大型バッジ & ステップバー）
+      shiftMovesTextEl.textContent = `あと ${movesLeft} 手`;
+      shiftBars.forEach((bar, i) => {
+        if (!bar) return;
+        if (i < movesLeft) bar.classList.add('active');
+        else bar.classList.remove('active');
+      });
+
+      // 1手前の警告表示
+      if (movesLeft === 1 && !isGameOver) {
+        if (shiftBadgeLargeEl) shiftBadgeLargeEl.classList.add('warning');
+        alertBannerTextEl.textContent = `警告: 次の手で【${nextGrav.name}】方向に重力が自動反転します！`;
+        alertBannerEl.classList.remove('hidden');
+      } else {
+        if (shiftBadgeLargeEl) shiftBadgeLargeEl.classList.remove('warning');
+        alertBannerEl.classList.add('hidden');
+      }
+
+      // 方向選択ボタンのdisabled制御 (現在の重力方向は選択不可)
+      document.querySelectorAll('.dir-select-btn').forEach((btn) => {
+        const dir = btn.dataset.dir;
+        btn.disabled = dir === grav.id;
+      });
+    }
+
+    /* -------------------------------------------------------------
+       セルの真のピクセル座標・サイズ取得
+    ------------------------------------------------------------- */
+    function getCellPosition(r, c) {
+      const cell = document.querySelector(`.board-cell[data-r="${r}"][data-c="${c}"]`);
+      const stage = document.getElementById('board-stage');
+      if (!cell || !stage) return { x: 0, y: 0, w: 40, h: 40 };
+
+      const cellRect = cell.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+
+      return {
+        x: cellRect.left - stageRect.left,
+        y: cellRect.top - stageRect.top,
+        w: cellRect.width,
+        h: cellRect.height
+      };
+    }
+
+    /* -------------------------------------------------------------
+       落下着地点の計算 (重力上流の投入口から判定)
+    ------------------------------------------------------------- */
+    function getLandingPosition(startR, startC, currentGrid, gravity) {
+      const { dr, dc } = gravity;
+      let entryR = startR;
+      let entryC = startC;
+
+      // 重力方向に応じた投入口（最上流のマス）を決定
+      if (dr === 1 && dc === 0) {
+        // 下向き重力: 投入口は最上段 (r = 0)
+        entryR = 0;
+        entryC = startC;
+      } else if (dr === -1 && dc === 0) {
+        // 上向き重力: 投入口は最下段 (r = ROWS - 1)
+        entryR = ROWS - 1;
+        entryC = startC;
+      } else if (dr === 0 && dc === 1) {
+        // 右向き重力: 投入口は最左列 (c = 0)
+        entryR = startR;
+        entryC = 0;
+      } else if (dr === 0 && dc === -1) {
+        // 左向き重力: 投入口は最右列 (c = COLS - 1)
+        entryR = startR;
+        entryC = COLS - 1;
+      }
+
+      // 投入口（入口）がすでに塞がっている場合、奥が空いていても進入不可
+      if (currentGrid[entryR][entryC] !== null) {
+        return null;
+      }
+
+      let r = entryR;
+      let c = entryC;
+
+      while (true) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) break;
+        if (currentGrid[nr][nc] !== null) break;
+        r = nr;
+        c = nc;
+      }
+      return { r, c, entryR, entryC };
+    }
+
+    /* -------------------------------------------------------------
+       落下プレビュー (セル自体を直接ハイライト)
+    ------------------------------------------------------------- */
+    function handleCellHover(r, c) {
+      if (isAnimating || isGameOver || currentPlayer !== 'red') {
+        clearHoverPreview();
+        return;
+      }
+      const landing = getLandingPosition(r, c, grid, GRAVITY_CYCLE[gravityIndex]);
+      if (!landing) {
+        clearHoverPreview();
+        return;
+      }
+
+      clearHoverPreview();
+      const targetCell = document.querySelector(`.board-cell[data-r="${landing.r}"][data-c="${landing.c}"]`);
+      if (targetCell) {
+        targetCell.classList.add('preview-red');
+      }
+    }
+
+    function clearHoverPreview() {
+      document.querySelectorAll('.board-cell.preview-red, .board-cell.preview-yellow').forEach((cell) => {
+        cell.classList.remove('preview-red', 'preview-yellow');
+      });
+    }
+
+    /* -------------------------------------------------------------
+       ユーザーのマス配置・スキル対象クリック
+    ------------------------------------------------------------- */
+    async function handleUserClick(clickR, clickC) {
+      if (isAnimating || isGameOver || currentPlayer !== 'red') return;
+
+      // 通常モード: 重力の上流から進入可能かチェック
+      const landing = getLandingPosition(clickR, clickC, grid, GRAVITY_CYCLE[gravityIndex]);
+      if (!landing) {
+        boardHintTextEl.textContent = '重力の上流（入口）が塞がっているため、ここには落とせません';
+        return;
+      }
+
+      closeSkillMode();
+      await placeDiscAndProcessTurn(clickR, clickC, 'red');
+    }
+
+    /* -------------------------------------------------------------
+       石の配置とターン進行処理 (石配置で MP +1 回復)
+    ------------------------------------------------------------- */
+    async function placeDiscAndProcessTurn(clickR, clickC, player) {
+      const grav = GRAVITY_CYCLE[gravityIndex];
+      const landing = getLandingPosition(clickR, clickC, grid, grav);
+      if (!landing) return;
+
+      isAnimating = true;
+      clearHoverPreview();
+      sound.playDrop();
+
+      const discId = nextId++;
+      const disc = {
+        id: discId,
+        player: player,
+        r: landing.r,
+        c: landing.c,
+        isAnchored: false,
+        el: null
+      };
+
+      grid[landing.r][landing.c] = disc;
+
+      // 投入口（重力上流）から着地点へ落下アニメーション
+      const startPos = getCellPosition(landing.entryR !== undefined ? landing.entryR : clickR, landing.entryC !== undefined ? landing.entryC : clickC);
+      const targetPos = getCellPosition(landing.r, landing.c);
+
+      const discEl = document.createElement('div');
+      discEl.className = `disc-item ${player}`;
+      discEl.id = `disc-${discId}`;
+      discEl.style.width = `${targetPos.w}px`;
+      discEl.style.height = `${targetPos.h}px`;
+
+      discEl.style.transform = `translate(${startPos.x}px, ${startPos.y}px) scale(0.6)`;
+      discEl.style.setProperty('--dx', `${targetPos.x}px`);
+      discEl.style.setProperty('--dy', `${targetPos.y}px`);
+      discsLayerEl.appendChild(discEl);
+      disc.el = discEl;
+      discs.set(discId, disc);
+
+      await nextFrame();
+      discEl.style.transform = `translate(${targetPos.x}px, ${targetPos.y}px) scale(1)`;
+
+      await sleep(340);
+      sound.playLand();
+
+      // ★石を置くごとに MP が 1 回復 (最大8)
+      if (player === 'red') {
+        userMP = Math.min(MAX_MP, userMP + 1);
+      } else {
+        aiMP = Math.min(MAX_MP, aiMP + 1);
+      }
+
+      // 配置後の勝敗判定
+      const winCheck = evalWinLines(grid);
+      if (winCheck.hasWinner) {
+        showWinModal(winCheck);
+        isAnimating = false;
+        return;
+      }
+
+      if (checkFullBoard(grid)) {
+        showDrawModal('すべてのマスが埋まりました！');
+        isAnimating = false;
+        return;
+      }
+
+      // 手数カウント減少
+      movesLeft--;
+      if (movesLeft === 1) {
+        sound.playWarn();
+      }
+
+      // 自動重力反転チェック
+      if (movesLeft === 0) {
+        updateDashboardUI();
+        await sleep(200);
+        await performAutoGravityShift();
+      } else {
+        togglePlayer();
+        checkCanPlayOrEnd();
+      }
+
+      isAnimating = false;
+      updateDashboardUI();
+
+      // AIの手番ならAIを実行
+      if (!isGameOver && currentPlayer === 'yellow') {
+        runAITurn();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       自動重力反転 (isClockwise を考慮)
+    ------------------------------------------------------------- */
+    async function performAutoGravityShift() {
+      const step = isClockwise ? 1 : -1;
+      gravityIndex = (gravityIndex + step + 4) % 4;
+      const newGrav = GRAVITY_CYCLE[gravityIndex];
+
+      boardHintTextEl.textContent = `重力が【${newGrav.name}】へ自動反転しました！`;
+      sound.playShift();
+
+      boardTrayEl.classList.add('screen-shake');
+      updateDashboardUI();
+
+      slideAllDiscs(newGrav);
+
+      await sleep(380);
+      boardTrayEl.classList.remove('screen-shake');
+      sound.playLand();
+
+      // 反転後の勝敗チェック
+      const winCheck = evalWinLines(grid);
+      if (winCheck.hasWinner) {
+        showWinModal(winCheck, '重力反転によって石が揃いました！');
+        return;
+      }
+
+      if (checkFullBoard(grid)) {
+        showDrawModal('すべてのマスが埋まりました！');
+        return;
+      }
+
+      movesLeft = 3;
+      togglePlayer();
+      boardHintTextEl.textContent = currentPlayer === 'red' ? 'あなたの番です。空いているマスをクリックするか、スキルを使用できます' : 'AIが思考中です...';
+      checkCanPlayOrEnd();
+      isAnimating = false;
+      updateDashboardUI();
+    }
+
+    /* -------------------------------------------------------------
+       必殺技・能力発動カットイン演出処理
+    ------------------------------------------------------------- */
+    async function triggerSkillCutin(player, skillType, options = {}) {
+      if (!skillCutinOverlayEl || !skillCutinBannerEl) return;
+
+      const isUser = player === 'red';
+      skillCutinBannerEl.className = `skill-cutin-banner theme-${isUser ? 'red' : 'yellow'}`;
+      if (cutinUserTagEl) {
+        cutinUserTagEl.textContent = isUser ? 'PLAYER SPECIAL SKILL' : 'AI SPECIAL SKILL';
+      }
+
+      if (skillType === 'reverse') {
+        if (cutinSkillNameEl) cutinSkillNameEl.textContent = '周 期 反 転';
+        if (cutinSkillRubyEl) cutinSkillRubyEl.textContent = 'CYCLE REVERSE';
+        if (cutinSkillDescEl) {
+          cutinSkillDescEl.textContent = `重力の巡回順を【${options.isClockwise ? '時計回り' : '反時計回り'}】へ逆転させた！`;
+        }
+      } else if (skillType === 'forward') {
+        if (cutinSkillNameEl) cutinSkillNameEl.textContent = '重 力 前 進';
+        if (cutinSkillRubyEl) cutinSkillRubyEl.textContent = 'GRAVITY FORWARD';
+        if (cutinSkillDescEl) {
+          cutinSkillDescEl.textContent = `手数を待たずに即座シフト！【${options.gravName}】方向へ石が全崩落する！`;
+        }
+      } else if (skillType === 'shift') {
+        if (cutinSkillNameEl) cutinSkillNameEl.textContent = '即 時 転 換';
+        if (cutinSkillRubyEl) cutinSkillRubyEl.textContent = 'DIRECT SHIFT';
+        if (cutinSkillDescEl) {
+          cutinSkillDescEl.textContent = `超常の重力制御！狙った【${options.gravName}】方向へ盤面を強制転換！`;
+        }
+      }
+
+      sound.playSkillCutin(player);
+      skillCutinOverlayEl.classList.add('is-active');
+
+      // 必殺技演出をしっかり見せる（約850ms）
+      await sleep(850);
+
+      skillCutinOverlayEl.classList.remove('is-active');
+      await sleep(150); // フェードアウト余韻
+    }
+
+    /* -------------------------------------------------------------
+       3大スキル操作システム
+    ------------------------------------------------------------- */
+    async function executeReverseSkill(player) {
+      if (isAnimating || isGameOver) return;
+      if (player === 'red' && userMP < REVERSE_COST) return;
+      if (player === 'yellow' && aiMP < REVERSE_COST) return;
+
+      isAnimating = true;
+      if (player === 'red') {
+        userMP -= REVERSE_COST;
+      } else {
+        aiMP -= REVERSE_COST;
+      }
+      isClockwise = !isClockwise;
+
+      closeSkillMode();
+      updateDashboardUI();
+
+      // 必殺技カットイン演出
+      await triggerSkillCutin(player, 'reverse', { isClockwise });
+
+      sound.playShift();
+      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が周期反転を発動！巡回順が【${isClockwise ? '時計回り' : '反時計回り'}】になりました！`;
+
+      await sleep(250);
+      await processSkillTurnEnd(player);
+    }
+
+    async function executeForwardSkill(player) {
+      if (isAnimating || isGameOver) return;
+      if (player === 'red' && userMP < FORWARD_COST) return;
+      if (player === 'yellow' && aiMP < FORWARD_COST) return;
+
+      isAnimating = true;
+      if (player === 'red') {
+        userMP -= FORWARD_COST;
+      } else {
+        aiMP -= FORWARD_COST;
+      }
+
+      const step = isClockwise ? 1 : -1;
+      gravityIndex = (gravityIndex + step + 4) % 4;
+      const newGrav = GRAVITY_CYCLE[gravityIndex];
+
+      closeSkillMode();
+      updateDashboardUI();
+
+      // 必殺技カットイン演出
+      await triggerSkillCutin(player, 'forward', { gravName: newGrav.name });
+
+      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が重力前進を発動！即座に【${newGrav.name}】方向へ重力が移動しました！`;
+      sound.playShift();
+
+      boardTrayEl.classList.add('screen-shake');
+      updateDashboardUI();
+
+      slideAllDiscs(newGrav);
+
+      await sleep(380);
+      boardTrayEl.classList.remove('screen-shake');
+      sound.playLand();
+
+      // スキルによる勝敗チェック
+      const winCheck = evalWinLines(grid);
+      if (winCheck.hasWinner) {
+        showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の重力前進により石が揃いました！`);
+        isAnimating = false;
+        return;
+      }
+
+      if (checkFullBoard(grid)) {
+        showDrawModal('すべてのマスが埋まりました！');
+        isAnimating = false;
+        return;
+      }
+
+      // 重力移動が完了したため、残り手数をリセットしてターン交代
+      movesLeft = 3;
+      await processSkillTurnEnd(player, true);
+    }
+
+    function openSkillShiftMode() {
+      if (currentPlayer !== 'red' || isAnimating || isGameOver || userMP < SHIFT_COST) return;
+      currentSkillMode = 'shift';
+      skillGuidePanelEl.classList.remove('hidden');
+      skillGuideTextEl.textContent = '今すぐ重力を変更したい方向を選んでください';
+      directionSelectPanelEl.classList.remove('hidden');
+      updateDashboardUI();
+    }
+
+    async function executeShiftSkill(targetDirName, player) {
+      if (isAnimating || isGameOver) return;
+      const targetIdx = GRAVITY_CYCLE.findIndex((g) => g.id === targetDirName);
+      if (targetIdx === -1 || targetIdx === gravityIndex) return;
+
+      isAnimating = true;
+      if (player === 'red') {
+        userMP -= SHIFT_COST;
+      } else {
+        aiMP -= SHIFT_COST;
+      }
+
+      gravityIndex = targetIdx;
+      const newGrav = GRAVITY_CYCLE[gravityIndex];
+
+      closeSkillMode();
+      updateDashboardUI();
+
+      // 必殺技カットイン演出
+      await triggerSkillCutin(player, 'shift', { gravName: newGrav.name });
+
+      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が即時転換を発動！重力を【${newGrav.name}】へ変更！`;
+      sound.playShift();
+
+      boardTrayEl.classList.add('screen-shake');
+      updateDashboardUI();
+
+      slideAllDiscs(newGrav);
+
+      await sleep(380);
+      boardTrayEl.classList.remove('screen-shake');
+      sound.playLand();
+
+      // スキルによる勝敗チェック
+      const winCheck = evalWinLines(grid);
+      if (winCheck.hasWinner) {
+        showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の即時転換により石が揃いました！`);
+        isAnimating = false;
+        return;
+      }
+
+      if (checkFullBoard(grid)) {
+        showDrawModal('すべてのマスが埋まりました！');
+        isAnimating = false;
+        return;
+      }
+
+      movesLeft = 3;
+      await processSkillTurnEnd(player, true);
+    }
+
+    function closeSkillMode() {
+      currentSkillMode = null;
+      if (skillGuidePanelEl) skillGuidePanelEl.classList.add('hidden');
+      if (directionSelectPanelEl) directionSelectPanelEl.classList.add('hidden');
+      updateDashboardUI();
+    }
+
+    async function processSkillTurnEnd(player, resetMoves = false) {
+      if (!resetMoves) {
+        movesLeft--;
+        if (movesLeft === 1) {
+          sound.playWarn();
+        }
+
+        if (movesLeft === 0) {
+          updateDashboardUI();
+          await sleep(200);
+          await performAutoGravityShift();
+        } else {
+          togglePlayer();
+          checkCanPlayOrEnd();
+        }
+      } else {
+        togglePlayer();
+        checkCanPlayOrEnd();
+      }
+
+      isAnimating = false;
+      updateDashboardUI();
+
+      if (!isGameOver && currentPlayer === 'yellow') {
+        runAITurn();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       全石の一斉スライド計算
+    ------------------------------------------------------------- */
+    function slideAllDiscs(gravity) {
+      const newGrid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+      if (gravity.id === 'down') {
+        for (let c = 0; c < COLS; c++) {
+          let targetR = ROWS - 1;
+          for (let r = ROWS - 1; r >= 0; r--) {
+            const disc = grid[r][c];
+            if (disc) {
+              newGrid[targetR][c] = disc;
+              disc.r = targetR;
+              disc.c = c;
+              targetR--;
+            }
+          }
+        }
+      } else if (gravity.id === 'up') {
+        for (let c = 0; c < COLS; c++) {
+          let targetR = 0;
+          for (let r = 0; r < ROWS; r++) {
+            const disc = grid[r][c];
+            if (disc) {
+              newGrid[targetR][c] = disc;
+              disc.r = targetR;
+              disc.c = c;
+              targetR++;
+            }
+          }
+        }
+      } else if (gravity.id === 'right') {
+        for (let r = 0; r < ROWS; r++) {
+          let targetC = COLS - 1;
+          for (let c = COLS - 1; c >= 0; c--) {
+            const disc = grid[r][c];
+            if (disc) {
+              newGrid[r][targetC] = disc;
+              disc.r = r;
+              disc.c = targetC;
+              targetC--;
+            }
+          }
+        }
+      } else if (gravity.id === 'left') {
+        for (let r = 0; r < ROWS; r++) {
+          let targetC = 0;
+          for (let c = 0; c < COLS; c++) {
+            const disc = grid[r][c];
+            if (disc) {
+              newGrid[r][targetC] = disc;
+              disc.r = r;
+              disc.c = targetC;
+              targetC++;
+            }
+          }
+        }
+      }
+
+      grid = newGrid;
+
+      discs.forEach((disc) => {
+        const pos = getCellPosition(disc.r, disc.c);
+        disc.el.style.width = `${pos.w}px`;
+        disc.el.style.height = `${pos.h}px`;
+        disc.el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+        disc.el.style.setProperty('--dx', `${pos.x}px`);
+        disc.el.style.setProperty('--dy', `${pos.y}px`);
+      });
+    }
+
+    // スライドシミュレーション用ヘルパー
+    function simulateSlide(currentGrid, gravity) {
+      const sim = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+      if (gravity.id === 'down') {
+        for (let c = 0; c < COLS; c++) {
+          let targetR = ROWS - 1;
+          for (let r = ROWS - 1; r >= 0; r--) {
+            const d = currentGrid[r][c];
+            if (d) {
+              sim[targetR][c] = d;
+              targetR--;
+            }
+          }
+        }
+      } else if (gravity.id === 'up') {
+        for (let c = 0; c < COLS; c++) {
+          let targetR = 0;
+          for (let r = 0; r < ROWS; r++) {
+            const d = currentGrid[r][c];
+            if (d) {
+              sim[targetR][c] = d;
+              targetR++;
+            }
+          }
+        }
+      } else if (gravity.id === 'right') {
+        for (let r = 0; r < ROWS; r++) {
+          let targetC = COLS - 1;
+          for (let c = COLS - 1; c >= 0; c--) {
+            const d = currentGrid[r][c];
+            if (d) {
+              sim[r][targetC] = d;
+              targetC--;
+            }
+          }
+        }
+      } else if (gravity.id === 'left') {
+        for (let r = 0; r < ROWS; r++) {
+          let targetC = 0;
+          for (let c = 0; c < COLS; c++) {
+            const d = currentGrid[r][c];
+            if (d) {
+              sim[r][targetC] = d;
+              targetC++;
+            }
+          }
+        }
+      }
+      return sim;
+    }
+
+    /* -------------------------------------------------------------
+       最強AI (CPU) の高速アルファベータ探索エンジン & 思考ルーチン
+    ------------------------------------------------------------- */
+    // 全88本の4連ラインを事前計算（二重ループ・境界チェックのオーバーヘッドをゼロに）
+    const PRECOMPUTED_WIN_LINES = [];
+    (function precomputeWinLines() {
+      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          for (const [dr, dc] of dirs) {
+            const line = [];
+            let ok = true;
+            for (let step = 0; step < 4; step++) {
+              const nr = r + dr * step;
+              const nc = c + dc * step;
+              if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) { ok = false; break; }
+              line.push({ r: nr, c: nc });
+            }
+            if (ok) PRECOMPUTED_WIN_LINES.push(line);
+          }
+        }
+      }
+    })();
+
+    const aiTranspositionTable = new Map();
+    let aiSearchAborted = false;
+    let aiNodesEvaluated = 0;
+
+    function cloneAiState(state) {
+      const newGrid = Array.from({ length: ROWS }, (_, r) => [...state.grid[r]]);
+      return {
+        grid: newGrid,
+        gravityIndex: state.gravityIndex,
+        movesLeft: state.movesLeft,
+        isClockwise: state.isClockwise,
+        redMP: state.redMP,
+        yellowMP: state.yellowMP,
+        currentPlayer: state.currentPlayer
+      };
+    }
+
+    // 88本の事前計算ライン走査による超高速勝敗チェック
+    function checkAiWinner(grid) {
+      let redWins = false;
+      let yellowWins = false;
+
+      for (let i = 0; i < PRECOMPUTED_WIN_LINES.length; i++) {
+        const line = PRECOMPUTED_WIN_LINES[i];
+        const p0 = grid[line[0].r][line[0].c];
+        if (!p0) continue;
+        const k0 = typeof p0 === 'string' ? p0 : p0.player;
+
+        const p1 = grid[line[1].r][line[1].c];
+        if (!p1 || (typeof p1 === 'string' ? p1 : p1.player) !== k0) continue;
+
+        const p2 = grid[line[2].r][line[2].c];
+        if (!p2 || (typeof p2 === 'string' ? p2 : p2.player) !== k0) continue;
+
+        const p3 = grid[line[3].r][line[3].c];
+        if (!p3 || (typeof p3 === 'string' ? p3 : p3.player) !== k0) continue;
+
+        if (k0 === 'red') redWins = true;
+        else yellowWins = true;
+
+        if (redWins && yellowWins) return 'both';
+      }
+
+      if (redWins) return 'red';
+      if (yellowWins) return 'yellow';
+      return null;
+    }
+
+    function computeAiStateHash(state) {
+      let str = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const v = state.grid[r][c];
+          if (!v) str += '.';
+          else str += (typeof v === 'string' ? v : v.player) === 'red' ? 'R' : 'Y';
+        }
+      }
+      return `${str}_g${state.gravityIndex}_m${state.movesLeft}_${state.isClockwise ? 'C' : 'CC'}_${state.currentPlayer}`;
+    }
+
+    function generateAiLegalMoves(state) {
+      const moves = [];
+      const p = state.currentPlayer;
+      const myMP = p === 'red' ? state.redMP : state.yellowMP;
+      const grav = GRAVITY_CYCLE[state.gravityIndex];
+
+      // 1. スキル候補手（MPが足りている場合）
+      if (myMP >= SHIFT_COST) {
+        for (let d = 0; d < 4; d++) {
+          if (d !== state.gravityIndex) {
+            moves.push({ type: 'skill_shift', targetDir: d });
+          }
+        }
+      }
+
+      if (myMP >= FORWARD_COST) {
+        moves.push({ type: 'skill_forward' });
+      }
+
+      if (myMP >= REVERSE_COST) {
+        moves.push({ type: 'skill_reverse' });
+      }
+
+      // 2. 通常の石配置 (中央寄りを優先)
+      const laneOrder = [3, 2, 4, 1, 5, 0, 6];
+      for (const idx of laneOrder) {
+        let startR = 0, startC = 0;
+        if (grav.id === 'down') { startR = 0; startC = idx; }
+        else if (grav.id === 'up') { startR = ROWS - 1; startC = idx; }
+        else if (grav.id === 'left') { startR = idx; startC = COLS - 1; }
+        else if (grav.id === 'right') { startR = idx; startC = 0; }
+
+        const landing = getLandingPosition(startR, startC, state.grid, grav);
+        if (landing !== null) {
+          moves.push({ type: 'drop', r: startR, c: startC, laneIdx: idx });
+        }
+      }
+
+      return moves;
+    }
+
+    function applyAiMove(state, move) {
+      const next = cloneAiState(state);
+      const p = next.currentPlayer;
+
+      if (move.type === 'drop') {
+        const grav = GRAVITY_CYCLE[next.gravityIndex];
+        const landing = getLandingPosition(move.r, move.c, next.grid, grav);
+        next.grid[landing.r][landing.c] = p;
+
+        if (p === 'red') next.redMP = Math.min(MAX_MP, next.redMP + 1);
+        else next.yellowMP = Math.min(MAX_MP, next.yellowMP + 1);
+
+        next.movesLeft--;
+        if (next.movesLeft === 0) {
+          const step = next.isClockwise ? 1 : -1;
+          next.gravityIndex = (next.gravityIndex + step + 4) % 4;
+          next.grid = simulateSlide(next.grid, GRAVITY_CYCLE[next.gravityIndex]);
+          next.movesLeft = 3;
+        }
+      } else if (move.type === 'skill_reverse') {
+        if (p === 'red') next.redMP -= REVERSE_COST;
+        else next.yellowMP -= REVERSE_COST;
+        next.isClockwise = !next.isClockwise;
+
+        next.movesLeft--;
+        if (next.movesLeft === 0) {
+          const step = next.isClockwise ? 1 : -1;
+          next.gravityIndex = (next.gravityIndex + step + 4) % 4;
+          next.grid = simulateSlide(next.grid, GRAVITY_CYCLE[next.gravityIndex]);
+          next.movesLeft = 3;
+        }
+      } else if (move.type === 'skill_forward') {
+        if (p === 'red') next.redMP -= FORWARD_COST;
+        else next.yellowMP -= FORWARD_COST;
+
+        const step = next.isClockwise ? 1 : -1;
+        next.gravityIndex = (next.gravityIndex + step + 4) % 4;
+        next.grid = simulateSlide(next.grid, GRAVITY_CYCLE[next.gravityIndex]);
+        next.movesLeft = 3;
+      } else if (move.type === 'skill_shift') {
+        if (p === 'red') next.redMP -= SHIFT_COST;
+        else next.yellowMP -= SHIFT_COST;
+
+        next.gravityIndex = move.targetDir;
+        next.grid = simulateSlide(next.grid, GRAVITY_CYCLE[next.gravityIndex]);
+        next.movesLeft = 3;
+      }
+
+      next.currentPlayer = p === 'red' ? 'yellow' : 'red';
+      return next;
+    }
+
+    // 事前計算ラインを使った高速局面評価
+    function evaluateAiState(state, perspectivePlayer) {
+      const winner = checkAiWinner(state.grid);
+      if (winner !== null) {
+        if (winner === 'both') return 0;
+        return winner === perspectivePlayer ? 100000 : -100000;
+      }
+
+      let score = 0;
+      const opp = perspectivePlayer === 'red' ? 'yellow' : 'red';
+
+      for (let i = 0; i < PRECOMPUTED_WIN_LINES.length; i++) {
+        const line = PRECOMPUTED_WIN_LINES[i];
+        let myCount = 0;
+        let oppCount = 0;
+
+        for (let j = 0; j < 4; j++) {
+          const val = state.grid[line[j].r][line[j].c];
+          if (!val) continue;
+          const p = typeof val === 'string' ? val : val.player;
+          if (p === perspectivePlayer) myCount++;
+          else if (p === opp) oppCount++;
+        }
+
+        if (myCount > 0 && oppCount === 0) {
+          if (myCount === 3) score += 950;
+          else if (myCount === 2) score += 65;
+          else score += 6;
+        } else if (oppCount > 0 && myCount === 0) {
+          if (oppCount === 3) score -= 1150;
+          else if (oppCount === 2) score -= 85;
+          else score -= 6;
+        }
+      }
+
+      // 中央配置ボーナス
+      for (let r = 2; r <= 4; r++) {
+        for (let c = 2; c <= 4; c++) {
+          const val = state.grid[r][c];
+          if (val) {
+            const p = typeof val === 'string' ? val : val.player;
+            const weight = (r === 3 && c === 3) ? 14 : 7;
+            if (p === perspectivePlayer) score += weight;
+            else score -= weight;
+          }
+        }
+      }
+
+      // MP差分ボーナス
+      const myMP = perspectivePlayer === 'red' ? state.redMP : state.yellowMP;
+      const oppMP = perspectivePlayer === 'red' ? state.yellowMP : state.redMP;
+      score += (myMP - oppMP) * 20;
+
+      return score;
+    }
+
+    function negamaxAi(state, depth, alpha, beta, perspectivePlayer, startTime, maxTimeMs) {
+      if (aiSearchAborted) return 0;
+      aiNodesEvaluated++;
+
+      // 時間超過時は探索を即座に安全中断
+      if (Date.now() - startTime > maxTimeMs) {
+        aiSearchAborted = true;
+        return evaluateAiState(state, state.currentPlayer);
+      }
+
+      const winner = checkAiWinner(state.grid);
+      if (winner !== null) {
+        if (winner === 'both') return 0;
+        return (winner === state.currentPlayer ? 100000 : -100000) * (depth + 1);
+      }
+
+      if (depth <= 0) {
+        return evaluateAiState(state, state.currentPlayer);
+      }
+
+      const stateHash = computeAiStateHash(state);
+      const cached = aiTranspositionTable.get(stateHash);
+      if (cached && cached.depth >= depth) {
+        if (cached.flag === 'EXACT') return cached.score;
+        if (cached.flag === 'LOWER' && cached.score > alpha) alpha = cached.score;
+        if (cached.flag === 'UPPER' && cached.score < beta) beta = cached.score;
+        if (alpha >= beta) return cached.score;
+      }
+
+      const moves = generateAiLegalMoves(state);
+      if (moves.length === 0) return 0;
+
+      // 着手オーダリング: 置換表の過去の最善手を先頭へ
+      if (cached && cached.bestMove) {
+        const cMove = cached.bestMove;
+        const matchIdx = moves.findIndex(m => m.type === cMove.type && m.laneIdx === cMove.laneIdx && m.targetDir === cMove.targetDir);
+        if (matchIdx > 0) {
+          const m = moves.splice(matchIdx, 1)[0];
+          moves.unshift(m);
+        }
+      }
+
+      let maxScore = -Infinity;
+      let bestMove = null;
+
+      for (let i = 0; i < moves.length; i++) {
+        const move = moves[i];
+        const nextState = applyAiMove(state, move);
+        const score = -negamaxAi(nextState, depth - 1, -beta, -alpha, perspectivePlayer, startTime, maxTimeMs);
+
+        if (aiSearchAborted) return 0;
+
+        if (score > maxScore) {
+          maxScore = score;
+          bestMove = move;
+        }
+        if (score > alpha) {
+          alpha = score;
+        }
+        if (alpha >= beta) {
+          break; // ベータ枝刈り
+        }
+      }
+
+      let flag = 'EXACT';
+      if (maxScore <= alpha) flag = 'UPPER';
+      else if (maxScore >= beta) flag = 'LOWER';
+
+      aiTranspositionTable.set(stateHash, { depth, score: maxScore, flag, bestMove });
+      return maxScore;
+    }
+
+    async function executeAiDecision(move) {
+      isAnimating = false;
+      if (move.type === 'skill_shift') {
+        boardHintTextEl.textContent = `AIが即時転換を発動！`;
+        await executeShiftSkill(GRAVITY_CYCLE[move.targetDir].id, 'yellow');
+      } else if (move.type === 'skill_forward') {
+        boardHintTextEl.textContent = `AIが重力前進を発動！`;
+        await executeForwardSkill('yellow');
+      } else if (move.type === 'skill_reverse') {
+        boardHintTextEl.textContent = `AIが周期反転を発動！`;
+        await executeReverseSkill('yellow');
+      } else {
+        await placeDiscAndProcessTurn(move.r, move.c, 'yellow');
+      }
+    }
+
+    async function runAITurn() {
+      if (isGameOver || currentPlayer !== 'yellow') return;
+      isAnimating = true;
+      boardHintTextEl.textContent = '最強AIが先読み思考中...';
+      aiStatusNoteEl.textContent = '思考中...';
+      updateDashboardUI();
+
+      // UI描画をブロックしないように微小待機
+      await sleep(60);
+
+      // 現在の対戦状況をクローン
+      const currentState = {
+        grid: Array.from({ length: ROWS }, (_, r) => [...grid[r]]),
+        gravityIndex,
+        movesLeft,
+        isClockwise,
+        redMP: userMP,
+        yellowMP: aiMP,
+        currentPlayer: 'yellow'
+      };
+
+      const legalMoves = generateAiLegalMoves(currentState);
+      if (legalMoves.length === 0) {
+        showDrawModal('置けるマスがありません');
+        isAnimating = false;
+        return;
+      }
+
+      // === ⚡ 即応ファストパス1: 即勝ち（Win in 1 move）の電光石火判定 ===
+      for (const move of legalMoves) {
+        const nextState = applyAiMove(currentState, move);
+        if (checkAiWinner(nextState.grid) === 'yellow') {
+          aiStatusNoteEl.textContent = '必勝手を即座に発見！ (0ms)';
+          await executeAiDecision(move);
+          return;
+        }
+      }
+
+      // === ⚡ 即応ファストパス2: プレイヤーの王手（Next Win）を緊急阻止 ===
+      const oppState = cloneAiState(currentState);
+      oppState.currentPlayer = 'red';
+      const oppLegal = generateAiLegalMoves(oppState);
+      const criticalBlockMoves = [];
+
+      for (const oppM of oppLegal) {
+        if (oppM.type === 'drop') {
+          const testNext = applyAiMove(oppState, oppM);
+          if (checkAiWinner(testNext.grid) === 'red') {
+            for (const myM of legalMoves) {
+              if (myM.type === 'drop' && myM.laneIdx === oppM.laneIdx) {
+                criticalBlockMoves.push(myM);
+              }
+            }
+          }
+        }
+      }
+
+      if (criticalBlockMoves.length === 1) {
+        aiStatusNoteEl.textContent = 'プレイヤーの王手を緊急ブロック！ (0ms)';
+        await executeAiDecision(criticalBlockMoves[0]);
+        return;
+      }
+
+      // === 🧠 高速反復深化アルファベータ探索 ===
+      aiNodesEvaluated = 0;
+      aiSearchAborted = false;
+      const startTime = Date.now();
+      const maxTimeMs = 280; // 最大280ms以内で確実に完了（超軽快レスポンス）
+      let bestMoveOverall = legalMoves[0];
+      let bestScoreOverall = -Infinity;
+      let finalDepth = 1;
+
+      // 反復深化探索（深さ1〜5手先）
+      for (let depth = 1; depth <= 5; depth++) {
+        let currentBestMove = null;
+        let currentBestScore = -Infinity;
+        let alpha = -Infinity;
+        const beta = Infinity;
+
+        // 前回の深さの最善手を先頭へ移動（枝刈り効率を極大化）
+        if (bestMoveOverall) {
+          const bIdx = legalMoves.indexOf(bestMoveOverall);
+          if (bIdx > 0) {
+            legalMoves.splice(bIdx, 1);
+            legalMoves.unshift(bestMoveOverall);
+          }
+        }
+
+        for (const move of legalMoves) {
+          const nextState = applyAiMove(currentState, move);
+          const score = -negamaxAi(nextState, depth - 1, -beta, -alpha, 'yellow', startTime, maxTimeMs);
+
+          if (aiSearchAborted) break;
+
+          if (score > currentBestScore) {
+            currentBestScore = score;
+            currentBestMove = move;
+          }
+          if (score > alpha) {
+            alpha = score;
+          }
+        }
+
+        if (aiSearchAborted) {
+          break; // 時間切れ時は直前の確定した最善手を採用
+        }
+
+        if (currentBestMove) {
+          bestMoveOverall = currentBestMove;
+          bestScoreOverall = currentBestScore;
+          finalDepth = depth;
+        }
+
+        if (bestScoreOverall > 80000 || (Date.now() - startTime > maxTimeMs)) {
+          break;
+        }
+      }
+
+      const elapsed = Date.now() - startTime;
+      aiStatusNoteEl.textContent = `深さ${finalDepth}読了 (${aiNodesEvaluated}局面 / ${elapsed}ms)`;
+
+      // 最適手を実行
+      await executeAiDecision(bestMoveOverall);
+    }
+
+    /* -------------------------------------------------------------
+       手番交代 & パス判定
+    ------------------------------------------------------------- */
+    function togglePlayer() {
+      currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+    }
+
+    function checkCanPlayOrEnd() {
+      let hasEmpty = false;
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] === null) {
+            hasEmpty = true;
+            break;
+          }
+        }
+        if (hasEmpty) break;
+      }
+      if (!hasEmpty) {
+        showDrawModal('置けるマスがありません');
+      }
+    }
+
+    /* -------------------------------------------------------------
+       勝敗判定
+    ------------------------------------------------------------- */
+    function evalWinLines(targetGrid) {
+      let redLines = [];
+      let yellowLines = [];
+
+      const vectors = [
+        [0, 1],  // 横
+        [1, 0],  // 縦
+        [1, 1],  // 右下
+        [-1, 1]  // 右上
+      ];
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const start = targetGrid[r][c];
+          if (!start) continue;
+          const pl = start.player;
+
+          for (const [dr, dc] of vectors) {
+            let matched = [{ r, c, discId: start.id }];
+            let ok = true;
+
+            for (let step = 1; step < 4; step++) {
+              const nr = r + dr * step;
+              const nc = c + dc * step;
+              if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) {
+                ok = false;
+                break;
+              }
+              const nextDisc = targetGrid[nr][nc];
+              if (!nextDisc || nextDisc.player !== pl) {
+                ok = false;
+                break;
+              }
+              matched.push({ r: nr, c: nc, discId: nextDisc.id });
+            }
+
+            if (ok) {
+              if (pl === 'red') redLines.push(matched);
+              else yellowLines.push(matched);
+            }
+          }
+        }
+      }
+
+      if (redLines.length > 0 && yellowLines.length > 0) {
+        return { hasWinner: true, winner: 'both', lines: [...redLines, ...yellowLines] };
+      }
+      if (redLines.length > 0) {
+        return { hasWinner: true, winner: 'red', lines: redLines };
+      }
+      if (yellowLines.length > 0) {
+        return { hasWinner: true, winner: 'yellow', lines: yellowLines };
+      }
+      return { hasWinner: false };
+    }
+
+    function checkFullBoard(targetGrid) {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (targetGrid[r][c] === null) return false;
+        }
+      }
+      return true;
+    }
+
+    /* -------------------------------------------------------------
+       結果モーダル
+    ------------------------------------------------------------- */
+    function showWinModal(winCheck, note = '') {
+      isGameOver = true;
+      sound.playWin();
+
+      const highlighted = new Set();
+      winCheck.lines.forEach((line) => {
+        line.forEach((it) => highlighted.add(it.discId));
+      });
+
+      highlighted.forEach((id) => {
+        const d = discs.get(id);
+        if (d && d.el) d.el.classList.add('winning-disc');
+      });
+
+      setTimeout(() => {
+        if (winCheck.winner === 'both') {
+          // 公式ルール: 重力変化を引き起こした仕掛け人（現在の手番側）の勝利
+          const isUser = currentPlayer === 'red';
+          modalResultTitleEl.textContent = isUser ? 'VICTORY!' : 'DEFEAT...';
+          modalWinnerTextEl.textContent = `${isUser ? 'あなた' : 'AI'}の勝利！（同時成立・仕掛け人ルール）`;
+          modalWinnerPillEl.style.background = isUser ? 'var(--clr-peach-light)' : '#fdf6e2';
+          modalWinnerPillEl.style.color = isUser ? 'var(--clr-red-disc)' : '#b57b14';
+        } else {
+          const isUserWin = winCheck.winner === 'red';
+          modalResultTitleEl.textContent = isUserWin ? 'VICTORY!' : 'DEFEAT...';
+          modalWinnerTextEl.textContent = isUserWin ? 'あなたの勝利！' : 'AIの勝利！';
+          modalWinnerPillEl.style.background = isUserWin ? 'var(--clr-peach-light)' : '#fdf6e2';
+          modalWinnerPillEl.style.color = isUserWin ? 'var(--clr-red-disc)' : '#b57b14';
+        }
+        modalResultDescEl.textContent = note || '縦・横・斜めのいずれかで石が4つ連続で並びました！';
+        modalResultEl.classList.add('is-active');
+      }, 400);
+    }
+
+    function showDrawModal(reason) {
+      isGameOver = true;
+      setTimeout(() => {
+        modalResultTitleEl.textContent = 'DRAW GAME';
+        modalWinnerTextEl.textContent = '引き分け';
+        modalWinnerPillEl.style.background = 'var(--clr-cream)';
+        modalWinnerPillEl.style.color = 'var(--clr-brown)';
+        modalResultDescEl.textContent = reason;
+        modalResultEl.classList.add('is-active');
+      }, 300);
+    }
+
+    /* -------------------------------------------------------------
+       rules.md の動的読み込み & Markdownパース
+    ------------------------------------------------------------- */
+    let cachedRulesMarkdown = null;
+
+    async function loadAndDisplayRules() {
+      const container = document.getElementById('rules-md-content');
+      if (!container) return;
+
+      if (cachedRulesMarkdown) {
+        container.innerHTML = parseMarkdownToHtml(cachedRulesMarkdown);
+        return;
+      }
+
+      try {
+        const res = await fetch('rules.md');
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+        const mdText = await res.text();
+        cachedRulesMarkdown = mdText;
+        container.innerHTML = parseMarkdownToHtml(mdText);
+      } catch (e) {
+        console.warn('rules.md fetch fallback:', e);
+        // file:/// プロトコルなどfetch制限時の安全なインラインフォールバック
+        const fallbackText = `# 重力反転コネクトフォー 公式ルールブック
+
+## 1. 基本ルール
+- **盤面と石**: 7列×7段（計49マス）の正方形盤面を使用します。
+  - **先手（赤）**: あなた（プレイヤー）
+  - **後手（黄）**: AI（CPU）
+- **石の配置とスライド**: 空いている任意のマスをクリックすると石が出現し、**現在の重力方向に向かって一番奥まで自動的に滑り落ちて着地**します。
+- **勝利条件**: 縦・横・斜めのいずれかに自分の石を**4つ以上連続**で並べたプレイヤーの勝利となります（5個以上並んだ場合も勝利とみなします）。
+
+---
+
+## 2. 自動重力反転ルール
+- **反転サイクル**: 重力は初期状態では時計回り（下 → 右 → 上 → 左 → 下…）で巡回します（スキルにより反時計回りへの反転も可能）。
+- **3手ごとの発動**: プレイヤーとAIが合わせて3手打つごとに自動的に重力が次の方向へ切り替わります（反転トリガーが両者で交互に入れ替わる公平仕様）。
+- **予告アラート**: 次の反転まで「残り1手」になると、画面上に次の方向を知らせる警告バナーが表示されます。
+- **全石の一斉スライド**: 重力が切り替わった瞬間、盤面上のすべての石が新しい重力方向へ一斉に滑り落ちて再配置されます。
+
+---
+
+## 3. MPシステムと3大重力スキル
+各プレイヤーはMP（エネルギー）を管理しながら、戦況に応じて3種類の強力なスキルを駆使できます。
+
+### A. MP（エネルギー）の仕様
+- **初期MP**: 8 MP（満タンで開始） / **最大MP**: 8 MP
+- **MP回復**: **通常の石を1つ配置するごとに +1 MP 自動回復**します。
+- **手数の消費**: スキルを発動した場合、石は置かずに手番を終了します（石を置かないためMP回復は発生しません）。
+
+### B. 3大スキルの効果
+
+1. **周期反転 (リバース) 【消費: 2 MP】**
+   - 重力の自動巡回順を反転させます（時計回り ⇔ 反時計回り）。
+   - 相手が次の反転で揃えようと狙っている布石を一瞬で崩すことができます。
+2. **重力前進 (アクセル) 【消費: 4 MP】**
+   - 残り手数を無視して、**現在の周期における「次の重力方向」へ今すぐ重力を移動させ、全石を一斉スライド**させます（自動反転カウントは3にリセット）。
+3. **即時転換 (グラビティシフト) 【消費: 8 MP (MAX)】**
+   - 巡回周期や残り手数を無視して、今すぐ好きな方向（現在の方向を除く残り3方向）へ重力を変更し、一斉スライドを起こします。全MP（8 MP）をすべて消費する必殺技です。
+
+---
+
+## 4. 勝敗判定と重要規定
+
+### A. 重力反転で同時に4つ揃った場合（仕掛け人ルール）
+自動反転やスキル発動による一斉スライドで、赤と黄の両方が同時に4つ並んだ場合は、**その重力変化を引き起こしたプレイヤー（最後の一手を打った側、またはスキルを発動した側）の勝利**となります。
+
+### B. 石配置後の判定と反転後の判定
+勝敗判定は以下の2つのタイミングの両方で行われます：
+1. 石を落として着地した直後
+2. 重力反転（自動またはスキル）により全石が滑り落ちて停止した直後
+
+### C. 引き分け（ドロー）の条件
+49マスすべてに石が埋まり、どちらのプレイヤーも4つ並びを達成できなかった場合は引き分けとなります。`;
+        cachedRulesMarkdown = fallbackText;
+        container.innerHTML = parseMarkdownToHtml(fallbackText);
+      }
+    }
+
+    function parseMarkdownToHtml(md) {
+      let html = md
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^---$/gim, '<hr>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+        .replace(/^\s*\-\s+(.*$)/gim, '<li>$1</li>');
+
+      // 連続する li 要素を ul でラップ
+      html = html.replace(/(<li>.*?<\/li>\s*)+/gs, (match) => {
+        return '<ul>' + match + '</ul>';
+      });
+
+      return html;
+    }
+
+    /* -------------------------------------------------------------
+       ユーティリティ
+    ------------------------------------------------------------- */
+    function sleep(ms) {
+      return new Promise((res) => setTimeout(res, ms));
+    }
+
+    function nextFrame() {
+      return new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+    }
+
+    /* -------------------------------------------------------------
+       イベントリスナー登録
+    ------------------------------------------------------------- */
+    btnRestartMatchEl.addEventListener('click', startNewGame);
+    btnModalRestartEl.addEventListener('click', startNewGame);
+
+    // 3大スキルボタンのイベント
+    if (btnSkillReverseEl) {
+      btnSkillReverseEl.addEventListener('click', () => {
+        executeReverseSkill('red');
+      });
+    }
+
+    if (btnSkillForwardEl) {
+      btnSkillForwardEl.addEventListener('click', () => {
+        executeForwardSkill('red');
+      });
+    }
+
+    if (btnSkillShiftEl) {
+      btnSkillShiftEl.addEventListener('click', () => {
+        if (currentSkillMode === 'shift') closeSkillMode();
+        else openSkillShiftMode();
+      });
+    }
+
+    if (btnCancelSkillEl) {
+      btnCancelSkillEl.addEventListener('click', () => {
+        closeSkillMode();
+      });
+    }
+
+    // 即時転換の方向選択ボタン
+    document.querySelectorAll('.dir-select-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const dir = btn.dataset.dir;
+        executeShiftSkill(dir, 'red');
+      });
+    });
+
+    // 投入レーン矢印ボタンのクリック & ホバープレビュー登録
+    document.querySelectorAll('.lane-arrow-btn').forEach((btn) => {
+      const getEntryCoords = () => {
+        const lane = btn.dataset.lane;
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (lane === 'top') return { r: 0, c: idx };
+        if (lane === 'bottom') return { r: ROWS - 1, c: idx };
+        if (lane === 'left') return { r: idx, c: 0 };
+        if (lane === 'right') return { r: idx, c: COLS - 1 };
+        return { r: 0, c: 0 };
+      };
+
+      btn.addEventListener('click', () => {
+        const { r, c } = getEntryCoords();
+        handleUserClick(r, c);
+      });
+
+      btn.addEventListener('mouseenter', () => {
+        const { r, c } = getEntryCoords();
+        handleCellHover(r, c);
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        clearHoverPreview();
+      });
+    });
+
+    btnSoundToggleEl.addEventListener('click', () => {
+      sound.enabled = !sound.enabled;
+      soundLabelEl.textContent = sound.enabled ? '音: ON' : '音: OFF';
+      btnSoundToggleEl.style.opacity = sound.enabled ? '1' : '0.6';
+    });
+
+    // あそびかたモーダル開閉
+    const btnModalCloseRulesXEl = document.getElementById('btn-modal-close-rules-x');
+
+    btnOpenRulesEl.addEventListener('click', () => {
+      loadAndDisplayRules();
+      modalRulesEl.classList.add('is-active');
+    });
+
+    btnModalCloseRulesEl.addEventListener('click', () => {
+      modalRulesEl.classList.remove('is-active');
+    });
+
+    if (btnModalCloseRulesXEl) {
+      btnModalCloseRulesXEl.addEventListener('click', () => {
+        modalRulesEl.classList.remove('is-active');
+      });
+    }
+
+    modalRulesEl.addEventListener('click', (e) => {
+      if (e.target === modalRulesEl) {
+        modalRulesEl.classList.remove('is-active');
+      }
+    });
+
+    // リサイズ追従
+    window.addEventListener('resize', () => {
+      discs.forEach((disc) => {
+        if (disc.el) {
+          const pos = getCellPosition(disc.r, disc.c);
+          disc.el.style.width = `${pos.w}px`;
+          disc.el.style.height = `${pos.h}px`;
+          disc.el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+          disc.el.style.setProperty('--dx', `${pos.x}px`);
+          disc.el.style.setProperty('--dy', `${pos.y}px`);
+        }
+      });
+    });
+
+    /* 初期化起動 */
+    buildBoardDOM();
+    startNewGame();
+  </script>
+</body>
+</html>

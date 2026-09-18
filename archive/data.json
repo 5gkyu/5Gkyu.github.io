@@ -8,11 +8,11 @@
         "cols": 3,
         "items": [
           {
-            "title": "ほろ酔い診断テスト",
-            "tag": "健康・生活",
-            "href": "/archive/app/sober-check/",
+            "title": "動画音声抽出・MP3変換",
+            "tag": "メディアツール",
+            "href": "/archive/app/video-to-audio/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "お酒を飲む前と後で同じテストを実施し、反射神経・認知判断・記憶・バランスの変化から現在の酔い度合いを優しく診断します。"
+            "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
           },
           {
             "title": "ラグトレイン 粒子シンフォニー",
@@ -48,6 +48,20 @@
   },
   "app": {
     "sections": [
+      {
+        "id": "media-tools",
+        "heading": "メディア・音声ツール",
+        "cols": 3,
+        "items": [
+          {
+            "title": "動画音声抽出・MP3変換",
+            "tag": "メディアツール",
+            "href": "/archive/app/video-to-audio/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
+          }
+        ]
+      },
       {
         "id": "image-tools",
         "heading": "画像ツール",
@@ -87,6 +101,13 @@
             "href": "/archive/app/image-splitter/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "1枚の画像を均等なサイズ（正方形・長方形）に分割して一括保存できるツールです。"
+          },
+          {
+            "title": "OGP画像トリミング",
+            "tag": "画像ツール",
+            "href": "/archive/app/ogp-cropper/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "SNSやブログに最適なOGPアイキャッチサイズ（1200×630 / 1.91:1等）へ簡単トリミング・編集できるツールです。"
           }
         ]
       },
@@ -95,6 +116,13 @@
         "heading": "開発ツール",
         "cols": 3,
         "items": [
+          {
+            "title": "QRコード作成＆読み取りスタジオ",
+            "tag": "Webツール",
+            "href": "/archive/app/qr-code/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "URLからデザインQRコードを生成（色・ドット形状・中央ロゴ対応）。さらに画像ドロップやカメラからのQRコード逆変換（読み取り）にも対応。"
+          },
           {
             "title": "Markdown Previewer",
             "tag": "開発ツール",
@@ -152,170 +180,304 @@
             "description": "相手の数値IDを指定して、XのDM作成リンクを生成します。"
           }
         ]
-      },
-      {
-        "id": "life-tools",
-        "heading": "生活・セルフチェック",
-        "cols": 3,
-        "items": [
-          {
-            "title": "ほろ酔い診断テスト",
-            "tag": "健康・生活",
-            "href": "/archive/app/sober-check/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "お酒を飲む前と後で同じテストを実施し、反射神経・認知判断・記憶・バランスの変化から現在の酔い度合いを優しく診断します。"
-          }
-        ]
       }
     ]
   },
   "note": {
     "sections": [
       {
-        "id": "consideration",
-        "heading": "<hl-icon name='search'></hl-icon> 考察",
+        "id": "thought",
+        "heading": "<hl-icon name='heart'></hl-icon> 思索・心理",
         "cols": 3,
         "items": [
           {
-            "title": "騒音の中であなたの声だけ聞こえる ── カクテルパーティー効果",
-            "href": "/archive/note/cocktail-party/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "大勢の声が飛び交う中で、自分の名前だけがふと耳に届く。情報過多な世界で「必要なものだけを拾う」脳の防衛術を考察します。"
-          },
-          {
-            "title": "色に名前をつけるということ",
-            "href": "/archive/note/color-and-design/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。"
-          },
-          {
             "title": "ヤマアラシのジレンマ",
-            "href": "/archive/note/hedgehog-dilemma/",
+            "href": "/archive/note/thought/hedgehog-dilemma/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "近づくと傷つけ合い、遠ざかると寂しい。ショーペンハウアーの寓話を手がかりに、人間関係における距離感の本質を考察します。"
+            "description": "近づくと傷つけ合い、遠ざかると寂しい。ショーペンハウアーの寓話を手がかりに、人間関係における距離感の本質を考察します。",
+            "tags": [
+              "心理学",
+              "人間関係",
+              "哲学"
+            ]
+          },
+          {
+            "title": "騒音の中であなたの声だけ聞こえる ── カクテルパーティー効果",
+            "href": "/archive/note/thought/cocktail-party/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "大勢の声が飛び交う中で、自分の名前だけがふと耳に届く。情報過多な世界で「必要なものだけを拾う」脳の防衛術を考察します。",
+            "tags": [
+              "心理学",
+              "脳科学",
+              "コミュニケーション"
+            ]
           },
           {
             "title": "言葉よりも雄弁に",
-            "href": "/archive/note/nonverbal/",
+            "href": "/archive/note/thought/nonverbal/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "沈黙・表情・距離・触れ方——。人は言葉を使う以前から、体全体で伝え合っている。ノンバーバル・コミュニケーションの科学と、その意外な奥深さを考察します。"
+            "description": "沈黙・表情・距離・触れ方——。人は言葉を使う以前から、体全体で伝え合っている。ノンバーバル・コミュニケーションの科学と、その意外な奥深さを考察します。",
+            "tags": [
+              "心理学",
+              "コミュニケーション",
+              "身体表現"
+            ]
           },
-          {
-            "title": "画面の向こうのあなたへ ── 第四の壁と繋がりの魔法",
-            "href": "/archive/note/fourth-wall/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "舞台と客席を隔てる見えない壁「第四の壁」。フィクションを守るこの壁を、時にキャラクターは越えて語りかけてくる。その瞬間なぜ心が動くのかを考察します。"
-          }
-        ]
-      },
-      {
-        "id": "guide",
-        "heading": " ガイド",
-        "cols": 3,
-        "items": [
-          {
-            "title": "ビジュアルノベルの歴史 ── ADVからVNへ",
-            "href": "/archive/note/visual-novel-history/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "「読む」ゲームはどのように生まれたか。ポートピアから弟切草、かまいたちの夜、To Heart、CLANNADへ。ビジュアルノベルの誕生と進化をたどるガイド。"
-          },
-          {
-            "title": "Webタイポグラフィ入門",
-            "href": "/archive/note/typography/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説するガイド。"
-          },
-          {
-            "title": "ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド",
-            "href": "/archive/note/browser/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "1990年の誕生から現代まで。ブラウザの歴史・レンダリングエンジンの仕組み・Chrome／Firefox／Safari／Edgeなど現役ブラウザを網羅した解説ガイド。"
-          }
-        ]
-      },
-      {
-        "id": "column",
-        "heading": " コラム",
-        "cols": 3,
-        "items": [
           {
             "title": "終わり良ければすべて良し、は本当 ── ピーク・エンドの法則",
-            "href": "/archive/note/peak-end/",
+            "href": "/archive/note/thought/peak-end/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "人は経験を「一番感情が動いた瞬間（ピーク）」と「終わった時（エンド）」の記憶だけで判断する。だから、別れ際に「またね」と笑うことには、思いのほか大きな意味がある。"
+            "description": "人は経験を「一番感情が動いた瞬間（ピーク）」と「終わった時（エンド）」の記憶だけで判断する。だから、別れ際に「またね」と笑うことには、思いのほか大きな意味がある。",
+            "tags": [
+              "心理学",
+              "記憶",
+              "行動経済学"
+            ]
           },
           {
             "title": "やる気は『やってから』ついてくる ── 「作業興奮」",
-            "href": "/archive/note/sakugyo-kofun/",
+            "href": "/archive/note/thought/sakugyo-kofun/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "最初の一歩が重い理由。動けない自分を責めず、「とりあえず5分だけ」で脳をだます。クレペリンが発見した「作業興奮」からわかる、やる気の本当のしくみ。"
-          },
-          {
-            "title": "機械が歌うということ ── 私がボカロ曲に求める4つの基準",
-            "href": "/archive/note/vocaloid/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "音・詞・声・映像。好きなボカロ曲には「これでなければならなかった」という感覚が宿っている。その基準を言語化した個人的なコラム。"
-          },
-          {
-            "title": "雨の日に窓の外を見るのが好きな理由",
-            "href": "/archive/note/rain-and-cozy/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "なぜ人は、安全な部屋の中から嵐や雨を見るのが好きなのか。「守られた空間（シェルター）」から外界を見ることで得られる根源的な安心感についてのコラム。"
+            "description": "最初の一歩が重い理由。動けない自分を責めず、「とりあえず5分だけ」で脳をだます。クレペリンが発見した「作業興奮」からわかる、やる気の本当のしくみ。",
+            "tags": [
+              "脳科学",
+              "モチベーション",
+              "習慣"
+            ]
           }
         ]
       },
       {
-        "id": "trivia",
-        "heading": "<hl-icon name='lightbulb'></hl-icon> 雑学",
+        "id": "culture",
+        "heading": "<hl-icon name='game'></hl-icon> 文化・ゲーム",
         "cols": 3,
         "items": [
           {
-            "title": "ぽっかり浮かぶ白い雲は、ゾウ100頭分よりも重い",
-            "href": "/archive/note/cloud-weight/",
+            "title": "画面の向こうのあなたへ ── 第四の壁と繋がりの魔法",
+            "href": "/archive/note/culture/fourth-wall/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ふわふわと空に漂う積雲は、実はアフリカゾウ約100頭分・約500トンの重さを持っている。それでも落ちてこない理由とは。"
+            "description": "舞台と客席を隔てる見えない壁「第四の壁」。フィクションを守るこの壁を、時にキャラクターは越えて語りかけてくる。その瞬間なぜ心が動くのかを考察します。",
+            "tags": [
+              "フィクション",
+              "演劇",
+              "メタ構造"
+            ]
           },
           {
-            "title": "イチゴはベリーじゃないのに、スイカやバナナはベリー",
-            "href": "/archive/note/berry-paradox/",
+            "title": "ビジュアルノベルの歴史 ── ADVからVNへ",
+            "href": "/archive/note/culture/visual-novel-history/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "「ストロベリー」と名乗っているのに植物学上はベリーではなく、名前に「ベリー」のないスイカやバナナは正真正銘のベリー。果物の分類が意外すぎる件。"
-          },
-          {
-            "title": "フランスと最も長く国境を接している国は、ブラジル",
-            "href": "/archive/note/france-brazil/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "フランスの隣国といえばドイツやスペイン——と思いきや、国境線が最も長い隣国はブラジル。南アメリカに存在するフランスの「飛び地」が生む、地図の意外な事実。"
-          },
-          {
-            "title": "キツツキの舌は、頭蓋骨をぐるりと巻いて「脳のシートベルト」になっている",
-            "href": "/archive/note/woodpecker-tongue/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "1秒間に20回、重力の1000倍の衝撃で木をつつくキツツキ。なぜ脳が無事なのか。その答えは、頭蓋骨をぐるりと一周する「異様に長い舌」にあった。"
-          },
-          {
-            "title": "日本語じゃなかった「イクラ」── お寿司のイクラはロシア語",
-            "href": "/archive/note/ikura-russian/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "お寿司の定番「イクラ」は実はロシア語（икра）。ロシアでは魚卵全般を指すこの言葉が、日露戦争のころに製法とともに日本へ渡ってきた。"
+            "description": "「読む」ゲームはどのように生まれたか。ポートピアから弟切草、かまいたちの夜、To Heart、CLANNADへ。ビジュアルノベルの誕生と進化をたどるガイド。",
+            "tags": [
+              "ゲーム史",
+              "ノベルゲーム",
+              "サブカルチャー"
+            ]
           },
           {
             "title": "サンドボックスの語源 ── 「目標がない」が最大の目標",
-            "href": "/archive/note/sandbox/",
+            "href": "/archive/note/culture/sandbox/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ゲームの「サンドボックス」という言葉は、子供が遊ぶ砂場が語源。クリア条件がなく、プレイヤーが自分で目的を作り出すこのジャンルを世界的に有名にしたのがMinecraftだ。"
+            "description": "ゲームの「サンドボックス」という言葉は、子供が遊ぶ砂場が語源。クリア条件がなく、プレイヤーが自分で目的を作り出すこのジャンルを世界的に有名にしたのがMinecraftだ。",
+            "tags": [
+              "ゲームデザイン",
+              "語源",
+              "Minecraft"
+            ]
           },
           {
             "title": "メトロイドヴァニア ── 2つの名作が合体して生まれた言葉",
-            "href": "/archive/note/metroidvania/",
+            "href": "/archive/note/culture/metroidvania/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "「メトロイドヴァニア」は任天堂の『メトロイド』とコナミの『キャッスルヴァニア』を掛け合わせた造語。新能力で行動範囲が広がる探索×成長の快感が、インディーゲーム界を席巻している。"
+            "description": "「メトロイドヴァニア」は任天堂の『メトロイド』とコナミの『キャッスルヴァニア』を掛け合わせた造語。新能力で行動範囲が広がる探索×成長の快感が、インディーゲーム界を席巻している。",
+            "tags": [
+              "ゲームデザイン",
+              "造語",
+              "インディーゲーム"
+            ]
           },
           {
             "title": "ローグライクとローグライト ── 一度死んだらすべてを失う快感",
-            "href": "/archive/note/roguelike/",
+            "href": "/archive/note/culture/roguelike/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "ローグライクは1980年の『Rogue』に由来。自動生成ダンジョンとパーマデスが特徴で、死んだら最初からやり直し。現代では一部引き継ぎ要素を持つローグライトも大流行。"
+            "description": "ローグライクは1980年の『Rogue』に由来。自動生成ダンジョンとパーマデスが特徴で、死んだら最初からやり直し。現代では一部引き継ぎ要素を持つローグライトも大流行。",
+            "tags": [
+              "ゲームデザイン",
+              "ゲーム史",
+              "システム論"
+            ]
+          },
+          {
+            "title": "機械が歌うということ ── 私がボカロ曲に求める4つの基準",
+            "href": "/archive/note/culture/vocaloid/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "音・詞・声・映像。好きなボカロ曲には「これでなければならなかった」という感覚が宿っている。その基準を言語化した個人的なコラム。",
+            "tags": [
+              "音楽",
+              "ボーカロイド",
+              "カルチャー"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "science",
+        "heading": "<hl-icon name='planet'></hl-icon> 自然・科学",
+        "cols": 3,
+        "items": [
+          {
+            "title": "なぜ夜空は暗いのか ── オルバースのパラドックス",
+            "href": "/archive/note/science/test-article/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "宇宙に無数の星があるなら、夜空は昼間のように明るいはずでは？この素朴な疑問が、宇宙の始まりを証明することになったお話。",
+            "tags": [
+              "宇宙",
+              "天文学",
+              "パラドックス"
+            ]
+          },
+          {
+            "title": "ぽっかり浮かぶ白い雲は、ゾウ100頭分よりも重い",
+            "href": "/archive/note/science/cloud-weight/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ふわふわと空に漂う積雲は、実はアフリカゾウ約100頭分・約500トンの重さを持っている。それでも落ちてこない理由とは。",
+            "tags": [
+              "気象",
+              "物理",
+              "自然科学"
+            ]
+          },
+          {
+            "title": "イチゴはベリーじゃないのに、スイカやバナナはベリー",
+            "href": "/archive/note/science/berry-paradox/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "「ストロベリー」と名乗っているのに植物学上はベリーではなく、名前に「ベリー」のないスイカやバナナは正真正銘のベリー。果物の分類が意外すぎる件。",
+            "tags": [
+              "植物学",
+              "生物",
+              "分類"
+            ]
+          },
+          {
+            "title": "キツツキの舌は、頭蓋骨をぐるりと巻いて「脳のシートベルト」になっている",
+            "href": "/archive/note/science/woodpecker-tongue/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1秒間に20回、重力の1000倍の衝撃で木をつつくキツツキ。なぜ脳が無事なのか。その答えは、頭蓋骨をぐるりと一周する「異様に長い舌」にあった。",
+            "tags": [
+              "動物学",
+              "進化",
+              "生態"
+            ]
+          },
+          {
+            "title": "フランスと最も長く国境を接している国は、ブラジル",
+            "href": "/archive/note/science/france-brazil/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "フランスの隣国といえばドイツやスペイン——と思いきや、国境線が最も長い隣国はブラジル。南アメリカに存在するフランスの「飛び地」が生む、地図の意外な事実。",
+            "tags": [
+              "地理",
+              "世界",
+              "国境"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "language",
+        "heading": "<hl-icon name='chat'></hl-icon> 言葉・表現",
+        "cols": 3,
+        "items": [
+          {
+            "title": "色に名前をつけるということ",
+            "href": "/archive/note/language/color-and-design/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。",
+            "tags": [
+              "色彩論",
+              "言語学",
+              "哲学"
+            ]
+          },
+          {
+            "title": "日本語じゃなかった「イクラ」── お寿司のイクラはロシア語",
+            "href": "/archive/note/language/ikura-russian/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "お寿司の定番「イクラ」は実はロシア語（икра）。ロシアでは魚卵全般を指すこの言葉が、日露戦争のころに製法とともに日本へ渡ってきた。",
+            "tags": [
+              "語源",
+              "外来語",
+              "食文化"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "tech",
+        "heading": "<hl-icon name='code'></hl-icon> 技術・ガイド",
+        "cols": 3,
+        "items": [
+          {
+            "title": "QRコード完全解剖 ── なぜ中央にロゴがあっても、白黒でなくても読み取れるのか？",
+            "href": "/archive/note/tech/qr-code/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1994年の誕生秘話から3つの目玉の幾何学、リード・ソロモン符号による驚異の誤り訂正まで。日常のコードに潜む数学的トリックを徹底解剖。",
+            "tags": [
+              "QRコード",
+              "技術解説",
+              "画像処理",
+              "アルゴリズム"
+            ]
+          },
+          {
+            "title": "Git 超入門ノート ── 4つの「場所」と基本コマンド",
+            "href": "/archive/note/tech/git-guide/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ファイルが今どこにあるかという4つの場所（状態）さえ分かれば、Gitは怖くない。超初心者向けの実践ガイド。",
+            "tags": [
+              "Git",
+              "開発ツール",
+              "入門ガイド"
+            ]
+          },
+          {
+            "title": "Webタイポグラフィ入門",
+            "href": "/archive/note/tech/typography/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説するガイド。",
+            "tags": [
+              "タイポグラフィ",
+              "CSS",
+              "Webデザイン"
+            ]
+          },
+          {
+            "title": "ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド",
+            "href": "/archive/note/tech/browser/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "1990年の誕生から現代まで。ブラウザの歴史・レンダリングエンジンの仕組み・Chrome／Firefox／Safari／Edgeなど現役ブラウザを網羅した解説ガイド。",
+            "tags": [
+              "ブラウザ",
+              "Web史",
+              "技術解説"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "essay",
+        "heading": "<hl-icon name='book'></hl-icon> エッセイ・日常",
+        "cols": 3,
+        "items": [
+          {
+            "title": "雨の日に窓の外を見るのが好きな理由",
+            "href": "/archive/note/essay/rain-and-cozy/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "なぜ人は、安全な部屋の中から嵐や雨を見るのが好きなのか。「守られた空間（シェルター）」から外界を見ることで得られる根源的な安心感についてのコラム。",
+            "tags": [
+              "エッセイ",
+              "日常",
+              "安心感"
+            ]
           }
         ]
       }

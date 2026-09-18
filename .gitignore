@@ -14,15 +14,22 @@ desktop.ini
 node_modules/
 npm-debug.log
 
-# 指定されたファイル
-archive/note/index.html
+# 指定されたファイル・ディレクトリ（GitHub非公開）
+archive/note/
+note/
 prologue/
 halcyon_lore.md
+archive/app/sober-check/
+about/
 
-# ローカル専用ディレクトリ（公開しないファイル置き場）
+# ローカル専用ディレクトリ・スクラッチ・バックアップ（公開しないファイル置き場）
 _local/
 _private/
 discord/
+scratch/
+*.backup.*
+*.backup
+.agents/
 
 
 

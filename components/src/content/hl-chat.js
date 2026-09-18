@@ -3,7 +3,8 @@ class HlChat extends HTMLElement {
     if (this.dataset.rendered) return;
     this.dataset.rendered = 'true';
     const char  = this.getAttribute('char')  || 'A';
-    const align = this.getAttribute('align') || 'left';
+    const defaultAligns = { A: 'left', B: 'right', C: 'left', D: 'right', E: 'right', F: 'left' };
+    const align = this.getAttribute('align') || defaultAligns[char] || 'left';
     const src   = this.getAttribute('src')   || '';
     let imgSrc;
     if (src) {

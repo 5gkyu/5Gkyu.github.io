@@ -987,48 +987,102 @@ button.small, button[class*="small"] {
   border-radius: 3px;
   border: 1px solid rgba(255,255,255,0.08);
 }
-
 /* ============== FOOTER ============== */
 .appFooter {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 6px 16px;
+  gap: 12px;
+  padding: 4px 12px;
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
   color: var(--text-muted);
   font-size: 11px;
-  height: 84px;
-  min-height: 84px;
-  max-height: 84px;
+  height: 80px;
+  min-height: 80px;
+  max-height: 80px;
   overflow: hidden;
   flex-shrink: 0;
   z-index: 50;
-}
-
-.footerCenter,
-.footerRight {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  height: 100%;
-  justify-content: center;
+  box-sizing: border-box;
 }
 
 .footerCenter {
-  flex: 0 0 330px;
-  max-width: 330px;
-  min-width: 310px;
+  flex: 0 0 210px;
+  max-width: 220px;
+  min-width: 170px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   border-right: 1px solid var(--border);
-  padding-right: 14px;
+  padding-right: 10px;
+  overflow: hidden;
 }
 
 .footerRight {
   flex: 1 1 auto;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1px 0;
+  overflow: hidden;
+}
+
+.footerHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
+}
+
+.footerLeftGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.paletteSelectionControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.paletteSelectionControls button {
+  padding: 1px 5px;
+  font-size: 10px;
+  height: 20px;
+  line-height: 1;
+}
+
+.footerSubLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.footerSelect {
+  font-size: 10px;
+  padding: 1px 4px;
+  height: 20px;
+  max-width: 120px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+}
+
+.footerHintText {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .footerLabel {
@@ -1036,58 +1090,73 @@ button.small, button[class*="small"] {
   color: var(--accent);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  white-space: nowrap;
 }
 
 .footerValue {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 .footerPalette {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 3px 2px 5px 2px;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 48px;
+  height: 48px;
+  width: 100%;
+  align-content: flex-start;
+  padding: 1px 2px;
+  scrollbar-width: thin;
+}
+
+.footerPalette::-webkit-scrollbar {
+  width: 4px;
+}
+
+.footerPalette::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 2px;
 }
 
 .footerCenter .palettePreview {
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  min-height: 50px;
+  min-height: 46px;
 }
 
 .footerCenter .paletteRow {
   width: 100%;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  padding: 3px 6px;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .footerCenter .paletteSwatchBtn {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
   position: relative;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
 .footerCenter .paletteRow > div:last-child {
@@ -1095,31 +1164,33 @@ button.small, button[class*="small"] {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .footerCenter .paletteName {
   width: 100%;
-  padding: 2px 6px;
-  font-size: 11px;
-  height: 20px;
+  padding: 1px 4px;
+  font-size: 10px;
+  height: 18px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
+  box-sizing: border-box;
 }
 
 .footerCenter .paletteHexInput {
   flex: 1;
   min-width: 0;
-  padding: 2px 6px;
-  font-size: 11px;
-  height: 20px;
+  padding: 1px 4px;
+  font-size: 10px;
+  height: 18px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: 'JetBrains Mono', ui-monospace, monospace;
+  box-sizing: border-box;
 }
 
 .footerCenter .paletteRow .small {
@@ -1127,40 +1198,41 @@ button.small, button[class*="small"] {
 }
 
 .footerPalette .swatch {
-  flex: 0 0 28px;
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  border-radius: var(--radius-sm);
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 3px;
   border: 1px solid rgba(255,255,255,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
   user-select: none;
+  box-sizing: border-box;
 }
 
 .footerPalette .swatch:hover {
-  transform: translateY(-2px) scale(1.08);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 0 1px var(--accent);
+  transform: translateY(-1px) scale(1.1);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5), 0 0 0 1px var(--accent);
   z-index: 2;
 }
 
 .footerPalette .swatch.active {
-  box-shadow: 0 0 0 2px var(--accent), 0 4px 10px rgba(124,92,252,0.4);
-  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--accent), 0 2px 6px rgba(124,92,252,0.4);
+  transform: scale(1.08);
   z-index: 3;
 }
 
 .footerEmptyGuide {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 32px;
 }
 
 .paletteHorizontal {

@@ -23,16 +23,6 @@ class HlToc extends HTMLElement {
     this.render();
   }
 
-  disconnectedCallback() {
-    if (this._onContentLoaded) {
-      window.removeEventListener('halcyon-content-loaded', this._onContentLoaded);
-    }
-    if (this._observer) {
-      this._observer.disconnect();
-      this._observer = null;
-    }
-  }
-
   render() {
     setTimeout(() => {
       const headingHosts = Array.from(document.querySelectorAll('section-heading'));
@@ -63,12 +53,15 @@ class HlToc extends HTMLElement {
         
         tocTargets = tocTargets.concat(headingTargets);
       } else {
-        // 記事ページ用: .hl-layout-main 内の h2[id] / h3[id] を収集
+        // 記事ページ用: .hl-layout-main 内の h2 / h3 を収集（idがなければ自動付与）
         const contentHeadings = Array.from(
-          document.querySelectorAll('.hl-layout-main h2[id], .hl-layout-main h3[id]')
+          document.querySelectorAll('.hl-layout-main h2, .hl-layout-main h3')
         );
         let currentH2Id = null;
-        contentHeadings.forEach((el) => {
+        contentHeadings.forEach((el, index) => {
+          if (!el.id) {
+            el.id = `hl-sec-${index + 1}`;
+          }
           const isH3 = el.tagName === 'H3';
           if (!isH3) currentH2Id = el.id;
           tocTargets.push({ id: el.id, text: el.textContent.trim(), target: el, level: isH3 ? 3 : 2, parentH2: isH3 ? currentH2Id : null });
@@ -120,30 +113,79 @@ class HlToc extends HTMLElement {
 
       this.innerHTML = `<div class="hl-sidebar-block" style="margin-bottom:0;"><div class="hl-sidebar-title"><span><img src="https://5gkyu.github.io/icon/content.svg" alt="" style="width:1em;height:1em;vertical-align:middle;display:inline-block;"></span>Contents</div><div class="hl-toc__list">${linksHtml}</div></div>`;
 
-      this._observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            this.querySelectorAll('.hl-toc__link').forEach(link => link.classList.remove('is-active'));
-            const activeLink = this.querySelector(`.hl-toc__link[href="#${entry.target.id}"]`);
-            if (activeLink) {
-              activeLink.classList.add('is-active');
-              if (hasH3) {
-                // アクティブ見出しのグループを展開・他は折りたたむ
-                const activeGroupId = activeLink.dataset.parent !== undefined
-                  ? activeLink.dataset.parent
-                  : (activeLink.dataset.h2id || null);
-                this.querySelectorAll('.hl-toc__sub-list').forEach(subList => {
-                  subList.classList.toggle('is-group-active', !!activeGroupId && subList.dataset.group === activeGroupId);
-                });
-              }
+      const updateActiveLink = (targetId) => {
+        this.querySelectorAll('.hl-toc__link').forEach(link => link.classList.remove('is-active'));
+        const activeLink = this.querySelector(`.hl-toc__link[href="#${targetId}"]`);
+        if (activeLink) {
+          activeLink.classList.add('is-active');
+          if (hasH3) {
+            // アクティブ見出しのグループを展開・他は折りたたむ
+            const activeGroupId = activeLink.dataset.parent !== undefined
+              ? activeLink.dataset.parent
+              : (activeLink.dataset.h2id || null);
+            this.querySelectorAll('.hl-toc__sub-list').forEach(subList => {
+              subList.classList.toggle('is-group-active', !!activeGroupId && subList.dataset.group === activeGroupId);
+            });
+          }
+
+          // 目次（TOC）内でアクティブ見出しが見える位置へ自動スクロール
+          const scrollContainer = activeLink.closest('.sidebar-sticky') || activeLink.closest('hl-toc');
+          if (scrollContainer && scrollContainer.scrollHeight > scrollContainer.clientHeight) {
+            const linkTop = activeLink.offsetTop;
+            const containerHeight = scrollContainer.clientHeight;
+            const targetScrollTop = linkTop - containerHeight / 2 + activeLink.clientHeight / 2;
+            scrollContainer.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'smooth' });
+          } else {
+            try {
+              activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            } catch (e) {
+              // fallback
             }
           }
+        }
+      };
+
+      this._observer = new IntersectionObserver((entries) => {
+        // ページ最下部付近の場合はスクロールリスナーに任せる
+        const isNearBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 80);
+        if (isNearBottom && tocTargets.length > 0) {
+          updateActiveLink(tocTargets[tocTargets.length - 1].id);
+          return;
+        }
+
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            updateActiveLink(entry.target.id);
+          }
         });
-      }, { rootMargin: '-120px 0px -60% 0px' });
+      }, { rootMargin: '-100px 0px -65% 0px' });
+
       tocTargets.forEach((item) => {
          this._observer.observe(item.target);
       });
+
+      // ページ最下部検知用リスナー
+      this._onScroll = () => {
+        const isNearBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 80);
+        if (isNearBottom && tocTargets.length > 0) {
+          updateActiveLink(tocTargets[tocTargets.length - 1].id);
+        }
+      };
+      window.addEventListener('scroll', this._onScroll, { passive: true });
     }, 50);
+  }
+
+  disconnectedCallback() {
+    if (this._onContentLoaded) {
+      window.removeEventListener('halcyon-content-loaded', this._onContentLoaded);
+    }
+    if (this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll);
+    }
+    if (this._observer) {
+      this._observer.disconnect();
+      this._observer = null;
+    }
   }
 }
 customElements.define('hl-toc', HlToc);

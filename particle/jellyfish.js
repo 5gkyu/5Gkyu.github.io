@@ -60,33 +60,33 @@
       
       roles[i] = { type: 'dome', ox, oy, oz, rRatio, R }; 
 
-    } else if (i < 2800) { 
-      // 中心のフリル（Oral Arms）: 800点
+    } else if (i < 2200) { 
+      // 中心のフリル（Oral Arms）: 200点（ゆったりとした心地よい密度）
       const tIdx = i - 2000;
-      const numArms = 5; // フリルの数を増加
+      const numArms = 5; // 5本のふんわりしたフリル
       const armNum = tIdx % numArms;
-      const tPos = Math.floor(tIdx / numArms) / (800 / numArms); 
+      const tPos = Math.floor(tIdx / numArms) / (200 / numArms); 
       
-      const angle = (armNum / numArms) * Math.PI * 2 + tPos * Math.PI * 0.5; // 少し螺旋状にねじる
-      const spread = 15 + tPos * 35;
+      const angle = (armNum / numArms) * Math.PI * 2 + tPos * Math.PI * 0.6; // 螺旋状のねじれ
+      const spread = 20 + tPos * 38;
       const ox = Math.cos(angle) * spread;
       const oz = Math.sin(angle) * spread;
-      const oy = tPos * 180; 
+      const oy = tPos * 200; 
       
       roles[i] = { type: 'oral_arm', ox, oy, oz, armNum, tPos };
 
     } else { 
-      // 外側の長い触手（Tentacles）: 1200点
-      const tIdx = i - 2800;
-      const numTentacles = 32; // 触手の本数を増加
+      // 外側の長い触手（Tentacles）: 1800点
+      const tIdx = i - 2200;
+      const numTentacles = 45; // 45本の触手
       const tNum = tIdx % numTentacles;
-      const tPos = Math.floor(tIdx / numTentacles) / (1200 / numTentacles); 
+      const tPos = Math.floor(tIdx / numTentacles) / (1800 / numTentacles); 
       
       const angle = (tNum / numTentacles) * Math.PI * 2;
       const rootR = 125;
       const ox = Math.cos(angle) * rootR;
       const oz = Math.sin(angle) * rootR;
-      const oy = tPos * 360; // 画面下部まで長く伸びる
+      const oy = tPos * 350; // 画面下部まで長く伸びる
       
       roles[i] = { type: 'tentacle', ox, oy, oz, tNum, tPos };
     }

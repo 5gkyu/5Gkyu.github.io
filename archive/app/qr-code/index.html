@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QRコード作成＆読み取りスタジオ | Halcyon - 5Gkyu</title>
+  <meta name="description" content="URLからデザインQRコードを作成・カスタマイズ。色やドット形状の変更、中央ロゴの追加から、画像ファイルやカメラからのQRコード逆変換（読み取り・URL抽出）まで完全対応。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/qr-code/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="QRコード作成＆読み取りスタジオ | Halcyon - 5Gkyu">
+  <meta property="og:description" content="URLからQRコード生成、色やロゴの追加、画像やカメラからのQRコード読み取り（逆変換）まで対応した高機能ツール。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/qr-code/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
+
+  <!-- QRコード生成ライブラリ (qr-code-styling) -->
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  <!-- QRコードデコードライブラリ (jsQR) -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- Halcyon コンポーネント -->
+  <script src="/components/components.js"></script>
+
+  <style>
+    :root {
+      --clr-cream: #FBF6EA;
+      --clr-sage: #9AB08F;
+      --clr-peach: #EEAFA1;
+      --clr-dusty-blue: #92B5BC;
+      --clr-brown: #6A564A;
+    }
+
+    /* コンパクトヘッダーエリア */
+    .qr-app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .qr-app-title-group {
+      flex: 1;
+      min-width: 260px;
+    }
+    .qr-app-title {
+      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      color: var(--clr-brown);
+      margin-bottom: 0.2rem;
+    }
+    .qr-app-sub {
+      font-size: 0.85rem;
+      color: var(--clr-brown);
+      opacity: 0.75;
+      margin: 0;
+    }
+
+    /* モード切替タブ */
+    .qr-mode-switch {
+      display: inline-flex;
+      background: rgba(106, 86, 74, 0.08);
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+    .qr-mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.1rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      opacity: 0.65;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .qr-mode-btn:hover {
+      opacity: 0.9;
+    }
+    .qr-mode-btn.is-active {
+      background: #ffffff;
+      opacity: 1;
+      color: var(--clr-brown);
+      box-shadow: 0 2px 10px rgba(106, 86, 74, 0.1);
+    }
+    .qr-mode-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* パネル共通 */
+    .qr-panel {
+      display: none;
+      animation: hl-fade-in 0.25s ease;
+    }
+    .qr-panel.is-active {
+      display: block;
+    }
+
+    /* 左右2分割コックピットグリッド */
+    .qr-cockpit-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.85fr);
+      gap: 1.4rem;
+      align-items: stretch;
+    }
+    @media (max-width: 860px) {
+      .qr-cockpit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .qr-box {
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.12);
+      border-radius: 18px;
+      padding: 1.3rem 1.5rem;
+      box-shadow: 0 4px 18px rgba(106, 86, 74, 0.04);
+    }
+
+    .qr-sec-heading {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--clr-sage);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* フォームパーツ */
+    .qr-form-row {
+      margin-bottom: 0.95rem;
+    }
+    .qr-form-row:last-child {
+      margin-bottom: 0;
+    }
+    .qr-label-sm {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      opacity: 0.85;
+      margin-bottom: 0.35rem;
+    }
+
+    .qr-input-text {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      border-radius: 10px;
+      background: #faf8f5;
+      color: var(--clr-brown);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .qr-input-text:focus {
+      outline: none;
+      border-color: var(--clr-sage);
+      background: #ffffff;
+      box-shadow: 0 0 0 2.5px rgba(154, 176, 143, 0.2);
+    }
+
+    .qr-quick-chips {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .qr-chip {
+      padding: 0.2rem 0.55rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid rgba(106, 86, 74, 0.15);
+      background: rgba(106, 86, 74, 0.04);
+      color: var(--clr-brown);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .qr-chip:hover {
+      background: rgba(154, 176, 143, 0.2);
+      border-color: var(--clr-sage);
+      color: #3b5a30;
+    }
+
+    /* コンパクトな2列設定レイアウト */
+    .qr-settings-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      background: #faf8f5;
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(106, 86, 74, 0.08);
+      margin-bottom: 0.95rem;
+    }
+    @media (max-width: 540px) {
+      .qr-settings-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 選択ボタングループ */
+    .qr-btn-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 0.35rem;
+    }
+    .qr-opt-btn {
+      padding: 0.45rem 0.3rem;
+      border-radius: 8px;
+      border: 1px solid rgba(106, 86, 74, 0.15);
+      background: #ffffff;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .qr-opt-btn:hover {
+      border-color: var(--clr-sage);
+    }
+    .qr-opt-btn.is-active {
+      border-color: var(--clr-sage);
+      background: rgba(154, 176, 143, 0.2);
+      color: #3b5a30;
+      box-shadow: inset 0 0 0 1px var(--clr-sage);
+    }
+
+    /* カラーピッカー行 */
+    .qr-color-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .qr-color-input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 32px;
+      height: 32px;
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 1px 5px rgba(106, 86, 74, 0.15);
+      background: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .qr-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+    .qr-color-input::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .qr-color-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+    .qr-color-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #fff;
+      box-shadow: 0 1px 4px rgba(106,86,74,0.15);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .qr-color-dot:hover {
+      transform: scale(1.2);
+    }
+
+    /* ロゴ行 */
+    .qr-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #faf8f5;
+      padding: 0.6rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid rgba(106, 86, 74, 0.08);
+    }
+    .qr-logo-file-btn {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid rgba(106, 86, 74, 0.2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .qr-logo-file-btn input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .qr-logo-status {
+      font-size: 0.78rem;
+      color: var(--clr-brown);
+      opacity: 0.75;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    /* 右ペイン：プレビュー＆アクション */
+    .qr-preview-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.12);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 18px rgba(106, 86, 74, 0.04);
+      text-align: center;
+    }
+    .qr-canvas-box {
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid rgba(106, 86, 74, 0.1);
+      box-shadow: 0 3px 12px rgba(106, 86, 74, 0.04);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .qr-action-btns {
+      width: 100%;
+      max-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .qr-btn-main {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--clr-sage);
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      box-shadow: 0 3px 10px rgba(154, 176, 143, 0.25);
+    }
+    .qr-btn-main:hover {
+      background: #8aa37e;
+      transform: translateY(-1.5px);
+    }
+    .qr-sub-btns {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .qr-btn-sub {
+      flex: 1;
+      padding: 0.55rem;
+      border-radius: 8px;
+      border: 1px solid rgba(106, 86, 74, 0.18);
+      background: #ffffff;
+      color: var(--clr-brown);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .qr-btn-sub:hover {
+      background: rgba(106, 86, 74, 0.05);
+      border-color: var(--clr-brown);
+    }
+
+    /* 読み取りモード（リーダー） */
+    .qr-scan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.4rem;
+      align-items: stretch;
+    }
+    @media (max-width: 800px) {
+      .qr-scan-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .qr-dropzone {
+      border: 2px dashed rgba(154, 176, 143, 0.6);
+      border-radius: 16px;
+      background: rgba(154, 176, 143, 0.04);
+      padding: 2.2rem 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+    .qr-dropzone.is-dragover {
+      background: rgba(154, 176, 143, 0.15);
+      border-color: var(--clr-sage);
+      transform: scale(1.01);
+    }
+    .qr-dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .qr-dropzone-icon {
+      width: 44px;
+      height: 44px;
+      color: var(--clr-sage);
+      margin-bottom: 0.6rem;
+    }
+    .qr-dropzone-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      margin-bottom: 0.2rem;
+    }
+    .qr-dropzone-sub {
+      font-size: 0.78rem;
+      color: var(--clr-brown);
+      opacity: 0.65;
+    }
+
+    /* カメラ枠 */
+    .qr-camera-wrap {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      margin-bottom: 0.8rem;
+    }
+    .qr-camera-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .qr-camera-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .qr-camera-target-box {
+      width: 150px;
+      height: 150px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.45);
+      position: relative;
+    }
+    .qr-camera-target-box::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--clr-sage);
+      box-shadow: 0 0 8px var(--clr-sage);
+      animation: qr-scan-line 2s infinite ease-in-out;
+    }
+
+    /* スキャン結果 */
+    .qr-result-panel {
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.12);
+      border-left: 5px solid var(--clr-sage);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 220px;
+    }
+    .qr-result-empty {
+      color: var(--clr-brown);
+      opacity: 0.5;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+    .qr-result-content {
+      display: none;
+    }
+    .qr-result-text-box {
+      font-family: monospace;
+      font-size: 0.95rem;
+      word-break: break-all;
+      background: #faf8f5;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      border: 1px solid rgba(106, 86, 74, 0.1);
+      color: var(--clr-brown);
+      margin: 0.8rem 0 1rem;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* トースト通知 */
+    .qr-toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: #382f2a;
+      color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 2500;
+    }
+    .qr-toast.is-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* フッターバナー */
+    .qr-note-banner {
+      margin-top: 1.4rem;
+      background: rgba(154, 176, 143, 0.12);
+      border: 1px solid rgba(154, 176, 143, 0.3);
+      border-radius: 12px;
+      padding: 0.75rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .qr-note-banner:hover {
+      background: rgba(154, 176, 143, 0.2);
+    }
+    .qr-note-banner-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+    }
+    .qr-note-banner-arrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--clr-sage);
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="App"></site-header>
+
+  <hl-layout cols="1" size="wide" class="fluffy-entry delay-1" style="max-width: 1040px; margin: 0 auto; padding-top: 86px; padding-bottom: 40px;">
+    
+    <hl-breadcrumb
+      level1-name="Archive" level1-url="/archive/"
+      level2-name="App" level2-url="/archive/app/"
+      current="QRコードスタジオ"
+      style="margin-bottom: 0.6rem;">
+    </hl-breadcrumb>
+
+    <!-- アプリヘッダー ＆ モード切替 -->
+    <div class="qr-app-header">
+      <div class="qr-app-title-group">
+        <h1 class="qr-app-title">QRコード作成 ＆ 読み取りスタジオ</h1>
+        <p class="qr-app-sub">URLからデザインQRコードの生成、および画像・カメラからのQRコード逆変換（URL抽出）が1画面で完結します。</p>
+      </div>
+
+      <div class="qr-mode-switch" role="tablist">
+        <button class="qr-mode-btn is-active" id="tab-btn-create" role="tab" aria-selected="true">
+          <svg viewBox="0 0 256 256"><path d="M120,40H48A16,16,0,0,0,32,56v72a16,16,0,0,0,16,16h72a16,16,0,0,0,16-16V56A16,16,0,0,0,120,40Zm0,88H48V56h72ZM208,40H136a16,16,0,0,0-16,16v72a16,16,0,0,0,16,16h72a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40Zm0,88H136V56h72ZM120,152H48a16,16,0,0,0-16,16v72a16,16,0,0,0,16,16h72a16,16,0,0,0,16-16V168A16,16,0,0,0,120,152Zm0,88H48V168h72ZM216,168v24h24a8,8,0,0,1,0,16H216v24a8,8,0,0,1-16,0V208H176a8,8,0,0,1,0-16h24V168a8,8,0,0,1,16,0Z"/></svg>
+          QRコードを作成
+        </button>
+        <button class="qr-mode-btn" id="tab-btn-scan" role="tab" aria-selected="false">
+          <svg viewBox="0 0 256 256"><path d="M208,32H168a8,8,0,0,0,0,16h40V88a8,8,0,0,0,16,0V48A16,16,0,0,0,208,32ZM88,208H48V168a8,8,0,0,0-16,0v40a16,16,0,0,0,16,16H88a8,8,0,0,0,0-16Zm120-48a8,8,0,0,0-8,8v40H168a8,8,0,0,0,0,16h40a16,16,0,0,0,16-16V168A8,8,0,0,0,208,160ZM48,88a8,8,0,0,0,16-8V48H88a8,8,0,0,0,0-16H48A16,16,0,0,0,32,48V88A8,8,0,0,0,48,88Zm160,40a8,8,0,0,1-8,8H56a8,8,0,0,1,0-16H200A8,8,0,0,1,208,128Z"/></svg>
+          QRコードを読み取る
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- パネル 1: 作成モード（URL → QR）                -->
+    <!-- ============================================== -->
+    <div id="panel-create" class="qr-panel is-active" role="tabpanel">
+      <div class="qr-cockpit-grid">
+
+        <!-- 左ペイン：設定・入力エリア -->
+        <div class="qr-box">
+          
+          <!-- URL入力 -->
+          <div class="qr-form-row">
+            <div class="qr-label-sm">
+              <span>URL または テキスト</span>
+              <span id="char-count" style="opacity:0.6; font-weight:normal;">25文字</span>
+            </div>
+            <input type="text" id="qr-input-value" class="qr-input-text" placeholder="https://example.com" value="https://5gkyu.github.io/">
+            <div class="qr-quick-chips">
+              <button type="button" class="qr-chip" id="btn-quick-cur">現在のページ</button>
+              <button type="button" class="qr-chip" id="btn-quick-top">Halcyon トップ</button>
+              <button type="button" class="qr-chip" id="btn-quick-note">Note 記事一覧</button>
+              <button type="button" class="qr-chip" id="btn-quick-clear">クリア</button>
+            </div>
+          </div>
+
+          <!-- 2列設定グループ（形状 ＆ カラー） -->
+          <div class="qr-settings-columns">
+            
+            <!-- 列1: ドット＆角の形状 -->
+            <div>
+              <div class="qr-form-row" style="margin-bottom:0.75rem;">
+                <span class="qr-label-sm">ドットの形状</span>
+                <div class="qr-btn-group" id="dot-style-choices">
+                  <button type="button" class="qr-opt-btn is-active" data-dots="square">四角</button>
+                  <button type="button" class="qr-opt-btn" data-dots="dots">丸型</button>
+                  <button type="button" class="qr-opt-btn" data-dots="rounded">角丸</button>
+                  <button type="button" class="qr-opt-btn" data-dots="classy">スマート</button>
+                </div>
+              </div>
+
+              <div class="qr-form-row">
+                <span class="qr-label-sm">角マーク（目玉）</span>
+                <div class="qr-btn-group" id="corner-style-choices">
+                  <button type="button" class="qr-opt-btn is-active" data-corner="square">四角</button>
+                  <button type="button" class="qr-opt-btn" data-corner="dot">丸型</button>
+                  <button type="button" class="qr-opt-btn" data-corner="extra-rounded">ソフト</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 列2: カラー ＆ 誤り訂正 -->
+            <div>
+              <div class="qr-form-row" style="margin-bottom:0.75rem;">
+                <span class="qr-label-sm">カラー</span>
+                <div class="qr-color-inline">
+                  <input type="color" id="qr-dot-color" class="qr-color-input" value="#6A564A" title="ドット色">
+                  <input type="color" id="qr-bg-color" class="qr-color-input" value="#ffffff" title="背景色">
+                  <div class="qr-color-dots">
+                    <div class="qr-color-dot" style="background:#6A564A;" data-color="#6A564A" title="ブラウン"></div>
+                    <div class="qr-color-dot" style="background:#9AB08F;" data-color="#9AB08F" title="セージ"></div>
+                    <div class="qr-color-dot" style="background:#EEAFA1;" data-color="#EEAFA1" title="ピーチ"></div>
+                    <div class="qr-color-dot" style="background:#92B5BC;" data-color="#92B5BC" title="ブルー"></div>
+                    <div class="qr-color-dot" style="background:#1E293B;" data-color="#1E293B" title="ネイビー"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="qr-form-row">
+                <span class="qr-label-sm">誤り訂正能力 (Reed-Solomon)</span>
+                <div class="qr-btn-group" id="error-level-choices">
+                  <button type="button" class="qr-opt-btn" data-ec="L" title="7%復元">L (7%)</button>
+                  <button type="button" class="qr-opt-btn" data-ec="M" title="15%復元">M (15%)</button>
+                  <button type="button" class="qr-opt-btn" data-ec="Q" title="25%復元">Q (25%)</button>
+                  <button type="button" class="qr-opt-btn is-active" data-ec="H" title="30%復元・ロゴ推奨">H (30%)</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 中央ロゴの配置 -->
+          <div class="qr-logo-row">
+            <label class="qr-logo-file-btn">
+              <span>＋ 中央ロゴ画像</span>
+              <input type="file" id="qr-logo-file" accept="image/png,image/jpeg,image/svg+xml,image/webp">
+            </label>
+            <span id="qr-logo-status" class="qr-logo-status">ロゴなし（選択すると中央に埋め込み）</span>
+            <button type="button" id="btn-remove-logo" class="qr-chip" style="display:none; color:#b85a4a;">解除</button>
+          </div>
+
+        </div>
+
+        <!-- 右ペイン：プレビュー ＆ ダウンロード -->
+        <div class="qr-preview-panel">
+          <div class="qr-canvas-box" id="qr-canvas-box"></div>
+          
+          <div class="qr-action-btns">
+            <button type="button" id="btn-download-png" class="qr-btn-main">
+              <svg viewBox="0 0 256 256" width="16" height="16" fill="currentColor"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"/></svg>
+              PNG画像を保存
+            </button>
+            <div class="qr-sub-btns">
+              <button type="button" id="btn-download-svg" class="qr-btn-sub">SVG保存</button>
+              <button type="button" id="btn-copy-image" class="qr-btn-sub">画像コピー</button>
+            </div>
+          </div>
+
+          <span style="font-size:0.75rem; color:var(--clr-brown); opacity:0.6; margin-top:0.6rem;">
+            スマホのカメラをかざして動作テストできます
+          </span>
+        </div>
+
+      </div>
+
+      <!-- 関連コラムバナー -->
+      <a href="/archive/note/tech/qr-code/" class="qr-note-banner">
+        <span class="qr-note-banner-title">💡 関連記事：QRコード完全解剖 ── なぜ中央にロゴがあっても、白黒でなくても読めるのか？</span>
+        <span class="qr-note-banner-arrow">解説を読む →</span>
+      </a>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- パネル 2: 読み取りモード（QR → URL）            -->
+    <!-- ============================================== -->
+    <div id="panel-scan" class="qr-panel" role="tabpanel">
+      <div class="qr-scan-grid">
+
+        <!-- 左：ドロップゾーン / カメラ -->
+        <div class="qr-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+            <span class="qr-sec-heading" style="margin-bottom:0;">SCAN INPUT</span>
+            <button type="button" id="btn-toggle-camera" class="qr-chip">📷 カメラ起動</button>
+          </div>
+
+          <!-- カメラプレビュー -->
+          <div id="qr-camera-container" class="qr-camera-wrap">
+            <video id="qr-camera-video" class="qr-camera-video" playsinline></video>
+            <div class="qr-camera-overlay">
+              <div class="qr-camera-target-box"></div>
+            </div>
+            <button type="button" id="btn-stop-camera" class="qr-chip" style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; border:none; z-index:10;">
+              停止
+            </button>
+          </div>
+
+          <!-- ファイルドロップゾーン -->
+          <div id="qr-scan-dropzone" class="qr-dropzone">
+            <input type="file" id="qr-file-input" accept="image/*">
+            <svg class="qr-dropzone-icon" viewBox="0 0 256 256"><path fill="currentColor" d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM156,88a12,12,0,1,1-12-12A12,12,0,0,1,156,88Zm60,112H40V160l45.66-45.66a8,8,0,0,1,11.31,0L136,153.37l45.66-45.66a8,8,0,0,1,11.31,0L216,130.43Z"/></svg>
+            <div class="qr-dropzone-title">QRコード画像をドロップ</div>
+            <div class="qr-dropzone-sub">クリックして選択、または Ctrl + V で貼り付け</div>
+          </div>
+
+          <canvas id="qr-decode-canvas" style="display:none;"></canvas>
+        </div>
+
+        <!-- 右：結果表示 -->
+        <div class="qr-result-panel">
+          <div id="qr-result-empty" class="qr-result-empty">
+            <span style="display:block; font-size:1.8rem; margin-bottom:0.4rem; opacity:0.4;">🔍</span>
+            QRコード画像を左にドロップすると、<br>解析されたURLやテキストがここに表示されます。
+          </div>
+
+          <div id="qr-result-content" class="qr-result-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="qr-chip" style="background:rgba(154,176,143,0.2); color:#3b5a30; border-color:var(--clr-sage);">解析成功</span>
+              <span style="font-size:0.75rem; color:var(--clr-brown); opacity:0.6;">Decoded Data</span>
+            </div>
+
+            <div id="qr-result-text" class="qr-result-text-box"></div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <a id="qr-result-open-link" href="#" target="_blank" rel="noopener noreferrer" class="qr-btn-main" style="text-decoration:none; display:none; flex:1; padding:0.6rem; font-size:0.85rem;">
+                リンクを開く ↗
+              </a>
+              <button type="button" id="btn-copy-result" class="qr-btn-sub" style="flex:1; padding:0.6rem;">
+                内容をコピー
+              </button>
+              <button type="button" id="btn-send-to-creator" class="qr-btn-sub" style="flex:1; padding:0.6rem;">
+                作成タブで再編集 ↺
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </hl-layout>
+
+  <!-- トースト通知 -->
+  <div id="qr-toast" class="qr-toast">通知メッセージ</div>
+
+  <site-footer copy="5Gkyu Apps"></site-footer>
+
+  <!-- スクリプト -->
+  <script>
+    (function initCompactQRCodeStudio() {
+      const tabBtnCreate = document.getElementById('tab-btn-create');
+      const tabBtnScan   = document.getElementById('tab-btn-scan');
+      const panelCreate  = document.getElementById('panel-create');
+      const panelScan    = document.getElementById('panel-scan');
+
+      const inputVal       = document.getElementById('qr-input-value');
+      const charCountEl    = document.getElementById('char-count');
+      const dotColorInput  = document.getElementById('qr-dot-color');
+      const bgColorInput   = document.getElementById('qr-bg-color');
+      const canvasBox      = document.getElementById('qr-canvas-box');
+      const btnDownloadPng = document.getElementById('btn-download-png');
+      const btnDownloadSvg = document.getElementById('btn-download-svg');
+      const btnCopyImage   = document.getElementById('btn-copy-image');
+      const logoFileInput  = document.getElementById('qr-logo-file');
+      const logoStatus     = document.getElementById('qr-logo-status');
+      const btnRemoveLogo  = document.getElementById('btn-remove-logo');
+
+      // スキャン要素
+      const scanDropzone    = document.getElementById('qr-scan-dropzone');
+      const fileInput       = document.getElementById('qr-file-input');
+      const decodeCanvas    = document.getElementById('qr-decode-canvas');
+      const resultEmpty     = document.getElementById('qr-result-empty');
+      const resultContent   = document.getElementById('qr-result-content');
+      const resultText      = document.getElementById('qr-result-text');
+      const resultOpenLink  = document.getElementById('qr-result-open-link');
+      const btnCopyResult   = document.getElementById('btn-copy-result');
+      const btnSendCreator  = document.getElementById('btn-send-to-creator');
+      const btnToggleCamera = document.getElementById('btn-toggle-camera');
+      const btnStopCamera   = document.getElementById('btn-stop-camera');
+      const cameraContainer = document.getElementById('qr-camera-container');
+      const videoEl         = document.getElementById('qr-camera-video');
+      const toastEl         = document.getElementById('qr-toast');
+
+      let currentLogoData = '';
+      let qrCodeInstance  = null;
+      let cameraStream    = null;
+      let cameraAnimFrame = null;
+
+      const qrConfig = {
+        width: 220,
+        height: 220,
+        data: inputVal.value.trim() || 'https://5gkyu.github.io/',
+        margin: 4,
+        dotsOptions: { color: dotColorInput.value, type: 'square' },
+        backgroundOptions: { color: bgColorInput.value },
+        cornersSquareOptions: { type: 'square', color: dotColorInput.value },
+        cornersDotOptions: { type: 'square', color: dotColorInput.value },
+        imageOptions: { crossOrigin: 'anonymous', margin: 3, imageSize: 0.24 },
+        qrOptions: { errorCorrectionLevel: 'H' }
+      };
+
+      // タブ切替
+      tabBtnCreate.addEventListener('click', () => switchTab('create'));
+      tabBtnScan.addEventListener('click', () => switchTab('scan'));
+
+      function switchTab(mode) {
+        if (mode === 'create') {
+          tabBtnCreate.classList.add('is-active');
+          tabBtnCreate.setAttribute('aria-selected', 'true');
+          tabBtnScan.classList.remove('is-active');
+          tabBtnScan.setAttribute('aria-selected', 'false');
+          panelCreate.classList.add('is-active');
+          panelScan.classList.remove('is-active');
+          stopCamera();
+        } else {
+          tabBtnScan.classList.add('is-active');
+          tabBtnScan.setAttribute('aria-selected', 'true');
+          tabBtnCreate.classList.remove('is-active');
+          tabBtnCreate.setAttribute('aria-selected', 'false');
+          panelScan.classList.add('is-active');
+          panelCreate.classList.remove('is-active');
+        }
+      }
+
+      function updateCharCount() {
+        const len = inputVal.value.length;
+        charCountEl.textContent = `${len}文字`;
+      }
+
+      function renderQRCode() {
+        if (!window.QRCodeStyling) return;
+        updateCharCount();
+
+        qrConfig.data = inputVal.value.trim() || 'https://5gkyu.github.io/';
+        qrConfig.dotsOptions.color = dotColorInput.value;
+        qrConfig.cornersSquareOptions.color = dotColorInput.value;
+        qrConfig.cornersDotOptions.color = dotColorInput.value;
+        qrConfig.backgroundOptions.color = bgColorInput.value;
+
+        if (currentLogoData) {
+          qrConfig.image = currentLogoData;
+        } else {
+          delete qrConfig.image;
+        }
+
+        canvasBox.innerHTML = '';
+        qrCodeInstance = new QRCodeStyling(qrConfig);
+        qrCodeInstance.append(canvasBox);
+      }
+
+      inputVal.addEventListener('input', renderQRCode);
+
+      document.getElementById('btn-quick-cur').addEventListener('click', () => {
+        inputVal.value = window.location.href;
+        renderQRCode();
+      });
+      document.getElementById('btn-quick-top').addEventListener('click', () => {
+        inputVal.value = 'https://5gkyu.github.io/';
+        renderQRCode();
+      });
+      document.getElementById('btn-quick-note').addEventListener('click', () => {
+        inputVal.value = 'https://5gkyu.github.io/archive/note/';
+        renderQRCode();
+      });
+      document.getElementById('btn-quick-clear').addEventListener('click', () => {
+        inputVal.value = '';
+        inputVal.focus();
+        renderQRCode();
+      });
+
+      // ドット形状
+      document.querySelectorAll('#dot-style-choices .qr-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#dot-style-choices .qr-opt-btn').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          qrConfig.dotsOptions.type = btn.dataset.dots;
+          renderQRCode();
+        });
+      });
+
+      // 角形状
+      document.querySelectorAll('#corner-style-choices .qr-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#corner-style-choices .qr-opt-btn').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const type = btn.dataset.corner;
+          qrConfig.cornersSquareOptions.type = type;
+          qrConfig.cornersDotOptions.type = type === 'extra-rounded' ? 'dot' : type;
+          renderQRCode();
+        });
+      });
+
+      dotColorInput.addEventListener('input', renderQRCode);
+      bgColorInput.addEventListener('input', renderQRCode);
+
+      document.querySelectorAll('.qr-color-dot[data-color]').forEach(dot => {
+        dot.addEventListener('click', () => {
+          dotColorInput.value = dot.dataset.color;
+          renderQRCode();
+        });
+      });
+
+      document.querySelectorAll('#error-level-choices .qr-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#error-level-choices .qr-opt-btn').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          qrConfig.qrOptions.errorCorrectionLevel = btn.dataset.ec;
+          renderQRCode();
+        });
+      });
+
+      // ロゴアップロード
+      logoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          currentLogoData = event.target.result;
+          logoStatus.textContent = file.name;
+          btnRemoveLogo.style.display = 'inline-block';
+
+          qrConfig.qrOptions.errorCorrectionLevel = 'H';
+          document.querySelectorAll('#error-level-choices .qr-opt-btn').forEach(b => {
+            b.classList.toggle('is-active', b.dataset.ec === 'H');
+          });
+
+          renderQRCode();
+          showToast('ロゴを追加しました（誤り訂正H適用）');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      btnRemoveLogo.addEventListener('click', () => {
+        currentLogoData = '';
+        logoFileInput.value = '';
+        logoStatus.textContent = 'ロゴなし（選択すると中央に埋め込み）';
+        btnRemoveLogo.style.display = 'none';
+        renderQRCode();
+        showToast('ロゴを解除しました');
+      });
+
+      // 保存
+      btnDownloadPng.addEventListener('click', () => {
+        if (!qrCodeInstance) return;
+        qrCodeInstance.download({ name: 'qr-code', extension: 'png' });
+        showToast('PNG画像をダウンロードしました');
+      });
+      btnDownloadSvg.addEventListener('click', () => {
+        if (!qrCodeInstance) return;
+        qrCodeInstance.download({ name: 'qr-code', extension: 'svg' });
+        showToast('SVG画像をダウンロードしました');
+      });
+      btnCopyImage.addEventListener('click', async () => {
+        try {
+          const canvas = canvasBox.querySelector('canvas');
+          if (!canvas) throw new Error('Canvas not found');
+          canvas.toBlob(async (blob) => {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            showToast('画像をクリップボードにコピーしました！');
+          }, 'image/png');
+        } catch (err) {
+          showToast('クリップボードへの画像コピーに対応していません');
+        }
+      });
+
+      // ----------------------------------------------------
+      // デコード（読み取り）
+      // ----------------------------------------------------
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) decodeImageFile(file);
+      });
+
+      scanDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        scanDropzone.classList.add('is-dragover');
+      });
+      scanDropzone.addEventListener('dragleave', () => {
+        scanDropzone.classList.remove('is-dragover');
+      });
+      scanDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        scanDropzone.classList.remove('is-dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) decodeImageFile(file);
+      });
+
+      window.addEventListener('paste', (e) => {
+        if (!panelScan.classList.contains('is-active')) return;
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            decodeImageFile(item.getAsFile());
+            break;
+          }
+        }
+      });
+
+      function decodeImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const ctx = decodeCanvas.getContext('2d', { willReadFrequently: true });
+            decodeCanvas.width = img.width;
+            decodeCanvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, img.width, img.height);
+            if (!window.jsQR) return showToast('デコードライブラリ読み込み待機中');
+
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+              inversionAttempts: 'attemptBoth'
+            });
+
+            if (code && code.data) {
+              handleScanSuccess(code.data);
+            } else {
+              showToast('画像からQRコードを検出できませんでした');
+            }
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      btnToggleCamera.addEventListener('click', () => {
+        if (cameraStream) stopCamera();
+        else startCamera();
+      });
+      btnStopCamera.addEventListener('click', stopCamera);
+
+      async function startCamera() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          videoEl.srcObject = cameraStream;
+          videoEl.setAttribute('playsinline', true);
+          await videoEl.play();
+          cameraContainer.style.display = 'block';
+          scanDropzone.style.display = 'none';
+          btnToggleCamera.textContent = '✕ カメラを閉じる';
+          requestAnimationFrame(tickCameraScan);
+          showToast('カメラを起動しました');
+        } catch (err) {
+          showToast('カメラへのアクセスが拒否されたか、未対応です');
+        }
+      }
+
+      function stopCamera() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+          cameraStream = null;
+        }
+        if (cameraAnimFrame) {
+          cancelAnimationFrame(cameraAnimFrame);
+          cameraAnimFrame = null;
+        }
+        cameraContainer.style.display = 'none';
+        scanDropzone.style.display = 'flex';
+        btnToggleCamera.textContent = '📷 カメラ起動';
+      }
+
+      function tickCameraScan() {
+        if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
+          decodeCanvas.width = videoEl.videoWidth;
+          decodeCanvas.height = videoEl.videoHeight;
+          const ctx = decodeCanvas.getContext('2d', { willReadFrequently: true });
+          ctx.drawImage(videoEl, 0, 0, decodeCanvas.width, decodeCanvas.height);
+
+          const imageData = ctx.getImageData(0, 0, decodeCanvas.width, decodeCanvas.height);
+          if (window.jsQR) {
+            const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+            if (code && code.data) {
+              stopCamera();
+              handleScanSuccess(code.data);
+              return;
+            }
+          }
+        }
+        cameraAnimFrame = requestAnimationFrame(tickCameraScan);
+      }
+
+      function handleScanSuccess(data) {
+        resultText.textContent = data;
+        resultEmpty.style.display = 'none';
+        resultContent.style.display = 'block';
+
+        const isUrl = /^https?:\/\//i.test(data.trim());
+        if (isUrl) {
+          resultOpenLink.href = data.trim();
+          resultOpenLink.style.display = 'inline-flex';
+        } else {
+          resultOpenLink.style.display = 'none';
+        }
+        showToast('QRコードを読み取りました！');
+      }
+
+      btnCopyResult.addEventListener('click', async () => {
+        if (!resultText.textContent) return;
+        await navigator.clipboard.writeText(resultText.textContent);
+        showToast('内容をコピーしました');
+      });
+
+      btnSendCreator.addEventListener('click', () => {
+        if (!resultText.textContent) return;
+        inputVal.value = resultText.textContent;
+        switchTab('create');
+        renderQRCode();
+        showToast('作成タブへ転送しました');
+      });
+
+      let toastTimer = null;
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('is-show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('is-show'), 2500);
+      }
+
+      setTimeout(renderQRCode, 50);
+    })();
+  </script>
+
+</body>
+</html>

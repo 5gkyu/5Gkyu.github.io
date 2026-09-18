@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>動画音声抽出・MP3変換ツール | Halcyon - 5Gkyu</title>
+  <meta name="description" content="ブラウザ上で動画ファイルから音声（MP3 / WAV）を抽出・変換できる無料ツール。ファイル名・アーティスト名・リリース年・ジャケット画像の設定に対応。サーバー送信なしで安心・高音質です。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/app/video-to-audio/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="動画音声抽出・MP3変換ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ブラウザ上で動画から音声（MP3 / WAV）を抽出・変換。ファイル名・アーティスト名・年・ジャケット画像の設定に対応。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/app/video-to-audio/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- チラつき（FOUC）防止スタイル -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
+
+  <!-- LameJS (MP3 Encoder) CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
+  <style>
+    .v2a-card {
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.12);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 8px 24px rgba(106, 86, 74, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .v2a-dropzone {
+      border: 2px dashed var(--clr-sage, #9AB08F);
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      background: rgba(154, 176, 143, 0.05);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .v2a-dropzone:hover, .v2a-dropzone.dragover {
+      background: rgba(154, 176, 143, 0.12);
+      border-color: #7d9671;
+      transform: translateY(-2px);
+    }
+    .v2a-dropzone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+      display: inline-block;
+      opacity: 0.85;
+    }
+    .v2a-dropzone-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+      margin-bottom: 0.4rem;
+    }
+    .v2a-dropzone-subtext {
+      font-size: 0.82rem;
+      color: var(--clr-brown, #6A564A);
+      opacity: 0.7;
+    }
+
+    .v2a-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .v2a-preview-grid {
+        grid-template-columns: 1.1fr 1fr;
+      }
+    }
+
+    .v2a-video-wrapper {
+      background: #1a1614;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .v2a-video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .v2a-meta-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      background: rgba(106, 86, 74, 0.03);
+      border: 1px solid rgba(106, 86, 74, 0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.88rem;
+      color: var(--clr-brown, #6A564A);
+    }
+    .v2a-meta-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed rgba(106, 86, 74, 0.1);
+      padding-bottom: 0.4rem;
+    }
+    .v2a-meta-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .v2a-meta-label {
+      opacity: 0.75;
+    }
+    .v2a-meta-val {
+      font-weight: 700;
+    }
+
+    /* 波形表示キャンバス */
+    .waveform-box {
+      width: 100%;
+      height: 72px;
+      background: #f4efe4;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(106, 86, 74, 0.1);
+    }
+    .waveform-box canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* オプションセクション */
+    .option-group {
+      margin-top: 1.4rem;
+    }
+    .option-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* メタデータ入力グリッド */
+    .meta-inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+      background: rgba(106, 86, 74, 0.03);
+      border: 1px solid rgba(106, 86, 74, 0.08);
+      border-radius: 14px;
+      padding: 1.1rem;
+    }
+    @media (min-width: 640px) {
+      .meta-inputs-grid {
+        grid-template-columns: 2fr 1.5fr 1fr;
+      }
+    }
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .meta-field label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+    }
+    .meta-field label span {
+      font-size: 0.72rem;
+      font-weight: normal;
+      opacity: 0.7;
+      margin-left: 0.3rem;
+    }
+    .meta-field input {
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      font-family: var(--font-main, sans-serif);
+      font-size: 0.9rem;
+      color: var(--clr-brown, #6A564A);
+      background: #ffffff;
+      transition: border-color 0.2s ease;
+    }
+    .meta-field input:focus {
+      outline: none;
+      border-color: var(--clr-sage, #9AB08F);
+      box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
+    }
+
+    /* ジャケット画像設定 */
+    .cover-section {
+      margin-top: 1rem;
+      background: rgba(106, 86, 74, 0.03);
+      border: 1.5px dashed rgba(106, 86, 74, 0.15);
+      border-radius: 14px;
+      padding: 1.1rem;
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .cover-section.dragover {
+      border-color: var(--clr-sage, #9AB08F);
+      background: rgba(154, 176, 143, 0.14);
+    }
+    .cover-preview-box {
+      width: 90px;
+      height: 90px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .cover-preview-box:hover {
+      border-color: var(--clr-sage, #9AB08F);
+    }
+    .cover-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .cover-placeholder {
+      font-size: 1.8rem;
+      opacity: 0.4;
+    }
+    .cover-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 200px;
+    }
+    .cover-btn-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .btn-small {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      background: #ffffff;
+      color: var(--clr-brown, #6A564A);
+    }
+    .btn-small:hover {
+      background: rgba(154, 176, 143, 0.15);
+      border-color: var(--clr-sage, #9AB08F);
+    }
+    .btn-small.btn-danger {
+      color: #b35959;
+      border-color: rgba(179, 89, 89, 0.3);
+    }
+    .btn-small.btn-danger:hover {
+      background: rgba(179, 89, 89, 0.1);
+      border-color: #b35959;
+    }
+
+    .format-btn-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+    .format-radio-card {
+      position: relative;
+      border: 1.5px solid rgba(106, 86, 74, 0.15);
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 0.8rem 0.6rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .format-radio-card:hover {
+      border-color: var(--clr-sage, #9AB08F);
+      background: rgba(154, 176, 143, 0.05);
+    }
+    .format-radio-card.active {
+      border-color: var(--clr-sage, #9AB08F);
+      background: rgba(154, 176, 143, 0.15);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(154, 176, 143, 0.25);
+    }
+    .format-name {
+      font-size: 0.95rem;
+      color: var(--clr-brown, #6A564A);
+      margin-bottom: 0.2rem;
+    }
+    .format-desc {
+      font-size: 0.72rem;
+      color: var(--clr-brown, #6A564A);
+      opacity: 0.7;
+    }
+
+    /* プログレスバー */
+    .progress-container {
+      margin-top: 1.5rem;
+      display: none;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: rgba(106, 86, 74, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--clr-sage, #9AB08F), #78996c);
+      transition: width 0.1s ease;
+      border-radius: 999px;
+    }
+    .progress-label {
+      font-size: 0.85rem;
+      color: var(--clr-brown, #6A564A);
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+
+    /* ダウンロード・結果エリア */
+    .result-section {
+      margin-top: 1.8rem;
+      padding: 1.2rem;
+      background: rgba(154, 176, 143, 0.12);
+      border: 1.5px solid var(--clr-sage, #9AB08F);
+      border-radius: 14px;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .result-title {
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+      font-size: 1rem;
+    }
+    .result-audio-wrapper {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .result-cover-thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid rgba(106, 86, 74, 0.15);
+      display: none;
+    }
+    .result-audio {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 8px;
+    }
+    .result-btn-wrap {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-privacy {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(154, 176, 143, 0.15);
+      border: 1px solid var(--clr-sage, #9AB08F);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      color: var(--clr-brown, #6A564A);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--clr-sage, #9AB08F);
+      color: #ffffff;
+      padding: 0.75rem 1.6rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(154, 176, 143, 0.35);
+      text-decoration: none;
+    }
+    .btn-action:hover {
+      background: #89a17d;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(154, 176, 143, 0.45);
+    }
+    .btn-action:disabled {
+      background: #c2c9bf;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: var(--clr-brown, #6A564A);
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      padding: 0.75rem 1.4rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      background: rgba(106, 86, 74, 0.05);
+      border-color: var(--clr-brown, #6A564A);
+    }
+
+    .feature-list {
+      margin-top: 1.2rem;
+      padding-left: 1.2rem;
+      font-size: 0.88rem;
+      color: var(--clr-brown, #6A564A);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <site-header site-name="動画音声抽出・MP3変換"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+      <hl-breadcrumb
+        current="動画音声抽出・MP3変換"
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="App" level2-url="/archive/app/">
+      </hl-breadcrumb>
+
+      <page-title>動画音声抽出・MP3変換</page-title>
+      
+      <div class="badge-privacy">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        完全ブラウザ処理・サーバー送信なし（安全・高速）
+      </div>
+
+      <p class="hl-content-text" style="margin-bottom: 1.5rem;">
+        動画ファイル（MP4, WebM, MOVなど）から音声データを取り出し、最高320kbpsのMP3や非圧縮WAV形式へ変換・保存できます。ファイル名やアーティスト名・リリース年、ジャケット画像（アルバムアート）の埋め込みに対応しています。
+      </p>
+
+      <!-- メインアプリカード -->
+      <div class="v2a-card">
+        <!-- ファイルドロップゾーン -->
+        <div class="v2a-dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.avi,.m4v" style="display: none;">
+          <div class="v2a-dropzone-icon">🎬 ➔ 🎵</div>
+          <div class="v2a-dropzone-text">動画ファイルをドラッグ＆ドロップ</div>
+          <div class="v2a-dropzone-subtext">またはここをクリックしてファイルを選択（MP4 / MOV / WebM / MKV 等）</div>
+        </div>
+
+        <!-- ワークスペース（動画読み込み後に表示） -->
+        <div id="workspace" style="display: none;">
+          
+          <div class="v2a-preview-grid">
+            <!-- 動画プレビュー -->
+            <div class="v2a-video-wrapper">
+              <video id="videoPlayer" controls playsinline crossorigin="anonymous"></video>
+            </div>
+
+            <!-- メタ情報 -->
+            <div class="v2a-meta-info">
+              <div class="v2a-meta-row">
+                <span class="v2a-meta-label">ファイル名</span>
+                <span class="v2a-meta-val" id="metaFilename">-</span>
+              </div>
+              <div class="v2a-meta-row">
+                <span class="v2a-meta-label">ファイルサイズ</span>
+                <span class="v2a-meta-val" id="metaFilesize">-</span>
+              </div>
+              <div class="v2a-meta-row">
+                <span class="v2a-meta-label">再生時間</span>
+                <span class="v2a-meta-val" id="metaDuration">-</span>
+              </div>
+              <div class="v2a-meta-row">
+                <span class="v2a-meta-label">サンプルレート</span>
+                <span class="v2a-meta-val" id="metaSampleRate">-</span>
+              </div>
+
+              <!-- 音声波形キャンバス -->
+              <div style="margin-top: 0.5rem;">
+                <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.75; margin-bottom: 0.3rem;">音声波形プレビュー</div>
+                <div class="waveform-box">
+                  <canvas id="waveformCanvas"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- メタデータ・ファイル情報設定 -->
+          <div class="option-group">
+            <div class="option-title">
+              🏷️ ファイル名・メタデータ設定
+            </div>
+            <div class="meta-inputs-grid">
+              <div class="meta-field">
+                <label for="outputFilename">出力ファイル名</label>
+                <input type="text" id="outputFilename" placeholder="ファイル名">
+              </div>
+              <div class="meta-field">
+                <label for="outputArtist">アーティスト名<span>（空欄可）</span></label>
+                <input type="text" id="outputArtist" placeholder="未設定">
+              </div>
+              <div class="meta-field">
+                <label for="outputYear">リリース年<span>（空欄可）</span></label>
+                <input type="text" id="outputYear" placeholder="例: 2026" maxlength="4">
+              </div>
+            </div>
+
+            <!-- ジャケット画像設定 -->
+            <div class="cover-section" id="coverSection">
+              <input type="file" id="coverFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;">
+              <div class="cover-preview-box" id="coverPreviewBox" title="クリックまたは画像をドロップして設定">
+                <span class="cover-placeholder" id="coverPlaceholder">🖼️</span>
+                <img id="coverPreviewImg" alt="ジャケット画像プレビュー">
+              </div>
+              <div class="cover-actions">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--clr-brown);">
+                  ジャケット画像（アルバムアート）
+                  <span style="font-size: 0.75rem; font-weight: normal; opacity: 0.7;">（画像のドラッグ＆ドロップまたは選択 / 空欄可）</span>
+                </div>
+                <div class="cover-btn-group">
+                  <button type="button" class="btn-small" id="uploadCoverBtn">📁 画像を選択</button>
+                  <button type="button" class="btn-small" id="captureFrameBtn">📸 動画の現在コマを使う</button>
+                  <button type="button" class="btn-small btn-danger" id="removeCoverBtn" style="display: none;">🗑️ 削除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 出力フォーマット選択 -->
+          <div class="option-group">
+            <div class="option-title">
+              🎼 出力フォーマット・音質
+            </div>
+            <div class="format-btn-group" id="formatGroup">
+              <div class="format-radio-card active" data-format="mp3-320">
+                <div class="format-name">MP3 320kbps</div>
+                <div class="format-desc">最高品質・推奨</div>
+              </div>
+              <div class="format-radio-card" data-format="mp3-192">
+                <div class="format-name">MP3 192kbps</div>
+                <div class="format-desc">標準高音質</div>
+              </div>
+              <div class="format-radio-card" data-format="mp3-128">
+                <div class="format-name">MP3 128kbps</div>
+                <div class="format-desc">軽量・容量重視</div>
+              </div>
+              <div class="format-radio-card" data-format="wav">
+                <div class="format-name">WAV (非圧縮)</div>
+                <div class="format-desc">100%完全無劣化</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 変換実行ボタン -->
+          <div style="margin-top: 1.8rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-action" id="convertBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              音声を抽出して変換
+            </button>
+            <button class="btn-secondary" id="resetBtn">別の動画を選ぶ</button>
+          </div>
+
+          <!-- 進捗表示 -->
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="progress-label">
+              <span id="progressStatus">音声データをデコード中...</span>
+              <span id="progressPercent">0%</span>
+            </div>
+          </div>
+
+          <!-- 変換結果・ダウンロード -->
+          <div class="result-section" id="resultSection">
+            <div class="result-header">
+              <div class="result-title">✨ 音声の抽出・変換が完了しました！</div>
+              <span id="resultMeta" style="font-size: 0.85rem; font-weight: 600; color: var(--clr-brown);"></span>
+            </div>
+            <div class="result-audio-wrapper">
+              <img id="resultCoverThumb" class="result-cover-thumb" alt="ジャケット">
+              <audio id="resultAudio" class="result-audio" controls></audio>
+            </div>
+            <div class="result-btn-wrap">
+              <a id="downloadBtn" class="btn-action" href="#" download="audio.mp3">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ダウンロード
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 使い方の解説 -->
+      <div class="v2a-card" style="margin-top: 2rem;">
+        <h3 style="font-size: 1.1rem; color: var(--clr-brown); margin-bottom: 0.8rem; font-weight: 700;">💡 このツールの特徴と音質について</h3>
+        <ul class="feature-list">
+          <li><strong>安心の完全クライアントサイド処理</strong>: 動画ファイルはご使用の端末内（ブラウザ）でのみ処理されます。外部サーバーへのアップロードは行われないため、プライベートな動画でも安心です。</li>
+          <li><strong>ジャケット画像（アルバムアート）対応</strong>: 手持ちの画像を設定できるほか、動画の好きなシーンを1クリックでジャケットとして抽出・埋め込みできます。</li>
+          <li><strong>タグ・メタデータ埋め込み</strong>: アーティスト名やリリース年を入力すると、MP3の内部タグ（ID3v2）に直接記録され、スマートフォンやミュージックプレーヤーでアルバム情報として認識されます。</li>
+          <li><strong>MP3 最高品質（320kbps）</strong>: MP3規格の上限である320kbpsでエンコードするため、人の耳では元の動画と聞き分けがつかない高品位なサウンドで保存されます。</li>
+          <li><strong>WAV（完全無劣化）</strong>: 音声波形データを圧縮せずそのまま16-bit PCMとして書き出すため、波形の欠損が一切ないスタジオ品質の音声を保存できます。</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- サイドバー -->
+    <div class="hl-layout-side">
+      <div style="position: sticky; top: 100px; display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="v2a-card" style="margin-bottom: 0; padding: 1.2rem;">
+          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem;">📱 対応フォーマット</h4>
+          <p style="font-size: 0.82rem; color: var(--clr-brown); opacity: 0.85; line-height: 1.6;">
+            <strong>入力:</strong> MP4, MOV, WebM, MKV, AVI, M4V, etc.<br>
+            <strong>出力:</strong> MP3 (320k / 192k / 128k), WAV (PCM 16bit)
+          </p>
+        </div>
+
+        <div class="v2a-card" style="margin-bottom: 0; padding: 1.2rem;">
+          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem;">⚙️ 音声抽出のヒント</h4>
+          <p style="font-size: 0.82rem; color: var(--clr-brown); opacity: 0.85; line-height: 1.6;">
+            動画からBGMやトークを抜き出し、ジャケット画像やアーティスト名を設定しておくと、スマホのミュージックライブラリや車載オーディオでもきれいに整理・表示されます。
+          </p>
+        </div>
+      </div>
+    </div>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <!-- Halcyon 共通コンポーネント -->
+  <script src="/components/components.js"></script>
+
+  <!-- アプリロジック -->
+  <script>
+    (function() {
+      let currentFile = null;
+      let audioBuffer = null;
+      let selectedFormat = 'mp3-320';
+      let currentAudioContext = null;
+      let lastConvertedUrl = null;
+      let coverImageBlob = null; // ジャケット画像 (JPEG Blob)
+      let coverImageUint8 = null; // ジャケット画像バイト配列
+
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const workspace = document.getElementById('workspace');
+      const videoPlayer = document.getElementById('videoPlayer');
+      const metaFilename = document.getElementById('metaFilename');
+      const metaFilesize = document.getElementById('metaFilesize');
+      const metaDuration = document.getElementById('metaDuration');
+      const metaSampleRate = document.getElementById('metaSampleRate');
+      const waveformCanvas = document.getElementById('waveformCanvas');
+      
+      const outputFilename = document.getElementById('outputFilename');
+      const outputArtist = document.getElementById('outputArtist');
+      const outputYear = document.getElementById('outputYear');
+
+      const coverFileInput = document.getElementById('coverFileInput');
+      const uploadCoverBtn = document.getElementById('uploadCoverBtn');
+      const captureFrameBtn = document.getElementById('captureFrameBtn');
+      const removeCoverBtn = document.getElementById('removeCoverBtn');
+      const coverPreviewImg = document.getElementById('coverPreviewImg');
+      const coverPlaceholder = document.getElementById('coverPlaceholder');
+
+      const formatCards = document.querySelectorAll('.format-radio-card');
+      const convertBtn = document.getElementById('convertBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const progressStatus = document.getElementById('progressStatus');
+      const progressPercent = document.getElementById('progressPercent');
+      const resultSection = document.getElementById('resultSection');
+      const resultAudio = document.getElementById('resultAudio');
+      const resultCoverThumb = document.getElementById('resultCoverThumb');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const resultMeta = document.getElementById('resultMeta');
+
+      // フォーマット選択
+      formatCards.forEach(card => {
+        card.addEventListener('click', () => {
+          formatCards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          selectedFormat = card.dataset.format;
+        });
+      });
+
+      const coverSection = document.getElementById('coverSection');
+      const coverPreviewBox = document.getElementById('coverPreviewBox');
+
+      // ジャケット画像関連の処理
+      uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
+      coverPreviewBox.addEventListener('click', () => coverFileInput.click());
+
+      // ドラッグ＆ドロップイベント
+      ['dragenter', 'dragover'].forEach(eventName => {
+        coverSection.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          coverSection.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        coverSection.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          coverSection.classList.remove('dragover');
+        });
+      });
+
+      coverSection.addEventListener('drop', async (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          if (file.type.startsWith('image/')) {
+            await loadCoverImage(file);
+          } else {
+            alert('画像ファイル（JPEG / PNG / WebP 等）をドロップしてください。');
+          }
+        }
+      });
+
+      coverFileInput.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files[0]) {
+          await loadCoverImage(e.target.files[0]);
+        }
+      });
+
+      captureFrameBtn.addEventListener('click', () => {
+        if (!videoPlayer.videoWidth) {
+          alert('動画が正しく読み込まれていません。');
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        const maxSize = 600;
+        let w = videoPlayer.videoWidth;
+        let h = videoPlayer.videoHeight;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) {
+            h = Math.round((h * maxSize) / w);
+            w = maxSize;
+          } else {
+            w = Math.round((w * maxSize) / h);
+            h = maxSize;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(videoPlayer, 0, 0, w, h);
+
+        canvas.toBlob(async (blob) => {
+          await loadCoverBlob(blob);
+        }, 'image/jpeg', 0.85);
+      });
+
+      removeCoverBtn.addEventListener('click', () => {
+        clearCoverImage();
+      });
+
+      function clearCoverImage() {
+        coverImageBlob = null;
+        coverImageUint8 = null;
+        coverFileInput.value = '';
+        coverPreviewImg.src = '';
+        coverPreviewImg.style.display = 'none';
+        coverPlaceholder.style.display = 'block';
+        removeCoverBtn.style.display = 'none';
+      }
+
+      async function loadCoverImage(file) {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const canvas = document.createElement('canvas');
+          const maxSize = 600;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) {
+              h = Math.round((h * maxSize) / w);
+              w = maxSize;
+            } else {
+              w = Math.round((w * maxSize) / h);
+              h = maxSize;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(async (blob) => {
+            await loadCoverBlob(blob);
+          }, 'image/jpeg', 0.85);
+        };
+        img.src = url;
+      }
+
+      async function loadCoverBlob(blob) {
+        coverImageBlob = blob;
+        const buffer = await blob.arrayBuffer();
+        coverImageUint8 = new Uint8Array(buffer);
+
+        const previewUrl = URL.createObjectURL(blob);
+        coverPreviewImg.src = previewUrl;
+        coverPreviewImg.style.display = 'block';
+        coverPlaceholder.style.display = 'none';
+        removeCoverBtn.style.display = 'inline-flex';
+      }
+
+      // ファイルドロップ処理
+      dropzone.addEventListener('click', () => fileInput.click());
+      
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleFile(e.target.files[0]);
+        }
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (lastConvertedUrl) {
+          URL.revokeObjectURL(lastConvertedUrl);
+          lastConvertedUrl = null;
+        }
+        workspace.style.display = 'none';
+        dropzone.style.display = 'block';
+        fileInput.value = '';
+        currentFile = null;
+        audioBuffer = null;
+        outputFilename.value = '';
+        outputArtist.value = '';
+        outputYear.value = '';
+        clearCoverImage();
+        resultSection.style.display = 'none';
+        progressContainer.style.display = 'none';
+        videoPlayer.src = '';
+      });
+
+      function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        const ms = Math.floor((seconds % 1) * 10);
+        return `${mins}:${secs.toString().padStart(2, '0')}.${ms}`;
+      }
+
+      async function handleFile(file) {
+        currentFile = file;
+        dropzone.style.display = 'none';
+        workspace.style.display = 'block';
+        resultSection.style.display = 'none';
+        clearCoverImage();
+
+        const baseName = file.name.replace(/\.[^/.]+$/, "");
+        outputFilename.value = baseName;
+        outputArtist.value = '';
+        outputYear.value = '';
+
+        metaFilename.textContent = file.name;
+        metaFilesize.textContent = formatBytes(file.size);
+        metaDuration.textContent = '読み込み中...';
+        metaSampleRate.textContent = '解析中...';
+
+        const fileUrl = URL.createObjectURL(file);
+        videoPlayer.src = fileUrl;
+
+        // 音声デコード
+        showProgress('動画から音声データを解析中...', 20);
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!currentAudioContext) {
+            currentAudioContext = new AudioContextClass();
+          }
+          
+          audioBuffer = await currentAudioContext.decodeAudioData(arrayBuffer);
+
+          metaDuration.textContent = `${formatTime(audioBuffer.duration)} (${audioBuffer.duration.toFixed(2)} 秒)`;
+          metaSampleRate.textContent = `${audioBuffer.sampleRate} Hz (${audioBuffer.numberOfChannels === 2 ? 'ステレオ' : 'モノラル'})`;
+
+          drawWaveform(audioBuffer);
+          hideProgress();
+        } catch (err) {
+          console.error('Audio decode error:', err);
+          showProgress('音声の読み込みに失敗しました。対応していない形式か、音声が含まれていません。', 0);
+          metaDuration.textContent = '音声トラックなし/未対応';
+          metaSampleRate.textContent = '-';
+        }
+      }
+
+      // 波形描画
+      function drawWaveform(buffer) {
+        const canvas = waveformCanvas;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const width = canvas.parentElement.clientWidth;
+        const height = canvas.parentElement.clientHeight;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const channelData = buffer.getChannelData(0);
+        const step = Math.ceil(channelData.length / width);
+        const amp = height / 2;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#9AB08F';
+
+        for (let i = 0; i < width; i++) {
+          let min = 1.0;
+          let max = -1.0;
+          for (let j = 0; j < step; j++) {
+            const datum = channelData[i * step + j];
+            if (datum < min) min = datum;
+            if (datum > max) max = datum;
+          }
+          const y1 = Math.max(1, (1 + min) * amp);
+          const y2 = Math.min(height - 1, (1 + max) * amp);
+          ctx.fillRect(i, y1, 1, Math.max(1, y2 - y1));
+        }
+      }
+
+      window.addEventListener('resize', () => {
+        if (audioBuffer) drawWaveform(audioBuffer);
+      });
+
+      function showProgress(text, percent) {
+        progressContainer.style.display = 'block';
+        progressStatus.textContent = text;
+        progressPercent.textContent = `${Math.round(percent)}%`;
+        progressBar.style.width = `${percent}%`;
+      }
+
+      function hideProgress() {
+        progressContainer.style.display = 'none';
+      }
+
+      // ID3v2.3 タグ生成 (MP3メタデータ & APICジャケット埋め込み用)
+      function createID3v2Tag(metadata) {
+        const frames = [];
+
+        function makeTextFrame(frameId, text) {
+          if (!text || text.trim() === '') return null;
+          // UTF-16 with BOM (LE)
+          const utf16Bytes = [0xFF, 0xFE];
+          for (let i = 0; i < text.length; i++) {
+            const code = text.charCodeAt(i);
+            utf16Bytes.push(code & 0xFF, (code >> 8) & 0xFF);
+          }
+
+          const frameData = new Uint8Array(1 + utf16Bytes.length);
+          frameData[0] = 1; // 0x01 = UTF-16
+          frameData.set(utf16Bytes, 1);
+
+          const frameHeader = new Uint8Array(10);
+          for (let i = 0; i < 4; i++) {
+            frameHeader[i] = frameId.charCodeAt(i);
+          }
+          const size = frameData.length;
+          frameHeader[4] = (size >> 24) & 0xFF;
+          frameHeader[5] = (size >> 16) & 0xFF;
+          frameHeader[6] = (size >> 8) & 0xFF;
+          frameHeader[7] = size & 0xFF;
+          frameHeader[8] = 0;
+          frameHeader[9] = 0;
+
+          const frame = new Uint8Array(10 + frameData.length);
+          frame.set(frameHeader, 0);
+          frame.set(frameData, 10);
+          return frame;
+        }
+
+        // APIC (Attached Picture) フレーム生成
+        function makeApicFrame(imageUint8) {
+          if (!imageUint8 || imageUint8.length === 0) return null;
+
+          const mimeType = 'image/jpeg';
+          const mimeBytes = [];
+          for (let i = 0; i < mimeType.length; i++) {
+            mimeBytes.push(mimeType.charCodeAt(i));
+          }
+          mimeBytes.push(0x00); // Null terminator
+
+          // encoding (1 byte = 0x00 ISO-8859-1) + mimeBytes + pictureType (1 byte = 0x03 Front cover) + description (1 byte = 0x00 null) + imageUint8
+          const frameData = new Uint8Array(1 + mimeBytes.length + 1 + 1 + imageUint8.length);
+          let offset = 0;
+          frameData[offset++] = 0x00; // ISO-8859-1
+          frameData.set(mimeBytes, offset);
+          offset += mimeBytes.length;
+          frameData[offset++] = 0x03; // Front Cover
+          frameData[offset++] = 0x00; // Empty description null
+          frameData.set(imageUint8, offset);
+
+          const frameHeader = new Uint8Array(10);
+          const frameId = 'APIC';
+          for (let i = 0; i < 4; i++) {
+            frameHeader[i] = frameId.charCodeAt(i);
+          }
+          const size = frameData.length;
+          frameHeader[4] = (size >> 24) & 0xFF;
+          frameHeader[5] = (size >> 16) & 0xFF;
+          frameHeader[6] = (size >> 8) & 0xFF;
+          frameHeader[7] = size & 0xFF;
+          frameHeader[8] = 0;
+          frameHeader[9] = 0;
+
+          const frame = new Uint8Array(10 + frameData.length);
+          frame.set(frameHeader, 0);
+          frame.set(frameData, 10);
+          return frame;
+        }
+
+        if (metadata.title) {
+          const f = makeTextFrame('TIT2', metadata.title);
+          if (f) frames.push(f);
+        }
+        if (metadata.artist) {
+          const f = makeTextFrame('TPE1', metadata.artist);
+          if (f) frames.push(f);
+        }
+        if (metadata.year) {
+          const f = makeTextFrame('TYER', metadata.year);
+          if (f) frames.push(f);
+        }
+        if (metadata.cover) {
+          const f = makeApicFrame(metadata.cover);
+          if (f) frames.push(f);
+        }
+
+        if (frames.length === 0) return new Uint8Array(0);
+
+        let totalFramesSize = 0;
+        frames.forEach(f => totalFramesSize += f.length);
+
+        const header = new Uint8Array(10);
+        header[0] = 'I'.charCodeAt(0);
+        header[1] = 'D'.charCodeAt(0);
+        header[2] = '3'.charCodeAt(0);
+        header[3] = 3; // Version 2.3
+        header[4] = 0;
+        header[5] = 0;
+
+        let size = totalFramesSize;
+        header[9] = size & 0x7F;
+        size >>= 7;
+        header[8] = size & 0x7F;
+        size >>= 7;
+        header[7] = size & 0x7F;
+        size >>= 7;
+        header[6] = size & 0x7F;
+
+        const result = new Uint8Array(10 + totalFramesSize);
+        result.set(header, 0);
+        let offset = 10;
+        frames.forEach(f => {
+          result.set(f, offset);
+          offset += f.length;
+        });
+
+        return result;
+      }
+
+      // 変換ボタン押下
+      convertBtn.addEventListener('click', async () => {
+        if (!audioBuffer) {
+          alert('音声データが読み込まれていません。');
+          return;
+        }
+
+        convertBtn.disabled = true;
+        resultSection.style.display = 'none';
+
+        const customName = (outputFilename.value.trim() || 'audio').replace(/[\\/:*?"<>|]/g, '_');
+        const artist = outputArtist.value.trim();
+        const year = outputYear.value.trim();
+        const metadata = { 
+          title: customName, 
+          artist: artist, 
+          year: year,
+          cover: coverImageUint8
+        };
+
+        try {
+          let outputBlob = null;
+          let filename = customName;
+
+          if (selectedFormat.startsWith('mp3')) {
+            let bitrate = 320;
+            if (selectedFormat === 'mp3-192') bitrate = 192;
+            if (selectedFormat === 'mp3-128') bitrate = 128;
+
+            outputBlob = await encodeMp3(audioBuffer, bitrate, metadata, (percent) => {
+              showProgress(`MP3エンコード中 (${bitrate}kbps)...`, percent);
+            });
+            filename += '.mp3';
+          } else if (selectedFormat === 'wav') {
+            showProgress('WAVファイル生成中...', 50);
+            outputBlob = encodeWav(audioBuffer, metadata);
+            showProgress('完了', 100);
+            filename += '.wav';
+          }
+
+          if (lastConvertedUrl) {
+            URL.revokeObjectURL(lastConvertedUrl);
+          }
+          lastConvertedUrl = URL.createObjectURL(outputBlob);
+
+          resultAudio.src = lastConvertedUrl;
+          downloadBtn.href = lastConvertedUrl;
+          downloadBtn.download = filename;
+
+          if (coverImageBlob) {
+            resultCoverThumb.src = URL.createObjectURL(coverImageBlob);
+            resultCoverThumb.style.display = 'block';
+          } else {
+            resultCoverThumb.style.display = 'none';
+          }
+          
+          let metaDesc = `${filename} (${formatBytes(outputBlob.size)})`;
+          if (artist) metaDesc += ` • ${artist}`;
+          if (year) metaDesc += ` (${year})`;
+          resultMeta.textContent = metaDesc;
+
+          hideProgress();
+          resultSection.style.display = 'block';
+          resultSection.scrollIntoView({ behavior: 'smooth' });
+        } catch (err) {
+          console.error('Conversion failed:', err);
+          alert('変換中にエラーが発生しました: ' + err.message);
+          hideProgress();
+        } finally {
+          convertBtn.disabled = false;
+        }
+      });
+
+      // WAVエンコーダー (PCM 16bit + RIFF INFO chunk)
+      function encodeWav(buffer, metadata) {
+        const numChannels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        const format = 1; // PCM
+        const bitDepth = 16;
+        
+        let interleaved;
+        if (numChannels === 2) {
+          const left = buffer.getChannelData(0);
+          const right = buffer.getChannelData(1);
+          interleaved = new Float32Array(left.length * 2);
+          let inputIdx = 0;
+          for (let i = 0; i < interleaved.length; ) {
+            interleaved[i++] = left[inputIdx];
+            interleaved[i++] = right[inputIdx];
+            inputIdx++;
+          }
+        } else {
+          interleaved = buffer.getChannelData(0);
+        }
+
+        const pcmDataLength = interleaved.length * (bitDepth / 8);
+
+        // RIFF INFO Chunk 生成
+        let infoChunk = [];
+        function addInfoSubChunk(id, text) {
+          if (!text) return;
+          const textEncoder = new TextEncoder();
+          const strBytes = textEncoder.encode(text + '\0');
+          const pad = strBytes.length % 2 !== 0 ? 1 : 0;
+          const sub = new Uint8Array(8 + strBytes.length + pad);
+          for (let i = 0; i < 4; i++) sub[i] = id.charCodeAt(i);
+          const sz = strBytes.length;
+          sub[4] = sz & 0xFF;
+          sub[5] = (sz >> 8) & 0xFF;
+          sub[6] = (sz >> 16) & 0xFF;
+          sub[7] = (sz >> 24) & 0xFF;
+          sub.set(strBytes, 8);
+          infoChunk.push(sub);
+        }
+
+        if (metadata.title) addInfoSubChunk('INAM', metadata.title);
+        if (metadata.artist) addInfoSubChunk('IART', metadata.artist);
+        if (metadata.year) addInfoSubChunk('ICRD', metadata.year);
+
+        let infoTotalLength = 0;
+        if (infoChunk.length > 0) {
+          let innerLength = 4;
+          infoChunk.forEach(c => innerLength += c.length);
+          infoTotalLength = 8 + innerLength;
+        }
+
+        const bufferLength = 44 + pcmDataLength + infoTotalLength;
+        const arrayBuffer = new ArrayBuffer(bufferLength);
+        const view = new DataView(arrayBuffer);
+
+        // RIFF chunk descriptor
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + pcmDataLength + infoTotalLength, true);
+        writeString(view, 8, 'WAVE');
+
+        // "fmt " sub-chunk
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, format, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+        view.setUint16(32, numChannels * (bitDepth / 8), true);
+        view.setUint16(34, bitDepth, true);
+
+        // "data" sub-chunk
+        writeString(view, 36, 'data');
+        view.setUint32(40, pcmDataLength, true);
+
+        // Write PCM samples
+        let offset = 44;
+        for (let i = 0; i < interleaved.length; i++, offset += 2) {
+          let s = Math.max(-1, Math.min(1, interleaved[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
+
+        // Write LIST INFO chunk if exists
+        if (infoChunk.length > 0) {
+          writeString(view, offset, 'LIST');
+          let innerLength = 4;
+          infoChunk.forEach(c => innerLength += c.length);
+          view.setUint32(offset + 4, innerLength, true);
+          writeString(view, offset + 8, 'INFO');
+          offset += 12;
+          infoChunk.forEach(c => {
+            new Uint8Array(arrayBuffer, offset, c.length).set(c);
+            offset += c.length;
+          });
+        }
+
+        return new Blob([view], { type: 'audio/wav' });
+      }
+
+      function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      // MP3エンコーダー (LameJS / Async + ID3v2 Tags & APIC Album Art)
+      async function encodeMp3(buffer, bitrate, metadata, onProgress) {
+        if (typeof lamejs === 'undefined') {
+          throw new Error('MP3エンコーダーライブラリの読み込みに失敗しました。インターネット接続をご確認ください。');
+        }
+
+        return new Promise((resolve, reject) => {
+          try {
+            const channels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, bitrate);
+            const mp3Data = [];
+
+            // ID3v2 タグ（メタデータ + ジャケット画像）を先頭に挿入
+            const id3Tag = createID3v2Tag(metadata);
+            if (id3Tag && id3Tag.length > 0) {
+              mp3Data.push(id3Tag);
+            }
+
+            const left = buffer.getChannelData(0);
+            const right = channels === 2 ? buffer.getChannelData(1) : left;
+
+            const totalSamples = left.length;
+            let currentOffset = 0;
+
+            function processChunk() {
+              const chunkSize = 1152 * 10;
+              const end = Math.min(currentOffset + chunkSize, totalSamples);
+              const count = end - currentOffset;
+
+              const leftChunk = new Int16Array(count);
+              const rightChunk = new Int16Array(count);
+
+              for (let i = 0; i < count; i++) {
+                const idx = currentOffset + i;
+                let sL = Math.max(-1, Math.min(1, left[idx]));
+                leftChunk[i] = sL < 0 ? sL * 0x8000 : sL * 0x7FFF;
+                let sR = Math.max(-1, Math.min(1, right[idx]));
+                rightChunk[i] = sR < 0 ? sR * 0x8000 : sR * 0x7FFF;
+              }
+
+              let mp3buf;
+              if (channels === 2) {
+                mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+              } else {
+                mp3buf = mp3encoder.encodeBuffer(leftChunk);
+              }
+
+              if (mp3buf.length > 0) {
+                mp3Data.push(mp3buf);
+              }
+
+              currentOffset = end;
+              const percent = (currentOffset / totalSamples) * 95;
+              if (onProgress) onProgress(percent);
+
+              if (currentOffset < totalSamples) {
+                setTimeout(processChunk, 0);
+              } else {
+                const finalBuf = mp3encoder.flush();
+                if (finalBuf.length > 0) {
+                  mp3Data.push(finalBuf);
+                }
+                if (onProgress) onProgress(100);
+                const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+                resolve(blob);
+              }
+            }
+
+            processChunk();
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

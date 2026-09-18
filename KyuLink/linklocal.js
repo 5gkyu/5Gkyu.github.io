@@ -496,8 +496,8 @@ function renderSidebarTags() {
     const buttonsData = [
       { id: 'all', label: '全て', isSpecial: true, action: () => { state.tags.clear(); state.noTagFilter = false; } },
       { id: 'notag', label: 'タグなし', isSpecial: true, action: () => { state.tags.clear(); state.noTagFilter = true; } },
-      { id: 'kyu', label: 'Kyu', tagValue: 'Kyu', imgUrl: 'https://pbs.twimg.com/profile_images/2019552633665769472/Nybn41kH_400x400.jpg' },
-      { id: 'brawlstars', label: 'ブロスタ', tagValue: 'ブロスタ', imgUrl: 'https://pbs.twimg.com/profile_images/2071888846371901441/TQ2kDIrd_400x400.jpg' },
+      { id: 'kyu', label: 'Kyu', tagValue: 'Kyu', imgUrl: 'https://5gkyu.github.io/icon/Fuka_icon.jpg' },
+      { id: 'brawlstars', label: 'ブロスタ', tagValue: 'ブロスタ', imgUrl: 'https://5gkyu.github.io/icon/Brawl.png' },
       { id: 'proseka', label: 'プロセカ', tagValue: 'プロセカ', imgUrl: 'https://pbs.twimg.com/profile_images/1854064399478398976/W-uuO8DW_400x400.jpg' },
       { id: 'monst', label: 'モンスト', tagValue: 'モンスト', imgUrl: 'https://pbs.twimg.com/profile_images/2046049090723803136/dOoonFuu_400x400.png' },
       { id: 'vocalo', label: 'ボカロ', tagValue: 'ボカロ', imgUrl: 'https://pbs.twimg.com/profile_images/1509818267812364288/Y1EMCVdD_400x400.jpg' },

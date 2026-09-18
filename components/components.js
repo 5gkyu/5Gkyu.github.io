@@ -43,6 +43,7 @@
     'sidebar/hl-toc.js',
 
     // 記事・コンテンツ系 (Note用)
+    'content/hl-article.js',
     'content/hl-share.js',
     'content/hl-quote.js',
     'content/hl-chat.js',

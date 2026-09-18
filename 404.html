@@ -223,7 +223,7 @@
         </div>
 
         <div class="button-group">
-            <a href="https://5gkyu.github.io/" class="btn btn-primary">Return Home</a>
+            <a href="/" class="btn btn-primary" id="btn-return-home">Return Home</a>
             <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
         </div>
     </div>
@@ -259,6 +259,11 @@
             setTimeout(() => {
                 if (isHistoryBack) {
                     history.back();
+                } else if (href === '/' && window.location.protocol === 'file:') {
+                    // ローカルファイル直接閲覧時 (file://) のフォールバック
+                    const currentPath = window.location.pathname;
+                    const rootIndex = currentPath.substring(0, currentPath.lastIndexOf('/')) + '/index.html';
+                    window.location.href = rootIndex;
                 } else {
                     window.location.href = anchor.href;
                 }

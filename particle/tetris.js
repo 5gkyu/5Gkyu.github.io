@@ -175,20 +175,41 @@
       pts.push({ bx: NEXT_X + NEXT_W, by: NEXT_Y + y, rgb: RGB_HEADER, size: 1.9 });
     }
 
-    // 「NEXT」文字ドット
-    const LABEL_Y = NEXT_Y - 7;
-    const labelPoints = [
-      { x: NEXT_X + 8, y: LABEL_Y }, { x: NEXT_X + 8, y: LABEL_Y + 2 }, { x: NEXT_X + 8, y: LABEL_Y + 4 },
-      { x: NEXT_X + 11, y: LABEL_Y + 2 }, { x: NEXT_X + 14, y: LABEL_Y }, { x: NEXT_X + 14, y: LABEL_Y + 4 },
-      { x: NEXT_X + 20, y: LABEL_Y }, { x: NEXT_X + 20, y: LABEL_Y + 2 }, { x: NEXT_X + 20, y: LABEL_Y + 4 },
-      { x: NEXT_X + 24, y: LABEL_Y }, { x: NEXT_X + 23, y: LABEL_Y + 2 }, { x: NEXT_X + 24, y: LABEL_Y + 4 },
-      { x: NEXT_X + 30, y: LABEL_Y }, { x: NEXT_X + 34, y: LABEL_Y }, { x: NEXT_X + 32, y: LABEL_Y + 2 },
-      { x: NEXT_X + 30, y: LABEL_Y + 4 }, { x: NEXT_X + 34, y: LABEL_Y + 4 },
-      { x: NEXT_X + 40, y: LABEL_Y }, { x: NEXT_X + 44, y: LABEL_Y }, { x: NEXT_X + 42, y: LABEL_Y + 2 }, { x: NEXT_X + 42, y: LABEL_Y + 4 }
-    ];
-    labelPoints.forEach(lp => {
-      pts.push({ bx: lp.x, by: lp.y, rgb: [160, 230, 255], size: 1.9 });
-    });
+    // 「NEXT」文字ドット（5x7 ビットマップフォントで高精細レンダリング）
+    const FONT_5x7_NEXT = {
+      'N': ['#   #', '##  #', '# # #', '#  ##', '#   #', '#   #', '#   #'],
+      'E': ['#####', '#    ', '#### ', '#    ', '#    ', '#    ', '#####'],
+      'X': ['#   #', '#   #', ' # # ', '  #  ', ' # # ', '#   #', '#   #'],
+      'T': ['#####', '  #  ', '  #  ', '  #  ', '  #  ', '  #  ', '  #  ']
+    };
+
+    const nextStr = 'NEXT';
+    const charScale = 1.35;
+    const charW = 5 * charScale;
+    const charSpacing = 2.4;
+    const totalW = nextStr.length * charW + (nextStr.length - 1) * charSpacing;
+    const startX = NEXT_X + (NEXT_W - totalW) * 0.5;
+    const startY = NEXT_Y - 13.5;
+
+    for (let c = 0; c < nextStr.length; c++) {
+      const ch = nextStr[c];
+      const pattern = FONT_5x7_NEXT[ch];
+      if (!pattern) continue;
+      const ox = startX + c * (charW + charSpacing);
+      for (let r = 0; r < 7; r++) {
+        const row = pattern[r];
+        for (let col = 0; col < 5; col++) {
+          if (row[col] === '#') {
+            pts.push({
+              bx: ox + col * charScale,
+              by: startY + r * charScale,
+              rgb: [180, 240, 255],
+              size: 1.6
+            });
+          }
+        }
+      }
+    }
 
     // 背景グリッド交点（140点）
     for (let r = 1; r < ROWS; r++) {

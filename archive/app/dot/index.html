@@ -47,7 +47,7 @@
         <option value="retro">レトロディザー強調</option>
         <option value="edge">エッジ輪郭強調</option>
       </select>
-      <button id="toggleSrcBtn" class="secondary" title="元画像の表示/非表示を切り替え">元画像を非表示</button>
+      <button id="toggleSrcBtn" class="secondary" title="元画像の表示/非表示を切り替え">元画像を表示</button>
       <button id="headerFocusModeBtn" class="secondary" title="左サイドメニューとヘッダーを非表示にして最大化">⛶ 最大化</button>
       <a href="dot_char.html" class="secondary"
         style="text-decoration:none;display:inline-flex;align-items:center;">1文字ドット</a>
@@ -66,8 +66,12 @@
           <span>×</span>
           <input id="outHeight" class="input" type="number" value="0" min="0" title="出力高さ" />
           <button id="toggleKeepAspectBtn" class="secondary" type="button" title="縦横比の自動調整を切り替え">自動調整:ON</button>
-          <button id="set64x64Btn" class="secondary" type="button" title="解像度を64×64に固定"
-            style="font-weight:700;background:var(--accent-dim);border-color:var(--accent);color:var(--accent-hover);white-space:nowrap;">64×64固定</button>
+          <button id="set64x64Btn" class="secondary" type="button" title="解像度を64×64に固定（強制ストレッチ）"
+            style="font-weight:700;white-space:nowrap;">64×64固定</button>
+          <button id="setMax64AspectBtn" class="secondary" type="button" title="片方を64にし、元画像の縦横比を維持して出力"
+            style="font-weight:700;background:var(--accent-dim);border-color:var(--accent);color:var(--accent-hover);white-space:nowrap;">片方64(比率維持)</button>
+          <button id="set64FitBtn" class="secondary" type="button" title="64×64キャンバスの中に比率を保ったまま中央配置（余白透過）"
+            style="font-weight:700;white-space:nowrap;">64枠中央配置</button>
         </div>
       </div>
       <div class="headerControlGroup headerDotGroup">
@@ -279,7 +283,8 @@
               <option value="ico">ICO</option>
               <option value="pdf">PDF</option>
             </select>
-            <button id="exportImageBtn" class="secondary" disabled>⬇ 保存</button>
+            <button id="exportImageBtn" class="secondary" disabled>保存</button>
+            <button id="exportGameJsonBtn" class="secondary" style="font-weight:600;background:var(--accent-dim);border-color:var(--accent);color:var(--accent-hover);" title="AIドット絵バトル自動描画用のJSONデータを出力" disabled>ゲーム用JSON出力</button>
           </div>
         </div>
       </details>
@@ -571,6 +576,26 @@
               <input id="borderCheckbox" name="borderCheckbox" type="checkbox">
               <span style="font-size:12px;">ボーダー表示</span>
             </label>
+            <label for="centerCrossCheckbox" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+              <input id="centerCrossCheckbox" name="centerCrossCheckbox" type="checkbox" checked>
+              <span style="font-size:12px;">中央線（十字）表示</span>
+            </label>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+
+          <div style="margin-bottom:8px;">
+            <label for="unselectedBgSelectTab" style="font-size:11px;">非選択色の背景表示</label>
+            <select id="unselectedBgSelectTab" class="input" style="width:100%;margin-top:2px;">
+              <option value="transparent" selected>透過（選択色のみ抽出）</option>
+              <option value="semitransparent_gray">半透明グレー（標準）</option>
+              <option value="dark_dim">暗い半透明（ダーク）</option>
+              <option value="solid_black">完全な黒（#000000）</option>
+              <option value="solid_white">完全な白（#ffffff）</option>
+              <option value="solid_gray">フラットグレー（#808080）</option>
+              <option value="monochrome">モノクロ階調</option>
+              <option value="white_dim">薄い白（ホワイトアウト）</option>
+            </select>
           </div>
 
           <div style="height:1px;background:var(--border);margin:12px 0;"></div>
@@ -632,9 +657,26 @@
 
     <!-- パレット色一覧スウォッチ -->
     <div class="footerRight">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <div class="footerLabel">パレット一覧 <span id="footerPaletteCount" style="font-size:10px;color:var(--text-muted);font-weight:normal;"></span></div>
-        <div class="small" style="font-size:10px;color:var(--text-muted);">スウォッチをクリックして色編集・画像内ハイライト</div>
+      <div class="footerHeaderRow">
+        <div class="footerLeftGroup">
+          <div class="footerLabel">パレット一覧 <span id="footerPaletteCount" style="font-size:10px;color:var(--text-muted);font-weight:normal;"></span></div>
+          <div class="paletteSelectionControls">
+            <button id="selectAllPaletteBtn" class="small secondary" type="button" title="パレットの色をすべて選択">全選択</button>
+            <button id="clearAllPaletteBtn" class="small secondary" type="button" title="パレットの色の選択をすべて解除">全解除</button>
+            <span class="footerSubLabel">非選択:</span>
+            <select id="unselectedBgSelect" class="input footerSelect" title="色を選択していない箇所の背景表示パターン">
+              <option value="transparent" selected>透過 (選択色のみ)</option>
+              <option value="semitransparent_gray">半透明グレー</option>
+              <option value="dark_dim">暗い半透明</option>
+              <option value="solid_black">完全な黒</option>
+              <option value="solid_white">完全な白</option>
+              <option value="solid_gray">グレー (#808080)</option>
+              <option value="monochrome">モノクロ階調</option>
+              <option value="white_dim">薄い白</option>
+            </select>
+          </div>
+        </div>
+        <div class="footerHintText">スウォッチクリックで色編集・ハイライト (Ctrl+クリックで複数選択)</div>
       </div>
       <div id="palettePreview" class="palettePreview footerPalette" aria-hidden="false"></div>
     </div>
