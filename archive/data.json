@@ -22,13 +22,6 @@
             "description": "3,022フレームの超軽量粒子アニメーションと、澄み切った星空オルゴール＆弦楽合奏による全画面体験型シアター。"
           },
           {
-            "title": "粒子座標・カラー生成ツール",
-            "tag": "開発ツール",
-            "href": "/archive/app/particle-generator/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "画像を読み込み、軽量なパーティクル点群モデル（座標・RGB値）のJavaScriptテンプレートコードを自動生成するツール。"
-          },
-          {
             "title": "ブロスタ キャラクター評価",
             "tag": "ブロスタ",
             "href": "/archive/play/Brawl/",
@@ -67,13 +60,6 @@
         "heading": "画像ツール",
         "cols": 3,
         "items": [
-          {
-            "title": "ドット絵パレット変換",
-            "tag": "画像ツール",
-            "href": "/archive/app/dot/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "画像をドット絵風に変換し、カラーパレットの設定やディザリング、SVG出力ができるツールです。"
-          },
           {
             "title": "画像コラージュ作成",
             "tag": "画像ツール",
@@ -150,13 +136,6 @@
             "href": "/archive/app/color/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "カラーコードに近い色の「日本語名」を検索。Webデザインやイラスト制作に。"
-          },
-          {
-            "title": "粒子座標・カラー生成ツール",
-            "tag": "開発ツール",
-            "href": "/archive/app/particle-generator/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "画像を読み込み、軽量なパーティクル点群モデル（座標・RGB値）のJavaScriptテンプレートコードを自動生成するツール。"
           }
         ]
       },

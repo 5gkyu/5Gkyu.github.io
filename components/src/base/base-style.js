@@ -77,6 +77,10 @@
 
     site-header, site-footer, hl-layout, hl-toc, page-title, section-heading { display: block; width: 100%; box-sizing: border-box; }
 
+    :not(:defined) {
+      opacity: 0;
+    }
+
     body {
       min-height: 100vh; display: flex; flex-direction: column;
       background: var(--clr-cream); color: var(--clr-brown); font-family: var(--font-main);
