@@ -350,24 +350,22 @@ class HlArticle extends HTMLElement {
       <site-header site-name="${category}"></site-header>
 
       <hl-layout cols="2" class="fluffy-entry delay-1">
+        <hl-breadcrumb
+          level1-name="Archive" level1-url="/archive/"
+          level2-name="${category}" level2-url="${categoryUrl}"
+          current="${title}">
+        </hl-breadcrumb>
+
+        <page-title>${title}</page-title>
+
+        ${metaHtml}
+
         <div class="hl-layout-main">
-
-          <hl-breadcrumb
-            level1-name="Archive" level1-url="/archive/"
-            level2-name="${category}" level2-url="${categoryUrl}"
-            current="${title}">
-          </hl-breadcrumb>
-
-          <page-title>${title}</page-title>
-
-          ${metaHtml}
-
           <div class="hl-content-text">
             ${parsedContent}
           </div>
 
           <hl-share></hl-share>
-
         </div>
 
         <aside class="hl-layout-sidebar">

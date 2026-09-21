@@ -3,118 +3,111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>星導暗号 変換ツール (Astral Cipher)</title>
+<title>星導暗号 変換ツール (Astral Cipher) | Halcyon - 5Gkyu</title>
+<meta name="description" content="動的自己同期・高圧縮モデルを搭載した星導暗号の相互変換ツール。">
+<link rel="canonical" href="https://5gkyu.github.io/archive/other/halcyon-cipher/astral-cipher.html">
+
+<style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
 <style>
-  body {
-    font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Yu Mincho', serif;
-    background-color: #07090f;
-    color: #e0e6ed;
-    padding: 30px 20px;
-    text-align: center;
-    background-image: radial-gradient(circle at top, #141b2d 0%, #07090f 60%);
-    min-height: 100vh;
-    margin: 0;
+  .astral-container {
+    margin-bottom: 2rem;
   }
-  h1 { 
-    color: #f5f5f5; 
-    margin-bottom: 5px; 
-    font-weight: 300;
-    letter-spacing: 2px;
-  }
-  p { 
-    color: #8c9baf; 
-    margin-bottom: 20px; 
-    font-size: 0.9em; 
-    letter-spacing: 1px;
-  }
-  .container {
-    max-width: 600px; 
-    margin: 0 auto; 
-    background: rgba(20, 27, 45, 0.7);
-    padding: 30px; 
-    border-radius: 12px; 
-    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-    border: 1px solid rgba(74, 90, 128, 0.3);
-    backdrop-filter: blur(10px);
-  }
-  textarea {
-    width: 100%; 
-    height: 140px; 
-    padding: 15px; 
+  .astral-textarea {
+    width: 100%;
+    height: 130px;
+    padding: 12px;
     margin: 10px 0;
-    background: rgba(7, 9, 15, 0.8); 
-    color: #e0e6ed; 
-    border: 1px solid #4a5a80;
-    border-radius: 8px; 
-    font-size: 16px; 
+    background: #fff;
+    color: var(--clr-brown);
+    border: 1.5px solid rgba(106, 86, 74, 0.2);
+    border-radius: 10px;
+    font-size: 1rem;
     font-family: inherit;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     resize: vertical;
-    line-height: 1.5;
-    transition: border-color 0.3s;
-  }
-  textarea:focus {
     outline: none;
-    border-color: #8c9baf;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  textarea::placeholder { color: #3a4760; }
-  
-  /* 暗号テキストエリアは星の記号が美しく見えるようにする */
+  .astral-textarea:focus {
+    border-color: var(--clr-sage);
+    box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
+  }
   #cipherText {
-    font-size: 18px;
-    letter-spacing: 3px;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
     line-height: 1.6;
     word-break: break-all;
   }
-
-  .controls { margin: 20px 0; }
-  button {
-    background: linear-gradient(135deg, #2c3e50, #1a252f);
-    color: #fff; 
-    border: 1px solid #4a5a80; 
-    padding: 12px 36px;
-    margin: 0 10px; 
-    cursor: pointer; 
-    border-radius: 30px;
-    font-size: 16px; 
-    font-family: inherit; 
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  .astral-controls {
+    display: flex;
+    gap: 0.8rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
   }
-  button:hover { 
-    background: linear-gradient(135deg, #34495e, #2c3e50);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    border-color: #8c9baf;
+  .astral-error {
+    color: #a03030;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-height: 20px;
+    margin-bottom: 10px;
   }
-  button:active { 
-    transform: translateY(1px); 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-  }
-  .error { 
-    color: #ff8b8b; 
-    font-size: 14px; 
-    min-height: 20px; 
-    margin-bottom: 10px; 
+  .sidebar-sticky {
+    position: sticky;
+    top: 100px;
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <h1>星導暗号</h1>
-    <p>Astral Cipher - 動的自己同期・高圧縮モデル</p>
-    
-    <textarea id="normalText" placeholder="言葉を紡ぐ..."></textarea>
-    
-    <div class="controls">
-      <button onclick="doConvert()">星界変換</button>
+
+  <site-header site-name="星導暗号"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Other" level2-url="/archive/other/"
+        current="星導暗号">
+      </hl-breadcrumb>
+      <page-title>星導暗号 変換ツール (Astral Cipher)</page-title>
+
+      <p class="hl-content-text" style="margin-bottom: 1.5rem;">
+        動的自己同期・高圧縮モデルを搭載した「星導暗号（アストラル・サイファー）」の相互変換ツールです。<br>
+        文章を星標・記号列へと暗号化、または記号列から元の文章へ復号します。
+      </p>
+
+      <hl-card class="astral-container">
+        <label class="hl-label" for="normalText">通常の文章（平文）</label>
+        <textarea id="normalText" class="astral-textarea" placeholder="言葉を紡ぐ..."></textarea>
+        
+        <div class="astral-controls">
+          <hl-button variant="primary" onclick="doConvert()">星界変換を実行</hl-button>
+          <hl-button variant="secondary" onclick="document.getElementById('normalText').value='';document.getElementById('cipherText').value='';clearError();">クリア</hl-button>
+        </div>
+        
+        <div id="errorMsg" class="astral-error"></div>
+        
+        <label class="hl-label" for="cipherText" style="margin-top: 0.5rem;">星導暗号文</label>
+        <textarea id="cipherText" class="astral-textarea" placeholder="✧✦✯✰..."></textarea>
+      </hl-card>
+
     </div>
-    
-    <div id="errorMsg" class="error"></div>
-    
-    <textarea id="cipherText" placeholder="✧✦✯✰..."></textarea>
-  </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-profile></hl-profile>
+        <hl-sidebar-box title="星導暗号について">
+          <p style="font-size: 0.85rem; line-height: 1.6; color: var(--clr-brown);">
+            64種の星標シンボルとダミー記号群、XORチェーン暗号を組み合わせた幻想的な換字暗号です。
+          </p>
+        </hl-sidebar-box>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
 
   <script>
     // 指定された6パターンのXOR鍵配列

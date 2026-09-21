@@ -10,13 +10,7 @@
 
 /* メインアプリケーションカード */
 .ogp-app-card {
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(154, 176, 143, 0.35);
-  border-radius: 20px;
-  padding: 1.8rem;
-  box-shadow: 0 8px 30px rgba(106, 86, 74, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  display: block;
   margin-bottom: 2rem;
 }
 

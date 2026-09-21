@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,12 +17,25 @@
   <!-- Google Fonts: Zen Maru Gothic & Quicksand -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+    rel="stylesheet">
 
   <!-- FOUC防止スタイル -->
   <style id="fouc-prevent">
-    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 
   <style>
@@ -45,10 +59,10 @@
       --clr-red-disc-light: #f69d89;
       --clr-yellow-disc: #f0b83b;
       --clr-yellow-disc-light: #f9d57a;
-
-      --board-tray: #e8decc;
-      --board-inner: #d8c7af;
-      --cell-hole: #fdfbf7;
+      --board-tray: #fbf6ee;
+      --board-tray-border: #ebdcc9;
+      --board-inner: #f4ecdc;
+      --cell-hole: #ffffff;
 
       --font-main: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
       --font-logo: 'Quicksand', sans-serif;
@@ -150,6 +164,71 @@
       border-color: rgba(106, 86, 74, 0.25);
     }
 
+    /* 手番選択セグメントスイッチ（対局開始前・1手目着手前のみ切り替え可能） */
+    .turn-order-selector {
+      display: inline-flex;
+      align-items: center;
+      background: #f4eee2;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 22px;
+      padding: 2px;
+      gap: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .turn-order-selector.is-locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+      filter: grayscale(0.25);
+    }
+
+    .turn-order-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--clr-brown-light);
+      padding: 0 0.35rem 0 0.5rem;
+      letter-spacing: 0.04em;
+    }
+
+    .turn-segment-btn {
+      background: transparent;
+      border: none;
+      color: var(--clr-brown-light);
+      padding: 0.32rem 0.75rem;
+      border-radius: 18px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .turn-segment-btn:hover:not(.is-active) {
+      color: var(--clr-brown);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .turn-segment-btn.is-active {
+      background: #ffffff;
+      color: var(--clr-brown);
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(106, 86, 74, 0.12);
+    }
+
+    .turn-segment-btn.is-active[data-turn="red"] {
+      color: var(--clr-red-disc);
+      border: 1px solid rgba(224, 109, 83, 0.25);
+    }
+
+    .turn-segment-btn.is-active[data-turn="yellow"] {
+      color: #9c6c0b;
+      border: 1px solid rgba(240, 184, 59, 0.35);
+    }
+
     /* 盤面を挟んで左下にユーザー、右上にAIを配置するバトルフィールドグリッド */
     .arena-battlefield {
       width: 100%;
@@ -193,14 +272,17 @@
         max-width: 500px;
         gap: 1.25rem;
       }
+
       .arena-slot-top-right {
         order: 1;
         align-self: flex-end;
         align-items: flex-end;
       }
+
       .arena-slot-center {
         order: 2;
       }
+
       .arena-slot-bottom-left {
         order: 3;
         align-self: flex-start;
@@ -248,7 +330,7 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       flex-shrink: 0;
     }
 
@@ -276,8 +358,13 @@
     }
 
     @keyframes pulse-think {
-      0% { opacity: 0.6; }
-      100% { opacity: 1; }
+      0% {
+        opacity: 0.6;
+      }
+
+      100% {
+        opacity: 1;
+      }
     }
 
     .status-badge.my-turn {
@@ -538,6 +625,87 @@
     }
 
     /* ========================================================
+       AI思考・狙いコメンタリーパネル (AI Thought & Strategy Panel)
+    ======================================================== */
+    .ai-thought-panel {
+      margin-top: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      width: 100%;
+    }
+
+    .ai-thought-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .ai-thought-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ai-thought-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #946006;
+      background: #fdf5e2;
+      border: 1px solid rgba(240, 184, 59, 0.4);
+      padding: 1px 7px;
+      border-radius: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .ai-thought-tag {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: var(--clr-yellow-disc);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .ai-thought-depth-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--clr-brown-light);
+      font-family: var(--font-logo);
+    }
+
+    .ai-thought-bubble {
+      position: relative;
+      background: #ffffff;
+      border: 1.5px solid rgba(240, 184, 59, 0.35);
+      border-radius: 14px;
+      padding: 0.6rem 0.75rem;
+      box-shadow: 0 3px 10px rgba(240, 184, 59, 0.1);
+      transition: all 0.25s ease;
+    }
+
+    .ai-thought-bubble.is-thinking {
+      border-color: var(--clr-yellow-disc);
+      background: #fffdf9;
+      box-shadow: 0 0 12px rgba(240, 184, 59, 0.35);
+      animation: bubble-think 1.2s infinite alternate;
+    }
+
+    @keyframes bubble-think {
+      0% { transform: scale(1); border-color: rgba(240, 184, 59, 0.4); }
+      100% { transform: scale(1.015); border-color: rgba(240, 184, 59, 0.9); }
+    }
+
+    .ai-thought-text {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--clr-brown);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    /* ========================================================
        中央ゲーム盤面カード
     ======================================================== */
     .arena-board-card {
@@ -697,8 +865,15 @@
     }
 
     @keyframes alert-border-pulse {
-      0% { transform: scale(1); border-color: var(--clr-peach); }
-      100% { transform: scale(1.02); border-color: var(--clr-red-disc); }
+      0% {
+        transform: scale(1);
+        border-color: var(--clr-peach);
+      }
+
+      100% {
+        transform: scale(1.02);
+        border-color: var(--clr-red-disc);
+      }
     }
 
     .shift-badge-large.warning .shift-main-val {
@@ -734,8 +909,14 @@
     }
 
     @keyframes alert-pulse {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.01); box-shadow: 0 6px 16px rgba(238, 175, 161, 0.35); }
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.01);
+        box-shadow: 0 6px 16px rgba(238, 175, 161, 0.35);
+      }
     }
 
     /* ========================================================
@@ -757,8 +938,13 @@
     }
 
     @keyframes fadeInArrow {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     /* 上下バー（7列）: トレイの内側グリッド(12px+7px=19px)と完全整列 */
@@ -842,31 +1028,65 @@
     .bar-top .lane-arrow-btn:not(:disabled) {
       animation: bounce-down 1.4s infinite ease-in-out;
     }
+
     .bar-bottom .lane-arrow-btn:not(:disabled) {
       animation: bounce-up 1.4s infinite ease-in-out;
     }
+
     .bar-left .lane-arrow-btn:not(:disabled) {
       animation: bounce-right 1.4s infinite ease-in-out;
     }
+
     .bar-right .lane-arrow-btn:not(:disabled) {
       animation: bounce-left 1.4s infinite ease-in-out;
     }
 
     @keyframes bounce-down {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(3px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(3px);
+      }
     }
+
     @keyframes bounce-up {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-3px);
+      }
     }
+
     @keyframes bounce-right {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(3px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(3px);
+      }
     }
+
     @keyframes bounce-left {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(-3px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(-3px);
+      }
     }
 
     /* 満杯で落とせないレーンのスタイル */
@@ -879,6 +1099,7 @@
       box-shadow: none;
       transform: none !important;
     }
+
     .lane-arrow-btn:disabled svg {
       stroke: var(--clr-brown-light);
     }
@@ -890,103 +1111,55 @@
       max-width: 480px;
       aspect-ratio: 1 / 1;
       padding: 12px;
-      background: var(--board-tray);
-      border-radius: 26px;
-      border: 3.5px solid rgba(154, 176, 143, 0.3);
-      box-shadow: 
-        0 12px 30px rgba(106, 86, 74, 0.12),
-        inset 0 2px 3px rgba(255, 255, 255, 0.8),
-        inset 0 -3px 6px rgba(106, 86, 74, 0.15);
+      background: #ffffff;
+      border-radius: 28px;
+      border: 3.5px solid var(--board-tray-border);
+      box-shadow:
+        0 14px 34px rgba(106, 86, 74, 0.08),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95),
+        inset 0 -2px 4px rgba(106, 86, 74, 0.03);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
       margin: 30px auto;
     }
 
-    /* 重力方向に応じたエッジ光彩 & 背景グラデーション */
+    /* 重力方向に応じたエッジのやさしいパステルアクセント & ソフトグロー */
     .board-tray-wrapper[data-gravity="down"] {
-      background: linear-gradient(180deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
       border-bottom-color: var(--clr-sage);
-      border-bottom-width: 5.5px;
-      box-shadow: 
-        0 18px 38px rgba(154, 176, 143, 0.38),
-        inset 0 2px 3px rgba(255, 255, 255, 0.8),
-        inset 0 -4px 8px rgba(154, 176, 143, 0.25);
-    }
-    .board-tray-wrapper[data-gravity="down"] .board-grid-inner {
-      background: 
-        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
-        linear-gradient(180deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
-    }
-    .board-tray-wrapper[data-gravity="down"] .board-cell {
-      box-shadow: 
-        inset 0 3px 5px rgba(106, 86, 74, 0.32),
-        inset 0 -1.5px 2px rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(255, 255, 255, 0.6);
+      border-bottom-width: 5px;
+      box-shadow:
+        0 14px 32px rgba(154, 176, 143, 0.28),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95),
+        inset 0 -3px 6px rgba(154, 176, 143, 0.15);
     }
 
     .board-tray-wrapper[data-gravity="right"] {
-      background: linear-gradient(90deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
       border-right-color: var(--clr-sage);
-      border-right-width: 5.5px;
-      box-shadow: 
-        18px 0 38px rgba(154, 176, 143, 0.38),
-        inset 0 2px 3px rgba(255, 255, 255, 0.8),
-        inset -4px 0 8px rgba(154, 176, 143, 0.25);
-    }
-    .board-tray-wrapper[data-gravity="right"] .board-grid-inner {
-      background: 
-        linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
-        linear-gradient(90deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
-    }
-    .board-tray-wrapper[data-gravity="right"] .board-cell {
-      box-shadow: 
-        inset 3px 0 5px rgba(106, 86, 74, 0.32),
-        inset -1.5px 0 2px rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(255, 255, 255, 0.6);
+      border-right-width: 5px;
+      box-shadow:
+        14px 0 32px rgba(154, 176, 143, 0.28),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95),
+        inset -3px 0 6px rgba(154, 176, 143, 0.15);
     }
 
     .board-tray-wrapper[data-gravity="up"] {
-      background: linear-gradient(0deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
       border-top-color: var(--clr-sage);
-      border-top-width: 5.5px;
-      box-shadow: 
-        0 -18px 38px rgba(154, 176, 143, 0.38),
-        inset 0 2px 3px rgba(255, 255, 255, 0.8),
-        inset 0 4px 8px rgba(154, 176, 143, 0.25);
-    }
-    .board-tray-wrapper[data-gravity="up"] .board-grid-inner {
-      background: 
-        linear-gradient(0deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
-        linear-gradient(0deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
-    }
-    .board-tray-wrapper[data-gravity="up"] .board-cell {
-      box-shadow: 
-        inset 0 -3px 5px rgba(106, 86, 74, 0.32),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(255, 255, 255, 0.6);
+      border-top-width: 5px;
+      box-shadow:
+        0 -14px 32px rgba(154, 176, 143, 0.28),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95),
+        inset 0 3px 6px rgba(154, 176, 143, 0.15);
     }
 
     .board-tray-wrapper[data-gravity="left"] {
-      background: linear-gradient(270deg, #f7f1e7 0%, #ebdcc9 75%, #dfcdb6 100%);
       border-left-color: var(--clr-sage);
-      border-left-width: 5.5px;
-      box-shadow: 
-        -18px 0 38px rgba(154, 176, 143, 0.38),
-        inset 0 2px 3px rgba(255, 255, 255, 0.8),
-        inset 4px 0 8px rgba(154, 176, 143, 0.25);
-    }
-    .board-tray-wrapper[data-gravity="left"] .board-grid-inner {
-      background: 
-        linear-gradient(270deg, rgba(255, 255, 255, 0.45) 0%, rgba(154, 176, 143, 0.12) 65%, rgba(154, 176, 143, 0.38) 100%),
-        linear-gradient(270deg, #f0e6d6 0%, #decbb1 60%, #baa385 100%);
-    }
-    .board-tray-wrapper[data-gravity="left"] .board-cell {
-      box-shadow: 
-        inset -3px 0 5px rgba(106, 86, 74, 0.32),
-        inset 1.5px 0 2px rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(255, 255, 255, 0.6);
+      border-left-width: 5px;
+      box-shadow:
+        -14px 0 32px rgba(154, 176, 143, 0.28),
+        inset 0 2px 4px rgba(255, 255, 255, 0.95),
+        inset 3px 0 6px rgba(154, 176, 143, 0.15);
     }
 
     .screen-shake {
@@ -994,10 +1167,27 @@
     }
 
     @keyframes gentle-shake {
-      10%, 90% { transform: translate3d(-3px, 1px, 0); }
-      20%, 80% { transform: translate3d(3px, -2px, 0); }
-      30%, 50%, 70% { transform: translate3d(-4px, 2px, 0); }
-      40%, 60% { transform: translate3d(4px, 1px, 0); }
+
+      10%,
+      90% {
+        transform: translate3d(-3px, 1px, 0);
+      }
+
+      20%,
+      80% {
+        transform: translate3d(3px, -2px, 0);
+      }
+
+      30%,
+      50%,
+      70% {
+        transform: translate3d(-4px, 2px, 0);
+      }
+
+      40%,
+      60% {
+        transform: translate3d(4px, 1px, 0);
+      }
     }
 
     .board-stage {
@@ -1016,22 +1206,24 @@
       background: var(--board-inner);
       padding: 7px;
       border-radius: 18px;
-      box-shadow: inset 0 3px 10px rgba(106, 86, 74, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow:
+        inset 0 3px 8px rgba(106, 86, 74, 0.08),
+        inset 0 -1px 3px rgba(255, 255, 255, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.7);
       touch-action: manipulation;
     }
 
-    /* セル穴 */
+    /* セル穴（丸くふっくらとした可愛いデザイン） */
     .board-cell {
       position: relative;
       width: 100%;
       height: 100%;
       background: var(--cell-hole);
       border-radius: 50%;
-      box-shadow: 
-        inset 0 3px 6px rgba(106, 86, 74, 0.35),
+      box-shadow:
+        inset 0 2.5px 5px rgba(106, 86, 74, 0.12),
         inset 0 -1px 2px rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(255, 255, 255, 0.6);
+        0 1px 2px rgba(255, 255, 255, 0.8);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -1040,7 +1232,7 @@
     }
 
     .board-cell:hover {
-      background: #f4eee2;
+      background: #fbf5ea;
     }
 
     /* 落下プレビュー（着地点のセル穴そのものをハイライトするため100%ズレない） */
@@ -1118,20 +1310,176 @@
       box-shadow: 0 4px 10px rgba(240, 184, 59, 0.38), inset 0 1px 2px rgba(255, 255, 255, 0.6);
     }
 
-    /* 勝利ラインのハイライト */
-    .disc-item.winning-disc {
-      z-index: 10;
-      animation: win-pulse 0.8s ease-in-out infinite alternate;
+    /* スライド中の石のなめらかな滑走 */
+    .disc-item.sliding {
+      transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1) !important;
     }
 
-    @keyframes win-pulse {
+    /* 勝利決定時の石の表示（関係のない石も本来の赤・黄の綺麗な色をしっかり維持） */
+    .board-stage.has-winner .disc-item:not(.is-winner-target) {
+      opacity: 0.72;
+      filter: brightness(0.92);
+      transform: translate(var(--dx), var(--dy)) scale(0.96);
+      transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+    }
+
+    /* 勝利対象の石（点灯前：通常色で待機） */
+    .board-stage.has-winner .disc-item.is-winner-target:not(.ignite-win-disc) {
+      opacity: 1;
+      filter: brightness(1);
+      transform: translate(var(--dx), var(--dy));
+    }
+
+    /* 勝利ラインの順次点灯（対象の4つの石だけがゴールドに輝き★マークが付く） */
+    .disc-item.ignite-win-disc {
+      z-index: 50 !important;
+      opacity: 1 !important;
+      transform: translate(var(--dx), var(--dy)) scale(1.1);
+      animation: win-disc-glow-pulse 1.3s ease-in-out infinite alternate !important;
+    }
+
+    @keyframes win-disc-glow-pulse {
       0% {
-        transform: translate(var(--dx), var(--dy)) scale(1);
-        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+        transform: translate(var(--dx), var(--dy)) scale(1.06);
+        box-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 24px rgba(240, 184, 59, 0.85);
+        filter: brightness(1.2);
       }
+
       100% {
-        transform: translate(var(--dx), var(--dy)) scale(1.12);
-        filter: drop-shadow(0 0 14px #ffffff) brightness(1.2);
+        transform: translate(var(--dx), var(--dy)) scale(1.16);
+        box-shadow: 0 0 22px #ffffff, 0 0 38px rgba(240, 184, 59, 1), 0 0 52px rgba(224, 109, 83, 0.75);
+        filter: brightness(1.35);
+      }
+    }
+
+    /* 勝利石の中央に回転するゴールドリング＆星マーク */
+    .disc-item.ignite-win-disc::after {
+      content: '★';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+      border: 2.5px solid #ffffff;
+      border-radius: 50%;
+      animation: win-star-spin 3.5s linear infinite;
+    }
+
+    @keyframes win-star-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 決着アナウンス用のミニバナー（盤面中央に出現） */
+    .win-announce-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.65);
+      background: linear-gradient(135deg, rgba(35, 22, 16, 0.92), rgba(60, 40, 30, 0.92));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #ffffff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), 0 0 35px rgba(240, 184, 59, 0.7);
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .win-announce-banner.is-active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .win-announce-sub {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #ffd875;
+      margin-top: 2px;
+    }
+
+    /* 4つの石を貫くレーザー光線SVGレイヤー */
+    .victory-laser-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 40;
+      overflow: visible;
+    }
+
+    .laser-line-glow {
+      stroke: #f0b83b;
+      stroke-width: 11px;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 22px #f0b83b) drop-shadow(0 0 45px #e06d53);
+      animation: laser-pulse 0.75s ease-in-out infinite alternate;
+    }
+
+    .laser-line-core {
+      stroke: #ffffff;
+      stroke-width: 4.5px;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px #ffffff);
+    }
+
+    @keyframes laser-pulse {
+      0% {
+        stroke-width: 10px;
+        opacity: 0.9;
+      }
+
+      100% {
+        stroke-width: 15px;
+        opacity: 1;
+        filter: drop-shadow(0 0 16px #ffffff) drop-shadow(0 0 35px #f0b83b) drop-shadow(0 0 60px #e06d53);
+      }
+    }
+
+    /* 勝利時の一瞬のホワイトフラッシュ */
+    .board-flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 80%);
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 18px;
+    }
+
+    .board-flash-overlay.is-active {
+      opacity: 1;
+      animation: flash-fade 0.5s ease forwards;
+    }
+
+    @keyframes flash-fade {
+      0% {
+        opacity: 0.9;
+      }
+
+      100% {
+        opacity: 0;
       }
     }
 
@@ -1166,12 +1514,160 @@
       gap: 0.4rem;
     }
 
-    .btn-main-action:hover {
+    .btn-main-action:hover:not(:disabled) {
       background: #f4ecda;
       border-color: rgba(106, 86, 74, 0.25);
     }
 
-    /* モーダルダイアログ */
+    .btn-main-action:disabled,
+    .btn-result-copy-log:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(106, 86, 74, 0.15);
+      background: #faf8f5;
+    }
+
+    /* 盤面を遮らないフローティング・結果カード */
+    .result-float-card {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(140%);
+      width: min(92vw, 460px);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 2px solid var(--clr-card-border);
+      border-radius: 26px;
+      padding: 1.15rem 1.4rem;
+      text-align: center;
+      box-shadow: 0 18px 50px rgba(60, 40, 30, 0.3), 0 0 35px rgba(240, 184, 59, 0.35);
+      z-index: 1000;
+      transition: transform 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: auto;
+    }
+
+    .result-float-card.is-active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .result-float-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-winner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1.1rem;
+      border-radius: 20px;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .result-desc-text {
+      font-size: 0.88rem;
+      color: var(--clr-brown-light);
+      margin-bottom: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .result-actions-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .btn-result-restart {
+      flex: 1.2;
+      background: var(--clr-sage);
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1rem;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(154, 176, 143, 0.4);
+    }
+
+    .btn-result-restart:hover {
+      background: var(--clr-sage-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-result-copy-log {
+      flex: 1;
+      background: #ffffff;
+      color: var(--clr-brown);
+      border: 1.5px solid var(--clr-card-border);
+      padding: 0.65rem 0.85rem;
+      border-radius: 18px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .btn-result-copy-log:hover {
+      background: var(--clr-cream);
+      border-color: var(--clr-sage);
+      color: var(--clr-sage-dark);
+    }
+
+    /* ログ表示用テキストエリア・整形ボックス */
+    .log-display-box {
+      width: 100%;
+      height: 240px;
+      background: #faf8f5;
+      border: 1.5px solid var(--clr-card-border);
+      border-radius: 14px;
+      padding: 0.75rem;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.76rem;
+      line-height: 1.55;
+      color: var(--clr-brown);
+      resize: none;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    /* トースト通知 */
+    .toast-notice {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(45, 35, 28, 0.92);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 0.6rem 1.4rem;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      z-index: 2500;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.25s ease;
+    }
+
+    .toast-notice.is-active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* あそびかたルールモーダル用バックドロップ */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1264,14 +1760,51 @@
     }
 
     /* Markdown読み込みコンテンツのスタイル */
-    .rules-md-content h1 { font-size: 1.15rem; margin-bottom: 0.8rem; color: var(--clr-brown); border-bottom: 1.5px solid var(--clr-sage); padding-bottom: 0.35rem; }
-    .rules-md-content h2 { font-size: 1.05rem; margin-top: 1rem; margin-bottom: 0.45rem; color: var(--clr-brown); }
-    .rules-md-content h3 { font-size: 0.95rem; margin-top: 0.8rem; margin-bottom: 0.35rem; color: var(--clr-sage-dark); }
-    .rules-md-content p { margin-bottom: 0.6rem; }
-    .rules-md-content ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
-    .rules-md-content li { margin-bottom: 0.35rem; }
-    .rules-md-content hr { border: none; border-top: 1px dashed var(--clr-card-border); margin: 0.85rem 0; }
-    .rules-md-content strong { color: var(--clr-brown); font-weight: 700; }
+    .rules-md-content h1 {
+      font-size: 1.15rem;
+      margin-bottom: 0.8rem;
+      color: var(--clr-brown);
+      border-bottom: 1.5px solid var(--clr-sage);
+      padding-bottom: 0.35rem;
+    }
+
+    .rules-md-content h2 {
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      margin-bottom: 0.45rem;
+      color: var(--clr-brown);
+    }
+
+    .rules-md-content h3 {
+      font-size: 0.95rem;
+      margin-top: 0.8rem;
+      margin-bottom: 0.35rem;
+      color: var(--clr-sage-dark);
+    }
+
+    .rules-md-content p {
+      margin-bottom: 0.6rem;
+    }
+
+    .rules-md-content ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .rules-md-content li {
+      margin-bottom: 0.35rem;
+    }
+
+    .rules-md-content hr {
+      border: none;
+      border-top: 1px dashed var(--clr-card-border);
+      margin: 0.85rem 0;
+    }
+
+    .rules-md-content strong {
+      color: var(--clr-brown);
+      font-weight: 700;
+    }
 
     /* -------------------------------------------------------------
        必殺技・能力発動カットイン演出 (Skill Cut-in Overlay)
@@ -1337,12 +1870,10 @@
       left: -150%;
       width: 80%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.5) 50%,
-        rgba(255, 255, 255, 0) 100%
-      );
+      background: linear-gradient(90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.5) 50%,
+          rgba(255, 255, 255, 0) 100%);
       transform: skewX(-25deg);
       pointer-events: none;
     }
@@ -1352,8 +1883,13 @@
     }
 
     @keyframes cutinShimmerAnim {
-      0% { left: -150%; }
-      100% { left: 220%; }
+      0% {
+        left: -150%;
+      }
+
+      100% {
+        left: 220%;
+      }
     }
 
     .cutin-user-tag {
@@ -1405,24 +1941,29 @@
         padding: 1rem 0.6rem 2.5rem;
         gap: 1rem;
       }
+
       .board-tray-wrapper {
         padding: 8px;
         border-radius: 20px;
       }
+
       .board-grid-inner {
         gap: 4px;
         padding: 4px;
         border-radius: 14px;
       }
+
       .page-title {
         font-size: 1.4rem;
       }
+
       .player-card {
         max-width: 100%;
       }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Halcyon サイトヘッダー -->
@@ -1446,6 +1987,11 @@
     <div class="page-title-row">
       <h1 class="page-title">重力反転コネクトフォー</h1>
       <div class="top-actions">
+        <div class="turn-order-selector" id="turn-order-selector" title="対局開始前の手番選択（1手目を置くまで変更可能）">
+          <span class="turn-order-label">手番:</span>
+          <button class="turn-segment-btn is-active" id="btn-turn-first" data-turn="red">先攻 (あなた)</button>
+          <button class="turn-segment-btn" id="btn-turn-second" data-turn="yellow">後攻 (AI先手)</button>
+        </div>
         <button class="icon-pill-btn" id="btn-sound-toggle" title="サウンド切替">
           <span id="sound-icon">♪</span>
           <span id="sound-label">音: ON</span>
@@ -1541,7 +2087,8 @@
             <div class="gravity-badge-large" id="gravity-badge-large" title="現在の重力方向と次の反転先">
               <div class="compass-dial-large" id="large-compass-dial">
                 <svg class="compass-svg-large" viewBox="0 0 24 24">
-                  <path d="M12 4v13m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <path d="M12 4v13m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
                 </svg>
               </div>
               <div class="gravity-text-wrap">
@@ -1578,43 +2125,99 @@
           <div class="board-tray-wrapper" id="board-tray-wrapper" data-gravity="down">
             <!-- 4辺の投入レーン矢印インジケーター (絶対配置でトレイサイズに一切影響しない) -->
             <div class="lane-arrows-bar bar-top is-active" id="lane-arrows-top">
-              <button class="lane-arrow-btn" data-lane="top" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="top" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 4v14m0 0l-5-5m5 5l5-5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="top" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 4v14m0 0l-5-5m5 5l5-5" />
+                </svg></button>
             </div>
 
             <div class="lane-arrows-bar bar-bottom" id="lane-arrows-bottom">
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="bottom" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24"><path d="M12 20V6m0 0l-5 5m5-5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="0" title="1列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="1" title="2列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="2" title="3列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="3" title="4列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="4" title="5列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="5" title="6列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="bottom" data-idx="6" title="7列目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M12 20V6m0 0l-5 5m5-5l5 5" />
+                </svg></button>
             </div>
 
             <div class="lane-arrows-bar bar-left" id="lane-arrows-left">
-              <button class="lane-arrow-btn" data-lane="left" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="left" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24"><path d="M4 12h14m0 0l-5-5m5 5l-5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="left" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M4 12h14m0 0l-5-5m5 5l-5 5" />
+                </svg></button>
             </div>
 
             <div class="lane-arrows-bar bar-right" id="lane-arrows-right">
-              <button class="lane-arrow-btn" data-lane="right" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
-              <button class="lane-arrow-btn" data-lane="right" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24"><path d="M20 12H6m0 0l5-5m-5 5l5 5"/></svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="0" title="1段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="1" title="2段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="2" title="3段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="3" title="4段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="4" title="5段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="5" title="6段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
+              <button class="lane-arrow-btn" data-lane="right" data-idx="6" title="7段目に落とす"><svg viewBox="0 0 24 24">
+                  <path d="M20 12H6m0 0l5-5m-5 5l5 5" />
+                </svg></button>
             </div>
 
             <div class="board-stage" id="board-stage">
@@ -1623,6 +2226,18 @@
 
               <!-- スライドする石レイヤー -->
               <div class="discs-layer" id="discs-layer"></div>
+
+              <!-- 4つの石を貫くレーザー光線SVG -->
+              <svg class="victory-laser-svg" id="victory-laser-svg"></svg>
+
+              <!-- 勝利時の一瞬のホワイトフラッシュ -->
+              <div class="board-flash-overlay" id="board-flash-overlay"></div>
+
+              <!-- 四目並び成立時の中央ポップアップバナー -->
+              <div class="win-announce-banner" id="win-announce-banner">
+                <span id="win-announce-title">CONNECT FOUR!</span>
+                <span class="win-announce-sub" id="win-announce-sub">4つの石が揃いました！</span>
+              </div>
             </div>
           </div>
 
@@ -1658,19 +2273,36 @@
             </div>
           </div>
 
-          <!-- AI状態アナウンス -->
-          <div style="margin-top: 0.5rem; font-size: 0.74rem; font-weight: 700; color: var(--clr-brown-light); text-align: center; background: var(--clr-cream); padding: 0.35rem 0.6rem; border-radius: 10px; border: 1px solid var(--clr-card-border);" id="ai-status-note">
-            石を置くごとに MP が 1 溜まります
+          <!-- AI思考・狙いコメンタリーパネル -->
+          <div class="ai-thought-panel" id="ai-thought-panel">
+            <div class="ai-thought-header">
+              <div class="ai-thought-title-wrap">
+                <span class="ai-thought-badge">AIの思考</span>
+                <span class="ai-thought-tag" id="ai-thought-tag">待機</span>
+              </div>
+              <span class="ai-thought-depth-tag" id="ai-thought-depth-tag">深さ5読了</span>
+            </div>
+            <div class="ai-thought-bubble" id="ai-thought-bubble">
+              <p class="ai-thought-text" id="ai-thought-text">
+                対局開始です。あなたの初手を見て作戦を組み立てます。
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- リセットボタンバー -->
+    <!-- まった & リセット & 試合ログボタンバー -->
     <div class="bottom-controls-bar">
+      <button class="btn-main-action" id="btn-undo-move" title="直前の手を1手戻します">
+        <span>↩</span> まった
+      </button>
       <button class="btn-main-action" id="btn-restart-match">
         <span>↺</span> 最初からやり直す
+      </button>
+      <button class="btn-main-action" id="btn-open-log-modal">
+        <span>📋</span> 試合ログを見る
       </button>
     </div>
 
@@ -1687,34 +2319,82 @@
     </div>
   </div>
 
-  <!-- 勝敗結果モーダル -->
-  <div class="modal-backdrop" id="modal-result-backdrop">
-    <div class="modal-dialog-box">
-      <span class="modal-header-tag">GAME RESULT</span>
-      <h2 class="modal-main-title" id="modal-result-title">VICTORY</h2>
-      <div class="modal-winner-pill" id="modal-winner-pill">
+  <!-- 盤面を隠さないフローティング結果カード -->
+  <div class="result-float-card" id="modal-result-backdrop" role="dialog" aria-modal="false">
+    <div class="result-float-header">
+      <div class="result-winner-pill" id="modal-winner-pill">
         <span id="modal-winner-text">あなたの勝利！</span>
       </div>
-      <p class="modal-body-text" id="modal-result-description">石が4つ揃いました！</p>
-      <button class="btn-modal-primary" id="btn-modal-restart">
-        もう一度プレイする
+      <span style="font-size: 0.75rem; font-weight: 700; color: var(--clr-brown-light); letter-spacing: 0.05em;"
+        id="modal-result-title">GAME FINISHED</span>
+    </div>
+    <p class="result-desc-text" id="modal-result-description">石が4つ揃いました！</p>
+    <div class="result-actions-row">
+      <button class="btn-result-restart" id="btn-modal-restart">
+        もう一度プレイ
+      </button>
+      <button class="btn-result-copy-log" id="btn-modal-undo" title="直前の手に戻して打ち直す">
+        <span>↩</span> まった
+      </button>
+      <button class="btn-result-copy-log" id="btn-result-copy-log" title="AI強化用の試合ログをJSON形式でコピー">
+        <span>📋</span> ログをコピー
       </button>
     </div>
   </div>
 
+  <!-- 試合ログ閲覧・コピーモーダル -->
+  <div class="modal-backdrop" id="modal-log-backdrop">
+    <div class="modal-dialog-box"
+      style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; text-align: left; padding: 1.5rem;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--clr-brown-pale); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+        <div>
+          <span class="modal-header-tag" style="margin-bottom: 0;">MATCH LOG</span>
+          <span style="font-size: 0.78rem; color: var(--clr-brown-light); margin-left: 0.5rem;">AI学習・分析用データ</span>
+        </div>
+        <button id="btn-modal-close-log-x"
+          style="background: none; border: none; font-size: 1.25rem; color: var(--clr-brown); cursor: pointer; padding: 0.2rem 0.5rem; line-height: 1;">✕</button>
+      </div>
+
+      <div style="display: flex; gap: 6px; margin-bottom: 0.6rem;">
+        <button class="icon-pill-btn" id="btn-log-format-json" style="background: var(--clr-sage-light); border-color: var(--clr-sage); font-weight: 800;">JSON形式 (AI用)</button>
+        <button class="icon-pill-btn" id="btn-log-format-text">テキスト棋譜</button>
+      </div>
+
+      <textarea class="log-display-box" id="log-display-textarea" readonly></textarea>
+
+      <div style="display: flex; gap: 8px; margin-top: 0.85rem; border-top: 1.5px solid var(--clr-brown-pale); padding-top: 0.75rem;">
+        <button class="btn-modal-primary" id="btn-copy-log-from-modal" style="flex: 1.3;">
+          クリップボードにコピー
+        </button>
+        <button class="btn-skill-cancel" id="btn-modal-close-log" style="flex: 0.7; padding: 0.65rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div class="toast-notice" id="toast-notice">試合ログをコピーしました！</div>
+
   <!-- あそびかたルールモーダル (rules.md を動的読み込み) -->
   <div class="modal-backdrop" id="modal-rules-backdrop">
-    <div class="modal-dialog-box" style="max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; text-align: left; padding: 1.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--clr-brown-pale); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+    <div class="modal-dialog-box"
+      style="max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; text-align: left; padding: 1.5rem;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--clr-brown-pale); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
         <div>
           <span class="modal-header-tag" style="margin-bottom: 0;">HOW TO PLAY</span>
-          <span style="font-size: 0.78rem; color: var(--clr-brown-light); margin-left: 0.5rem; font-family: monospace;">rules.md</span>
+          <span
+            style="font-size: 0.78rem; color: var(--clr-brown-light); margin-left: 0.5rem; font-family: monospace;">rules.md</span>
         </div>
-        <button id="btn-modal-close-rules-x" style="background: none; border: none; font-size: 1.25rem; color: var(--clr-brown); cursor: pointer; padding: 0.2rem 0.5rem; line-height: 1;">✕</button>
+        <button id="btn-modal-close-rules-x"
+          style="background: none; border: none; font-size: 1.25rem; color: var(--clr-brown); cursor: pointer; padding: 0.2rem 0.5rem; line-height: 1;">✕</button>
       </div>
 
       <!-- Markdownのレンダリングコンテナ (スクロール可能) -->
-      <div class="rules-md-content" id="rules-md-content" style="overflow-y: auto; padding-right: 0.5rem; flex: 1; font-size: 0.88rem; line-height: 1.7; color: var(--clr-brown);">
+      <div class="rules-md-content" id="rules-md-content"
+        style="overflow-y: auto; padding-right: 0.5rem; flex: 1; font-size: 0.88rem; line-height: 1.7; color: var(--clr-brown);">
         読み込み中...
       </div>
 
@@ -1890,6 +2570,80 @@
           osc2.stop(now + idx * 0.05 + 0.25);
         });
       }
+
+      playIgnite(step) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        // ド・ミ・ソ・高音ド のピッチ上昇 (C5, E5, G5, C6)
+        const freqs = [523.25, 659.25, 783.99, 1046.50];
+        const freq = freqs[Math.min(step, freqs.length - 1)];
+
+        // 主音（クリアサイン波）
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, now);
+        osc1.frequency.exponentialRampToValueAtTime(freq * 1.02, now + 0.35);
+
+        gain1.gain.setValueAtTime(0.32, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.38);
+
+        // 倍音（クリスタルきらめき）
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(freq * 2, now);
+        gain2.gain.setValueAtTime(0.12, now);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + 0.25);
+      }
+
+      playLaserSlash() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // レーザー照射音＋重低音スラッシュ
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(920, now);
+        osc1.frequency.exponentialRampToValueAtTime(110, now + 0.4);
+
+        gain1.gain.setValueAtTime(0.38, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.4);
+
+        // 高音きらめき
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1318.51, now);
+        osc2.frequency.linearRampToValueAtTime(1760, now + 0.3);
+        gain2.gain.setValueAtTime(0.24, now);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + 0.35);
+      }
     }
 
     const sound = new SoundController();
@@ -1928,12 +2682,31 @@
     let aiMP = MAX_MP;
     let isClockwise = true; // 重力巡回順（true: 時計回り, false: 反時計回り）
     let currentSkillMode = null; // 'anchor' | 'shift' | null
+    let playerTurnChoice = 'red'; // 'red'(先攻: あなた) または 'yellow'(後攻: AI先手)
+
+    // まった（Undo）履歴スタック
+    let stateHistory = [];
+
+    // 試合棋譜・分析ログ記録
+    let matchHistory = [];
+    let matchStartTime = null;
+    let matchResult = null;
+    let currentLogFormat = 'json'; // 'json' | 'text'
 
     /* DOM要素 */
     const gridInnerEl = document.getElementById('board-grid-inner');
     const discsLayerEl = document.getElementById('discs-layer');
     const boardTrayEl = document.getElementById('board-tray-wrapper');
     const boardHintTextEl = document.getElementById('board-hint-text');
+
+    // 手番選択DOM
+    const turnOrderSelectorEl = document.getElementById('turn-order-selector');
+    const btnTurnFirstEl = document.getElementById('btn-turn-first');
+    const btnTurnSecondEl = document.getElementById('btn-turn-second');
+
+    // まったボタンDOM
+    const btnUndoMoveEl = document.getElementById('btn-undo-move');
+    const btnModalUndoEl = document.getElementById('btn-modal-undo');
 
     const cardUserEl = document.getElementById('card-user');
     const cardAiEl = document.getElementById('card-ai');
@@ -1945,7 +2718,25 @@
     const userMpTrackEl = document.getElementById('user-mp-track');
     const aiMpTextEl = document.getElementById('ai-mp-text');
     const aiMpTrackEl = document.getElementById('ai-mp-track');
-    const aiStatusNoteEl = document.getElementById('ai-status-note');
+
+    // AI思考解説関連DOM
+    const aiThoughtPanelEl = document.getElementById('ai-thought-panel');
+    const aiThoughtBubbleEl = document.getElementById('ai-thought-bubble');
+    const aiThoughtTagEl = document.getElementById('ai-thought-tag');
+    const aiThoughtDepthTagEl = document.getElementById('ai-thought-depth-tag');
+    const aiThoughtTextEl = document.getElementById('ai-thought-text');
+
+    // 試合ログ関連DOM
+    const btnResultCopyLogEl = document.getElementById('btn-result-copy-log');
+    const btnOpenLogModalEl = document.getElementById('btn-open-log-modal');
+    const modalLogEl = document.getElementById('modal-log-backdrop');
+    const btnModalCloseLogEl = document.getElementById('btn-modal-close-log');
+    const btnModalCloseLogXEl = document.getElementById('btn-modal-close-log-x');
+    const logDisplayTextareaEl = document.getElementById('log-display-textarea');
+    const btnLogFormatJsonEl = document.getElementById('btn-log-format-json');
+    const btnLogFormatTextEl = document.getElementById('btn-log-format-text');
+    const btnCopyLogFromModalEl = document.getElementById('btn-copy-log-from-modal');
+    const toastNoticeEl = document.getElementById('toast-notice');
 
     // スキル関連DOM
     const btnSkillReverseEl = document.getElementById('btn-skill-reverse');
@@ -1991,6 +2782,14 @@
     const cutinSkillRubyEl = document.getElementById('cutin-skill-ruby');
     const cutinSkillDescEl = document.getElementById('cutin-skill-desc');
 
+    // 盤面ステージ & 勝利アナウンスDOM
+    const boardStageEl = document.getElementById('board-stage');
+    const winAnnounceBannerEl = document.getElementById('win-announce-banner');
+    const winAnnounceTitleEl = document.getElementById('win-announce-title');
+    const winAnnounceSubEl = document.getElementById('win-announce-sub');
+    const victoryLaserSvgEl = document.getElementById('victory-laser-svg');
+    const boardFlashOverlayEl = document.getElementById('board-flash-overlay');
+
     /* -------------------------------------------------------------
        盤面セル生成
     ------------------------------------------------------------- */
@@ -2017,7 +2816,10 @@
       grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
       discs.clear();
       discsLayerEl.innerHTML = '';
-      currentPlayer = 'red';
+      if (victoryLaserSvgEl) victoryLaserSvgEl.innerHTML = '';
+      if (boardFlashOverlayEl) boardFlashOverlayEl.classList.remove('is-active');
+
+      currentPlayer = playerTurnChoice; // 'red'(先攻) または 'yellow'(後攻)
       gravityIndex = 0;
       movesLeft = 3;
       isAnimating = false;
@@ -2029,10 +2831,190 @@
       isClockwise = true;
       closeSkillMode();
 
+      // 試合ログ初期化
+      matchHistory = [];
+      matchStartTime = new Date();
+      matchResult = null;
+
+      // 手番セレクターのロック解除 & アクティブ更新
+      if (turnOrderSelectorEl) turnOrderSelectorEl.classList.remove('is-locked');
+      updateTurnOrderButtons();
+
       clearHoverPreview();
       updateDashboardUI();
+      if (boardStageEl) boardStageEl.classList.remove('has-winner');
+      if (winAnnounceBannerEl) winAnnounceBannerEl.classList.remove('is-active');
       modalResultEl.classList.remove('is-active');
-      boardHintTextEl.textContent = 'あなたの番です。空いているマスをクリックするか、スキルを使用できます';
+
+      if (currentPlayer === 'red') {
+        boardHintTextEl.textContent = 'あなたの番です。空いているマスをクリックするか、スキルを使用できます';
+        if (aiThoughtBubbleEl) aiThoughtBubbleEl.classList.remove('is-thinking');
+        if (aiThoughtTagEl) aiThoughtTagEl.textContent = '待機';
+        if (aiThoughtDepthTagEl) aiThoughtDepthTagEl.textContent = '深さ5読了';
+        if (aiThoughtTextEl) aiThoughtTextEl.textContent = '対局開始です。あなたの初手を見て作戦を組み立てます。';
+      } else {
+        boardHintTextEl.textContent = '後攻を選択しました。AIが初手を思考中です...';
+        if (aiThoughtBubbleEl) aiThoughtBubbleEl.classList.add('is-thinking');
+        if (aiThoughtTagEl) aiThoughtTagEl.textContent = '初手選択';
+        if (aiThoughtDepthTagEl) aiThoughtDepthTagEl.textContent = '探索中';
+        if (aiThoughtTextEl) aiThoughtTextEl.textContent = 'AI先手番です。初手の中央布石を展開します。';
+        // AIの初手を実行
+        setTimeout(() => {
+          if (!isGameOver && currentPlayer === 'yellow') {
+            runAITurn();
+          }
+        }, 380);
+      }
+
+      // 初期状態スナップショット保存
+      stateHistory = [captureStateSnapshot()];
+      updateUndoButtonState();
+    }
+
+    /* -------------------------------------------------------------
+       まった（Undo）システム・スナップショット管理
+    ------------------------------------------------------------- */
+    function captureStateSnapshot() {
+      return {
+        grid: grid.map(row => row.map(cell => cell ? { id: cell.id, player: cell.player, r: cell.r, c: cell.c, isAnchored: cell.isAnchored } : null)),
+        discs: Array.from(discs.entries()).map(([id, d]) => ({ id, player: d.player, r: d.r, c: d.c, isAnchored: d.isAnchored })),
+        currentPlayer,
+        gravityIndex,
+        movesLeft,
+        isClockwise,
+        userMP,
+        aiMP,
+        nextId,
+        matchHistory: JSON.parse(JSON.stringify(matchHistory)),
+        matchResult: matchResult ? { ...matchResult } : null,
+        isGameOver
+      };
+    }
+
+    function saveStateSnapshot() {
+      stateHistory.push(captureStateSnapshot());
+      updateUndoButtonState();
+    }
+
+    function restoreStateSnapshot(snap) {
+      grid = snap.grid.map(row => row.map(cell => cell ? { ...cell } : null));
+      discs.clear();
+      if (discsLayerEl) discsLayerEl.innerHTML = '';
+
+      snap.discs.forEach(d => {
+        const discObj = {
+          id: d.id,
+          player: d.player,
+          r: d.r,
+          c: d.c,
+          isAnchored: d.isAnchored,
+          el: null
+        };
+        const pos = getCellPosition(d.r, d.c);
+        const discEl = document.createElement('div');
+        discEl.className = `disc-item ${d.player}`;
+        discEl.id = `disc-${d.id}`;
+        discEl.style.width = `${pos.w}px`;
+        discEl.style.height = `${pos.h}px`;
+        discEl.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+        discEl.style.setProperty('--dx', `${pos.x}px`);
+        discEl.style.setProperty('--dy', `${pos.y}px`);
+        if (discsLayerEl) discsLayerEl.appendChild(discEl);
+        discObj.el = discEl;
+        discs.set(d.id, discObj);
+      });
+
+      currentPlayer = snap.currentPlayer;
+      gravityIndex = snap.gravityIndex;
+      movesLeft = snap.movesLeft;
+      isClockwise = snap.isClockwise;
+      userMP = snap.userMP;
+      aiMP = snap.aiMP;
+      nextId = snap.nextId;
+      matchHistory = JSON.parse(JSON.stringify(snap.matchHistory));
+      matchResult = snap.matchResult ? { ...snap.matchResult } : null;
+      isGameOver = snap.isGameOver;
+      isAnimating = false;
+      closeSkillMode();
+
+      // 勝利演出やモーダルの完全リセット
+      if (victoryLaserSvgEl) victoryLaserSvgEl.innerHTML = '';
+      if (boardFlashOverlayEl) boardFlashOverlayEl.classList.remove('is-active');
+      if (boardStageEl) boardStageEl.classList.remove('has-winner');
+      if (winAnnounceBannerEl) winAnnounceBannerEl.classList.remove('is-active');
+      if (modalResultEl) modalResultEl.classList.remove('is-active');
+
+      // 手番セレクターのロック状態更新
+      if (turnOrderSelectorEl) {
+        if (matchHistory.length === 0) {
+          turnOrderSelectorEl.classList.remove('is-locked');
+        } else {
+          turnOrderSelectorEl.classList.add('is-locked');
+        }
+      }
+      updateTurnOrderButtons();
+
+      clearHoverPreview();
+      updateDashboardUI();
+
+      if (aiThoughtBubbleEl) aiThoughtBubbleEl.classList.remove('is-thinking');
+      if (aiThoughtTagEl) aiThoughtTagEl.textContent = '待機';
+      if (aiThoughtDepthTagEl) aiThoughtDepthTagEl.textContent = '復元完了';
+      if (aiThoughtTextEl) aiThoughtTextEl.textContent = '手番が巻き戻されました。あなたの次の手を待っています。';
+      boardHintTextEl.textContent = currentPlayer === 'red'
+        ? 'あなたの番です。空いているマスをクリックするか、スキルを使用できます'
+        : 'AIの番です';
+    }
+
+    function undoMove() {
+      if (isAnimating) return;
+      if (stateHistory.length <= 1) {
+        showToast('これ以上戻せません');
+        return;
+      }
+
+      // AIが思考中の場合は安全のためガード
+      if (currentPlayer === 'yellow' && !isGameOver) return;
+
+      // 現在の最新状態をポップ
+      stateHistory.pop();
+
+      // ユーザーの手番（currentPlayer === 'red'）または初期状態（length === 1）まで巻き戻す
+      let targetSnapshot = null;
+      while (stateHistory.length > 0) {
+        const snap = stateHistory[stateHistory.length - 1];
+        if (snap.currentPlayer === 'red' || stateHistory.length === 1) {
+          targetSnapshot = snap;
+          break;
+        }
+        stateHistory.pop();
+      }
+
+      if (targetSnapshot) {
+        restoreStateSnapshot(targetSnapshot);
+        showToast('直前の手に戻しました（まった）');
+      } else {
+        showToast('これ以上戻せません');
+      }
+    }
+
+    function updateUndoButtonState() {
+      const canUndo = stateHistory.length > 1 && !isAnimating && (currentPlayer === 'red' || isGameOver);
+      if (btnUndoMoveEl) btnUndoMoveEl.disabled = !canUndo;
+      if (btnModalUndoEl) btnModalUndoEl.disabled = stateHistory.length <= 1 || isAnimating;
+    }
+
+    function updateTurnOrderButtons() {
+      if (!btnTurnFirstEl || !btnTurnSecondEl) return;
+      btnTurnFirstEl.classList.toggle('is-active', playerTurnChoice === 'red');
+      btnTurnSecondEl.classList.toggle('is-active', playerTurnChoice === 'yellow');
+    }
+
+    function setPlayerTurnChoice(choice) {
+      if (matchHistory.length > 0 || isAnimating || isGameOver) return;
+      if (playerTurnChoice === choice) return;
+      playerTurnChoice = choice;
+      startNewGame();
     }
 
     /* -------------------------------------------------------------
@@ -2092,6 +3074,9 @@
         btnSkillShiftEl.classList.toggle('active-selecting', currentSkillMode === 'shift');
       }
 
+      // まったボタンの活性制御
+      updateUndoButtonState();
+
       // 重力インジケーター更新
       const grav = GRAVITY_CYCLE[gravityIndex];
       const nextStep = isClockwise ? 1 : -1;
@@ -2143,8 +3128,6 @@
         btn.disabled = !canClickLane || landing === null;
       });
 
-
-
       // 自動反転カウントダウン（大型バッジ & ステップバー）
       shiftMovesTextEl.textContent = `あと ${movesLeft} 手`;
       shiftBars.forEach((bar, i) => {
@@ -2168,6 +3151,141 @@
         const dir = btn.dataset.dir;
         btn.disabled = dir === grav.id;
       });
+    }
+
+    /* -------------------------------------------------------------
+       試合ログ記録 & エクスポート管理 (AI強化・分析用)
+    ------------------------------------------------------------- */
+    function recordMoveLog(entry) {
+      // 1手目が打たれたら手番セレクターをロック
+      if (turnOrderSelectorEl) {
+        turnOrderSelectorEl.classList.add('is-locked');
+      }
+
+      matchHistory.push({
+        turn: matchHistory.length + 1,
+        time: new Date().toISOString(),
+        ...entry
+      });
+    }
+
+    function recordMatchEnd(winner, reason) {
+      matchResult = {
+        winner: winner,
+        winnerName: winner === 'red' ? 'あなた (PLAYER / 赤)' : winner === 'yellow' ? 'AI (CPU / 黄)' : winner === 'both' ? '同時成立 (仕掛け人勝利)' : '引き分け (DRAW)',
+        totalTurns: matchHistory.length,
+        startTime: matchStartTime ? matchStartTime.toISOString() : new Date().toISOString(),
+        endTime: new Date().toISOString(),
+        reason: reason
+      };
+    }
+
+    function getMatchLogJSON() {
+      const data = {
+        game: 'Gravity Connect Four',
+        version: '2.0',
+        firstPlayer: playerTurnChoice === 'red' ? 'player (red)' : 'ai (yellow)',
+        result: matchResult || { status: 'in_progress', totalTurns: matchHistory.length },
+        finalBoard: grid.map(row => row.map(cell => cell ? cell.player : null)),
+        currentGravity: GRAVITY_CYCLE[gravityIndex].id,
+        isClockwise: isClockwise,
+        movesLeft: movesLeft,
+        redMP: userMP,
+        yellowMP: aiMP,
+        history: matchHistory
+      };
+      return JSON.stringify(data, null, 2);
+    }
+
+    function getMatchLogText() {
+      const dateStr = matchStartTime ? matchStartTime.toLocaleString('ja-JP') : '';
+      let text = `# 重力反転コネクトフォー 試合棋譜ログ\n`;
+      text += `対局日時: ${dateStr}\n`;
+      if (matchResult) {
+        text += `対局結果: ${matchResult.winnerName} (計 ${matchResult.totalTurns} 手)\n`;
+        text += `終了理由: ${matchResult.reason}\n`;
+      } else {
+        text += `対局結果: 対局中 (現在 ${matchHistory.length} 手)\n`;
+      }
+      text += `\n----------------------------------------\n[着手履歴一覧]\n----------------------------------------\n`;
+
+      matchHistory.forEach(h => {
+        const pName = h.player === 'red' ? 'あなた(赤)' : 'AI(黄)';
+        if (h.action === 'drop') {
+          text += `${h.turn}手目: [${pName}] ${h.laneIdx + 1}列目に投入 -> (${h.r}, ${h.c})着地 | 重力:【${h.gravityAfterName}】(あと${h.movesLeftAfter}手) | MP: 赤${h.redMPAfter}, 黄${h.yellowMPAfter}\n`;
+        } else if (h.action === 'skill_reverse') {
+          text += `${h.turn}手目: [${pName}] 周期反転を発動 (巡回順: ${h.isClockwiseAfter ? '時計回り' : '反時計回り'}) | 重力:【${h.gravityAfterName}】(あと${h.movesLeftAfter}手) | MP: 赤${h.redMPAfter}, 黄${h.yellowMPAfter}\n`;
+        } else if (h.action === 'skill_forward') {
+          text += `${h.turn}手目: [${pName}] 重力前進を発動 (重力を【${h.gravityAfterName}】へ即座シフト) | MP: 赤${h.redMPAfter}, 黄${h.yellowMPAfter}\n`;
+        } else if (h.action === 'skill_shift') {
+          text += `${h.turn}手目: [${pName}] 即時転換を発動 (重力を【${h.gravityAfterName}】へ強制転換) | MP: 赤${h.redMPAfter}, 黄${h.yellowMPAfter}\n`;
+        }
+        if (h.autoShift) {
+          text += `   └── ⚡ 自動反転発生: 重力が【${h.autoShiftToName}】へ反転し全石がスライド！\n`;
+        }
+      });
+
+      return text;
+    }
+
+    async function copyToClipboard(text, successMsg = '試合ログをクリップボードにコピーしました！') {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showToast(successMsg);
+      } catch (err) {
+        console.error('Copy failed:', err);
+        showToast('コピーに失敗しました');
+      }
+    }
+
+    function showToast(msg) {
+      if (!toastNoticeEl) return;
+      toastNoticeEl.textContent = msg;
+      toastNoticeEl.classList.add('is-active');
+      setTimeout(() => {
+        toastNoticeEl.classList.remove('is-active');
+      }, 2400);
+    }
+
+    function updateLogModalDisplay() {
+      if (!logDisplayTextareaEl) return;
+      if (currentLogFormat === 'json') {
+        logDisplayTextareaEl.value = getMatchLogJSON();
+        if (btnLogFormatJsonEl) {
+          btnLogFormatJsonEl.style.background = 'var(--clr-sage-light)';
+          btnLogFormatJsonEl.style.borderColor = 'var(--clr-sage)';
+          btnLogFormatJsonEl.style.fontWeight = '800';
+        }
+        if (btnLogFormatTextEl) {
+          btnLogFormatTextEl.style.background = '#ffffff';
+          btnLogFormatTextEl.style.borderColor = 'var(--clr-card-border)';
+          btnLogFormatTextEl.style.fontWeight = '700';
+        }
+      } else {
+        logDisplayTextareaEl.value = getMatchLogText();
+        if (btnLogFormatTextEl) {
+          btnLogFormatTextEl.style.background = 'var(--clr-sage-light)';
+          btnLogFormatTextEl.style.borderColor = 'var(--clr-sage)';
+          btnLogFormatTextEl.style.fontWeight = '800';
+        }
+        if (btnLogFormatJsonEl) {
+          btnLogFormatJsonEl.style.background = '#ffffff';
+          btnLogFormatJsonEl.style.borderColor = 'var(--clr-card-border)';
+          btnLogFormatJsonEl.style.fontWeight = '700';
+        }
+      }
     }
 
     /* -------------------------------------------------------------
@@ -2287,6 +3405,8 @@
       const landing = getLandingPosition(clickR, clickC, grid, grav);
       if (!landing) return;
 
+      saveStateSnapshot();
+
       isAnimating = true;
       clearHoverPreview();
       sound.playDrop();
@@ -2333,10 +3453,27 @@
         aiMP = Math.min(MAX_MP, aiMP + 1);
       }
 
+      // ログ記録
+      recordMoveLog({
+        player,
+        action: 'drop',
+        laneIdx: landing.entryC !== undefined ? landing.entryC : clickC,
+        entryR: landing.entryR !== undefined ? landing.entryR : clickR,
+        entryC: landing.entryC !== undefined ? landing.entryC : clickC,
+        r: landing.r,
+        c: landing.c,
+        gravityAfter: grav.id,
+        gravityAfterName: grav.name,
+        isClockwiseAfter: isClockwise,
+        movesLeftAfter: movesLeft - 1,
+        redMPAfter: userMP,
+        yellowMPAfter: aiMP
+      });
+
       // 配置後の勝敗判定
       const winCheck = evalWinLines(grid);
       if (winCheck.hasWinner) {
-        showWinModal(winCheck);
+        await showWinModal(winCheck);
         isAnimating = false;
         return;
       }
@@ -2380,22 +3517,35 @@
       gravityIndex = (gravityIndex + step + 4) % 4;
       const newGrav = GRAVITY_CYCLE[gravityIndex];
 
-      boardHintTextEl.textContent = `重力が【${newGrav.name}】へ自動反転しました！`;
+      if (matchHistory.length > 0) {
+        matchHistory[matchHistory.length - 1].autoShift = true;
+        matchHistory[matchHistory.length - 1].autoShiftToName = newGrav.name;
+      }
+
+      boardHintTextEl.textContent = `重力が【${newGrav.name}】へ自動反転します...`;
+      updateDashboardUI();
+
+      // 予兆のタメ（インジケーターが先行回転）
+      await sleep(350);
+
+      boardHintTextEl.textContent = `重力が【${newGrav.name}】へ反転！全石が滑落します！`;
       sound.playShift();
 
       boardTrayEl.classList.add('screen-shake');
-      updateDashboardUI();
-
       slideAllDiscs(newGrav);
 
-      await sleep(380);
+      // 滑走アニメーション待ち
+      await sleep(550);
       boardTrayEl.classList.remove('screen-shake');
       sound.playLand();
+
+      // 盤面の変化をプレイヤーが目視・確認できる観察タイム
+      await sleep(500);
 
       // 反転後の勝敗チェック
       const winCheck = evalWinLines(grid);
       if (winCheck.hasWinner) {
-        showWinModal(winCheck, '重力反転によって石が揃いました！');
+        await showWinModal(winCheck, '重力反転によって石が揃いました！');
         return;
       }
 
@@ -2447,11 +3597,11 @@
       sound.playSkillCutin(player);
       skillCutinOverlayEl.classList.add('is-active');
 
-      // 必殺技演出をしっかり見せる（約850ms）
-      await sleep(850);
+      // 必殺技演出をしっかり見せる（約900ms）
+      await sleep(900);
 
       skillCutinOverlayEl.classList.remove('is-active');
-      await sleep(150); // フェードアウト余韻
+      await sleep(200); // フェードアウト余韻
     }
 
     /* -------------------------------------------------------------
@@ -2461,6 +3611,8 @@
       if (isAnimating || isGameOver) return;
       if (player === 'red' && userMP < REVERSE_COST) return;
       if (player === 'yellow' && aiMP < REVERSE_COST) return;
+
+      saveStateSnapshot();
 
       isAnimating = true;
       if (player === 'red') {
@@ -2473,13 +3625,25 @@
       closeSkillMode();
       updateDashboardUI();
 
+      recordMoveLog({
+        player,
+        action: 'skill_reverse',
+        gravityAfter: GRAVITY_CYCLE[gravityIndex].id,
+        gravityAfterName: GRAVITY_CYCLE[gravityIndex].name,
+        isClockwiseAfter: isClockwise,
+        movesLeftAfter: movesLeft - 1,
+        redMPAfter: userMP,
+        yellowMPAfter: aiMP
+      });
+
       // 必殺技カットイン演出
       await triggerSkillCutin(player, 'reverse', { isClockwise });
 
+      // 余韻とアナウンス
       sound.playShift();
       boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が周期反転を発動！巡回順が【${isClockwise ? '時計回り' : '反時計回り'}】になりました！`;
 
-      await sleep(250);
+      await sleep(400);
       await processSkillTurnEnd(player);
     }
 
@@ -2487,6 +3651,8 @@
       if (isAnimating || isGameOver) return;
       if (player === 'red' && userMP < FORWARD_COST) return;
       if (player === 'yellow' && aiMP < FORWARD_COST) return;
+
+      saveStateSnapshot();
 
       isAnimating = true;
       if (player === 'red') {
@@ -2502,10 +3668,24 @@
       closeSkillMode();
       updateDashboardUI();
 
+      recordMoveLog({
+        player,
+        action: 'skill_forward',
+        gravityAfter: newGrav.id,
+        gravityAfterName: newGrav.name,
+        isClockwiseAfter: isClockwise,
+        movesLeftAfter: 3,
+        redMPAfter: userMP,
+        yellowMPAfter: aiMP
+      });
+
       // 必殺技カットイン演出
       await triggerSkillCutin(player, 'forward', { gravName: newGrav.name });
 
-      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が重力前進を発動！即座に【${newGrav.name}】方向へ重力が移動しました！`;
+      // カットイン後のタメ（重力インジケーターの更新を視認）
+      await sleep(300);
+
+      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が重力前進を発動！即座に【${newGrav.name}】方向へ石が全崩落します！`;
       sound.playShift();
 
       boardTrayEl.classList.add('screen-shake');
@@ -2513,14 +3693,18 @@
 
       slideAllDiscs(newGrav);
 
-      await sleep(380);
+      // 滑走完了待ち
+      await sleep(550);
       boardTrayEl.classList.remove('screen-shake');
       sound.playLand();
+
+      // 盤面の崩落結果をしっかり確認できる観察タイム
+      await sleep(550);
 
       // スキルによる勝敗チェック
       const winCheck = evalWinLines(grid);
       if (winCheck.hasWinner) {
-        showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の重力前進により石が揃いました！`);
+        await showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の重力前進により石が揃いました！`);
         isAnimating = false;
         return;
       }
@@ -2549,6 +3733,10 @@
       if (isAnimating || isGameOver) return;
       const targetIdx = GRAVITY_CYCLE.findIndex((g) => g.id === targetDirName);
       if (targetIdx === -1 || targetIdx === gravityIndex) return;
+      if (player === 'red' && userMP < SHIFT_COST) return;
+      if (player === 'yellow' && aiMP < SHIFT_COST) return;
+
+      saveStateSnapshot();
 
       isAnimating = true;
       if (player === 'red') {
@@ -2563,10 +3751,25 @@
       closeSkillMode();
       updateDashboardUI();
 
+      recordMoveLog({
+        player,
+        action: 'skill_shift',
+        targetDir: newGrav.id,
+        gravityAfter: newGrav.id,
+        gravityAfterName: newGrav.name,
+        isClockwiseAfter: isClockwise,
+        movesLeftAfter: 3,
+        redMPAfter: userMP,
+        yellowMPAfter: aiMP
+      });
+
       // 必殺技カットイン演出
       await triggerSkillCutin(player, 'shift', { gravName: newGrav.name });
 
-      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が即時転換を発動！重力を【${newGrav.name}】へ変更！`;
+      // カットイン後のタメ
+      await sleep(300);
+
+      boardHintTextEl.textContent = `${player === 'red' ? 'あなた' : 'AI'}が即時転換を発動！重力を【${newGrav.name}】へ強制転換！`;
       sound.playShift();
 
       boardTrayEl.classList.add('screen-shake');
@@ -2574,14 +3777,18 @@
 
       slideAllDiscs(newGrav);
 
-      await sleep(380);
+      // 滑走完了待ち
+      await sleep(550);
       boardTrayEl.classList.remove('screen-shake');
       sound.playLand();
+
+      // 盤面の崩落結果を確認できる観察タイム
+      await sleep(550);
 
       // スキルによる勝敗チェック
       const winCheck = evalWinLines(grid);
       if (winCheck.hasWinner) {
-        showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の即時転換により石が揃いました！`);
+        await showWinModal(winCheck, `${player === 'red' ? 'あなた' : 'AI'}の即時転換により石が揃いました！`);
         isAnimating = false;
         return;
       }
@@ -2694,6 +3901,8 @@
       grid = newGrid;
 
       discs.forEach((disc) => {
+        if (!disc.el) return;
+        disc.el.classList.add('sliding');
         const pos = getCellPosition(disc.r, disc.c);
         disc.el.style.width = `${pos.w}px`;
         disc.el.style.height = `${pos.h}px`;
@@ -2701,6 +3910,12 @@
         disc.el.style.setProperty('--dx', `${pos.x}px`);
         disc.el.style.setProperty('--dy', `${pos.y}px`);
       });
+
+      setTimeout(() => {
+        discs.forEach((disc) => {
+          if (disc.el) disc.el.classList.remove('sliding');
+        });
+      }, 550);
     }
 
     // スライドシミュレーション用ヘルパー
@@ -3060,8 +4275,124 @@
       return maxScore;
     }
 
-    async function executeAiDecision(move) {
+    /* -------------------------------------------------------------
+       AIの着手意図・思考コメンタリー自動生成
+    ------------------------------------------------------------- */
+    function generateAiThoughtExplanation(state, move, meta = {}) {
+      const nextStep = state.isClockwise ? 1 : -1;
+      const nextGravIndex = (state.gravityIndex + nextStep + 4) % 4;
+      const nextGrav = GRAVITY_CYCLE[nextGravIndex];
+
+      // 1. スキル使用の場合
+      if (move.type === 'skill_shift') {
+        const targetGrav = GRAVITY_CYCLE[move.targetDir];
+        const testNext = applyAiMove(state, move);
+        if (checkAiWinner(testNext.grid) === 'yellow') {
+          return {
+            tag: '必勝転換',
+            desc: `重力を【${targetGrav.name}】へ即時転換すれば、石の崩落で4連が完成して勝利できるため発動しました！`
+          };
+        }
+        return {
+          tag: '戦況一変',
+          desc: `重力を【${targetGrav.name}】方向へ強制転換し、盤面の配置を一気に動かして優位に立つ狙いです。`
+        };
+      }
+
+      if (move.type === 'skill_forward') {
+        const testNext = applyAiMove(state, move);
+        if (checkAiWinner(testNext.grid) === 'yellow') {
+          return {
+            tag: '必勝前進',
+            desc: `手数を待たずに重力前進を発動し、石の崩落で4連を成立させて勝利を決めました！`
+          };
+        }
+        return {
+          tag: '重力奇襲',
+          desc: `残り手数を待たずに即座に【${nextGrav.name}】方向へ石を崩落させ、有利な連携を作る狙いです。`
+        };
+      }
+
+      if (move.type === 'skill_reverse') {
+        return {
+          tag: '周期妨害',
+          desc: `あなたが狙っている重力巡回順を逆転させ（${state.isClockwise ? '反時計回り' : '時計回り'}へ）、次の布石を崩す狙いです。`
+        };
+      }
+
+      // 2. 通常配置（ドロップ）の場合
+      const laneNum = move.laneIdx + 1;
+      const testNext = applyAiMove(state, move);
+
+      // A. 即勝ち（Win in 1 move）
+      if (checkAiWinner(testNext.grid) === 'yellow') {
+        return {
+          tag: '王手成立',
+          desc: `${laneNum}列目に石を落とすことで4連が完成し、勝利が確定するため迷わず決めました！`
+        };
+      }
+
+      // B. プレイヤーの王手を緊急防御
+      if (meta.isBlock) {
+        return {
+          tag: '緊急防御',
+          desc: `あなたが次に${laneNum}列目に落とすと4連が完成してしまうため、先回りしてブロックしました！`
+        };
+      }
+
+      // C. 3連リーチの作成（強力な攻撃手）
+      let created3Count = 0;
+      for (let i = 0; i < PRECOMPUTED_WIN_LINES.length; i++) {
+        const line = PRECOMPUTED_WIN_LINES[i];
+        let yCount = 0, rCount = 0;
+        for (let j = 0; j < 4; j++) {
+          const v = testNext.grid[line[j].r][line[j].c];
+          if (v === 'yellow' || (v && v.player === 'yellow')) yCount++;
+          else if (v === 'red' || (v && v.player === 'red')) rCount++;
+        }
+        if (yCount === 3 && rCount === 0) created3Count++;
+      }
+
+      if (created3Count > 0) {
+        return {
+          tag: '攻撃リーチ',
+          desc: `${laneNum}列目に落として3つの石を連続させ、次に4連を作れるリーチの形を作りました！`
+        };
+      }
+
+      // D. 重力反転（あと1〜2手）を見据えた先読み
+      if (state.movesLeft <= 2) {
+        return {
+          tag: '反転布石',
+          desc: `あと${state.movesLeft}手で重力が【${nextGrav.name}】へ反転した際、石が滑り落ちて有利な連結ができるように配置しました。`
+        };
+      }
+
+      // E. 中央制圧・連結作り
+      if (move.laneIdx >= 2 && move.laneIdx <= 4) {
+        return {
+          tag: '中央制圧',
+          desc: `縦・横・斜めへ柔軟に4連を伸ばしやすい中央エリア（${laneNum}列目）を確保しました。`
+        };
+      }
+
+      // F. 通常配置
+      return {
+        tag: '戦力強化',
+        desc: `石を配置してMPを蓄積しつつ、あなたのスキを突く長距離ラインを構築する狙いです。`
+      };
+    }
+
+    async function executeAiDecision(move, explanation = null) {
       isAnimating = false;
+
+      // 思考パネルの更新
+      if (aiThoughtBubbleEl) aiThoughtBubbleEl.classList.remove('is-thinking');
+      if (explanation) {
+        if (aiThoughtTagEl) aiThoughtTagEl.textContent = explanation.tag;
+        if (aiThoughtTextEl) aiThoughtTextEl.textContent = explanation.desc;
+      }
+
       if (move.type === 'skill_shift') {
         boardHintTextEl.textContent = `AIが即時転換を発動！`;
         await executeShiftSkill(GRAVITY_CYCLE[move.targetDir].id, 'yellow');
@@ -3080,7 +4411,11 @@
       if (isGameOver || currentPlayer !== 'yellow') return;
       isAnimating = true;
       boardHintTextEl.textContent = '最強AIが先読み思考中...';
-      aiStatusNoteEl.textContent = '思考中...';
+
+      // 思考中アニメーション表示
+      if (aiThoughtBubbleEl) aiThoughtBubbleEl.classList.add('is-thinking');
+      if (aiThoughtTagEl) aiThoughtTagEl.textContent = '思考中...';
+      if (aiThoughtTextEl) aiThoughtTextEl.textContent = 'あなたの手筋と重力変化の全局面を深層探索しています...';
       updateDashboardUI();
 
       // UI描画をブロックしないように微小待機
@@ -3108,8 +4443,9 @@
       for (const move of legalMoves) {
         const nextState = applyAiMove(currentState, move);
         if (checkAiWinner(nextState.grid) === 'yellow') {
-          aiStatusNoteEl.textContent = '必勝手を即座に発見！ (0ms)';
-          await executeAiDecision(move);
+          if (aiThoughtDepthTagEl) aiThoughtDepthTagEl.textContent = '即座判定 (0ms)';
+          const expl = generateAiThoughtExplanation(currentState, move);
+          await executeAiDecision(move, expl);
           return;
         }
       }
@@ -3134,8 +4470,9 @@
       }
 
       if (criticalBlockMoves.length === 1) {
-        aiStatusNoteEl.textContent = 'プレイヤーの王手を緊急ブロック！ (0ms)';
-        await executeAiDecision(criticalBlockMoves[0]);
+        if (aiThoughtDepthTagEl) aiThoughtDepthTagEl.textContent = '緊急防御 (0ms)';
+        const expl = generateAiThoughtExplanation(currentState, criticalBlockMoves[0], { isBlock: true });
+        await executeAiDecision(criticalBlockMoves[0], expl);
         return;
       }
 
@@ -3195,10 +4532,12 @@
       }
 
       const elapsed = Date.now() - startTime;
-      aiStatusNoteEl.textContent = `深さ${finalDepth}読了 (${aiNodesEvaluated}局面 / ${elapsed}ms)`;
+      if (aiThoughtDepthTagEl) {
+        aiThoughtDepthTagEl.textContent = `深さ${finalDepth}読了 (${elapsed}ms)`;
+      }
 
-      // 最適手を実行
-      await executeAiDecision(bestMoveOverall);
+      const expl = generateAiThoughtExplanation(currentState, bestMoveOverall);
+      await executeAiDecision(bestMoveOverall, expl);
     }
 
     /* -------------------------------------------------------------
@@ -3293,44 +4632,116 @@
     }
 
     /* -------------------------------------------------------------
-       結果モーダル
+       結果モーダル & 四目成立ドラマチック演出 (順次点灯 ＋ 貫通レーザー ＋ フローティング結果)
     ------------------------------------------------------------- */
-    function showWinModal(winCheck, note = '') {
+    async function showWinModal(winCheck, note = '') {
       isGameOver = true;
+      clearHoverPreview();
+      recordMatchEnd(winCheck.winner, note || '4つの石が直線上に揃いました！');
+
+      // 0. 既存のハイライトやレーザーを全石からクリーンアップ
+      discs.forEach((d) => {
+        if (d && d.el) {
+          d.el.classList.remove('winning-disc', 'ignite-win-disc', 'is-winner-target');
+        }
+      });
+      if (victoryLaserSvgEl) victoryLaserSvgEl.innerHTML = '';
+
+      // 1. 代表となる勝利ライン（ぴったり4つの石）を厳密に抽出（重複や5個目以降を完全排除）
+      if (!winCheck.lines || winCheck.lines.length === 0) return;
+      const targetLine = winCheck.lines[0].slice(0, 4);
+
+      // 勝利対象の4つの石のインスタンスを特定し、is-winner-target を付与
+      const targetDiscs = [];
+      for (let i = 0; i < targetLine.length; i++) {
+        const item = targetLine[i];
+        const cellDisc = grid[item.r][item.c];
+        const d = cellDisc ? discs.get(cellDisc.id) : discs.get(item.discId);
+        if (d && d.el) {
+          d.el.classList.add('is-winner-target');
+          targetDiscs.push({ disc: d, r: item.r, c: item.c });
+        }
+      }
+
+      // 2. 盤面全体をフォーカス（揃った4つの石以外が即座に静かに暗転トーンダウン）
+      if (boardStageEl) boardStageEl.classList.add('has-winner');
+
+      // 3. 揃った4つの石「だけ」を1つずつ順番に、ゆったりとした心地よいテンポ（550ms間隔）で光らせる
+      for (let step = 0; step < targetDiscs.length; step++) {
+        const { disc } = targetDiscs[step];
+        if (disc && disc.el) {
+          disc.el.classList.add('ignite-win-disc');
+          sound.playIgnite(step);
+        }
+        await sleep(550); // ゆったりと目で追える心地よいテンポ
+      }
+
+      // 4. 4つ光りきった直後、一拍（450ms）置いてから一直線に貫く「一本の極太レーザー光線」をどんと引く
+      await sleep(450);
+
+      if (targetDiscs.length === 4 && victoryLaserSvgEl) {
+        const p1 = getCellPosition(targetDiscs[0].r, targetDiscs[0].c);
+        const p2 = getCellPosition(targetDiscs[3].r, targetDiscs[3].c);
+        const x1 = p1.x + p1.w / 2;
+        const y1 = p1.y + p1.h / 2;
+        const x2 = p2.x + p2.w / 2;
+        const y2 = p2.y + p2.h / 2;
+
+        victoryLaserSvgEl.innerHTML = `
+          <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="laser-line-glow" />
+          <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="laser-line-core" />
+        `;
+
+        sound.playLaserSlash();
+        if (boardFlashOverlayEl) {
+          boardFlashOverlayEl.classList.remove('is-active');
+          void boardFlashOverlayEl.offsetWidth; // リフロー
+          boardFlashOverlayEl.classList.add('is-active');
+        }
+      }
+
+      // 5. 盤面中央に「CONNECT FOUR!」ポップアップバナーを表示
+      if (winAnnounceBannerEl) {
+        const isUserWin = winCheck.winner === 'red' || (winCheck.winner === 'both' && currentPlayer === 'red');
+        if (winAnnounceTitleEl) {
+          winAnnounceTitleEl.textContent = isUserWin ? '★ CONNECT FOUR! ★' : 'AI CONNECT FOUR!';
+        }
+        if (winAnnounceSubEl) {
+          winAnnounceSubEl.textContent = isUserWin ? '見事に4つの石が揃いました！' : 'AIの4つの石が揃いました！';
+        }
+        winAnnounceBannerEl.classList.add('is-active');
+      }
+
       sound.playWin();
 
-      const highlighted = new Set();
-      winCheck.lines.forEach((line) => {
-        line.forEach((it) => highlighted.add(it.discId));
-      });
+      // 6. プレイヤーが光り輝く4つの石とレーザー光線をじっくり鑑賞できる余韻タイム（2.0秒）
+      await sleep(2000);
 
-      highlighted.forEach((id) => {
-        const d = discs.get(id);
-        if (d && d.el) d.el.classList.add('winning-disc');
-      });
+      if (winAnnounceBannerEl) winAnnounceBannerEl.classList.remove('is-active');
+      await sleep(200);
 
-      setTimeout(() => {
-        if (winCheck.winner === 'both') {
-          // 公式ルール: 重力変化を引き起こした仕掛け人（現在の手番側）の勝利
-          const isUser = currentPlayer === 'red';
-          modalResultTitleEl.textContent = isUser ? 'VICTORY!' : 'DEFEAT...';
-          modalWinnerTextEl.textContent = `${isUser ? 'あなた' : 'AI'}の勝利！（同時成立・仕掛け人ルール）`;
-          modalWinnerPillEl.style.background = isUser ? 'var(--clr-peach-light)' : '#fdf6e2';
-          modalWinnerPillEl.style.color = isUser ? 'var(--clr-red-disc)' : '#b57b14';
-        } else {
-          const isUserWin = winCheck.winner === 'red';
-          modalResultTitleEl.textContent = isUserWin ? 'VICTORY!' : 'DEFEAT...';
-          modalWinnerTextEl.textContent = isUserWin ? 'あなたの勝利！' : 'AIの勝利！';
-          modalWinnerPillEl.style.background = isUserWin ? 'var(--clr-peach-light)' : '#fdf6e2';
-          modalWinnerPillEl.style.color = isUserWin ? 'var(--clr-red-disc)' : '#b57b14';
-        }
-        modalResultDescEl.textContent = note || '縦・横・斜めのいずれかで石が4つ連続で並びました！';
-        modalResultEl.classList.add('is-active');
-      }, 400);
+      // 7. 盤面を一切隠さず下部にスマートに収まるフローティング結果カードを表示
+      if (winCheck.winner === 'both') {
+        // 公式ルール: 重力変化を引き起こした仕掛け人（現在の手番側）の勝利
+        const isUser = currentPlayer === 'red';
+        modalResultTitleEl.textContent = isUser ? 'VICTORY' : 'DEFEAT';
+        modalWinnerTextEl.textContent = `${isUser ? 'あなた' : 'AI'}の勝利！（同時成立・仕掛け人ルール）`;
+        modalWinnerPillEl.style.background = isUser ? 'var(--clr-peach-light)' : '#fdf6e2';
+        modalWinnerPillEl.style.color = isUser ? 'var(--clr-red-disc)' : '#b57b14';
+      } else {
+        const isUserWin = winCheck.winner === 'red';
+        modalResultTitleEl.textContent = isUserWin ? 'VICTORY' : 'DEFEAT';
+        modalWinnerTextEl.textContent = isUserWin ? 'あなたの勝利！' : 'AIの勝利！';
+        modalWinnerPillEl.style.background = isUserWin ? 'var(--clr-peach-light)' : '#fdf6e2';
+        modalWinnerPillEl.style.color = isUserWin ? 'var(--clr-red-disc)' : '#b57b14';
+      }
+      modalResultDescEl.textContent = note || '縦・横・斜めのいずれかで石が4つ連続で並びました！';
+      modalResultEl.classList.add('is-active');
     }
 
     function showDrawModal(reason) {
       isGameOver = true;
+      recordMatchEnd('draw', reason || '引き分け');
       setTimeout(() => {
         modalResultTitleEl.textContent = 'DRAW GAME';
         modalWinnerTextEl.textContent = '引き分け';
@@ -3368,8 +4779,9 @@
 
 ## 1. 基本ルール
 - **盤面と石**: 7列×7段（計49マス）の正方形盤面を使用します。
-  - **先手（赤）**: あなた（プレイヤー）
-  - **後手（黄）**: AI（CPU）
+  - **プレイヤー（赤）**: あなた
+  - **AI（黄）**: CPU
+  - **手番選択**: 対局開始前（1手目着手前）に「先攻（あなた）」または「後攻（AI先手）」を選択可能（デフォルトは先攻）。
 - **石の配置とスライド**: 空いている任意のマスをクリックすると石が出現し、**現在の重力方向に向かって一番奥まで自動的に滑り落ちて着地**します。
 - **勝利条件**: 縦・横・斜めのいずれかに自分の石を**4つ以上連続**で並べたプレイヤーの勝利となります（5個以上並んだ場合も勝利とみなします）。
 
@@ -3545,6 +4957,77 @@
       }
     });
 
+    // 試合ログモーダル & コピー関連イベント
+    if (btnResultCopyLogEl) {
+      btnResultCopyLogEl.addEventListener('click', () => {
+        copyToClipboard(getMatchLogJSON(), 'AI強化用JSONログをコピーしました！');
+      });
+    }
+
+    if (btnOpenLogModalEl) {
+      btnOpenLogModalEl.addEventListener('click', () => {
+        updateLogModalDisplay();
+        if (modalLogEl) modalLogEl.classList.add('is-active');
+      });
+    }
+
+    if (btnModalCloseLogEl) {
+      btnModalCloseLogEl.addEventListener('click', () => {
+        if (modalLogEl) modalLogEl.classList.remove('is-active');
+      });
+    }
+
+    if (btnModalCloseLogXEl) {
+      btnModalCloseLogXEl.addEventListener('click', () => {
+        if (modalLogEl) modalLogEl.classList.remove('is-active');
+      });
+    }
+
+    if (modalLogEl) {
+      modalLogEl.addEventListener('click', (e) => {
+        if (e.target === modalLogEl) {
+          modalLogEl.classList.remove('is-active');
+        }
+      });
+    }
+
+    if (btnLogFormatJsonEl) {
+      btnLogFormatJsonEl.addEventListener('click', () => {
+        currentLogFormat = 'json';
+        updateLogModalDisplay();
+      });
+    }
+
+    if (btnLogFormatTextEl) {
+      btnLogFormatTextEl.addEventListener('click', () => {
+        currentLogFormat = 'text';
+        updateLogModalDisplay();
+      });
+    }
+
+    if (btnCopyLogFromModalEl) {
+      btnCopyLogFromModalEl.addEventListener('click', () => {
+        const text = logDisplayTextareaEl ? logDisplayTextareaEl.value : getMatchLogJSON();
+        copyToClipboard(text, `${currentLogFormat === 'json' ? 'JSON形式' : 'テキスト棋譜'}ログをコピーしました！`);
+      });
+    }
+
+    // まった（1手戻す）イベント
+    if (btnUndoMoveEl) {
+      btnUndoMoveEl.addEventListener('click', undoMove);
+    }
+    if (btnModalUndoEl) {
+      btnModalUndoEl.addEventListener('click', undoMove);
+    }
+
+    // 先攻・後攻の手番切り替え
+    if (btnTurnFirstEl) {
+      btnTurnFirstEl.addEventListener('click', () => setPlayerTurnChoice('red'));
+    }
+    if (btnTurnSecondEl) {
+      btnTurnSecondEl.addEventListener('click', () => setPlayerTurnChoice('yellow'));
+    }
+
     // リサイズ追従
     window.addEventListener('resize', () => {
       discs.forEach((disc) => {
@@ -3564,4 +5047,5 @@
     startNewGame();
   </script>
 </body>
+
 </html>

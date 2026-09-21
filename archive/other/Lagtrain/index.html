@@ -3,362 +3,893 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lagtrain Scene Recreation | Halcyon - 5Gkyu</title>
-  
-  <meta name="description" content="ラグトレインの1シーンをCSSアートで再現したデモです。">
-  <link rel="canonical" href="https://5gkyu.github.io/archive/other/Lagtrain/">
-
-  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
-  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
-
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
-
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    /* Scene Container (16:9 aspect ratio) */
-    .scene-container {
-      position: relative;
+  <title>ラグトレイン - 粒子アニメーション & MIDIオルゴール</title>
+    <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body, html {
       width: 100%;
-      max-width: 800px;
-      aspect-ratio: 16 / 9;
-      background-color: #c4c4c4; /* Gray background */
+      height: 100%;
       overflow: hidden;
-      margin: 2rem auto;
-      border: 4px solid #111;
-      font-family: "Noto Serif JP", serif; /* For lyrics */
+      background-color: #B2B2B2;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    #main-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      image-rendering: pixelated;
+      cursor: grab;
+    }
+    #main-canvas:active {
+      cursor: grabbing;
     }
 
-    /* Screen shake / Glitch overlay */
-    .scene-container::after {
-      content: '';
+    /* 統合コントロールパネル: ラグトレイン・モノトーンインダストリアルデザイン */
+    .unified-panel {
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 840px;
+      background: rgba(18, 18, 20, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 12px 18px 14px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      z-index: 10;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .unified-panel.hidden {
+      opacity: 0;
       pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0,0,0,0.03) 0px,
-        rgba(0,0,0,0.03) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-      z-index: 100;
+      transform: translateX(-50%) translateY(20px);
     }
 
-    /* --- BACKGROUND (TRAIN INTERIOR) --- */
-    .window-sill {
-      position: absolute;
-      bottom: 25%;
-      left: 0;
+    /* 1. 上段: タイトル ＆ クレジット ＆ 閉じるボタン */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 7px;
+    }
+    .panel-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panel-title::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #ffffff;
+      border-radius: 1px;
+    }
+    .credits-text {
+      font-size: 0.70rem;
+      color: #88888e;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: monospace;
+    }
+    .credits-text strong {
+      color: #cccccc;
+      font-weight: 600;
+    }
+    .credit-sep {
+      color: #44444a;
+    }
+    .btn-panel-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #99999f;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: monospace;
+    }
+    .btn-panel-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* 2. 中段: シークバー ＆ フレームジャンプ ＆ タイム表示 */
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .seeker-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    input[type="range"]#seeker {
       width: 100%;
       height: 4px;
-      background: #111;
-      z-index: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
     }
-    
-    .wall-line {
-      position: absolute;
-      bottom: 0;
-      left: 35%;
-      width: 4px;
-      height: 25%;
-      background: #111;
-      z-index: 1;
+    input[type="range"]#seeker::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      background: #ffffff;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: transform 0.1s ease;
     }
-
-    .window-frame {
-      position: absolute;
-      top: 0;
-      left: 42%;
-      width: 4px;
-      height: 75%;
-      background: #111;
-      z-index: 1;
+    input[type="range"]#seeker::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
     }
-
-    /* Scribbled Schedule Board on the left */
-    .schedule-board {
-      position: absolute;
-      top: 20%;
-      left: -20px;
-      width: 35%;
-      height: 45%;
-      border: 3px solid #111;
-      border-left: none;
-      border-radius: 0 10px 10px 0;
+    .frame-jump-box {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.74rem;
+      font-family: monospace;
+      color: #88888e;
+      gap: 4px;
+    }
+    .frame-jump-label {
+      font-weight: 700;
+      color: #cccccc;
+    }
+    .frame-input {
+      width: 48px;
       background: transparent;
-      z-index: 2;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-family: monospace;
+      font-weight: 700;
+      text-align: right;
     }
-    .schedule-board::before {
-      content: '';
-      position: absolute;
-      top: 15%; left: 10%; width: 80%; height: 2px;
-      background: #111;
-      box-shadow: 0 15px 0 #111, 0 40px 0 #111, 0 70px 0 #111, 0 100px 0 #111;
+    .frame-input::-webkit-inner-spin-button,
+    .frame-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
-    .schedule-board::after {
-      content: '';
-      position: absolute;
-      top: 30%; left: 10%; width: 20px; height: 10px;
-      border: 2px solid #111;
-      box-shadow: 50px 0 0 #111, 0 60px 0 #111, 50px 60px 0 #111;
-    }
-
-    /* --- CHARACTER --- */
-    .character {
-      position: absolute;
-      bottom: -10%;
-      right: 15%;
-      width: 45%;
-      height: 85%;
-      z-index: 10;
+    .time-badge {
+      font-size: 0.75rem;
+      font-family: monospace;
+      font-weight: 600;
+      color: #aaaaaf;
+      white-space: nowrap;
+      min-width: 85px;
+      text-align: right;
+      letter-spacing: 0.05em;
     }
 
-    /* Coat */
-    .coat {
-      position: absolute;
-      bottom: 0;
-      left: 5%;
-      width: 100%;
-      height: 60%;
-      background: #c4c4c4;
-      border: 4px solid #111;
-      border-radius: 40% 50% 0 0;
-      z-index: 11;
-    }
-    
-    .coat-collar {
-      position: absolute;
-      top: -15%;
-      left: -10%;
-      width: 120%;
-      height: 40%;
-      background: #c4c4c4;
-      border: 4px solid #111;
-      border-radius: 50px;
-      z-index: 12;
-      transform: rotate(-5deg);
-    }
-    
-    .coat-line {
-      position: absolute;
-      top: 20%;
-      left: 60%;
-      width: 4px;
-      height: 80%;
-      background: #111;
+    /* 3. 下段: コントロール (音量 | -5F -1F [再生SVG] +1F +5F | リセット) */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
     }
 
-    /* Head / Face */
-    .head {
-      position: absolute;
-      top: 5%;
-      left: 15%;
-      width: 60%;
-      height: 45%;
-      background: #c4c4c4;
-      border: 4px solid #111;
-      border-radius: 45% 40% 50% 45%;
-      z-index: 13;
-      transform: rotate(-5deg);
+    /* 左側: 音量 */
+    .left-tools-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    /* Hair (Black) */
-    .hair-back {
-      position: absolute;
-      top: -5%;
-      left: -5%;
-      width: 110%;
-      height: 110%;
-      background: #111;
-      border-radius: 50% 50% 40% 40%;
-      z-index: 12;
+    .vol-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #88888e;
+      font-family: monospace;
     }
-
-    .hair-bangs {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: #111;
-      border-radius: 50% 50% 0 0;
-      z-index: 14;
-    }
-    
-    .hair-bangs-cut {
-      position: absolute;
-      bottom: -5%;
-      left: 30%;
-      width: 20%;
-      height: 40%;
-      background: #c4c4c4;
-      border-top: 4px solid #111;
-      border-radius: 50% 50% 0 0;
-      transform: rotate(15deg);
-    }
-
-    .hair-side-l {
-      position: absolute;
-      top: 30%;
-      left: -5%;
-      width: 25%;
-      height: 60%;
-      background: #111;
-      border-radius: 10px;
-      z-index: 15;
-      transform: rotate(5deg);
-    }
-    
-    .hair-side-r {
-      position: absolute;
-      top: 30%;
-      right: -5%;
-      width: 20%;
-      height: 70%;
-      background: #111;
-      border-radius: 10px;
-      z-index: 15;
-      transform: rotate(-5deg);
-    }
-    
-    .hair-long {
-      position: absolute;
-      top: 80%;
-      right: 15%;
-      width: 15%;
-      height: 100%;
-      background: #111;
-      z-index: 15;
-      transform: rotate(-2deg);
-    }
-
-    /* Face Details */
-    .eye {
-      position: absolute;
-      top: 50%;
-      width: 20%;
-      height: 15%;
-      border-top: 5px solid #111;
-      border-bottom: 2px solid #111;
-      border-left: 3px solid #111;
-      border-radius: 50% 10% 10% 50%;
-      z-index: 14;
-      background: transparent;
-    }
-    .eye.left {
-      left: 10%;
-      transform: rotate(-10deg);
-    }
-    .eye.right {
-      right: 15%;
-      width: 15%;
-      transform: rotate(-5deg);
-    }
-    
-    /* Pupil */
-    .eye::after {
-      content: '';
-      position: absolute;
-      top: 20%;
-      left: 10%;
-      width: 30%;
-      height: 60%;
-      background: #111;
-      border-radius: 50%;
-    }
-
-    .mouth {
-      position: absolute;
-      top: 75%;
-      left: 60%;
-      width: 10%;
+    input[type="range"]#vol-slider {
+      width: 60px;
       height: 3px;
-      background: #111;
-      z-index: 14;
-      transform: rotate(-5deg);
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]#vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 8px;
+      height: 8px;
+      border-radius: 1px;
+      background: #dddddf;
+      cursor: pointer;
     }
 
-    /* --- LYRICS --- */
-    .lyrics {
+    /* 中央: 再生・コマ送りボタン */
+    .center-ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn-ctrl {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cccccc;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: monospace;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-ctrl:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .btn-play-svg {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: none;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-play-svg:hover {
+      transform: scale(1.05);
+      background: #e2e8f0;
+    }
+    .btn-play-svg svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .btn-play-svg .icon-pause {
+      display: none;
+    }
+    .btn-play-svg.playing .icon-play {
+      display: none;
+    }
+    .btn-play-svg.playing .icon-pause {
+      display: block;
+    }
+
+    /* 右側: 画面リセットボタン */
+    .right-tools-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cccccc;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: monospace;
+    }
+    .btn-tool:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    /* パネル再表示ボタン */
+    .btn-panel-show {
       position: absolute;
-      bottom: 10%;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      font-size: 1.8rem;
-      letter-spacing: 0.5em;
-      text-shadow: 1px 1px 0 #111, -1px -1px 0 #111, 1px -1px 0 #111, -1px 1px 0 #111;
-      z-index: 20;
+      top: 16px;
+      right: 18px;
+      z-index: 9;
+      background: rgba(18, 18, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #cccccc;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: monospace;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      display: none;
+      transition: all 0.15s ease;
+    }
+    .btn-panel-show:hover {
+      background: rgba(30, 30, 35, 0.95);
+      color: #ffffff;
+      transform: translateY(-1px);
     }
 
+    /* モバイル・レスポンシブ最適化 */
+    @media (max-width: 640px) {
+      .unified-panel {
+        bottom: 10px;
+        width: 95%;
+        padding: 9px 12px;
+        gap: 7px;
+        border-radius: 10px;
+      }
+      .credits-text {
+        display: none;
+      }
+      .panel-title {
+        font-size: 0.78rem;
+      }
+      .timeline-row {
+        gap: 6px;
+      }
+      .frame-jump-box {
+        padding: 1px 4px;
+        font-size: 0.68rem;
+      }
+      .frame-input {
+        width: 38px;
+        font-size: 0.70rem;
+      }
+      .time-badge {
+        font-size: 0.68rem;
+        min-width: 68px;
+      }
+      .controls-row {
+        gap: 4px;
+      }
+      .vol-wrap {
+        display: none;
+      }
+      .btn-ctrl {
+        padding: 4px 7px;
+        font-size: 0.68rem;
+        border-radius: 5px;
+      }
+      .btn-play-svg {
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+      }
+      .btn-play-svg svg {
+        width: 16px;
+        height: 16px;
+      }
+      .btn-tool {
+        padding: 4px 7px;
+        font-size: 0.68rem;
+        border-radius: 5px;
+      }
+    }
   </style>
+
+  <!-- 粒子マスターデータ & 楽曲 & MIDIシンセ -->
+  <script src="../../../particle/rag_new.js?v=20260831_v34"></script>
+  <script src="../../../particle/rag_lyrics.js?v=20260831_v34"></script>
+  <script src="../../../particle/lagtrain_notes.js?v=20260831_v34"></script>
+  <script src="../../../particle/midi_synth.js?v=20260831_v34"></script>
 </head>
 <body>
 
-  <site-header site-name="Other"></site-header>
+  <!-- メイン描画キャンバス -->
+  <canvas id="main-canvas"></canvas>
 
-  <hl-layout cols="1" class="fluffy-entry delay-1">
-    <div class="hl-layout-main">
+  <!-- パネル再表示ボタン (H / Cキーで非表示にした時用) -->
+  <button id="btn-panel-show" class="btn-panel-show" title="コントロールパネルを表示 (H / Cキー)">操作パネルを開く</button>
 
-      <hl-breadcrumb
-        level1-name="Archive" level1-url="/archive/"
-        level2-name="Other" level2-url="/archive/other/"
-        current="Lagtrain Scene">
-      </hl-breadcrumb>
-      <page-title>Lagtrain - Scene Recreation</page-title>
-
-      <div class="hl-content-text" style="margin-bottom: 1rem;">
-        <p>いただいたスクリーンショットのシーン（「ポケットで握りしめて」）を、画像を使わずにHTMLとCSSの図形のみ（CSSアート）で模写・再現したデモです。<br>
-        ※手描きのラフな線をコードで完全再現するのは難しいため、図形の組み合わせによる「デフォルメ表現（オマージュ）」となっています。</p>
+  <!-- 統合コントロールパネル -->
+  <div class="unified-panel" id="unified-panel">
+    <!-- 1. 上段: ヘッダー -->
+    <div class="header-row">
+      <div class="panel-title">ラグトレイン 粒子再生 (10重奏オルゴール・オーケストラ)</div>
+      <div class="credits-text">
+        <span class="credit-item">粒子化・音響編曲: <strong>5Gkyu</strong></span>
+        <span class="credit-sep">/</span>
+        <span class="credit-item">原曲: <strong>ラグトレイン (稲葉曇)</strong></span>
+        <span class="credit-sep">/</span>
+        <span class="credit-item">映像: <strong>ぬくぬくにぎりめし</strong></span>
+        <span class="credit-sep">/</span>
+        <span class="credit-item">MIDI: <strong>Latency</strong></span>
       </div>
-
-      <!-- Scene Recreation -->
-      <div class="scene-container">
-        
-        <!-- Background Lines -->
-        <div class="window-sill"></div>
-        <div class="wall-line"></div>
-        <div class="window-frame"></div>
-        <div class="schedule-board"></div>
-
-        <!-- Character -->
-        <div class="character">
-          <div class="coat">
-            <div class="coat-collar"></div>
-            <div class="coat-line"></div>
-          </div>
-          
-          <div class="head">
-            <div class="hair-back"></div>
-            <div class="hair-bangs">
-              <div class="hair-bangs-cut"></div>
-            </div>
-            <div class="hair-side-l"></div>
-            <div class="hair-side-r"></div>
-            
-            <div class="eye left"></div>
-            <div class="eye right"></div>
-            <div class="mouth"></div>
-          </div>
-          
-          <!-- Long front hair -->
-          <div class="hair-long"></div>
-        </div>
-
-        <!-- Lyrics -->
-        <div class="lyrics">ポケットで握りしめて</div>
-
-      </div>
-
+      <button id="btn-panel-close" class="btn-panel-close" title="パネルを非表示 (H / Cキー)">閉じる</button>
     </div>
-  </hl-layout>
-  
-  <site-footer copy="5Gkyu"></site-footer>
-  <!-- Google Fonts for Lyrics (Mincho) -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
-  <script src="/components/components.js" type="module"></script>
+
+    <!-- 2. 中段: シークバー ＆ フレーム直入力ジャンプ ＆ タイム表示 -->
+    <div class="timeline-row">
+      <div class="seeker-wrap">
+        <input type="range" id="seeker" min="0" max="251.83" step="0.0833" value="0">
+      </div>
+
+      <div class="frame-jump-box" title="フレーム番号を入力してEnterで即座にジャンプ">
+        <span class="frame-jump-label">F:</span>
+        <input type="number" id="frame-input" class="frame-input" min="0" max="3021" value="0">
+        <span class="frame-max-label">/ 3,021</span>
+      </div>
+
+      <span class="time-badge" id="time-display">00:00 / 04:11</span>
+    </div>
+
+    <!-- 3. 下段: コントロール (音量 | -5F -1F [再生SVG] +1F +5F | リセット) -->
+    <div class="controls-row">
+      <!-- 左端: 音量スライダー -->
+      <div class="left-tools-wrap">
+        <div class="vol-wrap">
+          <span class="vol-label">音量</span>
+          <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.68">
+        </div>
+      </div>
+
+      <!-- 中央: コマ戻し ＆ 再生/一時停止 SVG ボタン ＆ コマ送り -->
+      <div class="center-ctrl-group">
+        <button id="btn-prev-5f" class="btn-ctrl" title="5フレーム戻る (Shift+←)">-5F</button>
+        <button id="btn-prev-1f" class="btn-ctrl" title="1フレーム戻る (←)">-1F</button>
+        
+        <button id="btn-toggle" class="btn-play-svg" title="再生 / 一時停止 (Space)">
+          <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <button id="btn-next-1f" class="btn-ctrl" title="1フレーム進む (→)">+1F</button>
+        <button id="btn-next-5f" class="btn-ctrl" title="5フレーム進む (Shift+→)">+5F</button>
+      </div>
+
+      <!-- 右端: 画面リセットボタン -->
+      <div class="right-tools-wrap">
+        <button id="btn-reset-view" class="btn-tool" title="拡大率・位置をリセット (Rキー / ダブルクリック)">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+
+    const FPS = (window.RAG_NEW_CONFIG && window.RAG_NEW_CONFIG.fps) || 12.0;
+    const TOTAL_DURATION = (window.RAG_NEW_CONFIG && window.RAG_NEW_CONFIG.duration) || 251.8333;
+    const TOTAL_FRAMES = (window.RAG_NEW_CONFIG && window.RAG_NEW_CONFIG.totalFrames) || 3022;
+    const SPEED_FACTOR = 1.0; // ★ 原曲等速（BPM 132）で心安らぐオルゴール再生
+
+    let isPlaying = false;
+    let isSeeking = false;
+    let animTime = 0;
+    let lastTime = 0;
+    let lastRenderedFrame = -1;
+
+    // 画面パン・ズーム状態
+    let zoomLevel = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    // DOM要素参照
+    const btnToggle = document.getElementById('btn-toggle');
+    const seeker = document.getElementById('seeker');
+    const timeDisplay = document.getElementById('time-display');
+    const frameInput = document.getElementById('frame-input');
+    const volSlider = document.getElementById('vol-slider');
+    const unifiedPanel = document.getElementById('unified-panel');
+    const btnPanelShow = document.getElementById('btn-panel-show');
+    const btnPanelClose = document.getElementById('btn-panel-close');
+    const btnPrev1f = document.getElementById('btn-prev-1f');
+    const btnNext1f = document.getElementById('btn-next-1f');
+    const btnPrev5f = document.getElementById('btn-prev-5f');
+    const btnNext5f = document.getElementById('btn-next-5f');
+    const btnResetView = document.getElementById('btn-reset-view');
+
+    seeker.max = TOTAL_DURATION;
+
+    // =========================================================================
+    // パネルの表示 / 非表示トグル (H または C キー)
+    // =========================================================================
+    function togglePanel(show) {
+      const isHidden = (show !== undefined) ? !show : !unifiedPanel.classList.contains('hidden');
+      unifiedPanel.classList.toggle('hidden', isHidden);
+      btnPanelShow.style.display = isHidden ? 'block' : 'none';
+    }
+
+    if (btnPanelClose) btnPanelClose.addEventListener('click', () => togglePanel(false));
+    if (btnPanelShow) btnPanelShow.addEventListener('click', () => togglePanel(true));
+
+    // =========================================================================
+    // ビューリセット
+    // =========================================================================
+    function resetView() {
+      zoomLevel = 1.0;
+      panX = 0;
+      panY = 0;
+      render();
+    }
+
+    if (btnResetView) {
+      btnResetView.addEventListener('click', resetView);
+    }
+
+    
+
+    // =========================================================================
+    // マウスドラッグ（パン移動）
+    // =========================================================================
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#unified-panel') || e.target.closest('#btn-panel-show')) return;
+
+      if (e.button === 0 || e.button === 1) {
+        if (zoomLevel > 1.0) {
+          isDragging = true;
+          dragStartX = e.clientX - panX;
+          dragStartY = e.clientY - panY;
+        }
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        panX = e.clientX - dragStartX;
+        panY = e.clientY - dragStartY;
+        render();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('dblclick', (e) => {
+      if (e.target.closest('#unified-panel') || e.target.closest('#btn-panel-show')) return;
+      resetView();
+    });
+
+    // =========================================================================
+    // フレーム指定ジャンプ機能 (入力ボックス)
+    // =========================================================================
+    function jumpToFrame(targetFrame) {
+      if (isPlaying) {
+        togglePlay();
+      }
+      const safeFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.floor(targetFrame)));
+      animTime = (safeFrame + 0.001) / FPS;
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.seek(animTime);
+      }
+      lastRenderedFrame = -1;
+      render();
+    }
+
+    if (frameInput) {
+      frameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          jumpToFrame(parseInt(frameInput.value, 10) || 0);
+          frameInput.blur();
+        }
+        e.stopPropagation();
+      });
+
+      frameInput.addEventListener('change', () => {
+        jumpToFrame(parseInt(frameInput.value, 10) || 0);
+      });
+    }
+
+    // =========================================================================
+    // コマ送り / コマ戻し機能
+    // =========================================================================
+    function stepFrame(deltaFrames) {
+      if (isPlaying) {
+        togglePlay();
+      }
+      const curFrame = Math.floor(animTime * FPS);
+      let targetFrame = (curFrame + deltaFrames) % TOTAL_FRAMES;
+      if (targetFrame < 0) targetFrame += TOTAL_FRAMES;
+
+      animTime = (targetFrame + 0.001) / FPS;
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.seek(animTime);
+      }
+      lastRenderedFrame = -1;
+      render();
+    }
+
+    if (btnPrev1f) btnPrev1f.addEventListener('click', () => stepFrame(-1));
+    if (btnNext1f) btnNext1f.addEventListener('click', () => stepFrame(1));
+    if (btnPrev5f) btnPrev5f.addEventListener('click', () => stepFrame(-5));
+    if (btnNext5f) btnNext5f.addEventListener('click', () => stepFrame(5));
+
+    // =========================================================================
+    // 再生 / 一時停止
+    // =========================================================================
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      btnToggle.classList.toggle('playing', isPlaying);
+
+      if (isPlaying) {
+        if (window.lagtrainSynth) {
+          window.lagtrainSynth.play(animTime);
+        }
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+      } else {
+        if (window.lagtrainSynth) {
+          window.lagtrainSynth.pause();
+        }
+      }
+    }
+
+    btnToggle.addEventListener('click', togglePlay);
+
+    // =========================================================================
+    // シークバー操作
+    // =========================================================================
+    seeker.addEventListener('input', () => {
+      isSeeking = true;
+      animTime = parseFloat(seeker.value);
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.seek(animTime);
+      }
+      lastRenderedFrame = -1;
+      render();
+    });
+
+    seeker.addEventListener('change', () => {
+      isSeeking = false;
+    });
+
+    // =========================================================================
+    // 音量操作
+    // =========================================================================
+    if (volSlider) {
+      volSlider.addEventListener('input', () => {
+        const v = parseFloat(volSlider.value);
+        if (window.lagtrainSynth) {
+          window.lagtrainSynth.setMasterVolume(v);
+        }
+      });
+    }
+
+    // =========================================================================
+    // キーボードショートカット
+    // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepFrame(e.shiftKey ? -5 : -1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stepFrame(e.shiftKey ? 5 : 1);
+      } else if (e.key.toLowerCase() === 'h' || e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        togglePanel();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        resetView();
+      }
+    });
+
+    // =========================================================================
+    // リサイズ処理
+    // =========================================================================
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      lastRenderedFrame = -1;
+      render();
+    }
+
+
+    // =========================================================================
+    // タッチ操作対応 (1本指ドラッグでパン / 2本指ピンチでズーム)
+    // =========================================================================
+    let initialTouchDist = 0;
+    let initialTouchZoom = 1.0;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+
+    function getTouchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX - panX;
+        dragStartY = e.touches[0].clientY - panY;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialTouchDist = getTouchDistance(e.touches);
+        initialTouchZoom = zoomLevel;
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1 && isDragging) {
+        panX = e.touches[0].clientX - dragStartX;
+        panY = e.touches[0].clientY - dragStartY;
+        render();
+      } else if (e.touches.length === 2 && initialTouchDist > 0) {
+        const dist = getTouchDistance(e.touches);
+        const factor = dist / initialTouchDist;
+        const newZoom = Math.max(1.0, Math.min(25.0, initialTouchZoom * factor));
+        
+        if (newZoom === 1.0) {
+          zoomLevel = 1.0;
+          panX = 0;
+          panY = 0;
+        } else {
+          zoomLevel = newZoom;
+        }
+        render();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        isDragging = false;
+        initialTouchDist = 0;
+      } else if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX - panX;
+        dragStartY = e.touches[0].clientY - panY;
+      }
+    });
+
+    window.addEventListener('resize', resize);
+
+    // =========================================================================
+    // メインアニメーションループ
+    // =========================================================================
+    function loop(now) {
+      if (!isPlaying) return;
+
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (!isSeeking) {
+        animTime += dt * SPEED_FACTOR;
+        if (animTime >= TOTAL_DURATION) {
+          animTime = animTime % TOTAL_DURATION;
+          if (window.lagtrainSynth) {
+            window.lagtrainSynth.seek(animTime);
+          }
+        }
+      }
+
+      if (window.lagtrainSynth) {
+        window.lagtrainSynth.update(animTime, isPlaying);
+      }
+
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    // =========================================================================
+    // ★ 高速水平ラン・レンダリングエンジン
+    // =========================================================================
+    function render() {
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // 1. 背景クリア (基本グレー: #B2B2B2)
+      ctx.fillStyle = '#B2B2B2';
+      ctx.fillRect(0, 0, w, h);
+
+      const curFrameIdx = Math.floor(animTime * FPS) % TOTAL_FRAMES;
+
+      // UI表示の更新
+      if (!isSeeking && seeker) {
+        seeker.value = animTime.toFixed(2);
+      }
+      if (timeDisplay) {
+        const curM = Math.floor(animTime / 60).toString().padStart(2, '0');
+        const curS = Math.floor(animTime % 60).toString().padStart(2, '0');
+        const totM = Math.floor(TOTAL_DURATION / 60).toString().padStart(2, '0');
+        const totS = Math.floor(TOTAL_DURATION % 60).toString().padStart(2, '0');
+        timeDisplay.textContent = `${curM}:${curS} / ${totM}:${totS}`;
+      }
+      if (frameInput && document.activeElement !== frameInput) {
+        frameInput.value = curFrameIdx;
+      }
+
+      // 高速水平ランデータの取得
+      const drawData = window.getRagFrameDrawData ? window.getRagFrameDrawData(curFrameIdx, true) : null;
+      if (!drawData) return;
+
+      const { gw, gh, scaleX, scaleY, blackRuns, whiteRuns } = drawData;
+
+      const scale = Math.min(w / scaleX, h / scaleY) * zoomLevel;
+      const cx = w / 2 + panX;
+      const cy = h / 2 + panY;
+
+      // 各グリッド行・列の正確なスクリーン座標を密着計算（隙間・横線を完全解消）
+      const stepX = (scaleX / (gw - 1)) * scale;
+      const stepY = (scaleY / (gh - 1)) * scale;
+      const originX = cx - (scaleX * 0.5) * scale;
+      const originY = cy - (scaleY * 0.5) * scale;
+
+      // 2. 黒ドット水平連続ランの一括描画
+      ctx.fillStyle = '#000000';
+      for (let i = 0; i < blackRuns.length; i += 3) {
+        const gx = blackRuns[i];
+        const gy = blackRuns[i + 1];
+        const len = blackRuns[i + 2];
+
+        const screenX = originX + gx * stepX;
+        const screenY = originY + gy * stepY;
+        const screenW = len * stepX + 0.75;
+        const screenH = stepY + 0.75;
+
+        ctx.fillRect(screenX, screenY, screenW, screenH);
+      }
+
+      // 3. 白ドット水平連続ランの一括描画
+      ctx.fillStyle = '#FFFFFF';
+      for (let i = 0; i < whiteRuns.length; i += 3) {
+        const gx = whiteRuns[i];
+        const gy = whiteRuns[i + 1];
+        const len = whiteRuns[i + 2];
+
+        const screenX = originX + gx * stepX;
+        const screenY = originY + gy * stepY;
+        const screenW = len * stepX + 0.75;
+        const screenH = stepY + 0.75;
+
+        ctx.fillRect(screenX, screenY, screenW, screenH);
+      }
+
+      lastRenderedFrame = curFrameIdx;
+    }
+
+    // 初期化
+    resize();
+  </script>
 </body>
 </html>

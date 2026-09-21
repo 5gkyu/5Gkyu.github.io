@@ -25,12 +25,7 @@
 
   <style>
     .ip-main-card {
-      background: #ffffff;
-      border: 1.5px solid rgba(106, 86, 74, 0.1);
-      border-radius: 24px;
-      padding: 1.5rem;
       margin-bottom: 2rem;
-      box-shadow: 0 10px 30px rgba(106, 86, 74, 0.05);
     }
 
     /* サムネイルグリッド */
@@ -157,7 +152,7 @@
         複数の画像を選択して、1つのPDFファイルにまとめます。処理はすべてブラウザ内で行われ、データはサーバーに送信されません。
       </p>
 
-      <div class="ip-main-card">
+      <hl-card class="ip-main-card">
 
         <!-- ファイル選択 -->
         <div style="margin-bottom: 1.2rem;">
@@ -206,7 +201,7 @@
           <hl-button id="generateBtn" icon="file" block>PDF を生成してダウンロード</hl-button>
         </div>
 
-      </div>
+      </hl-card>
     </div>
 
     <aside class="hl-layout-sidebar">

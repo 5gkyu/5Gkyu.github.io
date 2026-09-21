@@ -3,54 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>十六夜暗号 変換ツール - 六星鍵型</title>
+<title>十六夜暗号 変換ツール | Halcyon - 5Gkyu</title>
+<meta name="description" content="平文依存型・動的六星鍵を搭載した十六夜暗号の暗号化・復号ツール。">
+<link rel="canonical" href="https://5gkyu.github.io/archive/other/halcyon-cipher/cipher.html">
+
+<style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+
 <style>
-  body {
-    font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Yu Mincho', serif;
-    background-color: #0b101e;
-    color: #e0e6ed;
-    padding: 30px 20px;
-    text-align: center;
+  .cipher-container {
+    margin-bottom: 2rem;
   }
-  h1 { color: #f5f5f5; margin-bottom: 5px; }
-  p { color: #8c9baf; margin-bottom: 20px; font-size: 0.9em; }
-  .container {
-    max-width: 600px; margin: 0 auto; background: #1a2235;
-    padding: 25px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  .cipher-textarea {
+    width: 100%;
+    height: 120px;
+    padding: 12px;
+    margin: 10px 0;
+    background: #fff;
+    color: var(--clr-brown);
+    border: 1.5px solid rgba(106, 86, 74, 0.2);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  textarea {
-    width: 100%; height: 120px; padding: 12px; margin: 10px 0;
-    background: #0b101e; color: #e0e6ed; border: 1px solid #4a5a80;
-    border-radius: 6px; font-size: 16px; font-family: inherit;
-    box-sizing: border-box; resize: vertical;
+  .cipher-textarea:focus {
+    border-color: var(--clr-sage);
+    box-shadow: 0 0 0 3px rgba(154, 176, 143, 0.2);
   }
-  textarea::placeholder { color: #4a5a80; }
-  .controls { margin: 15px 0; }
-  button {
-    background: #4a5a80; color: #fff; border: none; padding: 12px 24px;
-    margin: 0 5px; cursor: pointer; border-radius: 6px;
-    font-size: 16px; font-family: inherit; transition: background 0.2s, transform 0.1s;
+  .cipher-controls {
+    display: flex;
+    gap: 0.8rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
   }
-  button:hover { background: #6b7ea5; }
-  button:active { transform: scale(0.98); }
-  .error { color: #ff8b8b; font-size: 14px; min-height: 20px; margin-bottom: 10px; }
+  .cipher-error {
+    color: #a03030;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-height: 20px;
+    margin-bottom: 10px;
+  }
+  .sidebar-sticky {
+    position: sticky;
+    top: 100px;
+  }
 </style>
 </head>
 <body>
-  <div class="container">
-    <h1>十六夜暗号  幻</h1>
-    <p>平文依存型・動的六星鍵 搭載（かぶりなし完全版）</p>
-    
-    <textarea id="normalText" placeholder="通常の文章をここに入力してください..."></textarea>
-    
-    <div class="controls">
-      <button onclick="doConvert()">変換</button>
+
+  <site-header site-name="十六夜暗号"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <div class="hl-layout-main">
+
+      <hl-breadcrumb
+        level1-name="Archive" level1-url="/archive/"
+        level2-name="Other" level2-url="/archive/other/"
+        current="十六夜暗号">
+      </hl-breadcrumb>
+      <page-title>十六夜暗号 変換ツール</page-title>
+
+      <p class="hl-content-text" style="margin-bottom: 1.5rem;">
+        平文依存型・動的六星鍵を搭載した十六夜暗号（いざよいあんごう）の相互変換ツールです。<br>
+        通常の文章を入力して「暗号化」、または暗号文を入力して「復号」できます。
+      </p>
+
+      <hl-card class="cipher-container">
+        <label class="hl-label" for="normalText">通常の文章（平文）</label>
+        <textarea id="normalText" class="cipher-textarea" placeholder="通常の文章をここに入力してください..."></textarea>
+        
+        <div class="cipher-controls">
+          <hl-button variant="primary" onclick="doConvert()">変換を実行</hl-button>
+          <hl-button variant="secondary" onclick="document.getElementById('normalText').value='';document.getElementById('cipherText').value='';clearError();">クリア</hl-button>
+        </div>
+        
+        <div id="errorMsg" class="cipher-error"></div>
+        
+        <label class="hl-label" for="cipherText" style="margin-top: 0.5rem;">十六夜暗号文</label>
+        <textarea id="cipherText" class="cipher-textarea" placeholder="十六夜暗号がここに表示されます..."></textarea>
+      </hl-card>
+
     </div>
-    
-    <div id="errorMsg" class="error"></div>
-    
-    <textarea id="cipherText" placeholder="十六夜暗号がここに表示されます..."></textarea>
-  </div>
+
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <hl-profile></hl-profile>
+        <hl-sidebar-box title="十六夜暗号について">
+          <p style="font-size: 0.85rem; line-height: 1.6; color: var(--clr-brown);">
+            平文の内容と文字数に応じて動的に鍵が変化し、漢字の組み合わせとして文章を秘匿する独自の換字暗号です。
+          </p>
+        </hl-sidebar-box>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+  <script src="/components/components.js"></script>
 
   <script>
     // 1. 6つのXOR鍵配列 (Base36抽出)

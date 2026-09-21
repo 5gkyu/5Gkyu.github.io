@@ -130,11 +130,7 @@
     }
 
     .qr-box {
-      background: #ffffff;
-      border: 1.5px solid rgba(106, 86, 74, 0.12);
-      border-radius: 18px;
-      padding: 1.3rem 1.5rem;
-      box-shadow: 0 4px 18px rgba(106, 86, 74, 0.04);
+      margin-bottom: 0;
     }
 
     .qr-sec-heading {
@@ -640,7 +636,7 @@
       <div class="qr-cockpit-grid">
 
         <!-- 左ペイン：設定・入力エリア -->
-        <div class="qr-box">
+        <hl-card class="qr-box">
           
           <!-- URL入力 -->
           <div class="qr-form-row">
@@ -722,10 +718,10 @@
             <button type="button" id="btn-remove-logo" class="qr-chip" style="display:none; color:#b85a4a;">解除</button>
           </div>
 
-        </div>
+        </hl-card>
 
         <!-- 右ペイン：プレビュー ＆ ダウンロード -->
-        <div class="qr-preview-panel">
+        <hl-card class="qr-preview-panel">
           <div class="qr-canvas-box" id="qr-canvas-box"></div>
           
           <div class="qr-action-btns">
@@ -742,13 +738,16 @@
           <span style="font-size:0.75rem; color:var(--clr-brown); opacity:0.6; margin-top:0.6rem;">
             スマホのカメラをかざして動作テストできます
           </span>
-        </div>
+        </hl-card>
 
       </div>
 
       <!-- 関連コラムバナー -->
       <a href="/archive/note/tech/qr-code/" class="qr-note-banner">
-        <span class="qr-note-banner-title">💡 関連記事：QRコード完全解剖 ── なぜ中央にロゴがあっても、白黒でなくても読めるのか？</span>
+        <span class="qr-note-banner-title" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>関連記事：QRコード完全解剖 ── なぜ中央にロゴがあっても、白黒でなくても読めるのか？</span>
+        </span>
         <span class="qr-note-banner-arrow">解説を読む →</span>
       </a>
     </div>
@@ -760,10 +759,13 @@
       <div class="qr-scan-grid">
 
         <!-- 左：ドロップゾーン / カメラ -->
-        <div class="qr-box">
+        <hl-card class="qr-box">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
             <span class="qr-sec-heading" style="margin-bottom:0;">SCAN INPUT</span>
-            <button type="button" id="btn-toggle-camera" class="qr-chip">📷 カメラ起動</button>
+            <button type="button" id="btn-toggle-camera" class="qr-chip" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>カメラ起動</span>
+            </button>
           </div>
 
           <!-- カメラプレビュー -->
@@ -786,12 +788,14 @@
           </div>
 
           <canvas id="qr-decode-canvas" style="display:none;"></canvas>
-        </div>
+        </hl-card>
 
         <!-- 右：結果表示 -->
-        <div class="qr-result-panel">
+        <hl-card class="qr-result-panel">
           <div id="qr-result-empty" class="qr-result-empty">
-            <span style="display:block; font-size:1.8rem; margin-bottom:0.4rem; opacity:0.4;">🔍</span>
+            <span style="display:block; margin-bottom:0.4rem; opacity:0.4;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
             QRコード画像を左にドロップすると、<br>解析されたURLやテキストがここに表示されます。
           </div>
 
@@ -1121,7 +1125,10 @@
           await videoEl.play();
           cameraContainer.style.display = 'block';
           scanDropzone.style.display = 'none';
-          btnToggleCamera.textContent = '✕ カメラを閉じる';
+          btnToggleCamera.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>カメラを閉じる</span>
+          `;
           requestAnimationFrame(tickCameraScan);
           showToast('カメラを起動しました');
         } catch (err) {
@@ -1140,7 +1147,10 @@
         }
         cameraContainer.style.display = 'none';
         scanDropzone.style.display = 'flex';
-        btnToggleCamera.textContent = '📷 カメラ起動';
+        btnToggleCamera.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span>カメラ起動</span>
+        `;
       }
 
       function tickCameraScan() {

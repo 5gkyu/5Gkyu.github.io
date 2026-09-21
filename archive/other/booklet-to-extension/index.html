@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブックマークレット → Chrome拡張機能 変換ツール | Halcyon - 5Gkyu</title>
+
+  <meta name="description" content="ブックマークレットのコードを最新のChrome拡張機能（Manifest V3対応）にワンクリックで変換・ZIPダウンロードできるツール。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/other/booklet-to-extension/">
+
+  <meta property="og:title" content="ブックマークレット → Chrome拡張機能 変換ツール | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ブックマークレットを最新のChrome拡張機能（Manifest V3）に即座に変換・パッケージ化するWebツール。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/other/booklet-to-extension/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#FBF6EA">
+
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+
+  <script src="/components/components.js" defer></script>
+  <!-- 既存のブックマークレット集プリセットデータ -->
+  <script src="../booklet/bookmarklets-data.js"></script>
+  <!-- JSZip (クライアント側で拡張機能ZIPを生成) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    /* ── ページ固有レイアウト ── */
+    .sidebar-sticky {
+      position: sticky;
+      top: 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── ステップパネル切り替え ── */
+    .step-panel {
+      display: none;
+      animation: stepFadeIn 0.25s ease-out;
+    }
+
+    .step-panel.active {
+      display: block;
+    }
+
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── 2列グリッドフォーム ── */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid-2 .full-width {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .step-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(154, 176, 143, 0.25);
+    }
+
+    .step-actions > * {
+      flex: 1;
+    }
+
+    /* ── コードプレビュー ── */
+    .preview-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid rgba(154, 176, 143, 0.25);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #7f8c8d;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: rgba(154, 176, 143, 0.2);
+      color: var(--clr-sage, #4a7055);
+    }
+
+    .code-preview {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      max-height: 280px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .icon-preview-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed rgba(154, 176, 143, 0.4);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .summary-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f8fafc;
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(154, 176, 143, 0.25);
+      margin-bottom: 20px;
+    }
+
+    .preview-badge-card {
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.08);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(106, 86, 74, 0.04);
+    }
+  </style>
+</head>
+
+<body>
+  <site-header site-name="拡張機能変換"></site-header>
+
+  <hl-layout cols="2" class="fluffy-entry delay-1">
+    <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Other" level2-url="/archive/other/"
+      current="拡張機能変換">
+    </hl-breadcrumb>
+
+    <page-title>ブックマークレット → Chrome拡張機能 変換ツール</page-title>
+
+    <p class="hl-content-text" full-width style="margin-bottom: 1.5rem; font-size: 0.95rem;">
+      ブックマークレットを最新のChrome拡張機能（Manifest V3準拠）に変換してZIPパッケージを作成します。
+    </p>
+
+    <!-- ── 左側：メイン作業エリア ── -->
+    <div class="hl-layout-main">
+      <!-- ── Step 1: 設定入力パネル ── -->
+      <hl-card class="step-panel active" id="panelStep1" title="ステップ 1: 拡張機能の設定">
+        <div class="form-grid-2">
+          <!-- プリセット選択 -->
+          <hl-select class="full-width" name="presetSelect" label="ブックマークレット集から選択" optional>
+            <option value="">-- 一覧から選択して自動入力 --</option>
+          </hl-select>
+
+          <!-- 名前 -->
+          <hl-input name="extName" label="拡張機能の名前 (Name)" value="タイトル＆URLコピー" placeholder="例: タイトル＆URLコピー"></hl-input>
+
+          <!-- 実行タイプ -->
+          <hl-select name="execMode" label="実行タイプ">
+            <option value="click" selected>アイコンクリックで実行（推奨）</option>
+            <option value="shortcut">ショートカット（Alt+Shift+X）</option>
+            <option value="auto">ページ読込時に自動実行</option>
+          </hl-select>
+
+          <!-- 説明 -->
+          <hl-input name="extDesc" label="説明 (Description)" value="現在のページのタイトルとURLをクリップボードにコピーします。" placeholder="例: タイトルとURLをコピーします。"></hl-input>
+
+          <!-- アイコン設定 -->
+          <div class="hl-field">
+            <label class="hl-label" for="extIconText">アイコン文字・配色</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="extIconText" class="hl-input" value="JS" style="max-width: 80px;" maxlength="4">
+              <input type="color" id="iconBgColor" value="#5c8896" title="背景色" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; padding: 0;">
+              <div class="icon-preview-box">
+                <canvas id="iconCanvas" width="52" height="52"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- コード入力 -->
+          <hl-textarea class="full-width" name="bookmarkletCode" label="ブックマークレットのコード (JavaScript / URL)" hint="「javascript:」で始まるURLや、通常のJavaScriptコードをそのまま貼り付けてください。" rows="4"></hl-textarea>
+        </div>
+
+        <div class="step-actions">
+          <hl-button id="btnToStep2" variant="primary" size="md">
+            次へ：コード確認に進む →
+          </hl-button>
+        </div>
+      </hl-card>
+
+      <!-- ── Step 2: コード確認パネル ── -->
+      <hl-card class="step-panel" id="panelStep2" title="ステップ 2: 生成されるファイル構成">
+        <div class="preview-tabs">
+          <button class="tab-btn active" data-tab="manifest">manifest.json</button>
+          <button class="tab-btn" data-tab="background">background.js / script</button>
+          <button class="tab-btn" data-tab="readme">使い方 (README)</button>
+        </div>
+
+        <div id="previewArea" class="code-preview"></div>
+
+        <div style="margin-top: 12px; display: flex; gap: 10px;">
+          <hl-button id="copyCodeBtn" variant="secondary" size="sm" style="flex: 1;">表示中のコードをコピー</hl-button>
+        </div>
+
+        <div class="step-actions">
+          <hl-button id="btnBackToStep1" variant="ghost" size="md">← 設定入力に戻る</hl-button>
+          <hl-button id="btnToStep3" variant="primary" size="md">次へ：ZIP保存に進む →</hl-button>
+        </div>
+      </hl-card>
+
+      <!-- ── Step 3: ZIP保存パネル ── -->
+      <hl-card class="step-panel" id="panelStep3" title="ステップ 3: ZIPパッケージの作成・保存">
+        <div class="summary-card">
+          <div class="icon-preview-box" style="width: 56px; height: 56px;">
+            <canvas id="summaryIconCanvas" width="56" height="56"></canvas>
+          </div>
+          <div>
+            <h3 id="summaryExtName" style="font-size: 1.05rem; color: var(--clr-brown, #2c3e50); margin-bottom: 2px;">タイトル＆URLコピー</h3>
+            <p id="summaryExtDesc" style="font-size: 0.82rem; color: #7f8c8d; margin-bottom: 4px;">現在のページのタイトルとURLをクリップボードにコピーします。</p>
+            <div style="font-size: 0.75rem; color: var(--clr-sage, #4a7055); font-weight: 700;">Manifest V3 形式（manifest.json, background.js, icon.png, README.md）</div>
+          </div>
+        </div>
+
+        <hl-button id="downloadZipBtn" variant="primary" size="lg" style="width: 100%;">
+          Chrome拡張機能（ZIP）をダウンロード
+        </hl-button>
+
+        <div class="step-actions">
+          <hl-button id="btnBackToStep2" variant="ghost" size="md">← コード確認に戻る</hl-button>
+          <hl-button id="btnToStep4" variant="secondary" size="md">インストール手順へ →</hl-button>
+        </div>
+      </hl-card>
+
+      <!-- ── Step 4: Chrome導入パネル ── -->
+      <hl-card class="step-panel" id="panelStep4" title="ステップ 4: Chromeへのインストール手順">
+        <hl-step>
+          <hl-step-item num="1" title="ZIPファイルを解凍">ダウンロードした ZIP ファイルを任意のフォルダに解凍します。</hl-step-item>
+          <hl-step-item num="2" title="拡張機能管理を開く">Chromeで <code>chrome://extensions/</code> を開きます。</hl-step-item>
+          <hl-step-item num="3" title="デベロッパーモードをON">画面右上の「デベロッパー モード」スイッチをONにします。</hl-step-item>
+          <hl-step-item num="4" title="フォルダを読み込む">左上の「パッケージ化されていない拡張機能を読み込む」から解凍したフォルダを選択します。</hl-step-item>
+        </hl-step>
+
+        <div class="step-actions">
+          <hl-button id="btnBackToStep3" variant="ghost" size="md">← ZIP保存に戻る</hl-button>
+          <hl-button id="btnRestart" variant="primary" size="md">最初から別の拡張機能を作る</hl-button>
+        </div>
+      </hl-card>
+    </div>
+
+    <!-- ── 右側：進捗度ステッパー＆プレビュー（サイドバー） ── -->
+    <aside class="hl-layout-sidebar">
+      <div class="sidebar-sticky">
+        <!-- 進捗度カード -->
+        <hl-card title="進捗状況">
+          <hl-stepper id="verticalStepper" vertical current="1">
+            <hl-stepper-item step="1" title="1. 設定入力" sub="コード・基本情報"></hl-stepper-item>
+            <hl-stepper-item step="2" title="2. コード確認" sub="manifest / script"></hl-stepper-item>
+            <hl-stepper-item step="3" title="3. ZIP保存" sub="パッケージ作成"></hl-stepper-item>
+            <hl-stepper-item step="4" title="4. Chrome導入" sub="インストール手順"></hl-stepper-item>
+          </hl-stepper>
+        </hl-card>
+
+        <!-- リアルタイム情報カード -->
+        <div class="preview-badge-card">
+          <div class="icon-preview-box" style="width: 44px; height: 44px;">
+            <canvas id="sideIconCanvas" width="44" height="44"></canvas>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div id="sideExtName" style="font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--clr-brown);">タイトル＆URLコピー</div>
+            <div style="font-size: 0.72rem; color: #7f8c8d;"><span style="background: #10b981; color: #fff; border-radius: 4px; font-weight: 700; font-size: 0.68rem; padding: 1px 6px;">MV3</span> <span id="sideModeText">クリック実行</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </hl-layout>
+
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 内部要素の安全な取得ヘルパー
+      function getField(name) {
+        return document.getElementById(`hl-${name}`) || document.querySelector(`[name="${name}"]`);
+      }
+
+      // 入力要素
+      const presetSelect = getField('presetSelect');
+      const extNameInput = getField('extName');
+      const extDescInput = getField('extDesc');
+      const execModeSelect = getField('execMode');
+      const extIconTextInput = document.getElementById('extIconText');
+      const iconBgColorInput = document.getElementById('iconBgColor');
+      const iconCanvas = document.getElementById('iconCanvas');
+      const summaryIconCanvas = document.getElementById('summaryIconCanvas');
+      const sideIconCanvas = document.getElementById('sideIconCanvas');
+      const bookmarkletCodeInput = getField('bookmarkletCode');
+      const previewArea = document.getElementById('previewArea');
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      const downloadZipBtn = document.getElementById('downloadZipBtn');
+
+      // サマリー・サイドバー要素
+      const summaryExtName = document.getElementById('summaryExtName');
+      const summaryExtDesc = document.getElementById('summaryExtDesc');
+      const sideExtName = document.getElementById('sideExtName');
+      const sideModeText = document.getElementById('sideModeText');
+      const verticalStepper = document.getElementById('verticalStepper');
+
+      // ステップ・パネル要素
+      const panels = {
+        1: document.getElementById('panelStep1'),
+        2: document.getElementById('panelStep2'),
+        3: document.getElementById('panelStep3'),
+        4: document.getElementById('panelStep4')
+      };
+
+      let currentStep = 1;
+      let currentTab = 'manifest';
+
+      // 初期値: タイトル＆URLコピーのブックマークレット
+      const defaultScript = `(function() {
+  const text = document.title + '\\n' + location.href;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('コピーしました:\\n' + text);
+  }).catch(err => {
+    prompt('コピーしてください:', text);
+  });
+})();`;
+      if (bookmarkletCodeInput) bookmarkletCodeInput.value = defaultScript;
+
+      // プリセットデータの読み込み
+      if (typeof BOOKMARKLETS !== 'undefined' && Array.isArray(BOOKMARKLETS) && presetSelect) {
+        BOOKMARKLETS.forEach((bm, index) => {
+          const opt = document.createElement('option');
+          opt.value = index;
+          opt.textContent = `${bm.category ? '[' + bm.category + '] ' : ''}${bm.title}`;
+          presetSelect.appendChild(opt);
+        });
+
+        presetSelect.addEventListener('change', (e) => {
+          const index = e.target.value;
+          if (index === '') return;
+          const bm = BOOKMARKLETS[index];
+          if (bm) {
+            if (extNameInput) extNameInput.value = bm.title;
+            if (extDescInput) extDescInput.value = bm.desc || bm.title;
+            if (bm.icon && extIconTextInput) extIconTextInput.value = bm.icon;
+            if (bookmarkletCodeInput) bookmarkletCodeInput.value = bm.code;
+            updateIcon();
+            updatePreview();
+          }
+        });
+      }
+
+      // アイコンCanvas描画
+      function updateIcon() {
+        [iconCanvas, summaryIconCanvas, sideIconCanvas].forEach(canvas => {
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          const size = canvas.width;
+          ctx.clearRect(0, 0, size, size);
+
+          // 背景
+          ctx.fillStyle = iconBgColorInput ? iconBgColorInput.value : '#5c8896';
+          ctx.beginPath();
+          const r = size * 0.22;
+          ctx.roundRect(0, 0, size, size, r);
+          ctx.fill();
+
+          // 文字
+          const text = (extIconTextInput && extIconTextInput.value.trim()) || 'JS';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = `bold ${size * 0.44}px sans-serif`;
+          ctx.fillText(text, size / 2, size / 2 + (size * 0.02));
+        });
+
+        // サマリー表示の更新
+        const currentName = (extNameInput && extNameInput.value.trim()) || '無名の拡張機能';
+        if (summaryExtName) summaryExtName.textContent = currentName;
+        if (summaryExtDesc) summaryExtDesc.textContent = (extDescInput && extDescInput.value.trim()) || '説明なし';
+        if (sideExtName) sideExtName.textContent = currentName;
+
+        const modeMap = {
+          'click': 'クリック実行',
+          'shortcut': 'Alt+Shift+X',
+          'auto': '自動実行'
+        };
+        const currentMode = execModeSelect ? execModeSelect.value : 'click';
+        if (sideModeText) sideModeText.textContent = modeMap[currentMode] || 'クリック実行';
+      }
+
+      // ブックマークレットのコード整形
+      function cleanCode(raw) {
+        let code = (raw || '').trim();
+        if (code.startsWith('javascript:')) {
+          code = code.slice(11).trim();
+          try {
+            code = decodeURIComponent(code);
+          } catch (e) { }
+        }
+        return code;
+      }
+
+      // 各ファイルの生成
+      function generateFiles() {
+        const name = (extNameInput && extNameInput.value.trim()) || 'My Extension';
+        const desc = (extDescInput && extDescInput.value.trim()) || 'Bookmarklet converted extension';
+        const mode = execModeSelect ? execModeSelect.value : 'click';
+        const code = cleanCode(bookmarkletCodeInput ? bookmarkletCodeInput.value : '');
+
+        let manifest = {};
+        let scriptFile = { name: 'background.js', content: '' };
+
+        if (mode === 'click') {
+          manifest = {
+            "manifest_version": 3,
+            "name": name,
+            "version": "1.0",
+            "description": desc,
+            "permissions": ["activeTab", "scripting"],
+            "action": {
+              "default_title": name,
+              "default_icon": "icon.png"
+            },
+            "background": {
+              "service_worker": "background.js"
+            },
+            "icons": {
+              "128": "icon.png"
+            }
+          };
+
+          scriptFile.name = 'background.js';
+          scriptFile.content = `// 拡張機能アイコンクリック時に実行
+chrome.action.onClicked.addListener((tab) => {
+  if (!tab.id) return;
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => {
+${code.split('\n').map(line => '      ' + line).join('\n')}
+    }
+  });
+});`;
+
+        } else if (mode === 'shortcut') {
+          manifest = {
+            "manifest_version": 3,
+            "name": name,
+            "version": "1.0",
+            "description": desc,
+            "permissions": ["activeTab", "scripting"],
+            "action": {
+              "default_title": name,
+              "default_icon": "icon.png"
+            },
+            "background": {
+              "service_worker": "background.js"
+            },
+            "commands": {
+              "run-action": {
+                "suggested_key": {
+                  "default": "Alt+Shift+X"
+                },
+                "description": name + " を実行"
+              }
+            },
+            "icons": {
+              "128": "icon.png"
+            }
+          };
+
+          scriptFile.name = 'background.js';
+          scriptFile.content = `// アイコンクリックまたはショートカットキー(Alt+Shift+X)で実行
+function runScript(tab) {
+  if (!tab || !tab.id) return;
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => {
+${code.split('\n').map(line => '      ' + line).join('\n')}
+    }
+  });
+}
+
+chrome.action.onClicked.addListener(runScript);
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "run-action") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) runScript(tabs[0]);
+    });
+  }
+});`;
+
+        } else if (mode === 'auto') {
+          manifest = {
+            "manifest_version": 3,
+            "name": name,
+            "version": "1.0",
+            "description": desc,
+            "content_scripts": [
+              {
+                "matches": ["<all_urls>"],
+                "js": ["content.js"],
+                "run_at": "document_idle"
+              }
+            ],
+            "icons": {
+              "128": "icon.png"
+            }
+          };
+
+          scriptFile.name = 'content.js';
+          scriptFile.content = `// ページ読み込み完了時に自動実行
+(function() {
+${code.split('\n').map(line => '  ' + line).join('\n')}
+})();`;
+        }
+
+        const readme = `# ${name}
+
+${desc}
+
+## インストール手順 (Chrome)
+1. このフォルダを作業しやすい場所に置きます。
+2. Google Chrome で \`chrome://extensions/\` を開きます。
+3. 右上の「デベロッパー モード」を ON にします。
+4. 「パッケージ化されていない拡張機能を読み込む」をクリックし、このフォルダを選択します。
+5. ツールバーの拡張機能一覧からピン留めしてお使いください。
+`;
+
+        return {
+          manifestJson: JSON.stringify(manifest, null, 2),
+          scriptFile: scriptFile,
+          readme: readme
+        };
+      }
+
+      // プレビュー更新
+      function updatePreview() {
+        const files = generateFiles();
+        if (previewArea) {
+          if (currentTab === 'manifest') {
+            previewArea.textContent = files.manifestJson;
+          } else if (currentTab === 'background') {
+            previewArea.textContent = `// ${files.scriptFile.name}\n\n` + files.scriptFile.content;
+          } else if (currentTab === 'readme') {
+            previewArea.textContent = files.readme;
+          }
+        }
+      }
+
+      // ── ステップ切り替え処理 ──
+      function goToStep(stepNum) {
+        currentStep = stepNum;
+
+        // パネルの表示切り替え（現在のステップのみ表示）
+        Object.keys(panels).forEach(num => {
+          if (parseInt(num, 10) === stepNum) {
+            panels[num].classList.add('active');
+          } else {
+            panels[num].classList.remove('active');
+          }
+        });
+
+        // ステッパーコンポーネントの状態更新
+        if (verticalStepper && typeof verticalStepper.setCurrent === 'function') {
+          verticalStepper.setCurrent(stepNum);
+        }
+
+        // プレビューとアイコンを最新化
+        updateIcon();
+        updatePreview();
+
+        // 画面上部へスムーズスクロール
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // ステッパーのクリックイベント受信
+      if (verticalStepper) {
+        verticalStepper.addEventListener('step-click', (e) => {
+          if (e.detail && e.detail.step) {
+            goToStep(e.detail.step);
+          }
+        });
+      }
+
+      // ナビゲーションボタン
+      document.getElementById('btnToStep2').addEventListener('click', () => goToStep(2));
+      document.getElementById('btnBackToStep1').addEventListener('click', () => goToStep(1));
+      document.getElementById('btnToStep3').addEventListener('click', () => goToStep(3));
+      document.getElementById('btnBackToStep2').addEventListener('click', () => goToStep(2));
+      document.getElementById('btnToStep4').addEventListener('click', () => goToStep(4));
+      document.getElementById('btnBackToStep3').addEventListener('click', () => goToStep(3));
+      document.getElementById('btnRestart').addEventListener('click', () => goToStep(1));
+
+      // タブ切り替え
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentTab = btn.dataset.tab;
+          updatePreview();
+        });
+      });
+
+      // 入力監視
+      [extNameInput, extDescInput, execModeSelect, extIconTextInput, iconBgColorInput, bookmarkletCodeInput].forEach(el => {
+        if (!el) return;
+        el.addEventListener('input', () => {
+          updateIcon();
+          updatePreview();
+        });
+        el.addEventListener('change', () => {
+          updateIcon();
+          updatePreview();
+        });
+      });
+
+      // コードコピー
+      if (copyCodeBtn) {
+        copyCodeBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(previewArea.textContent).then(() => {
+            const original = copyCodeBtn.textContent;
+            copyCodeBtn.textContent = 'コピーしました！';
+            setTimeout(() => { copyCodeBtn.textContent = original; }, 1500);
+          });
+        });
+      }
+
+      // ZIP ダウンロード
+      if (downloadZipBtn) {
+        downloadZipBtn.addEventListener('click', async () => {
+          if (typeof JSZip === 'undefined') {
+            alert('ZIPライブラリの読み込み中です。少し待ってから再度お試しください。');
+            return;
+          }
+
+          const zip = new JSZip();
+          const files = generateFiles();
+
+          zip.file('manifest.json', files.manifestJson);
+          zip.file(files.scriptFile.name, files.scriptFile.content);
+          zip.file('README.md', files.readme);
+
+          // アイコンPNGをBlobにしてZIPに追加
+          const blob = await new Promise(resolve => iconCanvas.toBlob(resolve, 'image/png'));
+          zip.file('icon.png', blob);
+
+          // ZIP生成・ダウンロード
+          const content = await zip.generateAsync({ type: 'blob' });
+          const url = URL.createObjectURL(content);
+          const a = document.createElement('a');
+          const filename = ((extNameInput && extNameInput.value.trim()) || 'extension').replace(/[\\/:*?"<>|]/g, '_') + '.zip';
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          // ダウンロード完了後、ステップ4（Chrome導入手順）に自動遷移
+          setTimeout(() => {
+            goToStep(4);
+          }, 500);
+        });
+      }
+
+      // 初期化実行
+      goToStep(1);
+    });
+  </script>
+</body>
+
+</html>

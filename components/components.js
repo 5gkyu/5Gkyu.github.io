@@ -62,6 +62,7 @@
     'ui/hl-button.js',
     'ui/hl-code.js',
     'ui/hl-step.js',
+    'ui/hl-stepper.js',
     'ui/hl-table.js',
     'ui/hl-pagination.js',
     'ui/hl-skeleton.js',

@@ -16,6 +16,7 @@
 
 class HlToc extends HTMLElement {
   connectedCallback() {
+    if (this.dataset.customMode === 'true') return;
     if (this.dataset.rendered) return;
     this.dataset.rendered = 'true';
     this._onContentLoaded = () => this.render();
@@ -24,7 +25,9 @@ class HlToc extends HTMLElement {
   }
 
   render() {
+    if (this.dataset.customMode === 'true') return;
     setTimeout(() => {
+      if (this.dataset.customMode === 'true') return;
       const headingHosts = Array.from(document.querySelectorAll('section-heading'));
       
       if (this._observer) {

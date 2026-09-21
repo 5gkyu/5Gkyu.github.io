@@ -24,6 +24,7 @@
 ├── gear/index.html
 ├── policy/index.html
 ├── prologue/index.html
+├── mobile/index.html       # モバイルゲーム用リダイレクト（lit.link/5GKyu への転送）
 ├── app/                    # 過去に公開していたアプリのパス（既存リンク互換・移行保持のため残しているレガシーディレクトリ）
 ├── hl-char/                # キャラクター素材
 └── archive/                # コンテンツアーカイブ
@@ -87,6 +88,12 @@ customElements.define('hl-example', HlExample);
 --font-main: 'Zen Maru Gothic', 'Hiragino Sans', sans-serif  /* 本文 */
 --font-code: monospace系                                       /* コード */
 ```
+
+### アイコン・グラフィックルール（絵文字の絶対禁止）
+
+- **絵文字の使用厳禁**: UI、ボタン、ラベル、メッセージ、見出し、記事コンテンツ等において、Unicode絵文字（⚡, 📋, 📦, 💡, 🚀など）を直接使用することは**一切禁止**です。
+- **SVGの利用**: アイコンや視覚的アクセントが必要な場合は、インライン `<svg>`（ViewBoxやcurrentColorを活用）、またはSVGファイル、CSS装飾を使用してください。
+- **テキスト代替**: 単純な状態や記号表現は、SVGまたはアルファベット記号（`JS`, `CSS`, `JSON`, `✓` など）でミニマルに表現します。
 
 ---
 
@@ -195,7 +202,7 @@ FOUC防止スタイルを `<head>` 内に配置する:
 |---|---|
 | `<site-header site-name="...">` | 固定ヘッダー。`site-name` でページカテゴリ名を表示 |
 | `<site-footer copy="5Gkyu">` | フッター |
-| `<hl-layout cols="1\|2" size="wide\|full">` | メインレイアウト。標準は cols="1"(720px) / cols="2"(1100px)。`size="wide"` で 1280px、`size="full"` で min(1440px, 95vw) に拡張可能 |
+| `<hl-layout cols="1|2" size="narrow|wide|full">` | メインレイアウト。標準は cols="1"(1000px) / cols="2"(1100px)。`size="narrow"` で 720px、`size="wide"` で 1280px、`size="full"` で min(1440px, 95vw) に変更可能 |
 | `<page-title>` | ページ大見出し（`h1` 相当） |
 | `<section-heading>` | セクション区切り見出し（App/一覧ページ用） |
 | `<hl-breadcrumb level1-name="" level1-url="" ...>` | パンくずリスト |

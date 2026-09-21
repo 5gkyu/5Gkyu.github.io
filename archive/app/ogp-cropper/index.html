@@ -51,7 +51,7 @@
       <page-title>OGP画像トリミング</page-title>
 
       <!-- メインツールカード -->
-      <div class="ogp-app-card">
+      <hl-card class="ogp-app-card">
 
         <!-- STEP 1: 画像選択 / ドロップゾーン -->
         <div class="step-title">
@@ -67,7 +67,7 @@
             <polyline points="21 15 16 10 5 21"></polyline>
           </svg>
           <div class="dropzone-text">画像ファイルをドラッグ＆ドロップ、またはクリックして選択</div>
-          <div class="dropzone-sub">※クリップボードからの貼り付け（Ctrl + V / ⌘ + V）にも対応</div>
+          <div class="dropzone-sub">※クリップボードからの貼り付け（Ctrl + V / Cmd + V）にも対応</div>
         </div>
 
         <!-- STEP 2: プリセット＆編集（画像読み込み後に表示） -->
@@ -164,7 +164,7 @@
                 <button class="tool-btn" id="btn-rotate-right">⟳ 90°右回転</button>
                 <button class="tool-btn" id="btn-flip-h">⇄ 左右反転</button>
                 <button class="tool-btn" id="btn-flip-v">⇅ 上下反転</button>
-                <button class="tool-btn" id="btn-center">☩ 中央配置</button>
+                <button class="tool-btn" id="btn-center">中央配置</button>
                 <button class="tool-btn" id="btn-reset">↺ リセット</button>
               </div>
             </div>
@@ -212,8 +212,9 @@
                 <span class="export-sub">高画質レンダリングで出力されます。</span>
               </div>
               <div class="export-actions">
-                <button class="tool-btn" id="btn-copy-clipboard" style="background: rgba(146, 181, 188, 0.2); border-color: var(--clr-dusty-blue); color: var(--clr-brown); padding: 0.6rem 1.1rem; font-size: 0.9rem;">
-                  📋 画像をコピー
+                <button class="tool-btn" id="btn-copy-clipboard" style="background: rgba(146, 181, 188, 0.2); border-color: var(--clr-dusty-blue); color: var(--clr-brown); padding: 0.6rem 1.1rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  <span>画像をコピー</span>
                 </button>
                 <button class="tool-btn" id="btn-download-png" style="background: var(--clr-sage); color: #fff; border-color: var(--clr-sage); padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 800;">
                   PNG で保存 (最高画質)
@@ -229,7 +230,7 @@
           </div>
         </div>
 
-      </div>
+      </hl-card>
 
     </div>
 

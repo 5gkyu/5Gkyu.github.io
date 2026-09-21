@@ -396,7 +396,7 @@
       border: 1.5px solid var(--accent-light);
     }
 
-    /* ── トースト ── */
+    /* ── トースト（HlToast フォールバック） ── */
     .toast {
       position: fixed;
       bottom: 90px;
@@ -453,26 +453,9 @@
     }
 
     .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--accent-light);
       display: flex;
       flex-direction: column;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-
-    @media (hover: hover) {
-      .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 24px rgba(146, 181, 188, 0.22);
-        border-color: var(--accent);
-      }
-    }
-
-    .card:active {
-      transform: scale(.98);
+      margin-bottom: 0;
     }
 
     .card[hidden] {
@@ -490,9 +473,6 @@
     /* ── ランチャー専用ヒーローカード ── */
     .launcher-card {
       background: linear-gradient(135deg, #ffffff 0%, rgba(146, 181, 188, 0.12) 100%);
-      border-radius: 18px;
-      padding: 22px 24px;
-      box-shadow: 0 4px 16px rgba(146, 181, 188, 0.18);
       border: 1.5px solid var(--accent);
       margin-bottom: 2rem;
       position: relative;
@@ -567,7 +547,7 @@
       <p class="hl-content-text" style="margin-bottom: 1rem;">
         すべてのブックマークレットをまとめて選択・実行できる「ランチャー」を用意しています。下のコードを1つだけブックマークに登録するだけで、あとはクリック一発でこのページのすべてのツールを使い分けられます。
       </p>
-      <div class="launcher-card">
+      <hl-card class="launcher-card">
         <div class="launcher-card-inner">
           <div class="launcher-card-body">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -583,7 +563,7 @@
             <button class="btn-copy" id="btn-try-launcher" style="background:var(--accent);color:#fff;border-color:var(--accent);">ここで試す</button>
           </div>
         </div>
-      </div>
+      </hl-card>
       <section-heading id="bookmarklets" style="margin-top: 0;">ブックマークレット一覧</section-heading>
 
       <!-- 検索バー -->
@@ -645,7 +625,6 @@
 
   <script>
     // ── ランチャーコード定義（GitHub Pagesの本番URLで読み込み）──
-    // Live Server環境でコピーした場合でも、常に本番URLがクリップボードに入るようにします
     const LAUNCHER_URL = 'https://5gkyu.github.io/archive/other/booklet/launcher.js';
     const LAUNCHER_CODE = `javascript:void(function(){var s=document.createElement('script');s.src='${LAUNCHER_URL}?_='+Date.now();document.head.appendChild(s);}())`;
 
@@ -695,7 +674,7 @@
     const cardList = document.getElementById("cardList");
 
     bookmarklets.forEach(bm => {
-      const card = document.createElement("div");
+      const card = document.createElement("hl-card");
       card.className = "card";
       card.id = "bm-" + bm.num;
       card.dataset.id = bm.id;
@@ -752,7 +731,6 @@
 
     applyFilters(); // 初期表示
 
-
     // ── コードモーダル ─────────────────────────────────────
     const codeOverlay = document.getElementById("codeOverlay");
     const codeText = document.getElementById("codeText");
@@ -784,11 +762,15 @@
       showToast("コードをコピーしました");
     });
 
-    // ── コピー処理 ─────────────────────────────────────────
+    // ── コピー処理（HlToast連動） ─────────────────────────
     const toast = document.getElementById("toast");
     let toastTimer;
 
     function showToast(msg) {
+      if (window.HlToast) {
+        window.HlToast.show(msg);
+        return;
+      }
       toast.textContent = msg;
       toast.classList.add("show");
       clearTimeout(toastTimer);

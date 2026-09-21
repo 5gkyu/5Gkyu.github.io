@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブロスタ 言語・クイズ 早見表 | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="ブロスタの言語クイズ・雑学問題の超高速カンニングペーパー。1画面で5秒以内に答えを確認。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/brawl-quiz/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
+
+  <meta property="og:title" content="ブロスタ 言語・クイズ 早見表 | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ブロスタの言語クイズ・雑学問題の超高速カンニングペーパー。1画面で5秒以内に答えを確認。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/play/brawl-quiz/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- FOUC防止スタイル -->
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+  </style>
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- 固定ヘッダー -->
+  <site-header site-name="Play"></site-header>
+
+  <hl-layout cols="1" size="wide" class="fluffy-entry delay-1">
+    
+    <div class="bqc-hud-container">
+
+      <!-- トップバー：検索 & 同期 -->
+      <div class="bqc-top-bar">
+        <div class="bqc-search-wrapper">
+          <input 
+            type="text" 
+            id="bqc-search-input" 
+            class="bqc-hud-search" 
+            placeholder="🔍 言語・単語・答えで絞り込み（例: 緑, みどり, スウェーデン, kärlek）..." 
+            autocomplete="off"
+            autofocus
+          >
+          <button id="bqc-search-clear" class="bqc-hud-search-clear" title="クリア">✕</button>
+        </div>
+        <button id="bqc-reset-selection" class="bqc-reset-btn" title="選択ハイライトをすべて解除">
+          選択リセット
+        </button>
+        <button id="bqc-mini-sync" class="bqc-mini-sync-btn" title="スプレッドシートから最新データを再取得">
+          🔄 シート更新 (<span id="bqc-status-count">1235問</span>)
+        </button>
+      </div>
+
+      <!-- タブ切り替え -->
+      <div class="bqc-tab-bar">
+        <button id="bqc-tab-lang" class="bqc-tab-btn active">🌐 言語クイズ表</button>
+        <button id="bqc-tab-trivia" class="bqc-tab-btn">★ その他・雑学</button>
+      </div>
+
+      <!-- クロス表（言語 × 単語） -->
+      <div class="bqc-matrix-wrapper" id="bqc-matrix-wrapper">
+        <table class="bqc-matrix-table" id="bqc-matrix-table">
+          <thead id="bqc-matrix-thead"></thead>
+          <tbody id="bqc-matrix-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- 雑学パネル -->
+      <div class="bqc-trivia-wrapper" id="bqc-trivia-wrapper">
+        <div class="bqc-trivia-grid" id="bqc-trivia-grid"></div>
+      </div>
+
+    </div>
+
+  </hl-layout>
+
+  <!-- トースト通知 -->
+  <div id="bqc-toast" class="bqc-toast">更新しました！</div>
+
+  <!-- フッター -->
+  <site-footer copy="5Gkyu Play"></site-footer>
+
+  <!-- 共通スクリプト -->
+  <script src="/components/components.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

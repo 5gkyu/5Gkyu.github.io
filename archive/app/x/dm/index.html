@@ -32,7 +32,7 @@
   <style>
     .xd-textarea {
       width: 100%;
-      min-height: 160px;
+      min-height: 140px;
       padding: 0.8rem 1rem;
       border-radius: 10px;
       border: 1.5px solid rgba(106, 86, 74, 0.15);
@@ -113,15 +113,7 @@
       display: block;
     }
 
-    .xd-step {
-      margin-top: 1.5rem;
-      padding: 1.2rem 1.4rem;
-      background: rgba(154, 176, 143, 0.06);
-      border: 1px solid rgba(154, 176, 143, 0.2);
-      border-radius: 16px;
-    }
-
-    .xd-step ol {
+    .xd-step-list {
       margin: 0.8rem 0 0 1.2rem;
       padding: 0;
       font-size: 0.9rem;
@@ -129,7 +121,7 @@
       line-height: 1.8;
     }
 
-    .xd-step li {
+    .xd-step-list li {
       margin-bottom: 1rem;
     }
 
@@ -170,16 +162,16 @@
       <hl-alert style="margin-bottom: 1.5rem;">
         生成されたURLにアクセスすると、直接DM送信画面が開きます。
         <div style="margin-top: 1rem;">
-          <a href="https://x.com/messages/compose?recipient_id=1422097522986602505&text=%E3%83%9E%E3%83%9E%0A%E5%AD%90%E7%8C%AB%20%0A%E7%B4%A0%E6%89%8B%E3%81%A7%E3%81%99%0A%E5%A4%9C%E5%AF%9D%E3%82%8B%E3%82%88%0A%E8%BB%BD%E3%81%84%E3%82%A4%E3%83%AB%E3%82%AB%0A%E3%81%BE%E3%81%95%E3%81%8B%E9%80%86%E3%81%95%E3%81%BE%0A%E9%85%A2%E8%B1%9A%E3%81%AB%E4%BC%BC%E3%81%9F%E3%83%96%E3%82%B9%0A%E7%A7%81%E8%B2%A0%E3%81%91%E3%81%BE%E3%81%97%E3%81%9F%E3%82%8F%0A%E6%AE%B5%E3%80%85%E3%81%A8%E8%B7%B3%E3%82%93%E3%81%A0%E3%82%93%E3%81%A0%0A%E6%96%B0%E5%B1%85%E3%81%AB%E3%83%9D%E3%83%8B%E3%83%A7%E7%A6%81%E6%AD%A2%0A%E4%BB%BB%E5%A4%A9%E5%A0%82%E3%80%81%E3%81%86%E3%81%A9%E3%82%93%E5%BA%97%E3%81%AB%0A%E3%81%AA%E3%82%93%E3%81%A6%E5%B0%BB%E3%80%81%E3%83%97%E3%83%AA%E3%83%97%E3%83%AA%E3%81%97%E3%81%A6%E3%82%93%E3%81%AA%0A%E3%82%BA%E3%83%A9%E3%81%A8%E3%83%90%E3%83%AC%E3%81%A6%E3%82%82%E3%80%81%E3%83%A2%E3%83%86%E3%82%8C%E3%81%B0%E5%8F%96%E3%82%89%E3%81%9A%0A%E3%83%80%E3%83%A1%E3%80%81%E9%A7%84%E4%BD%9C%E3%82%86%E3%81%88%E6%B6%88%E3%81%88%E3%82%86%E3%81%8F%E3%81%95%E3%81%A0%E3%82%81%E3%81%A0"
-            target="_blank" class="hl-btn hl-btn--primary">
+          <hl-button href="https://x.com/messages/compose?recipient_id=1422097522986602505&text=%E3%83%9E%E3%83%9E%0A%E5%AD%90%E7%8C%AB%20%0A%E7%B4%A0%E6%89%8B%E3%81%A7%E3%81%99%0A%E5%A4%9C%E5%AF%9D%E3%82%8B%E3%82%88%0A%E8%BB%BD%E3%81%84%E3%82%A4%E3%83%AB%E3%82%AB%0A%E3%81%BE%E3%81%95%E3%81%8B%E9%80%86%E3%81%95%E3%81%BE%0A%E9%85%A2%E8%B1%9A%E3%81%AB%E4%BC%BC%E3%81%9F%E3%83%96%E3%82%B9%0A%E7%A7%81%E8%B2%A0%E3%81%91%E3%81%BE%E3%81%97%E3%81%9F%E3%82%8F%0A%E6%AE%B5%E3%80%85%E3%81%A8%E8%B7%B3%E3%82%93%E3%81%A0%E3%82%93%E3%81%A0%0A%E6%96%B0%E5%B1%85%E3%81%AB%E3%83%9D%E3%83%8B%E3%83%A7%E7%A6%81%E6%AD%A2%0A%E4%BB%BB%E5%A4%A9%E5%A0%82%E3%80%81%E3%81%86%E3%81%A9%E3%82%93%E5%BA%97%E3%81%AB%0A%E3%81%AA%E3%82%93%E3%81%A6%E5%B0%BB%E3%80%81%E3%83%97%E3%83%AA%E3%83%97%E3%83%AA%E3%81%97%E3%81%A6%E3%82%93%E3%81%AA%0A%E3%82%BA%E3%83%A9%E3%81%A8%E3%83%90%E3%83%AC%E3%81%A6%E3%82%82%E3%80%81%E3%83%A2%E3%83%86%E3%82%8C%E3%81%B0%E5%8F%96%E3%82%89%E3%81%9A%0A%E3%83%80%E3%83%A1%E3%80%81%E9%A7%84%E4%BD%9C%E3%82%86%E3%81%88%E6%B6%88%E3%81%88%E3%82%86%E3%81%8F%E3%81%95%E3%81%A0%E3%82%81%E3%81%A0"
+            target="_blank" variant="primary">
             実物例のDM画面を開く
-          </a>
+          </hl-button>
         </div>
       </hl-alert>
 
       <section-heading id="app-main">アプリ本体（リンク生成）</section-heading>
 
-      <div class="hl-sidebar-block" style="background: #fff; margin-bottom: 1.5rem;">
+      <hl-card style="margin-bottom: 1.5rem;">
         <label class="hl-label" for="recipient_id" style="margin-bottom: 0.5rem;">
           送信対象としたいアカウントのID（数値）<span class="hl-label__required">必須</span>
         </label>
@@ -193,10 +185,10 @@
           <input id="confirm_id" type="checkbox">
           数値IDは自分で確認済みです（誤送信防止のため）
         </label>
-      </div>
+      </hl-card>
 
       <div class="xd-actions">
-        <hl-button id="make_btn" icon="file">DMリンクを生成</hl-button>
+        <hl-button id="make_btn" icon="file">DMリンクをコピー</hl-button>
         <hl-button id="open_btn" variant="secondary" icon="">新しいタブで開く</hl-button>
       </div>
 
@@ -204,8 +196,8 @@
       <div class="xd-output" id="out_link" aria-live="polite">数値IDを入力し、確認チェックを入れるとリンクが生成されます。</div>
 
       <section-heading id="how-to-get-id">IDを取得する方法</section-heading>
-      <div class="xd-step" style="margin-top: 0;">
-        <ol>
+      <hl-card style="margin-top: 0;">
+        <ol class="xd-step-list">
           <li>
             DMを開いているときのURLからIDを確認できます。IDはハイフン（-）でつながっており、自分のIDと相手のIDで構成されています。どちらが自分のIDなのかは判別できないので、複数人のDMを開いてみて、共通している方のIDが自分のIDだと推測してください。
             <img src="./image/buttonrei.png" alt="DMを開いている時のURL例" class="xd-example-img">
@@ -217,7 +209,7 @@
         </ol>
         <p class="xd-hint">このページでは安全のため、確認チェックを入れないとDMリンクを作成できません。</p>
         <p class="xd-warn">※本機能の利用は自己責任でお願いします。</p>
-      </div>
+      </hl-card>
     </div>
 
     <aside class="hl-layout-sidebar">

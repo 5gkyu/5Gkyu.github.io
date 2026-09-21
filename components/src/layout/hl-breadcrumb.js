@@ -24,7 +24,7 @@ class HlBreadcrumb extends HTMLElement {
     pathHtml += `<li><span aria-current="page">${current}</span></li>`;
     this.innerHTML = `
       <style>
-        .hl-breadcrumb-nav { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--clr-sage); margin-bottom: 2rem; list-style: none; padding: 0; }
+        .hl-breadcrumb-nav { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--clr-sage); margin-bottom: 0.8rem; list-style: none; padding: 0; }
         .hl-breadcrumb-nav li { display: flex; align-items: center; gap: 0.5rem; }
         .hl-breadcrumb-nav li:not(:last-child)::after { content: '>'; opacity: 0.5; font-size: 0.7rem; margin-top: 1px; }
         .hl-breadcrumb-nav a { color: var(--clr-dusty-blue); text-decoration: none; transition: color 0.2s ease; }

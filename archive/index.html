@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Archive | Halcyon - 5Gkyu</title>
-  
+
   <meta name="description" content="5Gkyuのアーカイブ。Webアプリ・ゲーム・ノート・その他のコンテンツ一覧。">
   <link rel="canonical" href="https://5gkyu.github.io/archive/">
 
@@ -21,17 +22,30 @@
   <meta property="og:site_name" content="Halcyon">
   <meta name="twitter:card" content="summary_large_image">
 
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }</style>
+  <style id="fouc-prevent">
+    body {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      background-color: #FBF6EA !important;
+    }
+  </style>
 
   <style>
     :root {
-      --clr-cream:       #FBF6EA;
-      --clr-sage:        #9AB08F;
-      --clr-peach:       #EEAFA1;
-      --clr-dusty-blue:  #92B5BC;
-      --clr-brown:       #6A564A;
+      --clr-cream: #FBF6EA;
+      --clr-sage: #9AB08F;
+      --clr-peach: #EEAFA1;
+      --clr-dusty-blue: #92B5BC;
+      --clr-brown: #6A564A;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     /* カテゴリカードグリッド */
     .archive-grid {
@@ -40,8 +54,11 @@
       gap: 1.5rem;
       margin-top: 2rem;
     }
+
     @media (max-width: 600px) {
-      .archive-grid { grid-template-columns: 1fr; }
+      .archive-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .archive-category-card {
@@ -60,6 +77,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .archive-category-card::before {
       content: '';
       position: absolute;
@@ -68,12 +86,16 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
+
     .archive-category-card:hover {
       transform: translateY(-8px);
       border-color: var(--accent);
       box-shadow: 0 20px 40px -15px rgba(106, 86, 74, 0.15);
     }
-    .archive-category-card:hover::before { opacity: 1; }
+
+    .archive-category-card:hover::before {
+      opacity: 1;
+    }
 
     .archive-category-card__icon {
       width: 2.4rem;
@@ -84,6 +106,7 @@
       justify-content: center;
       line-height: 1;
     }
+
     .archive-category-card__icon svg {
       width: 100%;
       height: 100%;
@@ -93,11 +116,13 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
     .archive-category-card__title {
       font-size: 1.25rem;
       font-weight: 700;
       color: var(--clr-brown);
     }
+
     .archive-category-card__desc {
       font-size: 0.85rem;
       color: var(--clr-brown);
@@ -105,6 +130,7 @@
       line-height: 1.6;
       flex-grow: 1;
     }
+
     .archive-category-card__arrow {
       font-size: 0.85rem;
       font-weight: 700;
@@ -113,12 +139,28 @@
     }
 
     /* カテゴリごとのアクセントカラー */
-    .archive-category-card--app   { --accent: var(--clr-sage);       --accent-light: rgba(154, 176, 143, 0.08); }
-    .archive-category-card--play  { --accent: var(--clr-peach);      --accent-light: rgba(238, 175, 161, 0.08); }
-    .archive-category-card--note  { --accent: var(--clr-dusty-blue); --accent-light: rgba(146, 181, 188, 0.08); }
-    .archive-category-card--other { --accent: #c9a98a;               --accent-light: rgba(201, 169, 138, 0.08); }
+    .archive-category-card--app {
+      --accent: var(--clr-sage);
+      --accent-light: rgba(154, 176, 143, 0.08);
+    }
+
+    .archive-category-card--play {
+      --accent: var(--clr-peach);
+      --accent-light: rgba(238, 175, 161, 0.08);
+    }
+
+    .archive-category-card--note {
+      --accent: var(--clr-dusty-blue);
+      --accent-light: rgba(146, 181, 188, 0.08);
+    }
+
+    .archive-category-card--other {
+      --accent: #c9a98a;
+      --accent-light: rgba(201, 169, 138, 0.08);
+    }
   </style>
 </head>
+
 <body>
 
   <site-header site-name="Archive"></site-header>
@@ -142,8 +184,8 @@
             </svg>
           </div>
           <div class="archive-category-card__title">App</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ミニWebツール</span></div>
-          <p class="archive-category-card__desc">ブラウザで動く軽量Webアプリ・ツール・ブックマークレット類など。</p>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">Webアプリ</span></div>
+          <p class="archive-category-card__desc">ブラウザ完結のWebアプリなど。</p>
           <span class="archive-category-card__arrow">一覧を見る →</span>
         </a>
 
@@ -155,8 +197,9 @@
             </svg>
           </div>
           <div class="archive-category-card__title">Play</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ゲーム</span><span class="hl-badge">攻略</span></div>
-          <p class="archive-category-card__desc">ゲームの攻略ツールやメモ、その他自作ゲーム・パズルなど。</p>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ゲーム</span><span
+              class="hl-badge">攻略</span></div>
+          <p class="archive-category-card__desc">ゲームの攻略ツールやデータ、その他パズルなど。</p>
           <span class="archive-category-card__arrow">一覧を見る →</span>
         </a>
 
@@ -168,8 +211,10 @@
             </svg>
           </div>
           <div class="archive-category-card__title">Note</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">考察</span><span class="hl-badge">コラム</span></div>
-          <p class="archive-category-card__desc">文章メインのコンテンツ類。</p>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">記事</span></div>
+          <p class="archive-category-card__desc">文章メインのコンテンツ類。
+            現在非公開。
+          </p>
           <span class="archive-category-card__arrow">一覧を見る →</span>
         </a>
 
@@ -181,8 +226,10 @@
             </svg>
           </div>
           <div class="archive-category-card__title">Other</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">イラスト</span><span class="hl-badge">雑記</span></div>
-          <p class="archive-category-card__desc">どのカテゴリにも収まらないもの。重いアプリ・デザイン・メモなど。</p>
+          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;">
+            <span class="hl-badge">雑記</span>
+          </div>
+          <p class="archive-category-card__desc">どのカテゴリにも収まらないもの。デザイン・ブックマークレットなど。</p>
           <span class="archive-category-card__arrow">一覧を見る →</span>
         </a>
 
@@ -192,15 +239,15 @@
       <hl-divider variant="dashed" style="margin: 3rem 0;"></hl-divider>
 
       <p class="hl-content-text" style="margin-bottom: 1.5rem;">最近追加・更新されたコンテンツです。</p>
-      
+
       <div id="latest-container"></div>
 
     </div>
 
     <!-- 右側にサイドバーを追加 -->
     <aside class="hl-layout-sidebar">
-      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
-        <hl-profile></hl-profile>
+      <hl-profile style="margin-bottom: 1.5rem;"></hl-profile>
+      <div class="sidebar-sticky">
         <hl-toc></hl-toc>
       </div>
     </aside>
@@ -216,6 +263,5 @@
     });
   </script>
 </body>
+
 </html>
-
-

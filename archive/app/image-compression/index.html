@@ -25,12 +25,7 @@
 
   <style>
     .ic-main-card {
-        background: #ffffff;
-        border: 1.5px solid rgba(106, 86, 74, 0.1);
-        border-radius: 24px;
-        padding: 1.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(106, 86, 74, 0.05);
     }
     .ic-setting-row { margin-bottom: 1.2rem; }
     .ic-compare-container {
@@ -86,7 +81,7 @@
         ブラウザ上で画像を読み込み、指定した横幅やフォーマット（PNG・WebP・JPEG）で変換・リサイズ・圧縮を行います。データはサーバーに送信されないため安全です。
       </p>
 
-      <div class="ic-main-card">
+      <hl-card class="ic-main-card">
         <div class="ic-setting-row" style="margin-bottom: 0;">
             <label class="hl-label" style="margin-bottom: 0.7rem;">画像を選択<span class="hl-label__required">必須</span></label>
             <hl-file-input id="uploadInput" accept="image/*" drop></hl-file-input>
@@ -147,7 +142,7 @@
             ダウンロード
         </a>
       </div>
-      </div>
+      </hl-card>
     </div>
 
     <aside class="hl-layout-sidebar">

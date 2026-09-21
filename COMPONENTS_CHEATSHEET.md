@@ -23,6 +23,10 @@
 
 すべてのページで `<head>` 内にチラつき防止スタイルを配置し、`</body>` 直前で `components.js` を1行読み込みます。
 
+> **デザイン・アイコン規則（絵文字禁止）**:
+> UI、ボタン、見出し、説明文等において **Unicode絵文字（⚡, 📋, 📦, 💡など）の使用は厳禁** です。
+> アイコン表現が必要な場合は、インライン `<svg>` タグ（`stroke="currentColor"` や `fill="currentColor"` を使用）、SVG画像、または `<hl-icon>` を使用してください。
+
 ```html
 <!DOCTYPE html>
 <html lang="ja">
@@ -138,14 +142,12 @@
     - `size="full"`: 横幅を **min(1440px, 95vw)** に拡張（エディタ等の作業領域用）。
 - **使用例**:
   ```html
-  <!-- 標準2カラム -->
+  <!-- 標準2カラム（全幅タイトル対応・左右上端揃え） -->
   <hl-layout cols="2">
-    <div class="hl-layout-main">メインコンテンツ</div>
-    <aside class="hl-layout-sidebar">サイドバー</aside>
-  </hl-layout>
+    <hl-breadcrumb current="ツール名"></hl-breadcrumb>
+    <page-title>ツール名</page-title>
+    <p class="hl-content-text" full-width>説明文...</p>
 
-  <!-- ワイド2カラム -->
-  <hl-layout cols="2" size="wide">
     <div class="hl-layout-main">メインコンテンツ</div>
     <aside class="hl-layout-sidebar">サイドバー</aside>
   </hl-layout>

@@ -30,16 +30,6 @@
   <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 
   <style>
-    .v2a-card {
-      background: #ffffff;
-      border: 1.5px solid rgba(106, 86, 74, 0.12);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1.8rem;
-      box-shadow: 0 8px 24px rgba(106, 86, 74, 0.04);
-      transition: all 0.3s ease;
-    }
-
     .v2a-dropzone {
       border: 2px dashed var(--clr-sage, #9AB08F);
       border-radius: 16px;
@@ -505,11 +495,15 @@
       </p>
 
       <!-- メインアプリカード -->
-      <div class="v2a-card">
+      <hl-card style="margin-bottom: 1.8rem;">
         <!-- ファイルドロップゾーン -->
         <div class="v2a-dropzone" id="dropzone">
           <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.avi,.m4v" style="display: none;">
-          <div class="v2a-dropzone-icon">🎬 ➔ 🎵</div>
+          <div class="v2a-dropzone-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          </div>
           <div class="v2a-dropzone-text">動画ファイルをドラッグ＆ドロップ</div>
           <div class="v2a-dropzone-subtext">またはここをクリックしてファイルを選択（MP4 / MOV / WebM / MKV 等）</div>
         </div>
@@ -554,8 +548,9 @@
 
           <!-- メタデータ・ファイル情報設定 -->
           <div class="option-group">
-            <div class="option-title">
-              🏷️ ファイル名・メタデータ設定
+            <div class="option-title" style="display: flex; align-items: center; gap: 0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              <span>ファイル名・メタデータ設定</span>
             </div>
             <div class="meta-inputs-grid">
               <div class="meta-field">
@@ -576,7 +571,9 @@
             <div class="cover-section" id="coverSection">
               <input type="file" id="coverFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;">
               <div class="cover-preview-box" id="coverPreviewBox" title="クリックまたは画像をドロップして設定">
-                <span class="cover-placeholder" id="coverPlaceholder">🖼️</span>
+                <span class="cover-placeholder" id="coverPlaceholder">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </span>
                 <img id="coverPreviewImg" alt="ジャケット画像プレビュー">
               </div>
               <div class="cover-actions">
@@ -585,9 +582,18 @@
                   <span style="font-size: 0.75rem; font-weight: normal; opacity: 0.7;">（画像のドラッグ＆ドロップまたは選択 / 空欄可）</span>
                 </div>
                 <div class="cover-btn-group">
-                  <button type="button" class="btn-small" id="uploadCoverBtn">📁 画像を選択</button>
-                  <button type="button" class="btn-small" id="captureFrameBtn">📸 動画の現在コマを使う</button>
-                  <button type="button" class="btn-small btn-danger" id="removeCoverBtn" style="display: none;">🗑️ 削除</button>
+                  <button type="button" class="btn-small" id="uploadCoverBtn" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <span>画像を選択</span>
+                  </button>
+                  <button type="button" class="btn-small" id="captureFrameBtn" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    <span>動画の現在コマを使う</span>
+                  </button>
+                  <button type="button" class="btn-small btn-danger" id="removeCoverBtn" style="display: none; align-items: center; gap: 0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>削除</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -595,8 +601,9 @@
 
           <!-- 出力フォーマット選択 -->
           <div class="option-group">
-            <div class="option-title">
-              🎼 出力フォーマット・音質
+            <div class="option-title" style="display: flex; align-items: center; gap: 0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              <span>出力フォーマット・音質</span>
             </div>
             <div class="format-btn-group" id="formatGroup">
               <div class="format-radio-card active" data-format="mp3-320">
@@ -641,7 +648,10 @@
           <!-- 変換結果・ダウンロード -->
           <div class="result-section" id="resultSection">
             <div class="result-header">
-              <div class="result-title">✨ 音声の抽出・変換が完了しました！</div>
+              <div class="result-title" style="display: flex; align-items: center; gap: 0.45rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>音声の抽出・変換が完了しました！</span>
+              </div>
               <span id="resultMeta" style="font-size: 0.85rem; font-weight: 600; color: var(--clr-brown);"></span>
             </div>
             <div class="result-audio-wrapper">
@@ -657,11 +667,14 @@
           </div>
 
         </div>
-      </div>
+      </hl-card>
 
       <!-- 使い方の解説 -->
-      <div class="v2a-card" style="margin-top: 2rem;">
-        <h3 style="font-size: 1.1rem; color: var(--clr-brown); margin-bottom: 0.8rem; font-weight: 700;">💡 このツールの特徴と音質について</h3>
+      <hl-card style="margin-top: 2rem;">
+        <h3 style="font-size: 1.1rem; color: var(--clr-brown); margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.45rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>このツールの特徴と音質について</span>
+        </h3>
         <ul class="feature-list">
           <li><strong>安心の完全クライアントサイド処理</strong>: 動画ファイルはご使用の端末内（ブラウザ）でのみ処理されます。外部サーバーへのアップロードは行われないため、プライベートな動画でも安心です。</li>
           <li><strong>ジャケット画像（アルバムアート）対応</strong>: 手持ちの画像を設定できるほか、動画の好きなシーンを1クリックでジャケットとして抽出・埋め込みできます。</li>
@@ -669,27 +682,33 @@
           <li><strong>MP3 最高品質（320kbps）</strong>: MP3規格の上限である320kbpsでエンコードするため、人の耳では元の動画と聞き分けがつかない高品位なサウンドで保存されます。</li>
           <li><strong>WAV（完全無劣化）</strong>: 音声波形データを圧縮せずそのまま16-bit PCMとして書き出すため、波形の欠損が一切ないスタジオ品質の音声を保存できます。</li>
         </ul>
-      </div>
+      </hl-card>
 
     </div>
 
     <!-- サイドバー -->
     <div class="hl-layout-side">
       <div style="position: sticky; top: 100px; display: flex; flex-direction: column; gap: 1.5rem;">
-        <div class="v2a-card" style="margin-bottom: 0; padding: 1.2rem;">
-          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem;">📱 対応フォーマット</h4>
+        <hl-card style="margin-bottom: 0; padding: 1.2rem;">
+          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <span>対応フォーマット</span>
+          </h4>
           <p style="font-size: 0.82rem; color: var(--clr-brown); opacity: 0.85; line-height: 1.6;">
             <strong>入力:</strong> MP4, MOV, WebM, MKV, AVI, M4V, etc.<br>
             <strong>出力:</strong> MP3 (320k / 192k / 128k), WAV (PCM 16bit)
           </p>
-        </div>
+        </hl-card>
 
-        <div class="v2a-card" style="margin-bottom: 0; padding: 1.2rem;">
-          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem;">⚙️ 音声抽出のヒント</h4>
+        <hl-card style="margin-bottom: 0; padding: 1.2rem;">
+          <h4 style="font-size: 0.95rem; color: var(--clr-brown); font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>音声抽出のヒント</span>
+          </h4>
           <p style="font-size: 0.82rem; color: var(--clr-brown); opacity: 0.85; line-height: 1.6;">
             動画からBGMやトークを抜き出し、ジャケット画像やアーティスト名を設定しておくと、スマホのミュージックライブラリや車載オーディオでもきれいに整理・表示されます。
           </p>
-        </div>
+        </hl-card>
       </div>
     </div>
   </hl-layout>

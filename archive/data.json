@@ -8,6 +8,13 @@
         "cols": 3,
         "items": [
           {
+            "title": "ブロスタ クイズ早見表",
+            "tag": "ブロスタ",
+            "href": "/archive/play/brawl-quiz/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
+            "description": "言語クイズ（27言語×41単語）や雑学クイズのカンニングペーパー。2タップ・インクリメンタル検索で即座に答えを表示。"
+          },
+          {
             "title": "動画音声抽出・MP3変換",
             "tag": "メディアツール",
             "href": "/archive/app/video-to-audio/",
@@ -15,11 +22,11 @@
             "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
           },
           {
-            "title": "ラグトレイン 粒子シンフォニー",
+            "title": "ラグトレイン",
             "tag": "メディアアート",
-            "href": "/archive/play/lagtrain/",
+            "href": "/archive/other/lagtrain/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "3,022フレームの超軽量粒子アニメーションと、澄み切った星空オルゴール＆弦楽合奏による全画面体験型シアター。"
+            "description": "ラグトレインのドット粒子アニメーションとMIDI再生。"
           },
           {
             "title": "ブロスタ キャラクター評価",
@@ -52,6 +59,13 @@
             "href": "/archive/app/video-to-audio/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
+          },
+          {
+            "title": "楽曲タグ・メタデータ編集",
+            "tag": "メディアツール",
+            "href": "/archive/app/audio-tag-editor/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "音声ファイル（MP3/FLAC/WAV/M4A）の曲名・アーティスト・アルバム・ジャケット画像をブラウザ上で直接編集・保存。"
           }
         ]
       },
@@ -465,20 +479,6 @@
   "play": {
     "sections": [
       {
-        "id": "media-art",
-        "heading": " メディアアート",
-        "cols": 3,
-        "items": [
-          {
-            "title": "ラグトレイン 粒子シンフォニー",
-            "tag": "メディアアート",
-            "href": "/archive/play/lagtrain/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "3,022フレームの超軽量粒子アニメーションと、澄み切った星空オルゴール＆弦楽合奏による全画面体験型シアター。"
-          }
-        ]
-      },
-      {
         "id": "brawl-stars",
         "heading": " ブロスタ",
         "cols": 3,
@@ -496,6 +496,13 @@
             "href": "/archive/play/brawl-firebase/",
             "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
             "description": "キャラ別の強さ・難易度・おすすめビルドをFirebase Realtime Database連携でリアルタイム管理・一覧表示。"
+          },
+          {
+            "title": "ブロスタ クイズ早見表",
+            "tag": "ブロスタ",
+            "href": "/archive/play/brawl-quiz/",
+            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
+            "description": "言語クイズ（27言語×41単語）や雑学クイズのカンニングペーパー。2タップ・インクリメンタル検索で即座に答えを表示。"
           },
           {
             "title": "BanPic-Brawl",
@@ -538,6 +545,20 @@
   },
   "other": {
     "sections": [
+      {
+        "id": "media-art",
+        "heading": " メディアアート",
+        "cols": 3,
+        "items": [
+          {
+            "title": "ラグトレイン",
+            "tag": "メディアアート",
+            "href": "/archive/other/lagtrain/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "ラグトレインのドット粒子アニメーションとMIDI再生。"
+          }
+        ]
+      },
       {
         "id": "browser-tools",
         "heading": " ブラウザツール",

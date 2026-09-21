@@ -43,9 +43,7 @@
       </hl-breadcrumb>
       <page-title>Play</page-title>
 
-      <p class="hl-content-text" style="margin-bottom: 2.5rem;">ブラウザで遊べるゲームやパズルなどのコンテンツです。</p>
-
-      <hl-archive-search target="sections-container"></hl-archive-search>
+      <p class="hl-content-text" style="margin-bottom: 2rem;">ブラウザで遊べるゲームやパズルなどのコンテンツです。</p>
 
       <div id="sections-container"></div>
 
@@ -54,8 +52,8 @@
          サイドバー/TOC
     =========================================== -->
     <aside class="hl-layout-sidebar">
-      <div class="sidebar-sticky" style="position: sticky; top: 100px;">
-        <hl-profile></hl-profile>
+      <hl-profile style="margin-bottom: 1.5rem;"></hl-profile>
+      <div class="sidebar-sticky">
         <hl-toc></hl-toc>
       </div>
     </aside>
@@ -64,7 +62,7 @@
 
   
   <site-footer copy="5Gkyu Play"></site-footer>
-  <script src="/components/components.js?v=20260807"></script>
+  <script src="/components/components.js"></script>
   <script src="/archive/archive-loader.js"></script>
   <script>loadArchiveSections('play', 'sections-container');</script>
 </body>
