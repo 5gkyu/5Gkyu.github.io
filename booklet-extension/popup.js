@@ -88,16 +88,16 @@
         card.title = `${bm.title} を実行`;
 
         card.innerHTML = `
+          <span class="bm-num">${bm.num || ''}</span>
           <div class="bm-card-body">
-            <div class="bm-meta">
-              <span class="bm-num">${bm.num || ''}</span>
+            <div class="bm-head-row">
+              <h2 class="bm-title">${escapeHtml(bm.title || '名称未設定')}</h2>
               <span class="bm-tag">${escapeHtml(bm.tag || 'ツール')}</span>
             </div>
-            <h2 class="bm-title">${escapeHtml(bm.title || '名称未設定')}</h2>
-            <p class="bm-desc">${escapeHtml(bm.description || '')}</p>
+            <p class="bm-desc" title="${escapeHtml(bm.description || '')}">${escapeHtml(bm.description || '')}</p>
           </div>
           <div class="bm-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </div>
