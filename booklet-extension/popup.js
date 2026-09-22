@@ -17,13 +17,11 @@
   const btnSync = document.getElementById('btnSync');
   const searchInput = document.getElementById('searchInput');
   const searchClear = document.getElementById('searchClear');
-  const tagBar = document.getElementById('tagBar');
   const emptyState = document.getElementById('emptyState');
   const toast = document.getElementById('toast');
 
   // ── 内部状態 ──
   let bookmarklets = [];
-  let activeTag = 'すべて';
   let searchQuery = '';
   let toastTimer = null;
 
@@ -48,21 +46,6 @@
     return `${h}:${m}`;
   }
 
-  // ── タグ一覧の生成と描画 ──
-  function renderTags() {
-    if (!tagBar) return;
-    const tags = ['すべて', ...new Set(bookmarklets.map(b => b.tag).filter(Boolean))];
-
-    tagBar.innerHTML = '';
-    tags.forEach(tag => {
-      const pill = document.createElement('button');
-      pill.className = `tag-pill ${tag === activeTag ? 'active' : ''}`;
-      pill.textContent = tag;
-      pill.dataset.tag = tag;
-      tagBar.appendChild(pill);
-    });
-  }
-
   // ── カード一覧の描画 ──
   function renderCards() {
     if (!cardList) return;
@@ -72,14 +55,12 @@
     let visibleCount = 0;
 
     bookmarklets.forEach(bm => {
-      const matchTag = activeTag === 'すべて' || bm.tag === activeTag;
       const matchSearch = !q ||
         (bm.title && bm.title.toLowerCase().includes(q)) ||
         (bm.description && bm.description.toLowerCase().includes(q)) ||
-        (bm.tag && bm.tag.toLowerCase().includes(q)) ||
         (String(bm.num).includes(q));
 
-      if (matchTag && matchSearch) {
+      if (matchSearch) {
         visibleCount++;
         const card = document.createElement('div');
         card.className = 'bm-card';
@@ -90,10 +71,7 @@
         card.innerHTML = `
           <span class="bm-num">${bm.num || ''}</span>
           <div class="bm-card-body">
-            <div class="bm-head-row">
-              <h2 class="bm-title">${escapeHtml(bm.title || '名称未設定')}</h2>
-              <span class="bm-tag">${escapeHtml(bm.tag || 'ツール')}</span>
-            </div>
+            <h2 class="bm-title">${escapeHtml(bm.title || '名称未設定')}</h2>
             <p class="bm-desc" title="${escapeHtml(bm.description || '')}">${escapeHtml(bm.description || '')}</p>
           </div>
           <div class="bm-arrow" aria-hidden="true">
@@ -274,7 +252,6 @@
           lastSync: now
         });
 
-        renderTags();
         renderCards();
 
         if (syncStatus) {
@@ -309,7 +286,6 @@
       const cached = await chrome.storage.local.get(['bookmarklets', 'lastSync']);
       if (cached && Array.isArray(cached.bookmarklets) && cached.bookmarklets.length > 0) {
         bookmarklets = cached.bookmarklets;
-        renderTags();
         renderCards();
         if (syncStatus && cached.lastSync) {
           syncStatus.textContent = `GitHub同期: ${formatTime(cached.lastSync)}`;
@@ -356,18 +332,6 @@
       });
     }
 
-    // タグ切り替え
-    if (tagBar) {
-      tagBar.addEventListener('click', (e) => {
-        const pill = e.target.closest('.tag-pill');
-        if (!pill) return;
-        activeTag = pill.dataset.tag || 'すべて';
-        document.querySelectorAll('.tag-pill').forEach(p => {
-          p.classList.toggle('active', p.dataset.tag === activeTag);
-        });
-        renderCards();
-      });
-    }
   }
 
   document.addEventListener('DOMContentLoaded', init);

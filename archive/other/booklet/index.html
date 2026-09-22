@@ -500,9 +500,11 @@
         justify-content: space-between;
         gap: 24px;
       }
+
       .launcher-card-body {
         flex: 1;
       }
+
       .launcher-card-actions {
         flex-shrink: 0;
         display: flex;
@@ -510,16 +512,172 @@
         gap: 10px;
         min-width: 170px;
       }
+
       .launcher-card-actions button {
         width: 100% !important;
       }
     }
 
-    @media (min-width: 680px) {
-      .tag-filter {
-        flex-wrap: wrap;
-        padding: 8px 0 14px;
+    /* ── キーボードショートカットバッジ ── */
+    .kbd-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--clr-brown, #6A564A);
+      background: #ffffff;
+      border: 1.5px solid rgba(106, 86, 74, 0.2);
+      border-radius: 6px;
+      box-shadow: 0 1.5px 0 rgba(106, 86, 74, 0.2);
+      font-family: ui-monospace, monospace;
+      line-height: 1.2;
+      vertical-align: middle;
+    }
+
+    /* ── Chrome拡張機能 導入ガイドセクション ── */
+
+    .ext-dl-card {
+      background: #ffffff;
+      border: 1.5px solid rgba(154, 176, 143, 0.35);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 16px rgba(106, 86, 74, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .ext-dl-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
       }
+    }
+
+    .ext-dl-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ext-dl-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(154, 176, 143, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(106, 86, 74, 0.1);
+    }
+
+    .ext-dl-icon img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .ext-dl-titles h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--clr-brown);
+      margin-bottom: 4px;
+    }
+
+    .ext-dl-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: rgba(106, 86, 74, 0.7);
+    }
+
+    .ext-badge-pill {
+      background: rgba(154, 176, 143, 0.18);
+      color: #556B4A;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-dl-ext {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #556B4A;
+      color: #ffffff !important;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(85, 107, 74, 0.25);
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .btn-dl-ext:hover {
+      background: #44563b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(85, 107, 74, 0.35);
+    }
+
+    /* 比較表 */
+    .compare-table-wrap {
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      border-radius: 16px;
+      border: 1.5px solid rgba(154, 176, 143, 0.3);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(106, 86, 74, 0.06);
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+      min-width: 540px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(154, 176, 143, 0.2);
+    }
+
+    .compare-table th {
+      background: #F6F1E3;
+      color: var(--clr-brown);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .compare-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .compare-table tr:hover td {
+      background: rgba(251, 246, 234, 0.5);
+    }
+
+    .compare-good {
+      color: #27ae60;
+      font-weight: 700;
+    }
+
+    .compare-best {
+      background: rgba(154, 176, 143, 0.08);
+    }
+
+    .compare-best-head {
+      background: rgba(154, 176, 143, 0.22) !important;
+      color: #556B4A !important;
     }
   </style>
 </head>
@@ -555,19 +713,133 @@
         <div class="launcher-card-inner">
           <div class="launcher-card-body">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);font-size:.75rem;font-weight:800;">L</span>
-              <span style="font-size:.72rem;font-weight:700;background:var(--accent-tag);color:var(--accent-dark);padding:2px 9px;border-radius:8px;">ランチャー</span>
+              <span
+                style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--accent-light);color:var(--accent-dark);font-size:.75rem;font-weight:800;">L</span>
+              <span
+                style="font-size:.72rem;font-weight:700;background:var(--accent-tag);color:var(--accent-dark);padding:2px 9px;border-radius:8px;">ランチャー</span>
             </div>
             <h2 style="font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--clr-brown);">ブックマークレットランチャー</h2>
-            <p style="font-size:.85rem;color:rgba(106,86,74,.75);line-height:1.6;margin-bottom:0;">このコードを1つブックマークに登録するだけで、全ブックマークレットを検索・カテゴリ絞り込み付きで選べる統合メニューがどこでも呼び出せます。</p>
+            <p style="font-size:.85rem;color:rgba(106,86,74,.75);line-height:1.6;margin-bottom:0;">
+              このコードを1つブックマークに登録するだけで、全ブックマークレットを検索機能付きで選べる統合メニューがどこでも呼び出せます。</p>
           </div>
           <div class="launcher-card-actions">
             <button class="btn-copy" id="btn-copy-launcher">コピーする</button>
             <button class="btn-view-code" id="btn-view-launcher">コードを見る</button>
-            <button class="btn-copy" id="btn-try-launcher" style="background:var(--accent);color:#fff;border-color:var(--accent);">ここで試す</button>
+            <button class="btn-copy" id="btn-try-launcher"
+              style="background:var(--accent);color:#fff;border-color:var(--accent);">ここで試す</button>
           </div>
         </div>
       </div>
+
+      <!-- ── Chrome拡張機能版（導入ガイド） ── -->
+      <section-heading id="chrome-extension" style="margin-top: 2.5rem;">Chrome拡張機能版（推奨）</section-heading>
+      <p class="hl-content-text" style="margin-bottom: 1.25rem;">
+        ブックマークレット版ランチャーを、さらに快適・高速に使えるようにした <strong>公式Chrome拡張機能</strong> です。
+        ツールバーから直接クリック、またはショートカットキー <kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">X</kbd> でいつでも即座に起動できます。
+        GitHubやX（旧Twitter）などのセキュリティ制限（CSP）が強固なWebページでもブロックされずに100%確実に動作します。
+      </p>
+
+
+      <!-- ダウンロードカード -->
+      <div class="ext-dl-card">
+        <div class="ext-dl-info">
+          <div class="ext-dl-icon">
+            <img src="/booklet-extension/icons/icon48.png" alt="Extension Logo">
+          </div>
+          <div class="ext-dl-titles">
+            <h3>Halcyon Bookmarklet Launcher</h3>
+            <div class="ext-dl-badges">
+              <span class="ext-badge-pill">Manifest V3 対応</span>
+              <span class="ext-badge-pill">外部送信なし</span>
+              <span>v1.0 / ZIP 約35KB</span>
+            </div>
+          </div>
+        </div>
+        <a href="/booklet-extension.zip" download="booklet-extension.zip" class="btn-dl-ext" id="btnDlExtension">
+          <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+            <path
+              d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z" />
+          </svg>
+          拡張機能（ZIP）をダウンロード
+        </a>
+      </div>
+
+      <!-- ランチャー vs 拡張機能 比較 -->
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--clr-brown); margin: 2rem 0 0.8rem;">
+        ブックマークレット版ランチャーとの違い（メリット・デメリット）
+      </h3>
+      <p class="hl-content-text" style="margin-bottom: 1rem;">
+        通常のブックマークレット版とChrome拡張機能版の主な違いです。PCで頻繁に作業される方にはChrome拡張機能版が圧倒的におすすめです。
+      </p>
+
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">比較項目</th>
+              <th style="width: 37%;">ブックマークレット版（統合ランチャー）</th>
+              <th style="width: 38%;" class="compare-best-head">Chrome拡張機能版（推奨）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>起動スピード</strong></td>
+              <td>ブックマークバーを表示してクリック</td>
+              <td class="compare-best"><span class="compare-good">Alt + X キー一発</span>、またはアイコンクリックで即起動</td>
+            </tr>
+            <tr>
+              <td><strong>セキュリティ制限 (CSP)</strong></td>
+              <td>GitHubやXなど一部サイトでブロックされる場合あり</td>
+              <td class="compare-best"><span class="compare-good">100% 確実に動作</span>（CSPの制約を受けずに実行可能）</td>
+            </tr>
+            <tr>
+              <td><strong>動作速度・オフライン</strong></td>
+              <td>実行時に外部スクリプトの通信が発生</td>
+              <td class="compare-best"><span class="compare-good">待機時間ゼロ</span>（ローカルキャッシュから即時表示）</td>
+            </tr>
+            <tr>
+              <td><strong>データ自動同期</strong></td>
+              <td>実行時に最新スクリプトを自動反映</td>
+              <td class="compare-best">GitHubと自動同期 ＋ 手動同期ボタン付き</td>
+            </tr>
+            <tr>
+              <td><strong>対応デバイス</strong></td>
+              <td><span class="compare-good">PC ＆ スマートフォン</span>（iPhone / Android等）</td>
+              <td class="compare-best">PC専用（Chrome / Edge / Brave / Opera等）</td>
+            </tr>
+            <tr>
+              <td><strong>導入の手軽さ</strong></td>
+              <td>ブックマークにURLを1つ登録するだけ（約15秒）</td>
+              <td class="compare-best">ZIPを解凍して読み込む初期設定が必要（約1分）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- インストール手順 -->
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--clr-brown); margin: 2rem 0 0.8rem;">
+        Chrome拡張機能の導入手順（約1分）
+      </h3>
+      <p class="hl-content-text" style="margin-bottom: 1rem;">
+        Chromeウェブストアを通さずに、解凍したフォルダを直接読み込ませるだけの簡単な手順です。Google Chrome、Microsoft Edge、Braveなど各種Chromium系ブラウザで導入できます。
+      </p>
+
+      <hl-step style="margin-bottom: 2.5rem;">
+        <hl-step-item num="1" title="ZIPファイルをダウンロードして解凍">
+          上のダウンロードボタンから <code>booklet-extension.zip</code> を保存し、ダウンロードしたZIPファイルを右クリックして「すべて展開」で解凍します。
+        </hl-step-item>
+        <hl-step-item num="2" title="拡張機能の管理画面を開く">
+          Chromeのアドレスバーに <code>chrome://extensions/</code> と入力してEnterキーを押すか、右上のメニュー（︙）→「拡張機能」→「拡張機能を管理」を開きます。
+        </hl-step-item>
+        <hl-step-item num="3" title="「デベロッパー モード」をONにする">
+          拡張機能管理画面の右上にある「デベロッパー モード」のスイッチをクリックしてONにします。
+        </hl-step-item>
+        <hl-step-item num="4" title="解凍したフォルダを読み込む">
+          画面左上に出現する「パッケージ化されていない拡張機能を読み込む」ボタンを押し、ステップ1で解凍した <code>booklet-extension</code> フォルダを選択すれば導入完了です！
+          ツールバーのパズルアイコンからピン留めすると便利です。<kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">X</kbd> でいつでも起動できます。
+        </hl-step-item>
+      </hl-step>
+
       <section-heading id="bookmarklets" style="margin-top: 0;">ブックマークレット一覧</section-heading>
 
       <!-- 検索バー -->
@@ -586,9 +858,6 @@
             <line x1="208" y1="48" x2="48" y2="208" />
           </svg></button>
       </div>
-
-      <!-- タグフィルター -->
-      <div class="tag-filter" id="tagFilter"></div>
 
       <!-- 件数 -->
       <p class="result-count" id="resultCount"></p>
@@ -633,7 +902,7 @@
     const LAUNCHER_CODE = `javascript:void(function(){var s=document.createElement('script');s.src='${LAUNCHER_URL}?_='+Date.now();document.head.appendChild(s);}())`;
 
     // ── ランチャーボタンイベント（イベント委譲で確実に動作） ──
-    document.addEventListener('click', async function(e) {
+    document.addEventListener('click', async function (e) {
       // 1. コピーするボタン
       const copyBtn = e.target.closest('#btn-copy-launcher');
       if (copyBtn) {
@@ -687,26 +956,6 @@
     // ── ブックマークレット定義（bookmarklets-data.js から読み込み） ──
     const bookmarklets = window.BOOKMARKLETS || [];
 
-    const tags = ["すべて", ...new Set(bookmarklets.map(b => b.tag))];
-    let activeTag = "すべて";
-
-    const tagFilter = document.getElementById("tagFilter");
-    tags.forEach(tag => {
-      const pill = document.createElement("button");
-      pill.className = "tag-pill" + (tag === "すべて" ? " active" : "");
-      pill.textContent = tag;
-      pill.dataset.tag = tag;
-      tagFilter.appendChild(pill);
-    });
-
-    tagFilter.addEventListener("click", e => {
-      const pill = e.target.closest(".tag-pill");
-      if (!pill) return;
-      activeTag = pill.dataset.tag;
-      document.querySelectorAll(".tag-pill").forEach(p => p.classList.toggle("active", p.dataset.tag === activeTag));
-      applyFilters();
-    });
-
     // ── カード描画 ─────────────────────────────────────────
     const cardList = document.getElementById("cardList");
 
@@ -715,14 +964,12 @@
       card.className = "card";
       card.id = "bm-" + bm.num;
       card.dataset.id = bm.id;
-      card.dataset.tag = bm.tag;
-      card.dataset.searchText = (bm.num + " " + bm.title + " " + bm.description + " " + bm.tag).toLowerCase();
+      card.dataset.searchText = (bm.num + " " + bm.title + " " + bm.description).toLowerCase();
       card.innerHTML = `
       <div class="card-header">
         <div class="card-title-area">
           <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
             <span class="card-num">${bm.num}</span>
-            <span class="card-tag">${bm.tag}</span>
           </div>
           <h2>${bm.title}</h2>
         </div>
@@ -748,11 +995,9 @@
 
       let visible = 0;
       document.querySelectorAll(".card").forEach(card => {
-        const matchTag = activeTag === "すべて" || card.dataset.tag === activeTag;
         const matchSearch = !q || card.dataset.searchText.includes(q);
-        const show = matchTag && matchSearch;
-        card.hidden = !show;
-        if (show) visible++;
+        card.hidden = !matchSearch;
+        if (matchSearch) visible++;
       });
 
       resultCount.innerHTML = `<span>${visible}</span> 件`;
