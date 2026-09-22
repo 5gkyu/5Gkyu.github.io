@@ -609,4 +609,51 @@
 
     _applyFilter();
   }
+
+  /* ── オーバーレイを閉じる ── */
+  function _closeOv(targetOv) {
+    var ov = targetOv || document.getElementById(OVERLAY_ID);
+    if (!ov) return;
+    ov.classList.remove('bm-open');
+    setTimeout(function () {
+      if (ov && ov.parentNode) {
+        ov.parentNode.removeChild(ov);
+      }
+      var st = document.getElementById(STYLE_ID);
+      if (st && st.parentNode) {
+        st.parentNode.removeChild(st);
+      }
+    }, 280);
+  }
+
+  /* ── ブックマークレットを実行 ── */
+  function _execute(targetOv, code) {
+    _closeOv(targetOv);
+    if (!code) return;
+
+    setTimeout(function () {
+      try {
+        var raw = code.replace(/^\s*javascript:/i, '').trim();
+        // 1. スクリプトタグ注入方式（グローバルコンテキストで安全かつ確実に実行）
+        var s = document.createElement('script');
+        s.textContent = raw;
+        (document.head || document.documentElement || document.body).appendChild(s);
+        s.remove();
+      } catch (err) {
+        console.error('Bookmarklet execution error:', err);
+        try {
+          // 2. フォールバック: Functionコンストラクタ
+          var fn = new Function(raw);
+          fn();
+        } catch (e2) {
+          try {
+            // 3. 最終フォールバック: eval
+            (0, eval)(raw);
+          } catch (e3) {
+            alert('ブックマークレットの実行に失敗しました:\n' + (e3.message || e3));
+          }
+        }
+      }
+    }, 150);
+  }
 })();

@@ -472,8 +472,12 @@
 
     /* ── ランチャー専用ヒーローカード ── */
     .launcher-card {
+      display: block;
       background: linear-gradient(135deg, #ffffff 0%, rgba(146, 181, 188, 0.12) 100%);
       border: 1.5px solid var(--accent);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(146, 181, 188, 0.12);
       margin-bottom: 2rem;
       position: relative;
       overflow: hidden;
@@ -547,7 +551,7 @@
       <p class="hl-content-text" style="margin-bottom: 1rem;">
         すべてのブックマークレットをまとめて選択・実行できる「ランチャー」を用意しています。下のコードを1つだけブックマークに登録するだけで、あとはクリック一発でこのページのすべてのツールを使い分けられます。
       </p>
-      <hl-card class="launcher-card">
+      <div class="launcher-card">
         <div class="launcher-card-inner">
           <div class="launcher-card-body">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -563,7 +567,7 @@
             <button class="btn-copy" id="btn-try-launcher" style="background:var(--accent);color:#fff;border-color:var(--accent);">ここで試す</button>
           </div>
         </div>
-      </hl-card>
+      </div>
       <section-heading id="bookmarklets" style="margin-top: 0;">ブックマークレット一覧</section-heading>
 
       <!-- 検索バー -->
@@ -628,23 +632,56 @@
     const LAUNCHER_URL = 'https://5gkyu.github.io/archive/other/booklet/launcher.js';
     const LAUNCHER_CODE = `javascript:void(function(){var s=document.createElement('script');s.src='${LAUNCHER_URL}?_='+Date.now();document.head.appendChild(s);}())`;
 
-    // ── ランチャーボタンイベント ───────────────────────────
-    document.getElementById('btn-copy-launcher').addEventListener('click', async function() {
-      const btn = this;
-      try { await navigator.clipboard.writeText(LAUNCHER_CODE); }
-      catch { const ta = document.createElement('textarea'); ta.value = LAUNCHER_CODE; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
-      btn.textContent = 'コピーしました';
-      btn.classList.add('copied');
-      showToast('クリップボードにコピーしました');
-      setTimeout(() => { btn.textContent = 'コピーする'; btn.classList.remove('copied'); }, 2500);
-    });
-    document.getElementById('btn-view-launcher').addEventListener('click', function() {
-      openCodeModal(LAUNCHER_CODE);
-    });
-    document.getElementById('btn-try-launcher').addEventListener('click', function() {
-      const s = document.createElement('script');
-      s.src = 'launcher.js?_=' + Date.now();
-      document.head.appendChild(s);
+    // ── ランチャーボタンイベント（イベント委譲で確実に動作） ──
+    document.addEventListener('click', async function(e) {
+      // 1. コピーするボタン
+      const copyBtn = e.target.closest('#btn-copy-launcher');
+      if (copyBtn) {
+        e.preventDefault();
+        try {
+          await navigator.clipboard.writeText(LAUNCHER_CODE);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = LAUNCHER_CODE;
+          ta.style.cssText = 'position:fixed;opacity:0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        copyBtn.textContent = 'コピーしました';
+        copyBtn.classList.add('copied');
+        showToast('クリップボードにコピーしました');
+        setTimeout(() => {
+          copyBtn.textContent = 'コピーする';
+          copyBtn.classList.remove('copied');
+        }, 2500);
+        return;
+      }
+
+      // 2. コードを見るボタン
+      const viewBtn = e.target.closest('#btn-view-launcher');
+      if (viewBtn) {
+        e.preventDefault();
+        openCodeModal(LAUNCHER_CODE);
+        return;
+      }
+
+      // 3. ここで試すボタン
+      const tryBtn = e.target.closest('#btn-try-launcher');
+      if (tryBtn) {
+        e.preventDefault();
+        const ov = document.getElementById('__bm_launcher_ov__');
+        if (ov) {
+          showToast('ランチャーを閉じました');
+        } else {
+          showToast('ランチャーを起動しました');
+        }
+        const s = document.createElement('script');
+        s.src = 'launcher.js?_=' + Date.now();
+        document.head.appendChild(s);
+        return;
+      }
     });
 
     // ── ブックマークレット定義（bookmarklets-data.js から読み込み） ──

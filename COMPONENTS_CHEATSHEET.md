@@ -1,31 +1,34 @@
-# Halcyon コンポーネント チートシート & AI開発リファレンス
+# Halcyon コンポーネント完全チートシート & 実装リファレンス
 
-本ドキュメントは、Halcyon Design System の全Web Componentsに関する属性・スロット・使用例をまとめたチートシートです。
-人間がページを作成する際のコピペ用リファレンスとしてだけでなく、**AIが正確なHTMLコードを生成するための仕様書**としても機能します。
+本ドキュメントは、**Halcyon Design System** の全 Web Components に関する属性・スロット・使用例・仕様をまとめた完全リファレンスです。
+`components/src/` 配下の実コードを検査・検証した最新の仕様に基づいており、開発時のコピペ用だけでなく、AIエージェントが正確なコードを生成するための仕様書として機能します。
 
 ---
 
 ## 目次
 
-1. [クイックスタート（全ページ共通）](#クイックスタート全ページ共通)
-2. [ページ全体のボイラープレート（テンプレート）](#ページ全体のボイラープレートテンプレート)
-3. [レイアウト系コンポーネント](#1-レイアウト系)
-4. [サイドバー系コンポーネント](#2-サイドバー系)
-5. [記事・Note系コンポーネント](#3-記事note系)
-6. [基本UIパーツ](#4-基本uiパーツ)
-7. [インタラクション系コンポーネント](#5-インタラクション系)
-8. [フォーム系コンポーネント](#6-フォーム系)
-9. [拡張・便利ツール系コンポーネント](#7-拡張便利ツール系)
+1. [共通ルール & クイックスタート](#共通ルール--クイックスタート)
+2. [基本テンプレート](#基本テンプレート)
+   - [テンプレートA: ツール・Webアプリ用](#テンプレートa-ツールwebアプリ用)
+   - [テンプレートB: Note記事用（hl-article）](#テンプレートb-note記事用hl-article)
+   - [テンプレートC: 一般・一覧ページ用（hl-layout）](#テンプレートc-一般一覧ページ用hl-layout)
+3. [1. レイアウト系 (layout)](#1-レイアウト系-layout)
+4. [2. サイドバー系 (sidebar)](#2-サイドバー系-sidebar)
+5. [3. 記事・コンテンツ系 (content)](#3-記事コンテンツ系-content)
+6. [4. 基本UIパーツ (ui)](#4-基本uiパーツ-ui)
+7. [5. インタラクション系 (interactive)](#5-インタラクション系-interactive)
+8. [6. フォーム部品群 (forms)](#6-フォーム部品群-forms)
+9. [7. 拡張・便利ツール系 (extensions)](#7-拡張便利ツール系-extensions)
 
 ---
 
-## クイックスタート（全ページ共通）
+## 共通ルール & クイックスタート
 
-すべてのページで `<head>` 内にチラつき防止スタイルを配置し、`</body>` 直前で `components.js` を1行読み込みます。
+全ページ共通で、`<head>` 内にチラつき（FOUC）防止スタイルを配置し、`</body>` 直前で `components.js` を読み込みます。
 
-> **デザイン・アイコン規則（絵文字禁止）**:
-> UI、ボタン、見出し、説明文等において **Unicode絵文字（⚡, 📋, 📦, 💡など）の使用は厳禁** です。
-> アイコン表現が必要な場合は、インライン `<svg>` タグ（`stroke="currentColor"` や `fill="currentColor"` を使用）、SVG画像、または `<hl-icon>` を使用してください。
+> **デザイン・アイコン原則（絵文字の絶対禁止）**:
+> UI、ボタン、見出し、説明文、ラベル等において **Unicode絵文字（⚡, 📋, 📦, 💡, 🚀など）の使用は厳禁** です。
+> アイコンが必要な場合は、`<hl-icon name="...">`、インライン `<svg>` タグ（`fill="currentColor"` や `stroke="currentColor"` を使用）、またはSVG画像を使用してください。
 
 ```html
 <!DOCTYPE html>
@@ -33,16 +36,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ページタイトル - Halcyon</title>
+  <title>ページタイトル | Halcyon - 5Gkyu</title>
+  
   <!-- チラつき（FOUC）防止スタイル -->
-  <style id="fouc-prevent">body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; } *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</style>
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
 </head>
 <body>
-  <site-header site-name="カテゴリ名"></site-header>
 
-  <!-- ページコンテンツ -->
+  <!-- コンテンツ（テンプレートを参照） -->
 
-  <site-footer copy="5Gkyu"></site-footer>
+  <!-- 全コンポーネントを自動ロードするエントリポイント -->
   <script src="/components/components.js"></script>
 </body>
 </html>
@@ -50,454 +56,658 @@
 
 ---
 
-## ページ全体のボイラープレート（テンプレート）
+## 基本テンプレート
 
-### テンプレートA: ツール・App用（1カラム / 2カラム）
+### テンプレートA: ツール・Webアプリ用
+ツール本体を1カラム（または2カラム）で中央配置する標準的な構成です。
 
 ```html
+<site-header site-name="App"></site-header>
+
 <hl-layout cols="1">
-  <hl-breadcrumb 
-    level1-name="Archive" level1-url="/archive/" 
-    level2-name="App" level2-url="/archive/app/" 
+  <hl-breadcrumb
+    level1-name="Archive" level1-url="/archive/"
+    level2-name="App" level2-url="/archive/app/"
     current="ツール名">
   </hl-breadcrumb>
 
   <page-title>ツール名</page-title>
-  <p class="hl-content-text">ツールの説明文をここに記載します。</p>
+  <p class="hl-content-text">ツールの概要や使い方の説明文をここに記載します。</p>
 
   <hl-card style="margin-top: 1.5rem;">
     <!-- ツール本体UI -->
   </hl-card>
 </hl-layout>
+
+<site-footer copy="5Gkyu"></site-footer>
 ```
 
-### テンプレートB: Note記事用（目次連動 2カラム）
+### テンプレートB: Note記事用（hl-article）
+Note（考察・コラム・解説）記事では、`<hl-article>` を使用します。
+ヘッダー、フッター、パンくず、目次、著者情報、Markdownパース処理がすべて自動で内包・展開されます。
 
 ```html
+<hl-article
+  title="記事タイトル"
+  date="2026.09.22"
+  badge="考察"
+  category="Note"
+  category-url="/archive/note/"
+  description="1〜2文程度の魅力的な要約文。">
+
+<!-- 本文（Markdown記法とHTMLタグをそのまま記述可能） -->
+
+## 第1章 見出し
+本文テキスト。**太字**や `コード`、[リンク](url) がそのまま使えます。
+
+<hl-chat char="A">素朴な疑問を投げるセリフ</hl-chat>
+<hl-chat char="B">共感やツッコミを返すセリフ</hl-chat>
+
+<hl-alert type="info">補足情報やワンポイント豆知識</hl-alert>
+
+## 参考文献・注記
+<hl-cite title="文献タイトル" author="著者名" year="2026" url="https://example.com/"></hl-cite>
+
+</hl-article>
+```
+
+### テンプレートC: 一般・一覧ページ用（hl-layout）
+サイドバー付きの2カラムレイアウトで、カードグリッドやセクション見出しを並べる構成です。
+
+```html
+<site-header site-name="Archive"></site-header>
+
 <hl-layout cols="2">
   <div class="hl-layout-main">
-    <hl-breadcrumb 
-      level1-name="Archive" level1-url="/archive/" 
-      level2-name="Note" level2-url="/archive/note/" 
-      current="記事タイトル">
-    </hl-breadcrumb>
+    <hl-breadcrumb level1-name="Home" level1-url="/" current="Archive"></hl-breadcrumb>
+    <page-title>コンテンツ一覧</page-title>
 
-    <page-title>記事タイトル</page-title>
-
-    <hl-lead>
-      記事の要約や導入文をここに記載します。
-    </hl-lead>
-
-    <div class="hl-content-text">
-      <h2 id="section-1">第1章 見出し</h2>
-      <p>本文テキスト...</p>
-
-      <h3 id="section-1-1">詳細項目</h3>
-      <p>補足説明...</p>
-
-      <h2 id="references">参考文献・注記</h2>
-      <hl-cite title="参考資料名" author="著者名" year="2026" url="https://example.com/"></hl-cite>
-    </div>
-
-    <hl-share text="記事をシェア"></hl-share>
+    <section>
+      <section-heading>Webツール</section-heading>
+      <hl-card-grid cols="2">
+        <hl-card clickable href="/archive/app/color/">カラーパレット</hl-card>
+        <hl-card clickable href="/archive/app/image-compression/">画像圧縮</hl-card>
+      </hl-card-grid>
+    </section>
   </div>
 
   <aside class="hl-layout-sidebar">
-    <div class="sidebar-sticky">
-      <hl-profile></hl-profile>
-      <hl-toc></hl-toc>
-    </div>
+    <hl-profile></hl-profile>
+    <hl-sidebar-box title="ご案内">
+      <p>サイドバーの補足テキスト</p>
+    </hl-sidebar-box>
   </aside>
 </hl-layout>
+
+<site-footer copy="5Gkyu"></site-footer>
 ```
 
 ---
 
-## 1. レイアウト系
+## 1. レイアウト系 (layout)
 
 ### `<site-header>`
-固定ヘッダーを表示します。ロゴ、ナビゲーション、プログレスバーが含まれます。
+固定ヘッダーを表示します。ロゴ、ナビゲーションリンク、読了プログレスバーを含みます。
 - **属性**:
-  - `site-name` (string): ヘッダー右上に表示するカテゴリバッジ名（例: `"App"`, `"Note"`, `"Entrance"`）
+  - `site-name`: 右側に小さく表示される現在カテゴリ・サイト名（例: `App`, `Note`, `Archive`）
 - **使用例**:
   ```html
   <site-header site-name="App"></site-header>
   ```
 
 ### `<site-footer>`
-サイト共通のフッターを表示します。
+サイト全体の共通フッターを表示します。著作権表記、ページトップへのスムーススクロールボタンが含まれます。
 - **属性**:
-  - `copy` (string): コピーライト表記名（通常は `"5Gkyu"`）
+  - `copy`: コピーライト表記の名前（デフォルト: `5Gkyu`）
 - **使用例**:
   ```html
   <site-footer copy="5Gkyu"></site-footer>
   ```
 
 ### `<hl-layout>`
-メインコンテナの横幅とカラム数を制御します。
+コンテンツ全体の横幅とカラム構造（1カラム / 2カラム）を規定するレイアウトコンテナです。
 - **属性**:
-  - `cols` (`"1"` | `"2"`): カラム数。単一カラムは `"1"`（標準720px）、サイドバー付きは `"2"`（標準1100px）を指定。
-  - `size` (`"wide"` | `"full"`): 横幅の拡張（省略時は標準）。
-    - `size="wide"`: 横幅を **1280px** に拡張（カードの多い一覧やダッシュボード等）。
-    - `size="full"`: 横幅を **min(1440px, 95vw)** に拡張（エディタ等の作業領域用）。
+  - `cols`: カラム数。`"1"`（メイン幅 1000px）または `"2"`（メイン + サイドバー 1100px）
+  - `size`: 横幅のバリエーション。
+    - `narrow`: 最大 720px
+    - `wide`: 最大 1280px
+    - `full`: 最大 min(1440px, 95vw)
+- **スロット構造 (cols="2" 時)**:
+  - `<div class="hl-layout-main">`: メインコンテンツ領域
+  - `<aside class="hl-layout-sidebar">`: サイドバー領域
 - **使用例**:
   ```html
-  <!-- 標準2カラム（全幅タイトル対応・左右上端揃え） -->
   <hl-layout cols="2">
-    <hl-breadcrumb current="ツール名"></hl-breadcrumb>
-    <page-title>ツール名</page-title>
-    <p class="hl-content-text" full-width>説明文...</p>
-
     <div class="hl-layout-main">メインコンテンツ</div>
     <aside class="hl-layout-sidebar">サイドバー</aside>
   </hl-layout>
   ```
 
 ### `<page-title>`
-ページの大見出し（H1相当）と装飾アンダーラインを表示します。
+ページの大見出し（`<h1>` 相当）を表示します。左端にデザインアクセントのボーダーが付きます。
 - **使用例**:
   ```html
-  <page-title>画像圧縮ツール</page-title>
+  <page-title>ページ大見出しタイトル</page-title>
   ```
 
 ### `<section-heading>`
-セクションの区切り見出しを表示します（App一覧やツール内で使用）。
+一覧ページやアプリ内のセクション区切り見出し（`<h2>` 相当）を表示します。`hl-toc` によって目次項目として自動認識されます。
 - **使用例**:
   ```html
-  <section-heading>設定オプション</section-heading>
+  <section-heading>セクション見出し</section-heading>
   ```
 
 ### `<hl-breadcrumb>`
-パンくずリストを表示します。
+現在ページの階層構造を示すパンくずナビゲーションです。
 - **属性**:
   - `level1-name`, `level1-url`: 第1階層
-  - `level2-name`, `level2-url`: 第2階層（省略可）
+  - `level2-name`, `level2-url`: 第2階層
+  - `level3-name`, `level3-url`: 第3階層（任意）
   - `current`: 現在のページ名
 - **使用例**:
   ```html
-  <hl-breadcrumb 
-    level1-name="Archive" level1-url="/archive/" 
-    level2-name="App" level2-url="/archive/app/" 
-    current="画像圧縮">
+  <hl-breadcrumb
+    level1-name="Archive" level1-url="/archive/"
+    level2-name="App" level2-url="/archive/app/"
+    current="画像圧縮ツール">
   </hl-breadcrumb>
   ```
 
 ---
 
-## 2. サイドバー系
+## 2. サイドバー系 (sidebar)
 
 ### `<hl-profile>`
-プロフィールカード（アイコン、名前、SNSリンク、紹介文）を表示します。
+5Gkyuのプロフィールカード（アイコン、名前、自己紹介、主要SNSリンク）を表示します。
 - **使用例**:
   ```html
   <hl-profile></hl-profile>
   ```
 
 ### `<hl-toc>`
-記事内の `h2[id]` および `h3[id]` を自動検出して、スクロール追従目次を生成します。
+ページ内の見出し（`h2`, `h3`, `section-heading`）を自動検出し、スクロール連動ハイライト付きの目次リストを自動生成します。
+- **属性**:
+  - `label`: 目次タイトル（デフォルト: `目次`）
 - **使用例**:
   ```html
-  <div class="sidebar-sticky">
-    <hl-toc></hl-toc>
-  </div>
+  <hl-toc></hl-toc>
   ```
 
 ### `<hl-sidebar-box>`
-サイドバー内に配置する汎用装飾ボックスです。
+サイドバー内に任意のウィジェットや案内文を配置するためのカードブロックです。
+- **属性**:
+  - `title`: ブロックの見出しタイトル
 - **使用例**:
   ```html
-  <hl-sidebar-box>
-    <div class="hl-sidebar-title">Information</div>
-    <p class="hl-content-text">サイドバーの補足情報...</p>
+  <hl-sidebar-box title="関連リンク">
+    <p>サイドバー内に自由に配置できます。</p>
   </hl-sidebar-box>
+  ```
+
+### `<hl-app-sheet>`
+モバイル画面（幅 860px 以下）において、画面下部からスライドアップする設定・操作用ボトムシートを提供します。ヘッダー内に自動で展開ボタン（歯車アイコン）を注入します。
+- **属性**:
+  - `label`: ボタンのアクセシビリティラベル（デフォルト: `設定`）
+- **使用例**:
+  ```html
+  <hl-app-sheet label="ツール設定">
+    <h3>設定パネル</h3>
+    <!-- モバイル用設定UI -->
+  </hl-app-sheet>
   ```
 
 ---
 
-## 3. 記事・Note系
+## 3. 記事・コンテンツ系 (content)
+
+### `<hl-article>`
+Note記事用の統合ラッパーコンポーネントです。ヘッダー、フッター、パンくず、目次、著者情報、記事メタデータをすべて内包し、子要素のMarkdown記法を自動解析・描画します。
+- **属性**:
+  - `title`: 記事タイトル（ブラウザの `<title>` にも自動反映）
+  - `date`: 公開日（例: `2026.09.22`）
+  - `badge`: カテゴリバッジ（例: `考察`, `ガイド`, `コラム`, `雑学`）
+  - `category`: パンくず・ヘッダー用カテゴリ名（デフォルト: `Note`）
+  - `category-url`: カテゴリリンク先（デフォルト: `/archive/note/`）
+  - `description`: 記事要約（`meta[name="description"]` に自動反映）
+- **使用例**: [テンプレートB: Note記事用](#テンプレートb-note記事用hl-article) を参照。
 
 ### `<hl-lead>`
-記事冒頭のリード文（要約パラグラフ）を装飾枠で表示します。
+記事冒頭の要約や導入パラグラフを強調表示します。
 - **使用例**:
   ```html
   <hl-lead>
-    この記事では、Web ComponentsとLitを活用したモダンなフロントエンド設計について解説します。
+    この記事では、デザインシステムにおけるコンポーネント設計の要点を解説します。
   </hl-lead>
   ```
 
-### `<hl-figure>`
-図版・画像をキャプションおよび出典リンク付きで美しく表示します。
+### `<hl-chat>`
+会話吹き出しを表示します。
 - **属性**:
-  - `src` (string): 画像URL
-  - `alt` (string): 代替テキスト
-  - `caption` (string): 画像下の説明
-  - `source` (string, optional): 出典名
+  - `char`: キャラクターID（`A`〜`F`）
+  - `align`: 配置位置（`left` または `right`。未指定時は自動配置）
 - **使用例**:
   ```html
-  <hl-figure 
-    src="/image/diagram.png" 
-    alt="構成図" 
-    caption="システムアーキテクチャ概要" 
-    source="公式ドキュメント">
+  <hl-chat char="A">素朴な疑問やコメント</hl-chat>
+  <hl-chat char="B">回答や解説</hl-chat>
+  ```
+> ※各キャラクターの設定や会話文の作成ガイドラインは、専用スキル [note-writer](file:///c:/Users/yuton/OneDrive/デスクトップ/mainpage/.agents/skills/note-writer/SKILL.md) を参照してください。
+
+### `<hl-figure>`
+キャプションや出典元（クレジット）付きの図版・画像ブロックです。
+- **属性**:
+  - `src`: 画像URL（指定時は `<img>` を自動生成）
+  - `alt`: 代替テキスト
+  - `caption`: 図版の説明文（キャプション）
+  - `source`: 出典元クレジット（例: `Wikimedia Commons`）
+- **使用例**:
+  ```html
+  <hl-figure src="/path/to/image.png" alt="図解" caption="アーキテクチャ概要図" source="公式ドキュメント">
   </hl-figure>
   ```
 
-### `<hl-quote>`
-引用文を大きなクォーテーションアイコンとともにおしゃれに表示します。
+### `<hl-image>`
+角丸や影の付いた記事用画像ブロックです。
 - **属性**:
-  - `source` (string): 引用元名
-  - `href` (string, optional): 引用元のリンクURL
+  - `src`: 画像URL
+  - `alt`: 代替テキスト
+  - `caption`: キャプション（任意）
+  - `aspect-ratio`: アスペクト比（例: `16/9`, `4/3`, `1/1`）
+  - `max-width`: 最大幅（例: `600px`）
+  - `border`: `true` で枠線を表示
 - **使用例**:
   ```html
-  <hl-quote source="Steve Jobs" href="https://example.com">
-    Stay hungry, stay foolish.
+  <hl-image src="/path/to/photo.jpg" alt="風景写真" caption="夕暮れの街並み" aspect-ratio="16/9"></hl-image>
+  ```
+
+### `<hl-quote>`
+出典元の明記が可能な引用ブロックです。
+- **属性**:
+  - `source`: 引用元の著者・文献名
+  - `url`: 引用元へのリンクURL（任意）
+- **使用例**:
+  ```html
+  <hl-quote source="ショーペンハウアー, 『読書について』" url="https://example.com/">
+    読書とは、他人にものを考えてもらうことである。
   </hl-quote>
   ```
 
-### `<hl-chat>`
-キャラクターによる会話吹き出しブロックを表示します。
-- **属性**:
-  - `char` (`"A"`〜`"F"`): キャラクターID（A: Akari, B: Becky, C: Charlotte, D: Dulcie, E: Esmé, F: Fūka）
-  - `align` (`"left"` | `"right"`): 吹き出しの位置（default: `"left"`）
-- **使用例**:
-  ```html
-  <hl-chat char="B" align="left">
-    コンポーネントを分割したから、とっても修正しやすくなったね！
-  </hl-chat>
-  <hl-chat char="F" align="right">
-    うん、AIも迷わずコードを書けるよ。
-  </hl-chat>
-  ```
-
 ### `<hl-compare>`
-左右比較ブロックを表示します（Before/Afterや2つの概念の比較）。
+2つの概念や選択肢を左右2カラムで分かりやすく対比表示するブロックです。
 - **属性**:
-  - `left-label`: 左側のラベル
-  - `right-label`: 右側のラベル
+  - `left-label`: 左カラムの見出しタイトル
+  - `right-label`: 右カラムの見出しタイトル
+- **スロット**:
+  - `slot="left"`: 左側のコンテンツ
+  - `slot="right"`: 右側のコンテンツ
 - **使用例**:
   ```html
-  <hl-compare left-label="従来の書き方" right-label="Litでの書き方">
-    <div slot="left">手動でDOMを更新する必要がある</div>
-    <div slot="right">プロパティ変更で自動更新される</div>
+  <hl-compare left-label="静的サイト" right-label="動的サイト">
+    <div slot="left">
+      <ul>
+        <li>高速な表示</li>
+        <li>サーバー保守が不要</li>
+      </ul>
+    </div>
+    <div slot="right">
+      <ul>
+        <li>リアルタイム更新が可能</li>
+        <li>データベースが必要</li>
+      </ul>
+    </div>
   </hl-compare>
   ```
 
 ### `<hl-cite>`
-参考文献カードを表示します。
+記事末尾の参考文献カードです。実在する書籍や文献・Webリンクを明記します。
 - **属性**:
-  - `title`, `author`, `publisher`, `year`, `url`, `accessed`
+  - `title`: 論文・書籍・記事のタイトル
+  - `author`: 著者名
+  - `publisher`: 出版社・メディア名
+  - `year`: 発行年
+  - `url`: リンク先URL
+  - `accessed`: 閲覧日（例: `2026.09.22`）
 - **使用例**:
   ```html
-  <hl-cite 
-    title="Web Components入門" 
-    author="山田太郎" 
-    publisher="技術書出版" 
-    year="2026" 
-    url="https://example.com/">
-  </hl-cite>
+  <hl-cite title="デザインの心理学" author="D. A. ノーマン" publisher="新曜社" year="1990"></hl-cite>
   ```
 
-### 脚注（`<hl-fn>`, `<hl-fn-item>`, `<hl-footnotes>`）
-本文中の参照番号と末尾の注記一覧を作成します。
+### 脚注コンポーネント (`<hl-fn>`, `<hl-fn-item>`, `<hl-footnotes>`)
+本文中の注釈番号と、末尾の注釈一覧を連携させます。
 - **使用例**:
   ```html
-  <p>Web Componentsはブラウザ標準規格です<hl-fn num="1"></hl-fn>。</p>
+  <!-- 本文中の注釈番号 -->
+  <p>最新のWeb標準仕様<hl-fn num="1"></hl-fn>に準拠しています。</p>
 
-  <!-- 記事末尾 -->
-  <hl-footnotes label="注記・解説">
-    <hl-fn-item num="1">W3Cで策定されたCustom Elements等の総称。</hl-fn-item>
+  <!-- 記事末尾の注釈ブロック -->
+  <hl-footnotes label="注記">
+    <hl-fn-item num="1">W3C Recommendation 2026年版仕様書を参照。</hl-fn-item>
   </hl-footnotes>
   ```
 
-### `<hl-share>`
-X（Twitter）シェアボタン、OS標準シェアボタン、全文コピーボタンを表示します。
+### `<hl-embed>`
+YouTubeやニコニコ動画の動画埋め込みコンポーネントです。通常URLを指定するだけで自動的に埋め込みプレイヤーURLへ変換されます。
+- **属性**:
+  - `url`: 動画視聴URL（YouTube: `watch?v=...` や `youtu.be/...`、ニコニコ: `nicovideo.jp/watch/...`）
+  - `src`: 埋め込みURLを直接指定する場合
+  - `caption`: キャプション（任意）
+  - `autoplay`, `loop`, `muted`: 再生オプション
 - **使用例**:
   ```html
-  <hl-share text="記事を共有する"></hl-share>
+  <hl-embed url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" caption="デモ動画"></hl-embed>
+  ```
+
+### `<hl-share>`
+X (Twitter) へのポスト、およびURLクリップボードコピーボタンを横並びで表示します。記事末尾に配置します。
+- **属性**:
+  - `text`: シェア時のポスト文言（任意）
+- **使用例**:
+  ```html
+  <hl-share text="Halcyonデザインシステムについて"></hl-share>
   ```
 
 ---
 
-## 4. 基本UIパーツ
+## 4. 基本UIパーツ (ui)
 
-### `<hl-button>`
-統一感のあるモダンなボタンを表示します。
+### `<hl-icon>`
+組み込みSVGアイコンを表示します。
 - **属性**:
-  - `variant` (`"primary"` | `"secondary"` | `"danger"` | `"ghost"`): 配色スタイル
-  - `size` (`"sm"` | `"md"` | `"lg"`): ボタンサイズ
-  - `icon` (string, optional): アイコン名
-  - `href` (string, optional): リンクボタンにする場合のURL
+  - `name`: アイコン名（下記定義済みアイコンから選択）
+- **利用可能なアイコン名**:
+  `gear` (歯車), `lightbulb` (電球), `trash` (ゴミ箱), `image` (画像), `ruler` (定規), `layout` (レイアウト), `floppy-disk` (保存), `search` (虫眼鏡), `palette` (パレット), `pdf` (PDF), `check` (チェック), `file` (ファイル)
 - **使用例**:
   ```html
-  <hl-button variant="primary" size="md">決定する</hl-button>
-  <hl-button variant="secondary" size="sm" icon="copy">コピー</hl-button>
+  <hl-icon name="search"></hl-icon>
   ```
 
-### `<hl-card>` & `<hl-card-grid>`
-白基調の美しいカードとグリッドレイアウトです。
+### `<hl-button>`
+統一デザインのボタンプラグインです。リンク（`<a>`）またはボタン（`<button>`）として自動判定されます。
+- **属性**:
+  - `variant` (または `type`): `primary` (標準), `secondary` (枠線), `danger` (警告赤), `ghost` (背景透明)
+  - `size`: `sm` (小), `lg` (大), 未指定で通常サイズ
+  - `icon`: アイコン名（`HL_ICONS` の名前を指定）
+  - `href`: 指定すると `<a>` タグとして動作
+  - `target`: リンクターゲット（例: `_blank`）
+  - `block`: 100%幅で表示
+  - `loading`: ローディングスピナー表示（クリック無効）
+  - `disabled`: ボタン無効化
+  - `selected`: 選択アクティブ状態
 - **使用例**:
   ```html
-  <hl-card-grid>
-    <hl-card>
-      <h3>カードタイトル</h3>
-      <p class="hl-content-text">カードの内容...</p>
+  <hl-button variant="primary" icon="search">検索する</hl-button>
+  <hl-button variant="secondary" href="/archive/" size="sm">一覧に戻る</hl-button>
+  ```
+
+### `<hl-card>` / `<hl-card-grid>`
+柔らかい角丸と境界線を持つカードと、それを均等に並べるグリッドコンテナです。
+- **`<hl-card-grid>` 属性**:
+  - `cols`: カラム数（`"1"`, `"2"`, `"3"`, `"4"`。デフォルト: `"2"`）
+- **`<hl-card>` 属性**:
+  - `clickable`: `true` でホバー時に浮き上がるインタラクションを付与
+  - `href`: リンクカードとして機能させるURL
+- **使用例**:
+  ```html
+  <hl-card-grid cols="2">
+    <hl-card clickable href="/page1/">
+      <h3>カードタイトル 1</h3>
+      <p>カードの内容テキストです。</p>
     </hl-card>
-    <hl-card>
-      <h3>カード2</h3>
-      <p class="hl-content-text">カードの内容...</p>
+    <hl-card clickable href="/page2/">
+      <h3>カードタイトル 2</h3>
+      <p>カードの内容テキストです。</p>
     </hl-card>
   </hl-card-grid>
   ```
 
 ### `<hl-alert>`
-注意書きやインフォメーションコールアウトを表示します。
+視覚的な注意喚起やコールアウトを表示します。
 - **属性**:
-  - `type` (`"info"` | `"warning"` | `"success"` | `"danger"`)
+  - `type`: `info` (水色・情報), `warning` (オレンジ・注意), `success` (緑・成功), `danger` (赤・危険)
 - **使用例**:
   ```html
-  <hl-alert type="warning">
-    ブラウザのローカル環境でのみ動作し、サーバーにはデータは送信されません。
-  </hl-alert>
+  <hl-alert type="warning">入力したデータは自動的に保存されません。</hl-alert>
   ```
 
 ### `<hl-code>`
-シンタックスハイライト風のコード表示ブロックです。
+シンタックスハイライト風の装飾とワンクリックコピーボタンを備えたコードブロックです。
 - **属性**:
-  - `lang` (`"HTML"` | `"CSS"` | `"JS"` | `"JSON"` など)
+  - `lang`: 言語バッジ表記（例: `HTML`, `CSS`, `JS`, `JSON`, `Bash`）
 - **使用例**:
   ```html
-  <hl-code lang="HTML">
-&lt;script src="/components/components.js"&gt;&lt;/script&gt;
+  <hl-code lang="JS">
+  const greeting = "Hello, Halcyon!";
+  console.log(greeting);
   </hl-code>
   ```
 
----
-
-## 5. インタラクション系
-
-### `<hl-accordion>`（★Lit製）
-クリックで滑らかに開閉するアコーディオンです。
-- **属性**:
-  - `title` (string): ヘッダータイトル
+### `<hl-step>` / `<hl-step-item>`
+番号付きの手順やチュートリアルを順番に分かりやすく表示します。
 - **使用例**:
   ```html
-  <hl-accordion title="詳しい使い方を見る">
-    <p>1. ファイルを選択します。<br>2. 変換ボタンを押します。</p>
+  <hl-step>
+    <hl-step-item num="1" title="画像の選択">変換したい画像ファイルをドラッグ＆ドロップします。</hl-step-item>
+    <hl-step-item num="2" title="設定の調整">スライダーで圧縮率を調整します。</hl-step-item>
+    <hl-step-item num="3" title="ダウンロード">保存ボタンを押して保存します。</hl-step-item>
+  </hl-step>
+  ```
+
+### `<hl-stepper>` / `<hl-stepper-item>`
+マルチステップフォームや進捗状況を示すステップバーです。
+- **使用例**:
+  ```html
+  <hl-stepper current="2">
+    <hl-stepper-item step="1" label="入力"></hl-stepper-item>
+    <hl-stepper-item step="2" label="確認"></hl-stepper-item>
+    <hl-stepper-item step="3" label="完了"></hl-stepper-item>
+  </hl-stepper>
+  ```
+
+### `<hl-table>`
+横スクロール対応のレスポンシブなデータテーブルラッパーです。内部に通常の `<table>` を配置します。
+- **使用例**:
+  ```html
+  <hl-table>
+    <table>
+      <thead><tr><th>項目</th><th>値</th></tr></thead>
+      <tbody><tr><td>フォント</td><td>Zen Maru Gothic</td></tr></tbody>
+    </table>
+  </hl-table>
+  ```
+
+### `<hl-pagination>`
+ページネーションUIです。
+- **属性**:
+  - `current`: 現在ページ番号
+  - `total`: 総ページ数
+  - `per-page`: 1ページあたりの件数
+
+### `<hl-skeleton>`
+データ読み込み中のスケルトンスクリーン（プレースホルダーアニメーション）です。
+- **属性**:
+  - `type`: `text` (テキスト行), `circle` (丸型アバター), `rect` (矩形カード)
+  - `width`, `height`: CSSサイズ（例: `100%`, `40px`）
+
+### `<hl-divider>`
+セクション間の区切り線です。
+- **属性**:
+  - `label`: 中央に表示する文字ラベル（任意）
+  - `dashed`: 破線にする場合
+
+### `<hl-avatar>`
+ユーザーやキャラクターのアバター丸型画像です。
+- **属性**:
+  - `src`: 画像URL
+  - `size`: `sm` (28px), `md` (40px), `lg` (56px)
+
+### `<hl-chip>`
+タグや選択バッジを表示します。
+- **属性**:
+  - `color`: `sage`, `peach`, `blue`, `brown`
+  - `selected`: 選択状態
+
+---
+
+## 5. インタラクション系 (interactive)
+
+### `<hl-accordion>`
+クリックで開閉する折りたたみアコーディオンブロックです。
+- **属性**:
+  - `title`: アコーディオンの見出し
+  - `open`: 最初から開いた状態にする場合
+- **使用例**:
+  ```html
+  <hl-accordion title="詳しい技術仕様を見る">
+    <p>ここに折りたたまれていた詳細な内容を記述します。</p>
   </hl-accordion>
   ```
 
 ### `<hl-tabs>`
-複数パネルを切り替えるタブコンポーネントです。
+複数のタブを切り替えて表示するタブパネルです。
+- **子要素仕様**: 各タブの内容を `<div class="hl-tab-panel" data-label="タブ名">` で記述します。
 - **使用例**:
   ```html
   <hl-tabs>
-    <div class="hl-tab-panel" data-label="基本設定">
-      <p>基本設定の内容...</p>
+    <div class="hl-tab-panel" data-label="HTML">
+      <p>HTMLの解説</p>
     </div>
-    <div class="hl-tab-panel" data-label="詳細設定">
-      <p>詳細設定の内容...</p>
+    <div class="hl-tab-panel" data-label="CSS">
+      <p>CSSの解説</p>
     </div>
   </hl-tabs>
   ```
 
 ### `<hl-modal>`
-ポップアップモーダルダイアログを表示します。
-- **使用例**:
-  ```html
-  <hl-modal id="my-modal">
-    <h3 slot="header">確認</h3>
-    <p>本当に実行しますか？</p>
-    <div slot="footer">
-      <hl-button variant="primary">はい</hl-button>
-    </div>
-  </hl-modal>
-  ```
+ダイアログモーダルです。
+- **属性**:
+  - `title`: モーダル見出し
+  - `open`: 開閉状態（JSから属性付与またはクラス操作）
+- **イベント**: `open-modal`, `close-modal`
+
+### `<hl-tooltip>`
+ホバー時にツールチップテキストを表示します。
+- **属性**:
+  - `text`: 表示するツールチップメッセージ
+  - `position`: `top`, `bottom`, `left`, `right`
+
+### `<hl-drawer>`
+画面端からスライドインするサイドドロワーです。
+- **属性**:
+  - `position`: `left` または `right`
 
 ---
 
-## 6. フォーム系
+## 6. フォーム部品群 (forms)
+
+フォーム系コンポーネントは、Halcyonの温かみのあるアースカラーに統一された入力部品です。
 
 ### `<hl-input>`
-ラベルとフォーカスアニメーション付きテキスト入力です。
+1行テキスト入力欄です。
 - **属性**:
-  - `label`, `type`, `placeholder`, `value`, `name`
+  - `label`: 項目ラベル
+  - `name`: フォーム送信用の名前
+  - `type`: `text`, `email`, `password`, `number`, `url` 等
+  - `placeholder`: プレースホルダー
+  - `value`: 初期値
+  - `helper`: 入力補助テキスト
+  - `error`: エラーメッセージ（指定時に枠線が警告色に変化）
 - **使用例**:
   ```html
-  <hl-input label="お名前" placeholder="山田 太郎"></hl-input>
+  <hl-input label="お名前" name="username" placeholder="例: 5Gkyu"></hl-input>
   ```
+
+### `<hl-textarea>`
+複数行テキスト入力欄です。
+- **属性**: `label`, `name`, `rows`, `placeholder`, `value`, `error`
+
+### `<hl-select>`
+ドロップダウン選択メニューです。
+- **属性**: `label`, `name`
+- **子要素**: 通常の `<option value="...">ラベル</option>` を配置します。
+
+### `<hl-checkbox>` / `<hl-radio>`
+チェックボックスおよびラジオボタンです。
+- **属性**: `label`, `name`, `value`, `checked`, `disabled`
 
 ### `<hl-toggle>`
-トグルスイッチです。
-- **属性**:
-  - `label`, `checked` (boolean)
-- **使用例**:
-  ```html
-  <hl-toggle label="ダークモード" checked></hl-toggle>
-  ```
+ON/OFFを切り替えるスライダースイッチです。
+- **属性**: `label`, `name`, `checked`, `disabled`
 
 ### `<hl-slider>`
-数値スライダーです。
+数値調整用のスライダーバーです。
 - **属性**:
-  - `label`, `min`, `max`, `value`, `step`, `unit`
+  - `label`: 項目ラベル
+  - `min`, `max`, `step`: 範囲と刻み幅
+  - `value`: 現在値
+  - `unit`: 単位表記（例: `%`, `px`）
 - **使用例**:
   ```html
-  <hl-slider label="圧縮品質" min="1" max="100" value="80" unit="%"></hl-slider>
+  <hl-slider label="圧縮品質" min="10" max="100" step="5" value="80" unit="%"></hl-slider>
+  ```
+
+### `<hl-file-input>`
+ドラッグ＆ドロップ対応のモダンなファイルアップローダーです。
+- **属性**:
+  - `label`: アップロードエリアのタイトル
+  - `accept`: 許可する拡張子・MIMEタイプ（例: `image/*`, `.png,.jpg`）
+  - `multiple`: 複数ファイル選択を許可する場合
+- **使用例**:
+  ```html
+  <hl-file-input label="画像ファイルをドロップ" accept="image/*"></hl-file-input>
   ```
 
 ---
 
-## 7. 拡張・便利ツール系
+## 7. 拡張・便利ツール系 (extensions)
 
-### `<hl-copy-box>`（★Lit製）
-ワンクリックでクリップボードにコピーできるコード・文字列表示ボックスです。
+### `<hl-copy-box>`
+ワンクリックで文字列をクリップボードにコピーできる専用ボックスです。
 - **属性**:
-  - `value`: コピーする文字列
-  - `label` (optional): 見出しラベル
-  - `button-text` (optional): ボタンの文字（default: `"コピー"`）
+  - `value`: コピー対象の文字列
+  - `label`: ボックスのラベル見出し
+  - `button-text`: ボタンのテキスト（デフォルト: `コピー`）
 - **使用例**:
   ```html
-  <hl-copy-box label="インストールコマンド" value="npm install halcyon-ui"></hl-copy-box>
+  <hl-copy-box value="https://5gkyu.github.io/" label="サイトURL"></hl-copy-box>
   ```
 
-### `<hl-gauge>`（★Lit製）
-パーセンテージや数値を円形のアニメーショングラフで表示します。
+### `<hl-gauge>`
+パーセンテージや達成率を円形プログレスメーターで美しく可視化します。
 - **属性**:
-  - `value`: 現在値（動的に変更可能）
-  - `max`: 最大値（default: `100`）
-  - `label`: ゲージ下のラベル
-  - `unit`: 単位（default: `"%"`）
-  - `color`: ゲージの色（default: `"#2d6c66"`）
+  - `value`: 現在値（0〜100）
+  - `max`: 最大値（デフォルト: `100`）
+  - `label`: ゲージ中央のラベルテキスト
+  - `unit`: 単位（デフォルト: `%`）
+  - `color`: ゲージ色（例: `var(--clr-sage)`）
 - **使用例**:
   ```html
-  <hl-gauge value="85" max="100" label="達成率" color="#9AB08F"></hl-gauge>
+  <hl-gauge value="85" label="完成度" unit="%"></hl-gauge>
   ```
 
-### `<hl-before-after>`（★Lit製）
-スライダーで2枚の画像を直感的に比較できるコンポーネントです。
+### `<hl-before-after>`
+ドラッグで前後の違いを視覚的に比較できるビフォーアフター画像スライダーです。
 - **属性**:
-  - `before`: 変更前の画像URL
-  - `after`: 変更後の画像URL
-  - `label-before`: 左側ラベル（default: `"Before"`）
-  - `label-after`: 右側ラベル（default: `"After"`）
+  - `before`: 変化前の画像URL
+  - `after`: 変化後の画像URL
+  - `label-before`: 左側ラベル（デフォルト: `Before`）
+  - `label-after`: 右側ラベル（デフォルト: `After`）
 - **使用例**:
   ```html
-  <hl-before-after 
-    before="/image/original.jpg" 
-    after="/image/compressed.jpg" 
-    label-before="圧縮前 (2.4MB)" 
+  <hl-before-after
+    before="/images/original.jpg"
+    after="/images/compressed.jpg"
+    label-before="圧縮前 (2.4MB)"
     label-after="圧縮後 (320KB)">
   </hl-before-after>
   ```
 
-### `<hl-tag-filter>`（★Lit製）
-タグボタンで特定エリア内のアイテムを絞り込み表示するバーです。
+### `<hl-tag-filter>`
+ボタンクリックで対象要素をリアルタイムに絞り込むタグバーです。
 - **属性**:
-  - `target`: 絞り込み対象のコンテナ要素のID
+  - `target`: 絞り込み対象要素のCSSセレクタ
 - **使用例**:
   ```html
-  <hl-tag-filter target="item-list"></hl-tag-filter>
-  <div id="item-list">
-    <div data-tag="network">ネットワーク記事</div>
-    <div data-tag="device">デバイス記事</div>
-  </div>
+  <hl-tag-filter target=".article-card"></hl-tag-filter>
   ```
+
+### `<hl-archive-search>`
+コンテンツの検索キーワード入力・タグ絞り込みを行う検索バーです。

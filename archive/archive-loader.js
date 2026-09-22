@@ -138,23 +138,29 @@
         align-items: center;
         gap: 0.35rem;
         padding: 0.38rem 0.8rem;
-        border: none;
+        border: 1.5px solid #DFD9CE;
         border-radius: 50px;
-        background: transparent;
+        background: rgba(255, 255, 255, 0.7);
         color: var(--clr-brown);
         font-size: 0.78rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s ease;
-        opacity: 0.65;
+        box-shadow: 0 2px 0 #C4BCAD;
+        transition: all 0.12s ease;
+        opacity: 0.75;
         font-family: inherit;
+      }
+      .archive-view-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 0 0 #C4BCAD;
       }
       .archive-view-btn svg { width: 14px; height: 14px; }
       .archive-view-btn.is-active {
-        background: #fff;
-        color: var(--clr-brown);
+        background: #4A3E3D;
+        color: #fff;
+        border-color: #4A3E3D;
         opacity: 1;
-        box-shadow: 0 2px 8px rgba(106, 86, 74, 0.12);
+        box-shadow: 0 2px 0 #2E2524;
       }
 
       /* カテゴリタブ */
@@ -171,25 +177,31 @@
         gap: 0.4rem;
         padding: 0.4rem 0.85rem;
         border-radius: 50px;
-        border: 1.5px solid var(--clr-border);
-        background: rgba(255, 255, 255, 0.7);
+        border: 1.5px solid #DFD9CE;
+        background: rgba(255, 255, 255, 0.85);
         color: var(--clr-brown);
         font-size: 0.8rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: 0 2px 0 #C4BCAD;
+        transition: all 0.14s ease;
         font-family: inherit;
       }
       .archive-tab-btn:hover {
         background: #fff;
-        border-color: rgba(106, 86, 74, 0.3);
+        border-color: #EDE6D8;
         transform: translateY(-1px);
+        box-shadow: 0 3px 0 #C4BCAD;
+      }
+      .archive-tab-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 0 0 #C4BCAD;
       }
       .archive-tab-btn.is-active {
-        background: var(--clr-brown);
+        background: #4A3E3D;
         color: #fff;
-        border-color: var(--clr-brown);
-        box-shadow: 0 3px 10px rgba(106, 86, 74, 0.22);
+        border-color: #4A3E3D;
+        box-shadow: 0 2px 0 #2E2524;
       }
       .archive-tab-count {
         font-size: 0.72rem;
@@ -221,12 +233,12 @@
       }
 
       /* ============================================================
-         横長コンパクトリスト表示 (List Mode)
+         横長コンパクトリスト表示 (List Mode - キースイッチ仕様)
          ============================================================ */
       .archive-list-view {
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
+        gap: 0.85rem;
       }
 
       .archive-list-card {
@@ -235,21 +247,36 @@
         align-items: center;
         gap: 1.1rem;
         padding: 0.8rem 1.15rem;
-        background: var(--clr-card-bg);
-        border: 1.5px solid var(--clr-border);
+        background: #FFFFFF;
+        border: 2.5px solid #DFD9CE;
         border-radius: 16px;
         text-decoration: none;
         color: var(--clr-brown);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        transition: all 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+        /* 横長キーのしっかりとした立体ストローク */
+        box-shadow:
+          0 7px 0 #C4BCAD,
+          0 10px 18px rgba(106, 86, 74, 0.12);
+        transition: transform 0.16s cubic-bezier(0.18, 0.89, 0.32, 1.25), box-shadow 0.16s ease, border-color 0.16s ease, filter 0.08s ease;
         overflow: hidden;
+        cursor: pointer;
       }
       .archive-list-card:hover {
         transform: translateY(-2px);
         background: #fff;
-        border-color: var(--clr-sage);
-        box-shadow: 0 8px 24px -6px rgba(154, 176, 143, 0.35);
+        border-color: #EDE6D8;
+        box-shadow:
+          0 9px 0 #C4BCAD,
+          0 14px 24px rgba(106, 86, 74, 0.16);
+      }
+      /* クリック時の深い底打ち沈み込み */
+      .archive-list-card:active {
+        transform: translateY(7px);
+        box-shadow:
+          0 0 0 #C4BCAD,
+          inset 0 3px 6px rgba(0, 0, 0, 0.1),
+          0 2px 4px rgba(106, 86, 74, 0.2);
+        filter: brightness(0.97);
+        transition: transform 0.04s ease-in, box-shadow 0.04s ease-in, filter 0.04s ease-in;
       }
 
       /* スクロール移動時のハイライト演出 */
@@ -270,8 +297,8 @@
           transform: scale(1.01);
         }
         100% {
-          border-color: var(--clr-border);
-          box-shadow: none;
+          border-color: #DFD9CE;
+          box-shadow: 0 7px 0 #C4BCAD, 0 10px 18px rgba(106, 86, 74, 0.12);
           transform: scale(1);
         }
       }
@@ -283,7 +310,8 @@
         border-radius: 10px;
         overflow: hidden;
         background: rgba(106, 86, 74, 0.06);
-        border: 1px solid rgba(106, 86, 74, 0.08);
+        border: 2px solid #EAE3D5;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -355,45 +383,63 @@
         border-radius: 50%;
         background: rgba(106, 86, 74, 0.05);
         color: var(--clr-brown);
-        opacity: 0.45;
+        opacity: 0.85;
         font-size: 0.9rem;
-        transition: all 0.25s ease;
+        border: 1.5px solid #DFD9CE;
+        box-shadow: 0 2px 0 #C4BCAD;
+        transition: all 0.15s ease;
       }
       .archive-list-card:hover .archive-list-card__arrow {
-        opacity: 1;
-        background: var(--clr-sage);
+        background: #6E947A;
         color: #fff;
-        transform: translateX(3px);
+        border-color: #5A7E65;
+        box-shadow: 0 1px 0 #46654F, 0 0 8px rgba(110, 148, 122, 0.4);
+        transform: scale(1.06);
       }
 
       /* ============================================================
-         コンパクトタイル表示 (Grid Mode)
+         コンパクトタイル表示 (Grid Mode - キースイッチ仕様)
          ============================================================ */
       .archive-grid-view {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1.1rem;
+        gap: 1.3rem;
       }
 
       .archive-grid-card {
         position: relative;
         display: flex;
         flex-direction: column;
-        background: var(--clr-card-bg);
-        border: 1.5px solid var(--clr-border);
+        background: #FFFFFF;
+        border: 3px solid #DFD9CE;
         border-radius: 18px;
         text-decoration: none;
         color: var(--clr-brown);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
         overflow: hidden;
-        transition: all 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+        /* キースイッチのしっかりとした前面の厚み */
+        box-shadow:
+          0 8px 0 #C4BCAD,
+          0 12px 20px rgba(106, 86, 74, 0.14);
+        transition: transform 0.16s cubic-bezier(0.18, 0.89, 0.32, 1.25), box-shadow 0.16s ease, border-color 0.16s ease, filter 0.08s ease;
+        cursor: pointer;
       }
       .archive-grid-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-3px);
         background: #fff;
-        border-color: var(--clr-sage);
-        box-shadow: 0 12px 30px -8px rgba(154, 176, 143, 0.35);
+        border-color: #EDE6D8;
+        box-shadow:
+          0 11px 0 #C4BCAD,
+          0 16px 28px rgba(106, 86, 74, 0.18);
+      }
+      /* クリック時の深いキーストローク沈み込み（底打ちアクション） */
+      .archive-grid-card:active {
+        transform: translateY(8px);
+        box-shadow:
+          0 0 0 #C4BCAD,
+          inset 0 4px 8px rgba(0, 0, 0, 0.12),
+          0 2px 4px rgba(106, 86, 74, 0.2);
+        filter: brightness(0.97);
+        transition: transform 0.04s ease-in, box-shadow 0.04s ease-in, filter 0.04s ease-in;
       }
 
       .archive-grid-card__thumb {
@@ -401,7 +447,20 @@
         aspect-ratio: 2.2 / 1;
         overflow: hidden;
         background: rgba(106, 86, 74, 0.06);
-        border-bottom: 1px solid rgba(106, 86, 74, 0.08);
+        border-bottom: 2px solid #EAE3D5;
+        position: relative;
+      }
+      /* サムネイル上端のキーキャップ光沢 */
+      .archive-grid-card__thumb::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 2;
+        pointer-events: none;
       }
       .archive-grid-card__thumb img {
         width: 100%;

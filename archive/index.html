@@ -47,116 +47,474 @@
       padding: 0;
     }
 
-    /* カテゴリカードグリッド */
+    /* アーカイブグリッド（横4つ並び） */
     .archive-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      margin-top: 2rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.6rem 0.85rem;
+      margin-top: 2.2rem;
+      justify-items: center;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 860px) {
       .archive-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem 1.4rem;
       }
     }
 
-    .archive-category-card {
+    @media (max-width: 480px) {
+      .archive-grid {
+        grid-template-columns: 1fr;
+        gap: 2.2rem;
+      }
+    }
+
+    /* 各キーコンテナ */
+    .pixel-key-item {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 0.8rem;
-      padding: 2rem 2rem 1.8rem;
-      background: #fff;
-      border-radius: 24px;
-      border: 1.5px solid rgba(106, 86, 74, 0.08);
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 175px;
+    }
+
+    /* ─── 画像を忠実に再現したキーボードキースイッチボタン ─── */
+    .pixel-key-btn {
+      display: block;
+      width: 100%;
+      max-width: 152px;
+      height: 190px;
       text-decoration: none;
-      color: inherit;
-      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-      box-shadow: 0 10px 30px -12px rgba(106, 86, 74, 0.08);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* 外枠（シルバーホワイトのソケットベゼルフレーム） */
+    .pixel-key-socket {
+      width: 100%;
+      height: 100%;
+      background: #232029;
+      border: 4px solid #DFD9CE;
+      border-radius: 22px;
+      padding: 4px 4px 6px 4px;
+      box-shadow:
+        0 8px 18px rgba(106, 86, 74, 0.16),
+        inset 0 3px 6px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .archive-category-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--accent-light) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity 0.4s ease;
+    .pixel-key-btn:hover .pixel-key-socket {
+      border-color: #F6EFE5;
+      box-shadow:
+        0 12px 24px rgba(106, 86, 74, 0.22),
+        inset 0 3px 6px rgba(0, 0, 0, 0.5);
     }
 
-    .archive-category-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--accent);
-      box-shadow: 0 20px 40px -15px rgba(106, 86, 74, 0.15);
+    /* クリック時のソケット影の変化（深掘り感） */
+    .pixel-key-btn:active .pixel-key-socket {
+      border-color: #D3CDC2;
+      box-shadow:
+        0 2px 6px rgba(106, 86, 74, 0.12),
+        inset 0 8px 16px rgba(0, 0, 0, 0.75);
     }
 
-    .archive-category-card:hover::before {
-      opacity: 1;
+    /* キーキャップ可動ブロック */
+    .pixel-key-cap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-radius: 14px 14px 10px 10px;
+      overflow: hidden;
+      transform: translateY(0);
+      transition: transform 0.16s cubic-bezier(0.18, 0.89, 0.32, 1.25);
     }
 
-    .archive-category-card__icon {
-      width: 2.4rem;
-      height: 2.4rem;
-      color: var(--accent);
-      display: inline-flex;
+    /* ホバー時のキートップ浮き上がり */
+    .pixel-key-btn:hover .pixel-key-cap {
+      transform: translateY(-3px);
+    }
+
+    /* クリック時の底打ち沈み込み（深くグッと押し込む） */
+    .pixel-key-btn:active .pixel-key-cap {
+      transform: translateY(38px);
+      transition: transform 0.05s ease-in;
+    }
+
+    /* 1. キートップ上面（Top Face: 四隅がすべて角丸の立体キートップ） */
+    .pixel-key-top {
+      height: 58%;
+      background: var(--key-top);
+      border-radius: 14px 14px 11px 11px;
+      border-bottom: 4px solid var(--key-highlight);
+      position: relative;
+      display: flex;
       align-items: center;
       justify-content: center;
-      line-height: 1;
+      overflow: hidden;
+      box-shadow:
+        inset 0 3px 0 rgba(255, 255, 255, 0.45),
+        inset 3px 0 0 rgba(255, 255, 255, 0.18),
+        inset -3px 0 0 rgba(0, 0, 0, 0.18),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 4;
+      transition: filter 0.08s ease, box-shadow 0.08s ease;
     }
 
-    .archive-category-card__icon svg {
+    /* 天面の上部エッジのピクセル風ディテール */
+    .pixel-key-top::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 10px;
+      right: 10px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* クリック時にソケット奥へ潜り込む影 */
+    .pixel-key-btn:active .pixel-key-top {
+      box-shadow:
+        inset 0 10px 16px rgba(0, 0, 0, 0.5),
+        inset 3px 0 0 rgba(255, 255, 255, 0.08),
+        inset -3px 0 0 rgba(0, 0, 0, 0.3);
+      filter: brightness(0.92);
+    }
+
+    /* 中央の大きな白アイコン（Twitter/Discord画像同様） */
+    .pixel-key-icon {
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+      transition: transform 0.15s ease;
+      z-index: 2;
+    }
+
+    .pixel-key-btn:hover .pixel-key-icon {
+      transform: scale(1.08);
+    }
+
+    .pixel-key-btn:active .pixel-key-icon {
+      transform: scale(0.96);
+    }
+
+    .pixel-key-icon svg {
       width: 100%;
       height: 100%;
       fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
+      stroke: #FFFFFF;
+      stroke-width: 2.2;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
 
-    .archive-category-card__title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--clr-brown);
+    /* キートップ上面のサムネイル画像（四隅すべて角丸で内包） */
+    .pixel-key-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px 12px 8px 8px;
+      transition: transform 0.25s ease;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
-    .archive-category-card__desc {
-      font-size: 0.85rem;
-      color: var(--clr-brown);
-      opacity: 0.65;
-      line-height: 1.6;
-      flex-grow: 1;
+    .pixel-key-btn:hover .pixel-key-img {
+      transform: scale(1.08);
     }
 
-    .archive-category-card__arrow {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--clr-peach);
-      margin-top: 0.4rem;
+    .pixel-key-btn:active .pixel-key-img {
+      transform: scale(0.96);
     }
 
-    /* カテゴリごとのアクセントカラー */
-    .archive-category-card--app {
-      --accent: var(--clr-sage);
-      --accent-light: rgba(154, 176, 143, 0.08);
+    /* 2. 境界ハイライトライン（天面のborder-bottomと統合） */
+    .pixel-key-edge {
+      display: none;
     }
 
-    .archive-category-card--play {
-      --accent: var(--clr-peach);
-      --accent-light: rgba(238, 175, 161, 0.08);
+    /* 3. 前面の厚み（Front Face: 高さ約 42%の濃い色・マット成形仕上げ） */
+    .pixel-key-front {
+      height: 42%;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.4) 100%), var(--key-front);
+      border-radius: 0 0 10px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        inset 0 4px 6px rgba(0, 0, 0, 0.35),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.5),
+        inset 3px 0 0 rgba(255, 255, 255, 0.08),
+        inset -3px 0 0 rgba(0, 0, 0, 0.3);
+      position: relative;
     }
 
-    .archive-category-card--note {
-      --accent: var(--clr-dusty-blue);
-      --accent-light: rgba(146, 181, 188, 0.08);
+    /* 側面印字（金型の凹みスロットに収まるダブルショット刻印プレート） */
+    .pixel-key-front-text {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 13px;
+      border-radius: 6px;
+      /* 樹脂に一段彫り込まれた凹みスロット溝 */
+      background: rgba(0, 0, 0, 0.32);
+      border-top: 1.5px solid rgba(0, 0, 0, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:
+        inset 0 3px 5px rgba(0, 0, 0, 0.7),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.08),
+        0 1px 2px rgba(255, 255, 255, 0.12);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', monospace, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 850;
+      color: rgba(255, 255, 255, 0.92);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow:
+        0 -1px 1px rgba(0, 0, 0, 0.9),
+        0 1px 1px rgba(255, 255, 255, 0.25);
+      user-select: none;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.4, 1);
     }
 
-    .archive-category-card--other {
-      --accent: #c9a98a;
-      --accent-light: rgba(201, 169, 138, 0.08);
+    /* メカニカルキーボードらしい微小なLEDインジケーター */
+    .pixel-key-front-text::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--key-highlight);
+      margin-right: 9px;
+      box-shadow: 0 0 4px var(--key-highlight);
+      opacity: 0.85;
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* ホバー時：スロット内からバックライトが柔らかく透過発光 */
+    .pixel-key-btn:hover .pixel-key-front-text {
+      background: rgba(0, 0, 0, 0.44);
+      color: #FFFFFF;
+      border-top-color: rgba(0, 0, 0, 0.95);
+      box-shadow:
+        inset 0 3px 6px rgba(0, 0, 0, 0.85),
+        0 0 6px var(--key-highlight),
+        0 1px 2px rgba(255, 255, 255, 0.15);
+      text-shadow:
+        0 0 5px var(--key-highlight),
+        0 -1px 1px rgba(0, 0, 0, 0.9);
+    }
+
+    .pixel-key-btn:hover .pixel-key-front-text::before {
+      opacity: 1;
+      transform: scale(1.2);
+      box-shadow: 0 0 6px var(--key-highlight);
+    }
+
+    /* クリック（打鍵）時：スロットがさらに深く沈み込む */
+    .pixel-key-btn:active .pixel-key-front-text {
+      background: rgba(0, 0, 0, 0.55);
+      box-shadow:
+        inset 0 4px 8px rgba(0, 0, 0, 0.95),
+        0 0 4px var(--key-highlight);
+    }
+
+    /* ─── キー下のタグ情報 ─── */
+    .pixel-key-tags {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      margin-top: 0.85rem;
+    }
+
+    .pixel-key-tag {
+      font-size: 0.73rem;
+      font-weight: 750;
+      color: #FAF7F2;
+      background: #4A3E3D;
+      padding: 0.2rem 0.68rem;
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+      box-shadow: 0 2px 5px rgba(74, 62, 61, 0.18);
+    }
+
+    /* ─── 各カテゴリの配色設定（ふんわり優しいパステルカラー） ─── */
+    /* 1. App (パステルミント / ピスタチオ) */
+    .pixel-key--app {
+      --key-top: #86C5A1;
+      --key-highlight: #D2F5DF;
+      --key-front: #4A8A65;
+    }
+
+    /* 2. Play (パステルピーチ / ベビーコーラル) */
+    .pixel-key--play {
+      --key-top: #F09B8C;
+      --key-highlight: #FDE2DC;
+      --key-front: #B75747;
+    }
+
+    /* 3. Note (パウダーブルー / スカイパステル) */
+    .pixel-key--note {
+      --key-top: #88B7D2;
+      --key-highlight: #D8EEFB;
+      --key-front: #447796;
+    }
+
+    /* 4. Other (パステルカスタード / バニラアンバー) */
+    .pixel-key--other {
+      --key-top: #E5BE76;
+      --key-highlight: #FDF0D2;
+      --key-front: #A57D31;
+    }
+
+    /* ============================================================
+       最新コンテンツ（#latest-container）専用のキースイッチ・ボタン風UI
+       ============================================================ */
+    /* 1. タイル表示（Grid Card）を大型キートップ化 */
+    #latest-container .archive-grid-card {
+      background: #FFFFFF;
+      border: 3px solid #DFD9CE;
+      border-radius: 18px;
+      /* キースイッチのしっかりとした前面の厚み */
+      box-shadow:
+        0 8px 0 #C4BCAD,
+        0 12px 20px rgba(106, 86, 74, 0.14);
+      transition: transform 0.16s cubic-bezier(0.18, 0.89, 0.32, 1.25), box-shadow 0.16s ease, border-color 0.16s ease, filter 0.08s ease;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #latest-container .archive-grid-card:hover {
+      transform: translateY(-3px);
+      border-color: #EDE6D8;
+      box-shadow:
+        0 11px 0 #C4BCAD,
+        0 16px 28px rgba(106, 86, 74, 0.18);
+    }
+
+    /* クリック時の深いキーストローク沈み込み（底打ちアクション） */
+    #latest-container .archive-grid-card:active {
+      transform: translateY(8px);
+      box-shadow:
+        0 0 0 #C4BCAD,
+        inset 0 4px 8px rgba(0, 0, 0, 0.12),
+        0 2px 4px rgba(106, 86, 74, 0.2);
+      filter: brightness(0.97);
+      transition: transform 0.04s ease-in, box-shadow 0.04s ease-in, filter 0.04s ease-in;
+    }
+
+    #latest-container .archive-grid-card__thumb {
+      border-bottom: 2px solid #EAE3D5;
+      position: relative;
+      transition: transform 0.08s ease;
+    }
+
+    /* サムネイル上端のキーキャップ光沢 */
+    #latest-container .archive-grid-card__thumb::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.6);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* 2. リスト表示（List Card）を横長キースイッチバー化 */
+    #latest-container .archive-list-card {
+      background: #FFFFFF;
+      border: 2.5px solid #DFD9CE;
+      border-radius: 16px;
+      /* 横長キーのしっかりとした立体ストローク */
+      box-shadow:
+        0 7px 0 #C4BCAD,
+        0 10px 18px rgba(106, 86, 74, 0.12);
+      transition: transform 0.16s cubic-bezier(0.18, 0.89, 0.32, 1.25), box-shadow 0.16s ease, border-color 0.16s ease, filter 0.08s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    #latest-container .archive-list-card:hover {
+      transform: translateY(-2px);
+      border-color: #EDE6D8;
+      box-shadow:
+        0 9px 0 #C4BCAD,
+        0 14px 24px rgba(106, 86, 74, 0.16);
+    }
+
+    /* クリック時の深い底打ち沈み込み */
+    #latest-container .archive-list-card:active {
+      transform: translateY(7px);
+      box-shadow:
+        0 0 0 #C4BCAD,
+        inset 0 3px 6px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(106, 86, 74, 0.2);
+      filter: brightness(0.97);
+      transition: transform 0.04s ease-in, box-shadow 0.04s ease-in, filter 0.04s ease-in;
+    }
+
+    #latest-container .archive-list-card__thumb {
+      border: 2px solid #EAE3D5;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    /* リストカード右端の矢印をキースイッチのミニボタン風に */
+    #latest-container .archive-list-card__arrow {
+      border: 1.5px solid #DFD9CE;
+      box-shadow: 0 2px 0 #C7BFB1;
+      transition: all 0.15s ease;
+    }
+
+    #latest-container .archive-list-card:hover .archive-list-card__arrow {
+      background: #6E947A;
+      color: #FFFFFF;
+      border-color: #5A7E65;
+      box-shadow: 0 1px 0 #46654F, 0 0 8px rgba(110, 148, 122, 0.4);
+      transform: scale(1.06);
+    }
+
+    /* 3. ツールバーの切替ボタン・タブもミニキーキャップ風に */
+    #latest-container .archive-view-btn,
+    #latest-container .archive-tab-btn {
+      border: 1.5px solid #DFD9CE;
+      box-shadow: 0 2px 0 #C7BFB1;
+      transition: all 0.12s ease;
+    }
+
+    #latest-container .archive-view-btn:active,
+    #latest-container .archive-tab-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #C7BFB1;
+    }
+
+    #latest-container .archive-tab-btn.is-active,
+    #latest-container .archive-view-btn.is-active {
+      border-color: #4A3E3D;
+      background: #4A3E3D;
+      box-shadow: 0 2px 0 #2E2524;
+      color: #FFFFFF;
     }
   </style>
 </head>
@@ -176,62 +534,95 @@
 
       <div class="archive-grid">
 
-        <a href="/archive/app/" class="archive-category-card archive-category-card--app">
-          <div class="archive-category-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img">
-              <path d="M14 4a5 5 0 0 0 6 6l-4.3 4.3-2-2L9.3 16.7a2.1 2.1 0 1 1-3-3l4.4-4.4-2-2L13 3z"></path>
-              <path d="M5.5 18.5h.01"></path>
-            </svg>
+        <!-- 1. App Key (アイコン) -->
+        <div class="pixel-key-item">
+          <a href="/archive/app/" class="pixel-key-btn pixel-key--app">
+            <div class="pixel-key-socket">
+              <div class="pixel-key-cap">
+                <div class="pixel-key-top">
+                  <div class="pixel-key-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M14 4a5 5 0 0 0 6 6l-4.3 4.3-2-2L9.3 16.7a2.1 2.1 0 1 1-3-3l4.4-4.4-2-2L13 3z"></path>
+                      <path d="M5.5 18.5h.01"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="pixel-key-edge"></div>
+                <div class="pixel-key-front">
+                  <span class="pixel-key-front-text">App</span>
+                </div>
+              </div>
+            </div>
+          </a>
+          <div class="pixel-key-tags">
+            <span class="pixel-key-tag">Webアプリ</span>
           </div>
-          <div class="archive-category-card__title">App</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">Webアプリ</span></div>
-          <p class="archive-category-card__desc">ブラウザ完結のWebアプリなど。</p>
-          <span class="archive-category-card__arrow">一覧を見る →</span>
-        </a>
+        </div>
 
-        <a href="/archive/play/" class="archive-category-card archive-category-card--play">
-          <div class="archive-category-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img">
-              <rect x="3.5" y="8" width="17" height="10" rx="4"></rect>
-              <path d="M8 13h4M10 11v4M15.5 12.2h.01M17.5 14.2h.01"></path>
-            </svg>
+        <!-- 2. Play Key (BanPic-Brawl サムネイル画像) -->
+        <div class="pixel-key-item">
+          <a href="/archive/play/" class="pixel-key-btn pixel-key--play">
+            <div class="pixel-key-socket">
+              <div class="pixel-key-cap">
+                <div class="pixel-key-top">
+                  <img src="/icon/page-grid-icon/BanPic-Brawl.png" alt="BanPic-Brawl" class="pixel-key-img">
+                </div>
+                <div class="pixel-key-edge"></div>
+                <div class="pixel-key-front">
+                  <span class="pixel-key-front-text">Play</span>
+                </div>
+              </div>
+            </div>
+          </a>
+          <div class="pixel-key-tags">
+            <span class="pixel-key-tag">ゲーム・パズル</span>
           </div>
-          <div class="archive-category-card__title">Play</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">ゲーム</span><span
-              class="hl-badge">攻略</span></div>
-          <p class="archive-category-card__desc">ゲームの攻略ツールやデータ、その他パズルなど。</p>
-          <span class="archive-category-card__arrow">一覧を見る →</span>
-        </a>
+        </div>
 
-        <a href="/archive/note/" class="archive-category-card archive-category-card--note">
-          <div class="archive-category-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img">
-              <path d="M7 3.5h7l4 4V20.5H7z"></path>
-              <path d="M14 3.5v4h4M10 12h5M10 15h5"></path>
-            </svg>
+        <!-- 3. Note Key (アイコン) -->
+        <div class="pixel-key-item">
+          <a href="/archive/note/" class="pixel-key-btn pixel-key--note">
+            <div class="pixel-key-socket">
+              <div class="pixel-key-cap">
+                <div class="pixel-key-top">
+                  <div class="pixel-key-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M7 3.5h7l4 4V20.5H7z"></path>
+                      <path d="M14 3.5v4h4M10 12h5M10 15h5"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="pixel-key-edge"></div>
+                <div class="pixel-key-front">
+                  <span class="pixel-key-front-text">Note</span>
+                </div>
+              </div>
+            </div>
+          </a>
+          <div class="pixel-key-tags">
+            <span class="pixel-key-tag">記事</span>
           </div>
-          <div class="archive-category-card__title">Note</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;"><span class="hl-badge">記事</span></div>
-          <p class="archive-category-card__desc">文章メインのコンテンツ類。
-            現在非公開。
-          </p>
-          <span class="archive-category-card__arrow">一覧を見る →</span>
-        </a>
+        </div>
 
-        <a href="/archive/other/" class="archive-category-card archive-category-card--other">
-          <div class="archive-category-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img">
-              <path d="M3.5 8L12 3.5 20.5 8 12 12.5 3.5 8z"></path>
-              <path d="M3.5 8v8L12 20.5 20.5 16V8M12 12.5v8"></path>
-            </svg>
+        <!-- 4. Other Key (Components サムネイル画像) -->
+        <div class="pixel-key-item">
+          <a href="/archive/other/" class="pixel-key-btn pixel-key--other">
+            <div class="pixel-key-socket">
+              <div class="pixel-key-cap">
+                <div class="pixel-key-top">
+                  <img src="/icon/page-grid-icon/Components.png" alt="Components" class="pixel-key-img">
+                </div>
+                <div class="pixel-key-edge"></div>
+                <div class="pixel-key-front">
+                  <span class="pixel-key-front-text">Other</span>
+                </div>
+              </div>
+            </div>
+          </a>
+          <div class="pixel-key-tags">
+            <span class="pixel-key-tag">その他</span>
           </div>
-          <div class="archive-category-card__title">Other</div>
-          <div class="hl-tags-wrapper" style="margin-top: -0.3rem;">
-            <span class="hl-badge">雑記</span>
-          </div>
-          <p class="archive-category-card__desc">どのカテゴリにも収まらないもの。デザイン・ブックマークレットなど。</p>
-          <span class="archive-category-card__arrow">一覧を見る →</span>
-        </a>
+        </div>
 
       </div>
 
