@@ -83,7 +83,7 @@ var SCRIPT_ACTIONS = {
   },
   "github-pages-url": function() {
     try {
-      return ((function(){var u=location.href,r=/^\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/[^\/]+\/(.+)$/,m=u.match(r);if(!m){u=prompt('GitHubのファイルURLを入力するか貼り付けてください:\n(例: https://github.com/user/repo/blob/main/...)');if(!u)return;m=u.match(r)}if(m){var user=m[1].toLowerCase(),repo=m[2],path=m[3],res="https://"+(repo.toLowerCase()===user+".github.io"?user+".github.io/"+path:user+".github.io/"+repo+"/"+path);navigator.clipboard.writeText(res).then(function(){alert('コピーしました!\n'+res)}).catch(function(){prompt('コピーしてください:',res)})}else{alert('正しいGitHubのファイルURLではありません。')}})());
+      return (function(){try{var u=location.href;function parseGh(s){return s?s.match(/github\.com\/([^\/]+)\/([^\/]+)\/(?:blob|raw)\/[^\/]+\/(.+?)(?:[?#].*)?$/i):null;}var m=parseGh(u);if(!m){u=prompt('GitHubのファイルURLを入力するか貼り付けてください:\n(例: https://github.com/user/repo/blob/main/...)');if(!u)return;m=parseGh(u);}if(m){var user=m[1].toLowerCase(),repo=m[2],path=m[3].replace(/[?#].*$/,''),isUserSite=(repo.toLowerCase()===user+'.github.io'),res='https://'+(isUserSite?user+'.github.io/'+path:user+'.github.io/'+repo+'/'+path);navigator.clipboard.writeText(res).then(function(){alert('コピーしました!\n'+res);}).catch(function(){prompt('コピーしてください:',res);});}else{alert('正しいGitHubのファイルURLではありません。');}}catch(e){alert('エラー: '+(e.message||e));}})();
     } catch (e) {
       console.error("[Bookmarklet Error]", e);
       alert("実行エラー: " + (e.message || e));
