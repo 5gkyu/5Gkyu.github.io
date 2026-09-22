@@ -157,38 +157,105 @@
         tab.url.startsWith('chrome-extension://') ||
         tab.url.startsWith('https://chromewebstore.google.com')
       )) {
-        showToast('ブラウザ内部ページでは実行できません', true, 3000);
+        showToast('ブラウザ内部ページでは拡張機能の実行が制限されています', true, 3000);
         return;
       }
 
-      // 3. javascript: プレフィックスの除去
+      // 3. 特殊対応: 1番「タイトル・URLコピー」
+      // 拡張機能のポップアップ側で直接書き込むことで、タブのフォーカス有無やWebページのCSPに関わらず100%確実に動作
+      if (bm.id === 'copy-title-url') {
+        const textToCopy = `${tab.title || ''}\n${tab.url || ''}`;
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          showToast(`コピーしました!\n${tab.title || ''}`);
+          setTimeout(() => { window.close(); }, 1000);
+          return;
+        } catch (e) {
+          // 万一ポップアップ側で失敗した場合は以下のタブ内実行へ進む
+        }
+      }
+
+      // 4. javascript: プレフィックスの除去
       const rawCode = bm.code.replace(/^\s*javascript:/i, '').trim();
 
-      // 4. chrome.scripting.executeScript によるWebページコンテキスト（world: 'MAIN'）への注入
-      // CSP制限を完全にバイパスし、ページのグローバル変数やDOMを自在に操作可能
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        world: 'MAIN',
-        func: (codeToRun) => {
-          try {
-            const s = document.createElement('script');
-            s.textContent = codeToRun;
-            (document.head || document.documentElement || document.body).appendChild(s);
-            s.remove();
-          } catch (e) {
-            // スクリプト要素注入が万が一遮断された場合のフォールバック
-            (0, eval)(codeToRun);
+      // 5. 実行エンジンの多層フォールバック
+      // ① ISOLATED ワールド: WebページのCSP制限を完全バイパスし、DOMやスタイルを確実に操作
+      // ② MAIN ワールド: ページのwindowグローバル変数（YouTubeプレーヤー等）を操作する必要がある場合
+      let executed = false;
+      let lastError = null;
+
+      // --- ステップ A: ISOLATED ワールドで実行（CSPフリー） ---
+      try {
+        const resA = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          // world を指定しないことで ISOLATED ワールドとなり、ページのCSPに一切邪魔されない
+          func: (codeStr) => {
+            try {
+              const fn = new Function(codeStr);
+              fn();
+              return { success: true };
+            } catch (err) {
+              return { success: false, error: err.message || String(err) };
+            }
+          },
+          args: [rawCode]
+        });
+
+        if (resA && resA[0] && resA[0].result) {
+          if (resA[0].result.success) {
+            executed = true;
+          } else {
+            lastError = resA[0].result.error;
           }
-        },
-        args: [rawCode]
-      });
+        }
+      } catch (errA) {
+        lastError = errA.message || String(errA);
+      }
 
-      showToast(`「${bm.title}」を実行しました`);
+      // --- ステップ B: MAIN ワールドでフォールバック実行 ---
+      if (!executed) {
+        try {
+          const resB = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            world: 'MAIN',
+            func: (codeStr) => {
+              try {
+                const fn = new Function(codeStr);
+                fn();
+                return { success: true };
+              } catch (err) {
+                try {
+                  const s = document.createElement('script');
+                  s.textContent = codeStr;
+                  (document.head || document.documentElement || document.body).appendChild(s);
+                  s.remove();
+                  return { success: true };
+                } catch (err2) {
+                  return { success: false, error: err2.message || String(err2) };
+                }
+              }
+            },
+            args: [rawCode]
+          });
 
-      // 実行後に少し余韻を持たせてからポップアップを閉じる
-      setTimeout(() => {
-        window.close();
-      }, 700);
+          if (resB && resB[0] && resB[0].result && resB[0].result.success) {
+            executed = true;
+          } else if (resB && resB[0] && resB[0].result && resB[0].result.error) {
+            lastError = resB[0].result.error;
+          }
+        } catch (errB) {
+          if (!lastError) lastError = errB.message || String(errB);
+        }
+      }
+
+      if (executed) {
+        showToast(`「${bm.title}」を実行しました`);
+        setTimeout(() => {
+          window.close();
+        }, 900);
+      } else {
+        showToast(`実行エラー: ${lastError || 'スクリプトの実行に失敗しました'}`, true, 3500);
+      }
 
     } catch (err) {
       console.error('Bookmarklet execution failed:', err);
