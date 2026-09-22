@@ -136,8 +136,8 @@
 
   // ── ブックマークレットの実行 ──
   async function executeBookmarklet(bm) {
-    if (!bm || !bm.code) {
-      showToast('実行可能なコードがありません', true);
+    if (!bm) {
+      showToast('実行対象が指定されていません', true);
       return;
     }
 
@@ -168,97 +168,68 @@
         try {
           await navigator.clipboard.writeText(textToCopy);
           showToast(`コピーしました!\n${tab.title || ''}`);
-          setTimeout(() => { window.close(); }, 1000);
+          setTimeout(() => { window.close(); }, 1100);
           return;
         } catch (e) {
-          // 万一ポップアップ側で失敗した場合は以下のタブ内実行へ進む
+          console.warn('Popup clipboard copy fallback:', e);
         }
       }
 
-      // 4. javascript: プレフィックスの除去
-      const rawCode = bm.code.replace(/^\s*javascript:/i, '').trim();
+      // 4. actions.js のネイティブ関数（CSPバイパス・直接実行）
+      // chrome.scripting.executeScript の func 引数に直接関数オブジェクトを渡すことで、
+      // GitHub.com や X (Twitter) などの強固な CSP (script-src) を一切受けず 100% 確実に実行可能
+      const actionsMap = (typeof SCRIPT_ACTIONS !== 'undefined' ? SCRIPT_ACTIONS : (window.SCRIPT_ACTIONS || {}));
+      const nativeFunc = actionsMap[bm.id];
 
-      // 5. 実行エンジンの多層フォールバック
-      // ① ISOLATED ワールド: WebページのCSP制限を完全バイパスし、DOMやスタイルを確実に操作
-      // ② MAIN ワールド: ページのwindowグローバル変数（YouTubeプレーヤー等）を操作する必要がある場合
-      let executed = false;
-      let lastError = null;
-
-      // --- ステップ A: ISOLATED ワールドで実行（CSPフリー） ---
-      try {
-        const resA = await chrome.scripting.executeScript({
+      if (typeof nativeFunc === 'function') {
+        await chrome.scripting.executeScript({
           target: { tabId: tab.id },
-          // world を指定しないことで ISOLATED ワールドとなり、ページのCSPに一切邪魔されない
-          func: (codeStr) => {
-            try {
-              const fn = new Function(codeStr);
-              fn();
-              return { success: true };
-            } catch (err) {
-              return { success: false, error: err.message || String(err) };
-            }
-          },
-          args: [rawCode]
+          func: nativeFunc
         });
 
-        if (resA && resA[0] && resA[0].result) {
-          if (resA[0].result.success) {
-            executed = true;
-          } else {
-            lastError = resA[0].result.error;
-          }
-        }
-      } catch (errA) {
-        lastError = errA.message || String(errA);
-      }
-
-      // --- ステップ B: MAIN ワールドでフォールバック実行 ---
-      if (!executed) {
-        try {
-          const resB = await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            world: 'MAIN',
-            func: (codeStr) => {
-              try {
-                const fn = new Function(codeStr);
-                fn();
-                return { success: true };
-              } catch (err) {
-                try {
-                  const s = document.createElement('script');
-                  s.textContent = codeStr;
-                  (document.head || document.documentElement || document.body).appendChild(s);
-                  s.remove();
-                  return { success: true };
-                } catch (err2) {
-                  return { success: false, error: err2.message || String(err2) };
-                }
-              }
-            },
-            args: [rawCode]
-          });
-
-          if (resB && resB[0] && resB[0].result && resB[0].result.success) {
-            executed = true;
-          } else if (resB && resB[0] && resB[0].result && resB[0].result.error) {
-            lastError = resB[0].result.error;
-          }
-        } catch (errB) {
-          if (!lastError) lastError = errB.message || String(errB);
-        }
-      }
-
-      if (executed) {
         showToast(`「${bm.title}」を実行しました`);
         setTimeout(() => {
           window.close();
         }, 900);
-      } else {
-        showToast(`実行エラー: ${lastError || 'スクリプトの実行に失敗しました'}`, true, 3500);
+        return;
       }
 
+      // 5. 将来GitHubから新しく追加されたツール用の動的フォールバック
+      if (!bm.code) {
+        showToast('実行可能なコードがありません', true);
+        return;
+      }
+
+      const rawCode = bm.code.replace(/^\s*javascript:/i, '').trim();
+
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (codeStr) => {
+          try {
+            const fn = new Function(codeStr);
+            fn();
+          } catch (err1) {
+            try {
+              const s = document.createElement('script');
+              s.textContent = codeStr;
+              (document.head || document.documentElement || document.body).appendChild(s);
+              s.remove();
+            } catch (err2) {
+              console.error('Dynamic execution failed:', err2);
+              alert('実行エラー: ' + (err2.message || err2));
+            }
+          }
+        },
+        args: [rawCode]
+      });
+
+      showToast(`「${bm.title}」を実行しました`);
+      setTimeout(() => {
+        window.close();
+      }, 900);
+
     } catch (err) {
-      console.error('Bookmarklet execution failed:', err);
+      console.error('Bookmarklet execution error:', err);
       showToast(`実行エラー: ${err.message || err}`, true, 3500);
     }
   }
