@@ -8,23 +8,76 @@ class HlCard extends HTMLElement {
     const href = this.getAttribute('href');
     const footerText = this.getAttribute('footer-text');
 
-    const rawContent = this.innerHTML;
+    // 既存の子ノード（イベントリスナーや状態を維持）を退避
+    const fragment = document.createDocumentFragment();
+    while (this.firstChild) {
+      fragment.appendChild(this.firstChild);
+    }
 
     // 1. リンクカード (href属性がある場合)
     if (href) {
-      const imageHtml = image ? `<div class="hl-card__image-wrap"><img src="${image}" loading="lazy" decoding="async" alt=""></div>` : '';
-      const titleHtml = title ? `<div class="hl-card__header"><h3 class="hl-card__title">${title}</h3></div>` : '';
-      const footerSpan = footerText !== null ? footerText : 'Learn More';
-      const footerHtml = footerSpan ? `<div class="hl-card__footer"><span>${footerSpan}</span></div>` : '';
+      const link = document.createElement('a');
+      link.href = href;
+      link.className = 'hl-card hl-card--link';
 
-      this.innerHTML = `<a href="${href}" class="hl-card hl-card--link">${imageHtml}<div class="hl-card__content">${titleHtml}<div class="hl-card__body hl-content-text">${rawContent}</div>${footerHtml}</div></a>`;
+      if (image) {
+        const imageWrap = document.createElement('div');
+        imageWrap.className = 'hl-card__image-wrap';
+        imageWrap.innerHTML = `<img src="${image}" loading="lazy" decoding="async" alt="">`;
+        link.appendChild(imageWrap);
+      }
+
+      const content = document.createElement('div');
+      content.className = 'hl-card__content';
+
+      if (title) {
+        const header = document.createElement('div');
+        header.className = 'hl-card__header';
+        header.innerHTML = `<h3 class="hl-card__title">${title}</h3>`;
+        content.appendChild(header);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'hl-card__body hl-content-text';
+      body.appendChild(fragment);
+      content.appendChild(body);
+
+      const footerSpan = footerText !== null ? footerText : 'Learn More';
+      if (footerSpan) {
+        const footer = document.createElement('div');
+        footer.className = 'hl-card__footer';
+        footer.innerHTML = `<span>${footerSpan}</span>`;
+        content.appendChild(footer);
+      }
+
+      link.appendChild(content);
+      this.appendChild(link);
     } 
     // 2. 汎用コンテナ・パネルカード (href属性がない場合)
     else {
-      const imageHtml = image ? `<div class="hl-card__image-wrap"><img src="${image}" loading="lazy" decoding="async" alt=""></div>` : '';
-      const titleHtml = title ? `<div class="hl-card__header"><h3 class="hl-card__title">${title}</h3></div>` : '';
+      const panel = document.createElement('div');
+      panel.className = 'hl-card hl-card--panel';
 
-      this.innerHTML = `<div class="hl-card hl-card--panel">${imageHtml}${titleHtml}<div class="hl-card__body">${rawContent}</div></div>`;
+      if (image) {
+        const imageWrap = document.createElement('div');
+        imageWrap.className = 'hl-card__image-wrap';
+        imageWrap.innerHTML = `<img src="${image}" loading="lazy" decoding="async" alt="">`;
+        panel.appendChild(imageWrap);
+      }
+
+      if (title) {
+        const header = document.createElement('div');
+        header.className = 'hl-card__header';
+        header.innerHTML = `<h3 class="hl-card__title">${title}</h3>`;
+        panel.appendChild(header);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'hl-card__body';
+      body.appendChild(fragment);
+      panel.appendChild(body);
+
+      this.appendChild(panel);
     }
   }
 }

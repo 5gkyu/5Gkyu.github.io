@@ -171,6 +171,13 @@
             "href": "/archive/app/x/dm/",
             "image": "https://5gkyu.github.io/icon/404grid.png",
             "description": "相手の数値IDを指定して、XのDM作成リンクを生成します。"
+          },
+          {
+            "title": "X動画保存ツール",
+            "tag": "Xツール",
+            "href": "/app/x/x-video/",
+            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "description": "X（旧Twitter）の動画やGIFを高画質MP4として直接保存・ダウンロードします。video/1形式にも対応。"
           }
         ]
       }

@@ -1240,6 +1240,21 @@ header.card .selector {
     background: rgba(255, 255, 255, 0.75);
   }
 
+  /* Low-res icons (favicons) shown as centered cards */
+  .list.layout-grid .icon-wrap img.hero.small-badge {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 14px;
+    object-fit: contain !important;
+    background: rgba(255, 255, 255, 0.88);
+    padding: 8px;
+    box-shadow: 0 4px 14px rgba(2, 18, 22, 0.16);
+  }
+  html.dark .list.layout-grid .icon-wrap img.hero.small-badge {
+    background: rgba(30, 41, 59, 0.88);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
 
 
   .list.layout-grid .icon-wrap img.fallback {
@@ -1355,7 +1370,9 @@ header.card .selector {
   border-radius: 12px;
   background: linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96));
   border: 1px solid rgba(6, 50, 58, 0.04);
-  box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04)
+  box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04);
+  text-decoration: none;
+  color: inherit;
 }
 
 .row:hover {

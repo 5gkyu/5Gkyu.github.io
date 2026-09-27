@@ -775,7 +775,10 @@ function renderList() {
   applyGridLayout();
 
   arr.forEach(item => {
-    const row = document.createElement('div'); row.className = 'row';
+    const row = document.createElement('a'); row.className = 'row';
+    row.href = item.url || '#';
+    row.target = '_blank';
+    row.rel = 'noopener noreferrer';
     row.dataset.id = item.id;
     if (item.tags && item.tags.includes('Kyu')) { row.classList.add('kyu-special'); }
 
@@ -791,6 +794,7 @@ function renderList() {
       handle.style.color = 'var(--muted)';
       handle.style.display = 'flex';
       handle.style.alignItems = 'center';
+      handle.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       row.appendChild(handle);
     }
 
@@ -812,16 +816,23 @@ function renderList() {
           img.loading = 'lazy';
           img.decoding = 'async';
           try { img.referrerPolicy = 'no-referrer'; } catch (_) { }
-          // If the loaded image is essentially square, show the entire square
+          // 画像ロード時にサイズ・アスペクト比を判定
           img.addEventListener('load', () => {
             try {
               if (img.naturalWidth && img.naturalHeight) {
-                const ratio = img.naturalWidth / img.naturalHeight;
-                if (ratio > 0.95 && ratio < 1.05) {
+                const nw = img.naturalWidth;
+                const nh = img.naturalHeight;
+                const ratio = nw / nh;
+                // 低解像度画像（ファビコン等）は引き伸ばさず上品なバッジ表示にする
+                if (nw < 140 && nh < 140) {
+                  img.classList.add('small-badge');
+                  img.style.objectFit = 'contain';
+                } else if (ratio > 0.85 && ratio < 1.18) {
                   img.classList.add('square');
                   img.style.objectFit = 'contain';
                 } else {
                   img.classList.remove('square');
+                  img.classList.remove('small-badge');
                   img.style.objectFit = 'cover';
                 }
               }
@@ -925,26 +936,31 @@ function renderList() {
     const actions = document.createElement('div'); actions.className = 'actions';
 
     if (isReadOnlyMode) {
-      // 一般ユーザー: 編集ボタンの代わりに詳細ボタンを表示（省スペース: '?'）
+      // 一般ユーザー: 編集ボタンの代わりに詳細ボタンを表示
       const detailBtn = document.createElement('button');
       detailBtn.className = 'detail-btn';
       detailBtn.textContent = 'i';
       detailBtn.title = '詳細を表示';
-      detailBtn.addEventListener('click', (e) => { e.stopPropagation(); openDetailModal(item); });
+      detailBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openDetailModal(item);
+      });
       actions.appendChild(detailBtn);
     } else {
-      // Owner can edit: show edit/delete buttons
+      // オーナー用編集ボタン
       if (!isReadOnlyMode) {
         if (!state.editMode) {
-          // 編集モードではない時: 編集ボタンのみを表示
           const btn = document.createElement('button');
           btn.className = 'open-btn';
           btn.setAttribute('aria-label', item.title + ' を編集する');
           btn.textContent = '編集';
-          btn.addEventListener('click', (e) => { e.stopPropagation(); openEdit(item); });
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openEdit(item);
+          });
           actions.appendChild(btn);
-        } else {
-          // 編集モード時のカスタムソートはドラッグ＆ドロップで行うためボタンは表示しない
         }
       }
     }
@@ -953,22 +969,44 @@ function renderList() {
     iconWrap.draggable = false;
 
     row.appendChild(iconWrap); row.appendChild(meta); row.appendChild(actions);
-    // 行クリックの動作
+    
+    // 行クリック時の挙動（編集モード時はリンク遷移を抑止、URLがない場合も抑止）
     row.addEventListener('click', (e) => {
-      // 編集モードであっても通常時と同じようにリンクを開く
-      try {
-        if (item && item.url) { window.open(item.url, '_blank', 'noopener'); }
-      } catch (e) { }
+      if ((state.editMode && canCustomSort && !isReadOnlyMode) || !item.url) {
+        e.preventDefault();
+      }
     });
     el.list.appendChild(row);
   });
 
   if (arr.length === 0) {
+    el.list.classList.remove('layout-grid');
     const isLoggedIn = typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.auth && firebase.auth().currentUser;
-    if (!isLoggedIn && isReadOnlyMode) {
-      el.list.innerHTML = '<div style="color:var(--muted); padding:16px; text-align:center; word-break: keep-all;">データを表示するにはログインしてください。</div>';
+    if (!isLoggedIn && isReadOnlyMode && (!DATA || DATA.length === 0)) {
+      el.list.innerHTML = '<div style="grid-column: 1 / -1; color:var(--muted); padding:32px 16px; text-align:center; word-break: keep-all; min-height:calc(100vh - var(--hdr-h, 72px) - 100px); display:flex; align-items:center; justify-content:center; width:100%;">データを表示するにはログインしてください。</div>';
     } else {
-      el.list.innerHTML = '<div style="color:var(--muted); padding:16px; text-align:center;">該当するリンクがありません。</div>';
+      el.list.innerHTML = `
+        <div class="empty-state-wrap" style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - var(--hdr-h, 72px) - 100px); width:100%; box-sizing:border-box; text-align:center; color:var(--muted); gap:14px; padding:24px 16px; margin:0 auto;">
+          <img src="https://5gkyu.github.io/icon/404list.png" alt="該当なし" style="width:140px; max-width:60%; height:auto; border-radius:18px; display:block; margin:0 auto; pointer-events:none; -webkit-user-drag:none; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.08));" />
+          <div style="font-weight:700; font-size:18px; color:var(--text); margin-top:4px;">該当するリンクがありません</div>
+          <div style="font-size:13px; max-width:320px; line-height:1.6; color:var(--muted); margin:0 auto;">キーワードや選択中のタグを変更するか、<br>検索条件をクリアしてください。</div>
+          <button id="resetFilterBtn" class="small-btn" type="button" style="margin:6px auto 0; padding:7px 18px; cursor:pointer; border-radius:20px;">検索条件をクリア</button>
+        </div>
+      `;
+      const resetBtn = document.getElementById('resetFilterBtn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          if (el.q) el.q.value = '';
+          state.q = '';
+          state.tags.clear();
+          state.noTagFilter = false;
+          const clearSearchBtn = document.getElementById('clearSearchBtn');
+          if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+          renderTags();
+          renderSidebarTags();
+          renderList();
+        });
+      }
     }
   }
 
@@ -1082,8 +1120,52 @@ function updateViewModeUI() {
 }
 
 /* ------------------ イベントワイヤリング ------------------ */
-el.q.addEventListener('input', () => { state.q = el.q.value; renderList(); });
-// Sort control is now in hamburger menu (createViewMenu function)
+let _searchDebounceTimer = null;
+let _isComposing = false;
+
+if (el.q) {
+  el.q.addEventListener('compositionstart', () => { _isComposing = true; });
+  el.q.addEventListener('compositionend', () => {
+    _isComposing = false;
+    state.q = el.q.value;
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (clearBtn) clearBtn.style.display = el.q.value ? 'flex' : 'none';
+    renderList();
+  });
+  el.q.addEventListener('input', () => {
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (clearBtn) clearBtn.style.display = el.q.value ? 'flex' : 'none';
+    if (_isComposing) return;
+    clearTimeout(_searchDebounceTimer);
+    _searchDebounceTimer = setTimeout(() => {
+      state.q = el.q.value;
+      renderList();
+    }, 100);
+  });
+}
+
+// キーボードショートカット: '/' で検索フォーカス, 'Escape' で検索クリア
+window.addEventListener('keydown', (e) => {
+  const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement && document.activeElement.tagName);
+  if (e.key === '/' && !isInputActive) {
+    const anyModalOpen = document.querySelector('.modal[style*="display: flex"], .modal[style*="display: block"]');
+    if (!anyModalOpen && el.q) {
+      e.preventDefault();
+      el.q.focus();
+      el.q.select();
+    }
+  }
+  if (e.key === 'Escape') {
+    if (document.activeElement === el.q) {
+      el.q.value = '';
+      state.q = '';
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      renderList();
+      el.q.blur();
+    }
+  }
+});
 
 // 表示モード選択イベント: 旧メニューは削除。モーダルで選択します。
 
@@ -1625,15 +1707,31 @@ el.saveAdd.addEventListener('click', async () => {
       DATA[idx].updated_at = Date.now();
     }
   } else {
-    // 追加前に重複 URL をチェック
+    // 追加前に重複 URL をチェック（存在する場合は上書き更新）
+    let existingIdx = -1;
     try {
       const newKey = normalizeUrlForCompare(url);
-      const exists = (DATA || []).some(d => normalizeUrlForCompare(d.url) === newKey);
-      if (exists) { alert('同じ URL のブックマークは既に存在します。'); return; }
+      existingIdx = (DATA || []).findIndex(d => normalizeUrlForCompare(d.url) === newKey);
     } catch (e) { }
-    const id = Date.now() + Math.floor(Math.random() * 1000);
-    const newItem = { id, title, url, icon_url: icon, og_image: ogImage, favicon_url: faviconUrl, desc, tags, created_at: Date.now(), updated_at: Date.now() };
-    DATA.unshift(newItem);
+
+    if (existingIdx !== -1) {
+      // 既存エントリを上書き更新
+      const created = DATA[existingIdx].created_at || Date.now();
+      DATA[existingIdx].url = url;
+      DATA[existingIdx].title = title;
+      DATA[existingIdx].icon_url = icon;
+      DATA[existingIdx].desc = desc;
+      DATA[existingIdx].tags = tags;
+      DATA[existingIdx].og_image = ogImage;
+      DATA[existingIdx].favicon_url = faviconUrl;
+      DATA[existingIdx].created_at = created;
+      DATA[existingIdx].updated_at = Date.now();
+    } else {
+      // 新規作成
+      const id = Date.now() + Math.floor(Math.random() * 1000);
+      const newItem = { id, title, url, icon_url: icon, og_image: ogImage, favicon_url: faviconUrl, desc, tags, created_at: Date.now(), updated_at: Date.now() };
+      DATA.unshift(newItem);
+    }
   }
 
   saveToStorage();
@@ -1906,6 +2004,15 @@ function updateEditPermissions(user) {
       el.openAdd.setAttribute('aria-hidden', 'true');
     }
   }
+
+  // Liveサーバーボタンの表示制御（オーナーまたはローカル環境時のみ表示）
+  try {
+    const liveServerWrap = document.getElementById('sidebarLiveServerWrapper');
+    const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
+    if (liveServerWrap) {
+      liveServerWrap.style.display = (isOwner || isLocalHost) ? 'flex' : 'none';
+    }
+  } catch (e) { }
 }
 
 /* local <-> functions (DATA を使う) */
@@ -3324,6 +3431,67 @@ document.addEventListener('keydown', (e) => {
     openHubModal();
   }
 
+  /* --- E2EE (エンドツーエンド暗号化) ヘルパー --- */
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function encryptHubText(text, password) {
+    const enc = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      enc.encode(text)
+    );
+    return {
+      salt: Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join(''),
+      iv: Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join(''),
+      ciphertext: Array.from(new Uint8Array(encrypted)).map(b => b.toString(16).padStart(2, '0')).join('')
+    };
+  }
+
+  async function decryptHubText(encryptedData, password) {
+    function hexToBytes(hex) {
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < hex.length; i += 2) {
+        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+      }
+      return bytes;
+    }
+    const salt = hexToBytes(encryptedData.salt);
+    const iv = hexToBytes(encryptedData.iv);
+    const ciphertext = hexToBytes(encryptedData.ciphertext);
+    const key = await deriveKey(password, salt);
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      ciphertext
+    );
+    return new TextDecoder().decode(decrypted);
+  }
+
   async function saveHub() {
     if (!isOwnerLoggedIn()) {
       alert('ハブの作成はオーナーのみ可能です。');
@@ -3338,14 +3506,31 @@ document.addEventListener('keydown', (e) => {
       return;
     }
     try {
-      const hashedPw = password ? await hashPassword(password) : null;
       const id = crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.floor(Math.random() * 10000));
-      const hubData = {
-        name: name,
-        text: text,
-        passwordHash: hashedPw,
-        created_at: Date.now()
-      };
+      let hubData;
+      if (password) {
+        // パスワードがある場合はE2EE暗号化して保存（平文はFirebaseに保存しない）
+        const enc = await encryptHubText(text, password);
+        const hashedPw = await hashPassword(password);
+        hubData = {
+          name: name,
+          encrypted: true,
+          salt: enc.salt,
+          iv: enc.iv,
+          ciphertext: enc.ciphertext,
+          passwordHash: hashedPw,
+          created_at: Date.now()
+        };
+      } else {
+        // パスワードなしの場合
+        hubData = {
+          name: name,
+          encrypted: false,
+          text: text,
+          passwordHash: null,
+          created_at: Date.now()
+        };
+      }
       await db.ref(HUB_PATH + '/' + id).set(hubData);
       if (el.hubCreateModal) el.hubCreateModal.style.display = 'none';
       openHubModal();
@@ -3381,7 +3566,7 @@ document.addEventListener('keydown', (e) => {
     // Reset state
     if (el.hubViewPasswordSection) el.hubViewPasswordSection.style.display = 'block';
     if (el.hubViewTextSection) el.hubViewTextSection.style.display = 'none';
-    if (el.hubViewPasswordInput) { el.hubViewPasswordInput.value = ''; el.hubViewPasswordInput.classList.remove('pw-visible'); if (el.hubViewPasswordToggle) el.hubViewPasswordToggle.textContent = '\uD83D\uDC41\uFE0F'; }
+    if (el.hubViewPasswordInput) { el.hubViewPasswordInput.value = ''; el.hubViewPasswordInput.classList.remove('pw-visible'); if (el.hubViewPasswordToggle) el.hubViewPasswordToggle.textContent = '表示'; }
     if (el.hubViewTextContent) el.hubViewTextContent.textContent = '';
 
     // Load hub data for title and check password requirement
@@ -3391,7 +3576,7 @@ document.addEventListener('keydown', (e) => {
       const name = data.name || '無題のハブ';
       if (el.hubViewTitle) el.hubViewTitle.textContent = name;
       
-      if (!data.passwordHash) {
+      if (!data.passwordHash && !data.encrypted) {
         // パスワードなしの場合は直接表示
         if (el.hubViewPasswordSection) el.hubViewPasswordSection.style.display = 'none';
         if (el.hubViewTextSection) el.hubViewTextSection.style.display = 'block';
@@ -3415,17 +3600,30 @@ document.addEventListener('keydown', (e) => {
         alert('ハブが見つかりません。');
         return;
       }
-      if (data.passwordHash) {
-        const hashedInput = await hashPassword(password);
-        if (hashedInput !== data.passwordHash) {
+      let decryptedText = '';
+      if (data.encrypted) {
+        // E2EE暗号化データの復号
+        try {
+          decryptedText = await decryptHubText(data, password);
+        } catch (decErr) {
           alert('パスワードが正しくありません。');
           return;
         }
+      } else {
+        // 従来の平文保存データ（後方互換性）
+        if (data.passwordHash) {
+          const hashedInput = await hashPassword(password);
+          if (hashedInput !== data.passwordHash) {
+            alert('パスワードが正しくありません。');
+            return;
+          }
+        }
+        decryptedText = data.text || '';
       }
       // Show text
       if (el.hubViewPasswordSection) el.hubViewPasswordSection.style.display = 'none';
       if (el.hubViewTextSection) el.hubViewTextSection.style.display = 'block';
-      if (el.hubViewTextContent) el.hubViewTextContent.textContent = data.text || '';
+      if (el.hubViewTextContent) el.hubViewTextContent.textContent = decryptedText;
     } catch (err) {
       console.error('Hub unlock error:', err);
       alert('表示に失敗しました: ' + (err.message || err));
@@ -3505,17 +3703,64 @@ document.addEventListener('keydown', (e) => {
   // Enter key on password input triggers unlock
   if (el.hubViewPasswordInput) el.hubViewPasswordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlockHub(); });
 
-  const clearSearchBtn = document.getElementById('clearSearchBtn');
-  if (clearSearchBtn && el.q) {
-    clearSearchBtn.addEventListener('click', () => {
-      el.q.value = '';
-      state.q = '';
-      clearSearchBtn.style.display = 'none';
-      renderList();
-    });
-    el.q.addEventListener('input', () => {
-      clearSearchBtn.style.display = el.q.value ? 'flex' : 'none';
-    });
-    clearSearchBtn.style.display = el.q.value ? 'flex' : 'none';
+  /* --- Liveサーバー機能の初期化 --- */
+  function initLiveServer() {
+    const LS_KEY = 'kyulink_liveserver_url';
+    const DEFAULT_URL = '192.168.11.6:5500/';
+
+    function getSavedUrl() {
+      return localStorage.getItem(LS_KEY) || DEFAULT_URL;
+    }
+
+    function openLiveServer() {
+      let raw = getSavedUrl().trim();
+      raw = raw.replace(/^https?:\/\//i, '');
+      window.open('//' + raw, '_blank');
+    }
+
+    const openBtn = document.getElementById('sidebarLiveServerBtn');
+    const settingsBtn = document.getElementById('sidebarLiveServerSettingsBtn');
+    const panel = document.getElementById('liveServerSettingsPanel');
+    const urlInput = document.getElementById('liveServerUrlInput');
+    const saveBtn = document.getElementById('liveServerSettingsSaveBtn');
+    const cancelBtn = document.getElementById('liveServerSettingsCancelBtn');
+
+    if (openBtn) openBtn.addEventListener('click', openLiveServer);
+
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => {
+        if (!panel) return;
+        const isOpen = panel.style.display !== 'none';
+        if (!isOpen) {
+          if (urlInput) urlInput.value = getSavedUrl();
+          panel.style.display = 'block';
+        } else {
+          panel.style.display = 'none';
+        }
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        if (!urlInput) return;
+        const val = urlInput.value.trim();
+        if (val) localStorage.setItem(LS_KEY, val);
+        if (panel) panel.style.display = 'none';
+      });
+    }
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        if (panel) panel.style.display = 'none';
+      });
+    }
+
+    // 初期の表示状態判定
+    const liveServerWrap = document.getElementById('sidebarLiveServerWrapper');
+    const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
+    if (liveServerWrap) {
+      liveServerWrap.style.display = (!isReadOnlyMode || isLocalHost) ? 'flex' : 'none';
+    }
   }
+  initLiveServer();
 })();

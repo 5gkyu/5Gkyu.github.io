@@ -31,6 +31,9 @@
 
   <style>
     .v2a-dropzone {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
       border: 2px dashed var(--clr-sage, #9AB08F);
       border-radius: 16px;
       padding: 2.5rem 1.5rem;
@@ -89,6 +92,41 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+    }
+
+    .v2a-audio-wrapper {
+      background: linear-gradient(135deg, #2b2320 0%, #1a1614 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      gap: 0.8rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      color: #FBF6EA;
+      text-align: center;
+    }
+    .v2a-audio-icon {
+      width: 44px;
+      height: 44px;
+      color: var(--clr-sage, #9AB08F);
+      opacity: 0.95;
+    }
+    .v2a-audio-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #FBF6EA;
+    }
+    .v2a-audio-player {
+      width: 100%;
+      max-width: 360px;
     }
 
     .v2a-meta-info {
@@ -491,30 +529,35 @@
       </div>
 
       <p class="hl-content-text" style="margin-bottom: 1.5rem;">
-        動画ファイル（MP4, WebM, MOVなど）から音声データを取り出し、最高320kbpsのMP3や非圧縮WAV形式へ変換・保存できます。ファイル名やアーティスト名・リリース年、ジャケット画像（アルバムアート）の埋め込みに対応しています。
+        動画ファイル（MP4, WebM, MOV等）や音声ファイル（MP3, WAV, M4A, FLAC等）から音声データを取り出し、最高320kbpsのMP3や非圧縮WAV形式へ変換・保存できます。曲名やアーティスト名・リリース年、ジャケット画像（アルバムアート）の埋め込みに対応しています。
       </p>
 
       <!-- メインアプリカード -->
       <hl-card style="margin-bottom: 1.8rem;">
         <!-- ファイルドロップゾーン -->
-        <div class="v2a-dropzone" id="dropzone">
-          <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.avi,.m4v" style="display: none;">
+        <label class="v2a-dropzone" id="dropzone" for="fileInput" tabindex="0" role="button" aria-label="動画・音声ファイルを選択">
+          <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.avi,.m4v,.mp3,.wav,.m4a,.aac,.flac,.ogg,.opus,.wma" style="display: none;">
           <div class="v2a-dropzone-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
           </div>
-          <div class="v2a-dropzone-text">動画ファイルをドラッグ＆ドロップ</div>
-          <div class="v2a-dropzone-subtext">またはここをクリックしてファイルを選択（MP4 / MOV / WebM / MKV 等）</div>
-        </div>
+          <div class="v2a-dropzone-text">動画または音声（曲）ファイルをドラッグ＆ドロップ</div>
+          <div class="v2a-dropzone-subtext">またはここをクリックしてファイルを選択（MP4 / MOV / WebM や MP3 / WAV / M4A / FLAC 等）</div>
+        </label>
 
-        <!-- ワークスペース（動画読み込み後に表示） -->
+        <!-- ワークスペース（ファイル読み込み後に表示） -->
         <div id="workspace" style="display: none;">
           
           <div class="v2a-preview-grid">
-            <!-- 動画プレビュー -->
-            <div class="v2a-video-wrapper">
+            <!-- 動画・音声プレビュー -->
+            <div class="v2a-video-wrapper" id="videoWrapper">
               <video id="videoPlayer" controls playsinline crossorigin="anonymous"></video>
+            </div>
+            <div class="v2a-audio-wrapper" id="audioWrapper" style="display: none;">
+              <svg class="v2a-audio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              <div class="v2a-audio-title" id="audioPreviewTitle">音声プレビュー</div>
+              <audio id="audioPlayer" class="v2a-audio-player" controls playsinline></audio>
             </div>
 
             <!-- メタ情報 -->
@@ -732,7 +775,11 @@
       const dropzone = document.getElementById('dropzone');
       const fileInput = document.getElementById('fileInput');
       const workspace = document.getElementById('workspace');
+      const videoWrapper = document.getElementById('videoWrapper');
       const videoPlayer = document.getElementById('videoPlayer');
+      const audioWrapper = document.getElementById('audioWrapper');
+      const audioPlayer = document.getElementById('audioPlayer');
+      const audioPreviewTitle = document.getElementById('audioPreviewTitle');
       const metaFilename = document.getElementById('metaFilename');
       const metaFilesize = document.getElementById('metaFilesize');
       const metaDuration = document.getElementById('metaDuration');
@@ -762,6 +809,10 @@
       const resultCoverThumb = document.getElementById('resultCoverThumb');
       const downloadBtn = document.getElementById('downloadBtn');
       const resultMeta = document.getElementById('resultMeta');
+
+      // 画面全体へのドロップで別タブにファイルが開くのを防止
+      window.addEventListener('dragover', (e) => e.preventDefault());
+      window.addEventListener('drop', (e) => e.preventDefault());
 
       // フォーマット選択
       formatCards.forEach(card => {
@@ -815,7 +866,7 @@
 
       captureFrameBtn.addEventListener('click', () => {
         if (!videoPlayer.videoWidth) {
-          alert('動画が正しく読み込まれていません。');
+          alert('動画が正しく読み込まれていません。音声ファイルの場合は画像ファイルを直接選択してください。');
           return;
         }
         const canvas = document.createElement('canvas');
@@ -896,20 +947,43 @@
         removeCoverBtn.style.display = 'inline-flex';
       }
 
-      // ファイルドロップ処理
-      dropzone.addEventListener('click', () => fileInput.click());
-      
-      dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('dragover');
+      // ファイル選択・ドロップ処理
+      fileInput.addEventListener('click', (e) => {
+        e.stopPropagation();
       });
 
-      dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('dragover');
+      dropzone.addEventListener('click', (e) => {
+        if (e.target !== fileInput) {
+          fileInput.click();
+        }
+      });
+
+      dropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dragover');
+        });
       });
 
       dropzone.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         dropzone.classList.remove('dragover');
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
           handleFile(e.dataTransfer.files[0]);
@@ -927,6 +1001,10 @@
           URL.revokeObjectURL(lastConvertedUrl);
           lastConvertedUrl = null;
         }
+        try { videoPlayer.pause(); } catch(e){}
+        try { audioPlayer.pause(); } catch(e){}
+        videoPlayer.src = '';
+        audioPlayer.src = '';
         workspace.style.display = 'none';
         dropzone.style.display = 'block';
         fileInput.value = '';
@@ -938,7 +1016,9 @@
         clearCoverImage();
         resultSection.style.display = 'none';
         progressContainer.style.display = 'none';
-        videoPlayer.src = '';
+        videoWrapper.style.display = 'flex';
+        audioWrapper.style.display = 'none';
+        captureFrameBtn.style.display = 'inline-flex';
       });
 
       function formatBytes(bytes) {
@@ -974,10 +1054,27 @@
         metaSampleRate.textContent = '解析中...';
 
         const fileUrl = URL.createObjectURL(file);
-        videoPlayer.src = fileUrl;
+
+        // 動画か音声ファイルかの判定
+        const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|webm|mkv|avi|m4v|3gp|flv)$/i.test(file.name);
+        if (isVideo) {
+          videoWrapper.style.display = 'flex';
+          audioWrapper.style.display = 'none';
+          captureFrameBtn.style.display = 'inline-flex';
+          videoPlayer.src = fileUrl;
+          audioPlayer.src = '';
+        } else {
+          // 音声ファイル（曲）
+          videoWrapper.style.display = 'none';
+          audioWrapper.style.display = 'flex';
+          captureFrameBtn.style.display = 'none'; // 音声時はコマ抽出ボタンを非表示
+          audioPreviewTitle.textContent = file.name;
+          audioPlayer.src = fileUrl;
+          videoPlayer.src = '';
+        }
 
         // 音声デコード
-        showProgress('動画から音声データを解析中...', 20);
+        showProgress('ファイルから音声データを解析中...', 20);
         try {
           const arrayBuffer = await file.arrayBuffer();
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -994,7 +1091,7 @@
           hideProgress();
         } catch (err) {
           console.error('Audio decode error:', err);
-          showProgress('音声の読み込みに失敗しました。対応していない形式か、音声が含まれていません。', 0);
+          showProgress('音声の読み込みに失敗しました。対応していない形式か、破損している可能性があります。', 0);
           metaDuration.textContent = '音声トラックなし/未対応';
           metaSampleRate.textContent = '-';
         }

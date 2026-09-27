@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X動画保存ツール | Halcyon - 5Gkyu</title>
+  <meta name="description" content="X（旧Twitter）のポストURLや動画リンク（video/1等）から動画・GIFを抽出し、高画質MP4として保存・ダウンロードできるツールです。">
+  
+  <!-- チラつき（FOUC）防止スタイル -->
+  <style id="fouc-prevent">
+    body { opacity: 0 !important; visibility: hidden !important; background-color: #FBF6EA !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  </style>
+
+  <style>
+    /* アプリ専用スタイル */
+    .x-video-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 640px) {
+      .input-row {
+        flex-direction: column;
+      }
+    }
+
+    .url-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #D5CEBF;
+      border-radius: 8px;
+      background-color: #FFFFFF;
+      color: #3C3633;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .url-input:focus {
+      border-color: #587978;
+      box-shadow: 0 0 0 3px rgba(88, 121, 120, 0.15);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* 結果カード */
+    .result-card {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .result-card.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* 投稿者情報ヘッダー */
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #EADBCE;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #EADBCE;
+      border: 1px solid #D5CEBF;
+    }
+
+    .author-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.3;
+    }
+
+    .author-name {
+      font-weight: 600;
+      color: #3C3633;
+      font-size: 0.95rem;
+    }
+
+    .author-handle {
+      font-size: 0.825rem;
+      color: #7C7267;
+    }
+
+    .post-text {
+      font-size: 0.95rem;
+      color: #3C3633;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* プレイヤーとダウンロード領域 */
+    .video-preview-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #1A1817;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-height: 540px;
+    }
+
+    .video-preview-wrapper video {
+      width: 100%;
+      max-height: 540px;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .download-btn-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.85rem 1rem;
+      border: 1px solid #D5CEBF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      cursor: pointer;
+      text-decoration: none;
+      color: #3C3633;
+      transition: all 0.2s ease;
+      gap: 0.3rem;
+      position: relative;
+    }
+
+    .download-btn-item:hover {
+      background: #F4EFE6;
+      border-color: #587978;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(60, 54, 51, 0.08);
+    }
+
+    .download-btn-item.primary-download {
+      background: #587978;
+      color: #FFFFFF;
+      border-color: #587978;
+    }
+
+    .download-btn-item.primary-download:hover {
+      background: #466362;
+    }
+
+    .download-btn-item.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .download-quality-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .download-quality-sub {
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+
+    /* インラインSVGスタイル */
+    .svg-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .multi-media-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid #EADBCE;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .multi-media-tab-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      border: 1px solid #D5CEBF;
+      background: #FBF6EA;
+      cursor: pointer;
+      color: #3C3633;
+      font-family: inherit;
+    }
+
+    .multi-media-tab-btn.active {
+      background: #587978;
+      color: #FFFFFF;
+      border-color: #587978;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- サイト共通ヘッダー -->
+  <site-header site-name="App"></site-header>
+
+  <hl-layout cols="1">
+    <!-- パンくずリスト -->
+    <hl-breadcrumb
+      level1-name="Home" level1-url="/"
+      level2-name="App" level2-url="/archive/app/"
+      current="X動画保存ツール">
+    </hl-breadcrumb>
+
+    <!-- ページ見出し -->
+    <page-title>X動画保存ツール</page-title>
+    <p class="hl-content-text" style="margin-top: 0.5rem; color: #7C7267;">
+      X（旧Twitter）のポストURLを貼り付けるだけで、動画やGIFを抽出して高画質MP4ファイルとして保存・ダウンロードできます。
+      iPadやスマートフォンでも1タップで動画を保存可能です。
+    </p>
+
+    <div class="x-video-container">
+      <!-- 入力フォームカード -->
+      <hl-card>
+        <div class="input-section">
+          <label for="x-url-input" style="font-weight: 600; color: #3C3633; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            X（Twitter）のポストURLを入力
+          </label>
+          
+          <div class="input-row">
+            <input 
+              type="text" 
+              id="x-url-input" 
+              class="url-input" 
+              placeholder="例: https://x.com/username/status/1234567890123456789" 
+              autocomplete="off" 
+              spellcheck="false"
+            />
+            <div class="btn-group">
+              <hl-button id="paste-btn" variant="secondary">
+                <svg class="svg-icon" viewBox="0 0 24 24" slot="icon">
+                  <path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/>
+                </svg>
+                貼り付け
+              </hl-button>
+              <hl-button id="fetch-btn" variant="primary">
+                <svg class="svg-icon" viewBox="0 0 24 24" slot="icon">
+                  <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                </svg>
+                動画を取得
+              </hl-button>
+            </div>
+          </div>
+
+          <!-- アラート表示用領域 -->
+          <div id="status-message-area" style="display: none;"></div>
+        </div>
+      </hl-card>
+
+      <!-- 取得結果表示カード -->
+      <hl-card id="result-card" class="result-card">
+        <!-- 複数メディアがある場合の切り替えタブ -->
+        <div id="media-tabs-container" style="display: none;">
+          <div class="multi-media-tabs" id="media-tabs-list"></div>
+        </div>
+
+        <!-- 投稿者プロフィール -->
+        <div class="author-info">
+          <img id="author-avatar" class="author-avatar" src="" alt="プロフィール画像" />
+          <div class="author-meta">
+            <span id="author-name" class="author-name">ユーザー名</span>
+            <span id="author-handle" class="author-handle">@username</span>
+          </div>
+        </div>
+
+        <!-- ポスト本文 -->
+        <div id="post-text" class="post-text"></div>
+
+        <!-- 動画プレイヤープレビュー -->
+        <div class="video-preview-wrapper">
+          <video id="video-preview" controls playsinline preload="metadata"></video>
+        </div>
+
+        <!-- ダウンロードオプション -->
+        <div>
+          <h3 style="font-size: 0.95rem; font-weight: 600; color: #3C3633; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+            </svg>
+            動画を保存・ダウンロード
+          </h3>
+          <div id="download-list" class="download-grid">
+            <!-- 画質別ボタンがJSによって動的に生成されます -->
+          </div>
+
+          <!-- iPad / iOS 向けヒント -->
+          <div style="margin-top: 0.75rem; padding: 0.85rem 1rem; background: #F4EFE6; border-radius: 8px; border: 1px solid #D5CEBF; font-size: 0.85rem; color: #5C554E; line-height: 1.6; display: flex; align-items: flex-start; gap: 0.75rem;">
+            <svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: #587978; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="8 12 12 16 16 12"></polyline>
+              <line x1="12" y1="7" x2="12" y2="16"></line>
+            </svg>
+            <div>
+              <strong style="color: #3C3633;">iPad / iPhone での保存方法:</strong><br>
+              上のボタンを<strong>「長押し」</strong>し、表示されたメニューから<strong>「リンク先のファイルをダウンロード」</strong>を選択すると、直接ファイルとして保存されます。
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid #EADBCE;">
+          <hl-button id="copy-video-url-btn" variant="secondary" size="sm">
+            <svg class="svg-icon" viewBox="0 0 24 24" slot="icon">
+              <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            </svg>
+            動画URLをコピー
+          </hl-button>
+          <a id="original-tweet-link" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+            <hl-button variant="ghost" size="sm">
+              <svg class="svg-icon" viewBox="0 0 24 24" slot="icon">
+                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+              </svg>
+              元のポストを開く
+            </hl-button>
+          </a>
+        </div>
+      </hl-card>
+
+      <!-- 使い方と注意事項 -->
+      <hl-card style="margin-top: 1rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 600; color: #3C3633; margin-bottom: 0.5rem;">使い方と注意事項</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.875rem; color: #7C7267; line-height: 1.7;">
+          <li>XのポストURL（<code>https://x.com/.../status/...</code>）または動画個別URL（<code>.../video/1</code>）を貼り付けて「動画を取得」を押します。</li>
+          <li><strong>PC</strong>: ボタンをクリックするだけで直接ダウンロードが始まります。</li>
+          <li><strong>iPad / iPhone</strong>: ボタンを<strong>長押し</strong>して<strong>「リンク先のファイルをダウンロード」</strong>を選択してください。</li>
+          <li>非公開アカウント（鍵垢）のポストや、削除されたポストの動画は取得できません。</li>
+        </ul>
+      </hl-card>
+    </div>
+  </hl-layout>
+
+  <!-- サイト共通フッター -->
+  <site-footer copy="5Gkyu"></site-footer>
+
+  <!-- 全コンポーネント読み込みスクリプト -->
+  <script src="/components/components.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // デバイス判定（iOS / iPadOS）
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      // DOM要素の取得
+      const urlInput = document.getElementById('x-url-input');
+      const pasteBtn = document.getElementById('paste-btn');
+      const fetchBtn = document.getElementById('fetch-btn');
+      const statusArea = document.getElementById('status-message-area');
+      const resultCard = document.getElementById('result-card');
+      const authorAvatar = document.getElementById('author-avatar');
+      const authorName = document.getElementById('author-name');
+      const authorHandle = document.getElementById('author-handle');
+      const postText = document.getElementById('post-text');
+      const videoPreview = document.getElementById('video-preview');
+      const downloadList = document.getElementById('download-list');
+      const copyVideoUrlBtn = document.getElementById('copy-video-url-btn');
+      const originalTweetLink = document.getElementById('original-tweet-link');
+      const mediaTabsContainer = document.getElementById('media-tabs-container');
+      const mediaTabsList = document.getElementById('media-tabs-list');
+
+      let currentTweetData = null;
+      let currentMediaIndex = 0;
+
+      // 初期化
+      document.addEventListener('DOMContentLoaded', () => {
+        checkUrlParams();
+      });
+
+      // URLパラメータがあれば自動入力・実行
+      function checkUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        const urlParam = params.get('url');
+        if (urlParam) {
+          urlInput.value = urlParam;
+          fetchVideoData(urlParam);
+        }
+      }
+
+      // クリップボードからの貼り付け
+      pasteBtn.addEventListener('click', async () => {
+        urlInput.focus();
+        try {
+          if (!navigator.clipboard || !navigator.clipboard.readText) {
+            throw new Error('Clipboard API unsupported');
+          }
+          const text = await navigator.clipboard.readText();
+          if (text && text.trim()) {
+            urlInput.value = text.trim();
+            showStatus('クリップボードからURLを貼り付けました。', 'info');
+            if (extractTweetId(text.trim())) {
+              handleFetch();
+            }
+          } else {
+            showStatus('クリップボードにテキストがありませんでした。', 'warning');
+          }
+        } catch (err) {
+          urlInput.focus();
+          urlInput.select();
+          showStatus('ブラウザのセキュリティ保護により自動読み取りが制限されています。入力欄にフォーカスを合わせましたので、Ctrl+V（Mac/iPadはCommand+V）または長押しで直接貼り付けてください。', 'info');
+        }
+      });
+
+      // Enterキーで取得
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          handleFetch();
+        }
+      });
+
+      // 取得ボタンクリック
+      fetchBtn.addEventListener('click', handleFetch);
+
+      function handleFetch() {
+        const url = urlInput.value.trim();
+        if (!url) {
+          showStatus('X（Twitter）のポストURLを入力してください。', 'warning');
+          return;
+        }
+        fetchVideoData(url);
+      }
+
+      // URLからツイートIDを抽出
+      function extractTweetId(url) {
+        if (/^\d+$/.test(url)) {
+          return url;
+        }
+
+        const match = url.match(/(?:twitter\.com|x\.com)\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)/i) ||
+                      url.match(/(?:twitter\.com|x\.com)\/i\/status\/(\d+)/i) ||
+                      url.match(/\/status\/(\d+)/i);
+
+        return match ? (match[2] || match[1]) : null;
+      }
+
+      // 状態メッセージの表示
+      function showStatus(message, type = 'info') {
+        statusArea.style.display = 'block';
+        statusArea.innerHTML = `<hl-alert type="${type}">${escapeHtml(message)}</hl-alert>`;
+      }
+
+      function clearStatus() {
+        statusArea.style.display = 'none';
+        statusArea.innerHTML = '';
+      }
+
+      // 動画データの取得（FixTweet API）
+      async function fetchVideoData(inputUrl) {
+        const tweetId = extractTweetId(inputUrl);
+        if (!tweetId) {
+          showStatus('有効なX（Twitter）のポストURLが見つかりませんでした。URLを確認してください。', 'error');
+          return;
+        }
+
+        clearStatus();
+        fetchBtn.setAttribute('loading', 'true');
+        resultCard.classList.remove('active');
+        videoPreview.pause();
+        videoPreview.removeAttribute('src');
+
+        try {
+          const apiUrl = `https://api.fxtwitter.com/status/${tweetId}`;
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            throw new Error(`情報の取得に失敗しました (HTTP ${response.status})`);
+          }
+
+          const data = await response.json();
+          if (data.code !== 200 || !data.tweet) {
+            throw new Error(data.message || 'ポストの取得に失敗しました。');
+          }
+
+          const tweet = data.tweet;
+          const videos = extractVideosFromTweet(tweet);
+
+          if (!videos || videos.length === 0) {
+            showStatus('このポストには動画やGIFが含まれていません。', 'warning');
+            fetchBtn.removeAttribute('loading');
+            return;
+          }
+
+          currentTweetData = tweet;
+          currentMediaIndex = 0;
+
+          // 画面描画
+          renderTweetInfo(tweet, videos);
+
+        } catch (error) {
+          console.error('Fetch Error:', error);
+          showStatus(`エラーが発生しました: ${error.message || '動画データの取得に失敗しました。非公開アカウントの可能性があります。'}`, 'error');
+        } finally {
+          fetchBtn.removeAttribute('loading');
+        }
+      }
+
+      // ツイートデータから動画配列を取り出す
+      function extractVideosFromTweet(tweet) {
+        const list = [];
+
+        if (tweet.media && Array.isArray(tweet.media.videos) && tweet.media.videos.length > 0) {
+          tweet.media.videos.forEach(v => list.push(v));
+        } else if (tweet.media && Array.isArray(tweet.media.all)) {
+          tweet.media.all.forEach(m => {
+            if (m.type === 'video' || m.type === 'gif') {
+              list.push(m);
+            }
+          });
+        } else if (tweet.media && tweet.media.video) {
+          list.push(tweet.media.video);
+        }
+
+        return list;
+      }
+
+      // ポスト情報と動画UIを描画
+      function renderTweetInfo(tweet, videos) {
+        authorName.textContent = tweet.author?.name || 'X ユーザー';
+        authorHandle.textContent = `@${tweet.author?.screen_name || 'user'}`;
+        if (tweet.author?.avatar_url) {
+          authorAvatar.src = tweet.author.avatar_url;
+        } else {
+          authorAvatar.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="%237C7267"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+        }
+
+        postText.textContent = tweet.text || '';
+        originalTweetLink.href = tweet.url || `https://x.com/i/status/${tweet.id}`;
+
+        if (videos.length > 1) {
+          mediaTabsContainer.style.display = 'block';
+          mediaTabsList.innerHTML = '';
+          videos.forEach((v, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `multi-media-tab-btn ${index === 0 ? 'active' : ''}`;
+            btn.textContent = `動画 ${index + 1}`;
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('.multi-media-tab-btn').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              currentMediaIndex = index;
+              renderVideoPlayerAndDownloads(videos[index]);
+            });
+            mediaTabsList.appendChild(btn);
+          });
+        } else {
+          mediaTabsContainer.style.display = 'none';
+        }
+
+        renderVideoPlayerAndDownloads(videos[0]);
+        resultCard.classList.add('active');
+      }
+
+      // 動画プレイヤーとダウンロードボタン群の生成
+      function renderVideoPlayerAndDownloads(videoItem) {
+        let variants = [];
+
+        if (Array.isArray(videoItem.variants) && videoItem.variants.length > 0) {
+          variants = videoItem.variants
+            .filter(v => v.url && (v.content_type === 'video/mp4' || v.url.includes('.mp4')))
+            .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+        }
+
+        if (variants.length === 0 && videoItem.url) {
+          variants.push({
+            url: videoItem.url,
+            bitrate: 0,
+            content_type: 'video/mp4'
+          });
+        }
+
+        const bestUrl = variants[0]?.url || videoItem.url;
+
+        videoPreview.src = bestUrl;
+        if (videoItem.thumbnail_url) {
+          videoPreview.poster = videoItem.thumbnail_url;
+        }
+
+        copyVideoUrlBtn.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(bestUrl);
+            showStatus('動画の直接URLをコピーしました。', 'info');
+          } catch (e) {
+            showStatus('URLのコピーに失敗しました。', 'warning');
+          }
+        };
+
+        downloadList.innerHTML = '';
+
+        // 最高画質MP4の単一ダウンロードボタン
+        const mainBtn = document.createElement('a');
+        mainBtn.className = 'download-btn-item primary-download';
+        mainBtn.href = bestUrl;
+        mainBtn.download = `x_video_${currentTweetData?.id || Date.now()}.mp4`;
+        mainBtn.target = '_blank';
+        mainBtn.rel = 'noopener noreferrer';
+        mainBtn.innerHTML = `
+          <div class="download-quality-title">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+            </svg>
+            最高画質 MP4 を保存
+          </div>
+          <div class="download-quality-sub">PC: クリックで保存 / iPad: 長押しで保存</div>
+        `;
+        downloadList.appendChild(mainBtn);
+      }
+
+      // 画質ラベルの推定
+      function getResolutionLabel(variant, index, total) {
+        const url = variant.url || '';
+        const match = url.match(/\/(\d+x\d+)\//);
+        if (match) {
+          const res = match[1];
+          const height = res.split('x')[1];
+          return `${height}p (${res})`;
+        }
+        if (index === 0) return '最高画質 (HD)';
+        if (index === total - 1) return '低画質 (軽量)';
+        return `標準画質 (${index + 1})`;
+      }
+
+      // HTMLエスケープヘルパー
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+    })();
+  </script>
+</body>
+</html>

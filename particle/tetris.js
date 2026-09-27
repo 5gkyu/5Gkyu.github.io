@@ -1,11 +1,21 @@
 /**
- * tetris.js - Neon Tetris (軽量化・高速最適化版)
- * 1. 粒子数を約9,500点から約2,800点へと大幅スリム化（CPU/GPU負荷を70%以上削減）
- * 2. 1マスあたり4x4(16点)の美しく鮮明なサンプリング
- * 3. 2重ネオン外枠と最適化されたHUDで軽快な60fps動作を実現
+ * tetris.js - Neon Tetris (完全整合性保証版)
+ * 
+ * すべてのシナリオはスクリプトで数学的に検証済み:
+ * - テトリミノ形状の正確性（全回転パターンとの照合）
+ * - セル重複の完全排除
+ * - 接地チェーン（床 or 既存ブロック）の保証
+ * - ライン消去条件（行の全10マス充填）の厳密検証
+ *
+ * シナリオ1: TSD（T-Spin Double）- 6手
+ *   I, S, Z, J, L で盤面構築 → T回転入れで行14,15同時消去
+ * シナリオ2: パフェクリア - 10手
+ *   J, L, L, J, O, O, S, Z, I, I で4行同時全消し
  */
 
 'use strict';
+
+(function (root) {
 
   const COLS = 10;
   const ROWS = 16;
@@ -19,114 +29,14 @@
   const TETROMINO_DEFS = {
     I: { color: [0, 240, 255], edge: [220, 255, 255] },
     O: { color: [255, 235, 30], edge: [255, 255, 210] },
-    T: { color: [185, 60, 255], edge: [245, 210, 255] },
+    T: { color: [195, 60, 255], edge: [250, 210, 255] },
     S: { color: [40, 235, 90], edge: [210, 255, 230] },
     Z: { color: [255, 50, 75], edge: [255, 210, 220] },
     J: { color: [35, 110, 255], edge: [210, 230, 255] },
     L: { color: [255, 140, 25], edge: [255, 230, 200] }
   };
 
-  const MOVE_CONFIGS = [
-    // 手0: J (列0, rot2)
-    { type: 'J', col: 0, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手1: I (列3, rot1)
-    { type: 'I', col: 3, baseLandingR: 12, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手2: T (列4, rot2)
-    { type: 'T', col: 4, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手3: S (列6, rot0)
-    { type: 'S', col: 6, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手4: Z (列8, rot1) -> ★1段消去
-    { type: 'Z', col: 8, baseLandingR: 13, fallDur: 0.45, lockDur: 0.20, pauseDur: 1.50, flashDur: 0.45, dropDur: 0.35, restDur: 0.60 },
-    // 手5: O (列0, rot0)
-    { type: 'O', col: 0, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手6: L (列0, rot0)
-    { type: 'L', col: 0, baseLandingR: 13, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手7: T (列4, rot1) -> ★1段消去
-    { type: 'T', col: 4, baseLandingR: 13, fallDur: 0.45, lockDur: 0.20, pauseDur: 1.50, flashDur: 0.45, dropDur: 0.35, restDur: 0.60 },
-    // 手8: S (列5, rot0)
-    { type: 'S', col: 5, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 0.60, flashDur: 0.0, dropDur: 0.0, restDur: 0.0 },
-    // 手9: L (列7, rot0) -> ★ダブル消去＆パーフェクトクリア
-    { type: 'L', col: 7, baseLandingR: 14, fallDur: 0.45, lockDur: 0.20, pauseDur: 1.80, flashDur: 0.65, dropDur: 0.0, restDur: 2.00 }
-  ];
-
-  const MOVES = MOVE_CONFIGS.map(m => {
-    const totalDuration = m.fallDur + m.lockDur + m.pauseDur + m.flashDur + m.dropDur + m.restDur;
-    return { ...m, totalDuration };
-  });
-
-  const TOTAL_CYCLE_DURATION = MOVES.reduce((sum, m) => sum + m.totalDuration, 0);
-
-  const MOVE_START_TIMES = [];
-  let accumTime = 0;
-  for (let m = 0; m < MOVES.length; m++) {
-    MOVE_START_TIMES.push(accumTime);
-    accumTime += MOVES[m].totalDuration;
-  }
-
-  // 全40個のブロック実体
-  const BLOCK_SPRITES = [
-    // --- 1手目: Jミノ ---
-    { id: 0, type: 'J', moveIdx: 0, relC: 0, relR: 1, c: 0, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 1, type: 'J', moveIdx: 0, relC: 1, relR: 1, c: 1, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 2, type: 'J', moveIdx: 0, relC: 2, relR: 1, c: 2, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 3, type: 'J', moveIdx: 0, relC: 2, relR: 0, c: 2, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-
-    // --- 2手目: Iミノ ---
-    { id: 4, type: 'I', moveIdx: 1, relC: 0, relR: 0, c: 3, landingR: 12, vanishMove: 9, shifts: [{ moveIdx: 4, fromR: 12, toR: 13 }, { moveIdx: 7, fromR: 13, toR: 14 }] },
-    { id: 5, type: 'I', moveIdx: 1, relC: 0, relR: 1, c: 3, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 4, fromR: 13, toR: 14 }, { moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 6, type: 'I', moveIdx: 1, relC: 0, relR: 2, c: 3, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 7, type: 'I', moveIdx: 1, relC: 0, relR: 3, c: 3, landingR: 15, vanishMove: 4, shifts: [] },
-
-    // --- 3手目: Tミノ ---
-    { id: 8, type: 'T', moveIdx: 2, relC: 1, relR: 0, c: 5, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 9, type: 'T', moveIdx: 2, relC: 0, relR: 1, c: 4, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 10, type: 'T', moveIdx: 2, relC: 1, relR: 1, c: 5, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 11, type: 'T', moveIdx: 2, relC: 2, relR: 1, c: 6, landingR: 15, vanishMove: 4, shifts: [] },
-
-    // --- 4手目: Sミノ ---
-    { id: 12, type: 'S', moveIdx: 3, relC: 0, relR: 0, c: 6, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 13, type: 'S', moveIdx: 3, relC: 1, relR: 0, c: 7, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 14, type: 'S', moveIdx: 3, relC: 1, relR: 1, c: 7, landingR: 15, vanishMove: 4, shifts: [] },
-    { id: 15, type: 'S', moveIdx: 3, relC: 2, relR: 1, c: 8, landingR: 15, vanishMove: 4, shifts: [] },
-
-    // --- 5手目: Zミノ ---
-    { id: 16, type: 'Z', moveIdx: 4, relC: 0, relR: 0, c: 8, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 4, fromR: 13, toR: 14 }, { moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 17, type: 'Z', moveIdx: 4, relC: 0, relR: 1, c: 8, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 18, type: 'Z', moveIdx: 4, relC: 1, relR: 1, c: 9, landingR: 14, vanishMove: 7, shifts: [{ moveIdx: 4, fromR: 14, toR: 15 }] },
-    { id: 19, type: 'Z', moveIdx: 4, relC: 1, relR: 2, c: 9, landingR: 15, vanishMove: 4, shifts: [] },
-
-    // --- 6手目: Oミノ ---
-    { id: 20, type: 'O', moveIdx: 5, relC: 0, relR: 0, c: 0, landingR: 14, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 21, type: 'O', moveIdx: 5, relC: 1, relR: 0, c: 1, landingR: 14, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 22, type: 'O', moveIdx: 5, relC: 0, relR: 1, c: 0, landingR: 15, vanishMove: 7, shifts: [] },
-    { id: 23, type: 'O', moveIdx: 5, relC: 1, relR: 1, c: 1, landingR: 15, vanishMove: 7, shifts: [] },
-
-    // --- 7手目: Lミノ ---
-    { id: 24, type: 'L', moveIdx: 6, relC: 0, relR: 0, c: 0, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 13, toR: 14 }] },
-    { id: 25, type: 'L', moveIdx: 6, relC: 1, relR: 0, c: 1, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 13, toR: 14 }] },
-    { id: 26, type: 'L', moveIdx: 6, relC: 2, relR: 0, c: 2, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 13, toR: 14 }] },
-    { id: 27, type: 'L', moveIdx: 6, relC: 2, relR: 1, c: 2, landingR: 14, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 14, toR: 15 }] },
-
-    // --- 8手目: Tミノ ---
-    { id: 28, type: 'T', moveIdx: 7, relC: 0, relR: 0, c: 4, landingR: 13, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 13, toR: 14 }] },
-    { id: 29, type: 'T', moveIdx: 7, relC: 0, relR: 1, c: 4, landingR: 14, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 30, type: 'T', moveIdx: 7, relC: 1, relR: 1, c: 5, landingR: 14, vanishMove: 9, shifts: [{ moveIdx: 7, fromR: 14, toR: 15 }] },
-    { id: 31, type: 'T', moveIdx: 7, relC: 0, relR: 2, c: 4, landingR: 15, vanishMove: 7, shifts: [] },
-
-    // --- 9手目: Sミノ ---
-    { id: 32, type: 'S', moveIdx: 8, relC: 0, relR: 0, c: 5, landingR: 14, vanishMove: 9, shifts: [] },
-    { id: 33, type: 'S', moveIdx: 8, relC: 1, relR: 0, c: 6, landingR: 14, vanishMove: 9, shifts: [] },
-    { id: 34, type: 'S', moveIdx: 8, relC: 1, relR: 1, c: 6, landingR: 15, vanishMove: 9, shifts: [] },
-    { id: 35, type: 'S', moveIdx: 8, relC: 2, relR: 1, c: 7, landingR: 15, vanishMove: 9, shifts: [] },
-
-    // --- 10手目: Lミノ ---
-    { id: 36, type: 'L', moveIdx: 9, relC: 0, relR: 0, c: 7, landingR: 14, vanishMove: 9, shifts: [] },
-    { id: 37, type: 'L', moveIdx: 9, relC: 1, relR: 0, c: 8, landingR: 14, vanishMove: 9, shifts: [] },
-    { id: 38, type: 'L', moveIdx: 9, relC: 2, relR: 0, c: 9, landingR: 14, vanishMove: 9, shifts: [] },
-    { id: 39, type: 'L', moveIdx: 9, relC: 2, relR: 1, c: 9, landingR: 15, vanishMove: 9, shifts: [] }
-  ];
-
-  // ★軽量化サンプリング：1セルあたり 4x4 = 16点
+  // 1セルあたり 4x4 = 16点サンプリング
   const CELL_PTS_OFFSETS = [];
   for (let iy = 0; iy < 4; iy++) {
     for (let ix = 0; ix < 4; ix++) {
@@ -139,7 +49,9 @@
     }
   }
 
-  // 静的枠線＆HUD（軽量2重ネオンフレーム：約550点）
+  // ==========================================
+  // 静的枠線＆HUD（不変点群：約560点）
+  // ==========================================
   function generateStaticHUD() {
     const pts = [];
     const RGB_BORDER = [45, 110, 230];
@@ -175,7 +87,7 @@
       pts.push({ bx: NEXT_X + NEXT_W, by: NEXT_Y + y, rgb: RGB_HEADER, size: 1.9 });
     }
 
-    // 「NEXT」文字ドット（5x7 ビットマップフォントで高精細レンダリング）
+    // 「NEXT」文字ドット（5x7 ビットマップフォント）
     const FONT_5x7_NEXT = {
       'N': ['#   #', '##  #', '# # #', '#  ##', '#   #', '#   #', '#   #'],
       'E': ['#####', '#    ', '#### ', '#    ', '#    ', '#    ', '#####'],
@@ -211,54 +123,227 @@
       }
     }
 
-    // 背景グリッド交点（140点）
-    for (let r = 1; r < ROWS; r++) {
-      for (let c = 1; c < COLS; c++) {
-        pts.push({
-          bx: ORIGIN_X + c * CELL_SIZE,
-          by: ORIGIN_Y + r * CELL_SIZE,
-          rgb: [25, 45, 85],
-          size: 1.1
-        });
-      }
-    }
-
     return pts;
   }
 
   const staticHUD = generateStaticHUD();
 
-  // 毎フレーム計算（完全固定長 約2,800点）
+  // NEXTプレビュー用テトリミノ形状
+  const NEXT_SHAPES = {
+    I: [[0, 1.5], [1, 1.5], [2, 1.5], [3, 1.5]],
+    O: [[0.5, 0.5], [1.5, 0.5], [0.5, 1.5], [1.5, 1.5]],
+    T: [[1, 0.5], [0, 1.5], [1, 1.5], [2, 1.5]],
+    S: [[1, 0.5], [2, 0.5], [0, 1.5], [1, 1.5]],
+    Z: [[0, 0.5], [1, 0.5], [1, 1.5], [2, 1.5]],
+    J: [[0, 0.5], [0, 1.5], [1, 1.5], [2, 1.5]],
+    L: [[2, 0.5], [0, 1.5], [1, 1.5], [2, 1.5]]
+  };
+
+  // =========================================================================
+  // シナリオ定義（数学的に検証済み）
+  // =========================================================================
+
+  // -------------------------------------------------------------------------
+  // シナリオ1: TSD (T-Spin Double) - 6手で盤面構築 → 2行同時消去
+  //
+  // 検証済み盤面（T配置直前）:
+  //   行12: [........L.]
+  //   行13: [.Z...J..L.]
+  //   行14: [ZZSS.JJJLL]  ← 全10マス埋まり → 消去!
+  //   行15: [ZSSTTTIIII]  ← 全10マス埋まり → 消去!
+  //
+  // 消去後: 行12-13のブロックが落下 → フラッシュ全消しで演出
+  // -------------------------------------------------------------------------
+  const SCENARIO_TSPIN = {
+    id: 'tspin',
+    name: 'T-SPIN DOUBLE',
+    moves: [
+      // 手0: I水平 → 行15 col6-9（床に接地）
+      { type: 'I', targetC: 7.5, targetR: 15.0, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.25, lockDur: 0.10, pauseDur: 0.12, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[6,15],[7,15],[8,15],[9,15]], vanishMove: 5, clears: [] },
+      // 手1: S → 行14 col2-3 + 行15 col1-2（col1,2行15が床に接地）
+      { type: 'S', targetC: 2.0, targetR: 14.5, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.22, lockDur: 0.10, pauseDur: 0.12, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[2,14],[3,14],[1,15],[2,15]], vanishMove: 5, clears: [] },
+      // 手2: Z回転90 → 行13 col1 + 行14 col0-1 + 行15 col0（col0行15が床に接地）
+      { type: 'Z', targetC: 0.5, targetR: 14.0, startC: 4, startR: -2, startRot: Math.PI * 0.5,
+        fallDur: 0.22, lockDur: 0.10, pauseDur: 0.12, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[1,13],[0,14],[1,14],[0,15]], vanishMove: 5, clears: [] },
+      // 手3: J → 行13 col5(屋根) + 行14 col5-7（col6,7行15がI上に接地）
+      { type: 'J', targetC: 6.0, targetR: 13.5, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.22, lockDur: 0.10, pauseDur: 0.12, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[5,13],[5,14],[6,14],[7,14]], vanishMove: 5, clears: [] },
+      // 手4: L縦 → 行12-14 col8 + 行14 col9（col8-9行15がI上に接地）
+      { type: 'L', targetC: 8.5, targetR: 13.0, startC: 4, startR: -2, startRot: -Math.PI * 0.5,
+        fallDur: 0.22, lockDur: 0.10, pauseDur: 0.15, flashDur: 0, dropDur: 0, restDur: 0.06,
+        cells: [[8,12],[8,13],[8,14],[9,14]], vanishMove: 5, clears: [] },
+      // 手5: T (★T-SPIN DOUBLE!) → 列4-5上空から回転入れ → 行14 col4 + 行15 col3-5
+      // → 行14,行15の全10マスが100%埋まり → TSD発火! → 2行同時消去!
+      // → 消去後の残存ブロック(行12-13)もフラッシュで全消し演出
+      { type: 'T', targetC: 4.0, targetR: 14.5, startC: 4, startR: -2, startRot: Math.PI,
+        isTSpin: true, fallDur: 0.34, lockDur: 0.14, pauseDur: 0.20,
+        flashDur: 0.70, dropDur: 0, restDur: 1.60,
+        cells: [[4,14],[3,15],[4,15],[5,15]], vanishMove: 5, clears: [14, 15] }
+    ]
+  };
+
+  // -------------------------------------------------------------------------
+  // シナリオ2: パフェクリア (Perfect Clear) - 10手で4行全消し
+  //
+  // 検証済み盤面（I2配置直後）:
+  //   行12: [6888879999]  ← 全10マス → 消去!
+  //   行13: [6644772553]  ← 全10マス → 消去!
+  //   行14: [0644712553]  ← 全10マス → 消去!
+  //   行15: [0001112233]  ← 全10マス → 消去!
+  // -------------------------------------------------------------------------
+  const SCENARIO_PC = {
+    id: 'pc',
+    name: 'PERFECT CLEAR',
+    moves: [
+      // 手0: J1 → 行14 col0 + 行15 col0-2（床に接地）
+      { type: 'J', targetC: 1.0, targetR: 14.5, startC: 4, startR: -2, startRot: Math.PI * 0.5,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[0,14],[0,15],[1,15],[2,15]], vanishMove: 9, clears: [] },
+      // 手1: L1 → 行14 col5 + 行15 col3-5（床に接地）
+      { type: 'L', targetC: 4.0, targetR: 14.5, startC: 4, startR: -2, startRot: -Math.PI * 0.5,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[5,14],[3,15],[4,15],[5,15]], vanishMove: 9, clears: [] },
+      // 手2: L2 → 行13-15 col6 + 行15 col7（col6行15が床に接地）
+      { type: 'L', targetC: 6.5, targetR: 14.0, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[6,13],[6,14],[6,15],[7,15]], vanishMove: 9, clears: [] },
+      // 手3: J2 → 行13-14 col9 + 行15 col8-9（col8,9行15が床に接地）
+      { type: 'J', targetC: 8.5, targetR: 14.0, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[9,13],[9,14],[8,15],[9,15]], vanishMove: 9, clears: [] },
+      // 手4: O1 → 行13-14 col2-3（J1,L1上に接地）
+      { type: 'O', targetC: 2.5, targetR: 13.5, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[2,13],[3,13],[2,14],[3,14]], vanishMove: 9, clears: [] },
+      // 手5: O2 → 行13-14 col7-8（L2,J2上に接地）
+      { type: 'O', targetC: 7.5, targetR: 13.5, startC: 4, startR: -2, startRot: 0,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[7,13],[8,13],[7,14],[8,14]], vanishMove: 9, clears: [] },
+      // 手6: S → 行12-13 col0 + 行13-14 col1（J1,O1上に接地）
+      { type: 'S', targetC: 0.5, targetR: 13.0, startC: 4, startR: -2, startRot: -Math.PI * 0.5,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[0,12],[0,13],[1,13],[1,14]], vanishMove: 9, clears: [] },
+      // 手7: Z → 行12-13 col5 + 行13-14 col4（L1,O1上に接地）
+      { type: 'Z', targetC: 4.5, targetR: 13.0, startC: 4, startR: -2, startRot: Math.PI * 0.5,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[5,12],[4,13],[5,13],[4,14]], vanishMove: 9, clears: [] },
+      // 手8: I1水平 → 行12 col1-4（S,O1,Z上に接地）
+      { type: 'I', targetC: 2.5, targetR: 12.0, startC: 4, startR: -2, startRot: Math.PI * 0.5,
+        fallDur: 0.20, lockDur: 0.08, pauseDur: 0.10, flashDur: 0, dropDur: 0, restDur: 0.04,
+        cells: [[1,12],[2,12],[3,12],[4,12]], vanishMove: 9, clears: [] },
+      // 手9: I2水平 → 行12 col6-9（L2,O2,J2上に接地）
+      // → 4行40マスが完全充填 → PERFECT CLEAR! 全消し!
+      { type: 'I', targetC: 7.5, targetR: 12.0, startC: 4, startR: -2, startRot: Math.PI * 0.5,
+        isPC: true, fallDur: 0.22, lockDur: 0.12, pauseDur: 0.25,
+        flashDur: 0.90, dropDur: 0, restDur: 1.80,
+        cells: [[6,12],[7,12],[8,12],[9,12]], vanishMove: 9, clears: [12, 13, 14, 15] }
+    ]
+  };
+
+  const ALL_SCENARIOS = [
+    SCENARIO_TSPIN,
+    SCENARIO_PC
+  ];
+
+  // =========================================================================
+  // データの自動正規化
+  // =========================================================================
+  ALL_SCENARIOS.forEach(sc => {
+    const sprites = [];
+    sc.moves.forEach((m, mIdx) => {
+      m.totalDuration = m.fallDur + m.lockDur + m.pauseDur + m.flashDur + m.dropDur + m.restDur;
+
+      // 各セルの相対座標を計算
+      m.cells.forEach(cell => {
+        sprites.push({
+          moveIdx: mIdx,
+          relX: cell[0] - m.targetC,
+          relY: cell[1] - m.targetR,
+          c: cell[0],
+          landingR: cell[1],
+          vanishMove: m.vanishMove !== undefined ? m.vanishMove : -1
+        });
+      });
+    });
+
+    sc.sprites = sprites;
+    sc.totalDuration = sc.moves.reduce((sum, m) => sum + m.totalDuration, 0);
+
+    sc.startTimes = [];
+    let acc = 0;
+    for (let m = 0; m < sc.moves.length; m++) {
+      sc.startTimes.push(acc);
+      acc += sc.moves[m].totalDuration;
+    }
+  });
+
+  const GRAND_CYCLE_DURATION = ALL_SCENARIOS.reduce((sum, sc) => sum + sc.totalDuration, 0);
+
+  // ==========================================
+  // 毎フレーム粒子生成関数 generateTetrisTemplate
+  // ==========================================
   function generateTetrisTemplate(time = 0) {
     const points = [];
 
-    // 1. 静的枠線＆HUD（不変スロット）
+    // 1. 静的枠線＆HUD（不変スロット 約560点）
     for (let i = 0; i < staticHUD.length; i++) {
       points.push(staticHUD[i]);
     }
 
-    const cycleTime = (time % TOTAL_CYCLE_DURATION);
+    // 現在のシナリオの決定
+    const grandTime = (time % GRAND_CYCLE_DURATION);
+    let curSc = ALL_SCENARIOS[0];
+    let scLocalTime = grandTime;
+    let accTime = 0;
 
+    for (let s = 0; s < ALL_SCENARIOS.length; s++) {
+      const sc = ALL_SCENARIOS[s];
+      if (grandTime >= accTime && grandTime < accTime + sc.totalDuration) {
+        curSc = sc;
+        scLocalTime = grandTime - accTime;
+        break;
+      }
+      accTime += sc.totalDuration;
+    }
+
+    // シナリオ内での現在の手インデックス
     let curMoveIdx = 0;
-    for (let m = MOVES.length - 1; m >= 0; m--) {
-      if (cycleTime >= MOVE_START_TIMES[m]) {
+    for (let m = curSc.moves.length - 1; m >= 0; m--) {
+      if (scLocalTime >= curSc.startTimes[m]) {
         curMoveIdx = m;
         break;
       }
     }
 
-    // 2. 全40個のブロック実体の計算（40 × 16点 = 640点）
-    for (let bIdx = 0; bIdx < BLOCK_SPRITES.length; bIdx++) {
-      const blk = BLOCK_SPRITES[bIdx];
-      const tetro = TETROMINO_DEFS[blk.type];
+    const curMove = curSc.moves[curMoveIdx];
+    const isTSpinClear = curMove.isTSpin && curMove.clears && curMove.clears.length > 0;
+    const isPCClear = curMove.isPC;
 
-      const spawnTime = MOVE_START_TIMES[blk.moveIdx];
-      const spawnConfig = MOVES[blk.moveIdx];
+    // 2. ブロック実体の計算（最大40ブロック × 16点 = 640点）
+    const MAX_SPRITES = 40;
+    for (let bIdx = 0; bIdx < MAX_SPRITES; bIdx++) {
+      if (bIdx >= curSc.sprites.length) {
+        // 未使用スロットは待機ダスト粒子
+        points.push(...generateDummyBlockPoints(bIdx));
+        continue;
+      }
 
-      const vanishTime = MOVE_START_TIMES[blk.vanishMove];
-      const vanishConfig = MOVES[blk.vanishMove];
-      const vanishFlashStartTime = vanishTime + vanishConfig.fallDur + vanishConfig.lockDur + vanishConfig.pauseDur;
-      const vanishEndTime = vanishFlashStartTime + vanishConfig.flashDur;
+      const blk = curSc.sprites[bIdx];
+      const moveConfig = curSc.moves[blk.moveIdx];
+      const tetro = TETROMINO_DEFS[moveConfig.type];
+
+      const spawnTime = curSc.startTimes[blk.moveIdx];
+      const vanishMoveIdx = blk.vanishMove;
+      const vanishConfig = vanishMoveIdx >= 0 && vanishMoveIdx < curSc.moves.length ? curSc.moves[vanishMoveIdx] : null;
+      const vanishTime = vanishConfig ? curSc.startTimes[vanishMoveIdx] : 999999;
+      const vanishFlashStartTime = vanishConfig ? (vanishTime + vanishConfig.fallDur + vanishConfig.lockDur + vanishConfig.pauseDur) : 999999;
+      const vanishEndTime = vanishConfig ? (vanishFlashStartTime + vanishConfig.flashDur) : 999999;
 
       let isVisible = false;
       let curCol = blk.c;
@@ -267,61 +352,71 @@
       let isFlashing = false;
       let flashProgress = 0;
 
-      if (cycleTime < spawnTime) {
+      if (scLocalTime < spawnTime) {
+        // 未スポーン
         isVisible = false;
-        curCol = blk.c;
-        curRow = -1.5 + blk.relR;
-      } else if (cycleTime < spawnTime + spawnConfig.fallDur) {
+        curCol = moveConfig.startC;
+        curRow = -2.0;
+      } else if (scLocalTime < spawnTime + moveConfig.fallDur) {
+        // ★高速落下＆回転アニメーション
         isVisible = true;
-        const fallFrac = (cycleTime - spawnTime) / spawnConfig.fallDur;
-        const easeDrop = fallFrac * fallFrac;
-        curCol = blk.c;
-        curRow = (-1.0 + blk.relR) + (blk.landingR - (-1.0 + blk.relR)) * easeDrop;
-      } else if (cycleTime < spawnTime + spawnConfig.fallDur + spawnConfig.lockDur) {
+        const fallFrac = (scLocalTime - spawnTime) / moveConfig.fallDur;
+
+        if (moveConfig.isTSpin) {
+          // --- Tスピン特殊軌道（急降下 → 回転して穴にハマる！）---
+          if (fallFrac < 0.60) {
+            // フェーズ1: 直線降下（col4のルートを通る）
+            const subFrac = fallFrac / 0.60;
+            const easeY = subFrac * subFrac;
+            const centerC = moveConfig.startC;
+            const centerR = moveConfig.startR + (12.5 - moveConfig.startR) * easeY;
+            const curRot = moveConfig.startRot;
+            curCol = centerC + (blk.relX * Math.cos(curRot) - blk.relY * Math.sin(curRot));
+            curRow = centerR + (blk.relX * Math.sin(curRot) + blk.relY * Math.cos(curRot));
+          } else {
+            // フェーズ2: 回転して穴に滑り込む！
+            const twistFrac = (fallFrac - 0.60) / 0.40;
+            const easeTwist = Math.sin(twistFrac * Math.PI * 0.5);
+            const centerC = moveConfig.startC + (moveConfig.targetC - moveConfig.startC) * easeTwist;
+            const centerR = 12.5 + (moveConfig.targetR - 12.5) * easeTwist;
+            const curRot = moveConfig.startRot * (1.0 - easeTwist);
+            curCol = centerC + (blk.relX * Math.cos(curRot) - blk.relY * Math.sin(curRot));
+            curRow = centerR + (blk.relX * Math.sin(curRot) + blk.relY * Math.cos(curRot));
+          }
+        } else {
+          // --- 通常の高速ハードドロップ＆滑らかな回転 ---
+          const easeDrop = Math.pow(fallFrac, 2.0);
+          const rotFrac = Math.sin(fallFrac * Math.PI * 0.5);
+          const curRot = moveConfig.startRot * (1.0 - rotFrac);
+          const centerC = moveConfig.startC + (moveConfig.targetC - moveConfig.startC) * fallFrac;
+          const centerR = moveConfig.startR + (moveConfig.targetR - moveConfig.startR) * easeDrop;
+
+          curCol = centerC + (blk.relX * Math.cos(curRot) - blk.relY * Math.sin(curRot));
+          curRow = centerR + (blk.relX * Math.sin(curRot) + blk.relY * Math.cos(curRot));
+        }
+      } else if (scLocalTime < spawnTime + moveConfig.fallDur + moveConfig.lockDur) {
+        // 着地ロック閃光
         isVisible = true;
         curCol = blk.c;
         curRow = blk.landingR;
         isLockGlow = true;
-      } else if (cycleTime < vanishFlashStartTime) {
+      } else if (scLocalTime < vanishFlashStartTime) {
+        // 着地後〜消去フラッシュ前（盤面上で静止）
         isVisible = true;
         curCol = blk.c;
         curRow = blk.landingR;
-
-        for (let s = 0; s < blk.shifts.length; s++) {
-          const shift = blk.shifts[s];
-          const shiftConfig = MOVES[shift.moveIdx];
-          const shiftStartTime = MOVE_START_TIMES[shift.moveIdx] + shiftConfig.fallDur + shiftConfig.lockDur + shiftConfig.pauseDur + shiftConfig.flashDur;
-          const shiftEndTime = shiftStartTime + shiftConfig.dropDur;
-
-          if (cycleTime >= shiftEndTime) {
-            curRow = shift.toR;
-          } else if (cycleTime >= shiftStartTime) {
-            const dropFrac = (cycleTime - shiftStartTime) / shiftConfig.dropDur;
-            const easeDrop = dropFrac * dropFrac * (3 - 2 * dropFrac);
-            curRow = shift.fromR + (shift.toR - shift.fromR) * easeDrop;
-            break;
-          } else {
-            break;
-          }
-        }
-      } else if (cycleTime < vanishEndTime) {
+      } else if (scLocalTime < vanishEndTime) {
+        // ★消去フラッシュ中（四方閃光拡散）
         isVisible = true;
         isFlashing = true;
-        flashProgress = (cycleTime - vanishFlashStartTime) / vanishConfig.flashDur;
+        flashProgress = (scLocalTime - vanishFlashStartTime) / vanishConfig.flashDur;
         curCol = blk.c;
         curRow = blk.landingR;
-        for (let s = 0; s < blk.shifts.length; s++) {
-          const shift = blk.shifts[s];
-          const shiftConfig = MOVES[shift.moveIdx];
-          const shiftEndTime = MOVE_START_TIMES[shift.moveIdx] + shiftConfig.fallDur + shiftConfig.lockDur + shiftConfig.pauseDur + shiftConfig.flashDur + shiftConfig.dropDur;
-          if (cycleTime >= shiftEndTime) {
-            curRow = shift.toR;
-          }
-        }
       } else {
+        // 消去完了（非表示）
         isVisible = false;
         curCol = blk.c;
-        curRow = -1.5 + blk.relR;
+        curRow = -2.0;
       }
 
       const px = ORIGIN_X + curCol * CELL_SIZE;
@@ -331,13 +426,15 @@
         const off = CELL_PTS_OFFSETS[k];
         if (isVisible) {
           if (isFlashing) {
-            const spread = (curCol < 5 ? -1 : 1) * flashProgress * 55;
-            const flashRgb = flashProgress < 0.25 ? [255, 255, 255] : tetro.color;
+            // 消去時の爆発拡散
+            const spreadMult = isPCClear ? 100 : (isTSpinClear ? 80 : 60);
+            const spread = (curCol < 5 ? -1 : 1) * flashProgress * spreadMult;
+            const flashRgb = flashProgress < 0.20 ? [255, 255, 255] : tetro.color;
             points.push({
               bx: px + off.dx + spread,
-              by: py + off.dy,
+              by: py + off.dy + (Math.sin(k + flashProgress * 10) * 8 * flashProgress),
               rgb: flashRgb,
-              size: Math.max(0.5, 2.4 * (1.0 - flashProgress))
+              size: Math.max(0.5, 2.5 * (1.0 - flashProgress))
             });
           } else {
             const rgb = isLockGlow
@@ -351,11 +448,12 @@
             });
           }
         } else {
+          // 非表示ブロックの待機ダスト
           points.push({
             bx: px + off.dx,
             by: py + off.dy,
-            rgb: [15, 25, 55],
-            size: 0.7
+            rgb: [12, 20, 45],
+            size: 0.6
           });
         }
       }
@@ -380,27 +478,18 @@
     }
 
     // 4. NEXT枠内のプレビューミノ（4マス × 16点 = 64点）
-    const nextMoveIdx = (curMoveIdx + 1) % MOVES.length;
-    const nextMoveConfig = MOVES[nextMoveIdx];
+    const nextMoveIdx = (curMoveIdx + 1) % curSc.moves.length;
+    const nextMoveConfig = curSc.moves[nextMoveIdx];
     const nextTetro = TETROMINO_DEFS[nextMoveConfig.type];
-
-    const NEXT_SHAPES = {
-      J: [[2, 0], [0, 1], [1, 1], [2, 1]],
-      I: [[0, 0], [0, 1], [0, 2], [0, 3]],
-      T: [[1, 0], [0, 1], [1, 1], [2, 1]],
-      S: [[0, 0], [1, 0], [1, 1], [2, 1]],
-      Z: [[0, 0], [0, 1], [1, 1], [1, 2]],
-      O: [[0, 0], [1, 0], [0, 1], [1, 1]],
-      L: [[0, 0], [1, 0], [2, 0], [2, 1]]
-    };
-
     const nextShape = NEXT_SHAPES[nextMoveConfig.type] || [[0, 0]];
     const NEXT_ORIGIN_X = ORIGIN_X + FIELD_W + 30;
-    const NEXT_ORIGIN_Y = ORIGIN_Y + 25;
+    const NEXT_ORIGIN_Y = ORIGIN_Y + 24;
+
+    const floatY = Math.sin(time * 3.5) * 1.5;
 
     nextShape.forEach(blk => {
       const nbx = NEXT_ORIGIN_X + blk[0] * 12;
-      const nby = NEXT_ORIGIN_Y + blk[1] * 12;
+      const nby = NEXT_ORIGIN_Y + blk[1] * 12 + floatY;
       for (let k = 0; k < CELL_PTS_OFFSETS.length; k++) {
         const off = CELL_PTS_OFFSETS[k];
         const rgb = off.isBorder ? nextTetro.edge : nextTetro.color;
@@ -413,33 +502,39 @@
       }
     });
 
-    // 5. ラインクリア時の火花・スパーク爆発（30点）
-    const numSparks = 30;
-    const isVanishMove = (curMoveIdx === 4 || curMoveIdx === 7 || curMoveIdx === 9);
-    const vanishStart = MOVE_START_TIMES[curMoveIdx] + MOVES[curMoveIdx].fallDur + MOVES[curMoveIdx].lockDur + MOVES[curMoveIdx].pauseDur;
-    const isSparksActive = isVanishMove && (cycleTime >= vanishStart && cycleTime < vanishStart + MOVES[curMoveIdx].flashDur);
-    const sparkFrac = isSparksActive ? (cycleTime - vanishStart) / MOVES[curMoveIdx].flashDur : 0;
+    // 5. 消去爆発粒子（完全固定 60点）
+    const numSparks = 60;
+    const vanishStart = curSc.startTimes[curMoveIdx] + curMove.fallDur + curMove.lockDur + curMove.pauseDur;
+    const isSparksActive = (curMove.flashDur > 0) && (scLocalTime >= vanishStart && scLocalTime < vanishStart + curMove.flashDur);
+    const sparkFrac = isSparksActive ? (scLocalTime - vanishStart) / curMove.flashDur : 0;
 
     for (let s = 0; s < numSparks; s++) {
       if (isSparksActive) {
-        const sAngle = (s / numSparks) * Math.PI * 2 + s * 1.5;
-        const sSpeed = 26 + (s % 6) * 20;
+        const sAngle = (s / numSparks) * Math.PI * 2 + s * 1.8;
+        const speedBase = isPCClear ? 65 : (isTSpinClear ? 45 : 30);
+        const sSpeed = speedBase + (s % 8) * 18;
         const sx = ORIGIN_X + (FIELD_W * 0.5) + Math.cos(sAngle) * (sSpeed * sparkFrac);
-        const targetRow = (curMoveIdx === 9) ? 14.5 : 15;
+        const targetRow = 14.5;
         const sy = ORIGIN_Y + (targetRow * CELL_SIZE) + Math.sin(sAngle) * (sSpeed * sparkFrac);
-        const sColor = (curMoveIdx === 9) ? [255, 235, 80] : [0, 240, 255];
+
+        let sColor = [0, 240, 255];
+        if (isTSpinClear) {
+          sColor = (s % 2 === 0) ? [240, 80, 255] : [255, 120, 200];
+        } else if (isPCClear) {
+          sColor = (s % 2 === 0) ? [255, 255, 255] : [255, 215, 70];
+        }
 
         points.push({
           bx: sx,
           by: sy,
-          rgb: sparkFrac < 0.20 ? [255, 255, 255] : sColor,
-          size: Math.max(0.8, 3.2 * (1.0 - sparkFrac))
+          rgb: sparkFrac < 0.15 ? [255, 255, 255] : sColor,
+          size: Math.max(0.6, 3.2 * (1.0 - sparkFrac))
         });
       } else {
         points.push({
           bx: ORIGIN_X + (s / numSparks) * FIELD_W,
           by: ORIGIN_Y + FIELD_H + 12,
-          rgb: [30, 50, 100],
+          rgb: [25, 45, 90],
           size: 1.1
         });
       }
@@ -448,10 +543,27 @@
     return points;
   }
 
+  // 未使用スロット用ダミー粒子生成（16点）
+  function generateDummyBlockPoints(bIdx) {
+    const pts = [];
+    const dummyX = ORIGIN_X + (bIdx % 10) * CELL_SIZE;
+    const dummyY = ORIGIN_Y - 2.0 * CELL_SIZE;
+    for (let k = 0; k < CELL_PTS_OFFSETS.length; k++) {
+      pts.push({
+        bx: dummyX + CELL_PTS_OFFSETS[k].dx,
+        by: dummyY + CELL_PTS_OFFSETS[k].dy,
+        rgb: [10, 16, 35],
+        size: 0.5
+      });
+    }
+    return pts;
+  }
+
   function buildStaticTetris() {
     return generateTetrisTemplate(0);
   }
 
+  // グローバル公開
   if (typeof window !== 'undefined') {
     window.buildTetrisParticles = buildStaticTetris;
     window.generateTetrisTemplate = generateTetrisTemplate;
@@ -463,3 +575,5 @@
       generateTetrisTemplate: generateTetrisTemplate
     };
   }
+
+})(typeof window !== 'undefined' ? window : global);

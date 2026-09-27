@@ -23,6 +23,9 @@ archive/app/sober-check/
 archive/app/particle-generator/
 archive/app/dot/
 about/
+archive/play/pazzle/
+particle/DRIFT_SPEC.md
+gallery.html
 
 # ローカル専用ディレクトリ・スクラッチ・バックアップ（公開しないファイル置き場）
 _local/
@@ -31,8 +34,26 @@ discord/
 scratch/
 *.backup.*
 *.backup
+*_backup.*
+*_backup
+*backup*.*
+*めも
+*メモ*
+*.tmp
+*.temp
 .agents/
 .agent/
 
+# ブラウザ拡張機能・ローカルプラグイン
+chrome-extensions/
+booklet-extension/
+steam-client-plugin/
+*.zip
 
-
+# 環境変数・シークレット・認証鍵（情報漏洩防止）
+.env
+.env.*
+*.env
+*.key
+*.pem
+serviceAccountKey*.json

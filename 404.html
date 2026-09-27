@@ -3,233 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lost in the void?</title>
-    <meta name="description" content="A quiet blank space where a page used to be. It seems the fragment you are looking for has drifted away." />
+    <title>404 Not Found | Halcyon</title>
+    <meta name="description" content="A lost signal drifting in the digital void. The fragment you are looking for does not exist in this sector." />
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Yomogi&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
     <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
     <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
-    
-    <link rel="preload" href="https://5gkyu.github.io/icon/404list.png" as="image">
 
-    <meta property="og:title" content="404 Not Found | Halcyon - 5Gkyu">
-    <meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+    <meta property="og:title" content="404 Not Found | Halcyon">
+    <meta property="og:description" content="Where the world falls silent, fragments drift across the digital abyss.">
     <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
     <meta property="og:url" content="https://5gkyu.github.io/404.html">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Halcyon">
 
     <style>
-        /* グローバルスタイル */
-        :root {
-            --bg-color: #FDF2E4;
-            --text-color: #555c4d;
-            --accent-green: #acc693;
-            --hover-green: #92b069;
-            --accent-peach: #c97a5a;
-            --button-text: #ffffff;
-            --font-family: 'Caveat', 'Yomogi', cursive;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        html {
-            background-color: var(--bg-color);
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #080811;
+            color: #f8fafc;
+            font-family: 'JetBrains Mono', monospace;
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
         }
 
+        /* ページ登場時のフェードイン */
         body {
-            background-color: var(--bg-color);
-            font-family: var(--font-family);
-            color: var(--text-color);
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            text-align: center;
-
-            /* --- フェードイン（登場）用の初期状態 --- */
             opacity: 0;
-            transform: translateY(10px);
-            /* loading.js の世界観に合わせて 0.5s ease-in-out で統一 */
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        /* 読み込み完了時に付与されるクラス */
         body.loaded {
             opacity: 1;
-            transform: translateY(0);
         }
 
-        /* --- フェードアウト時に付与されるクラス --- 
-           loading.jsと完全に同じ挙動（opacityのみ変化、誤クリック防止） */
+        /* ページ離脱時のフェードアウト */
         body.hl-page-fade-out {
             opacity: 0 !important;
             pointer-events: none !important;
             transition: opacity 0.5s ease-in-out !important;
         }
 
-        /* コンテナ */
-        .container {
-            max-width: 600px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 20;
-        }
-
-        /* 画像スタイル */
-        .error-image {
-            max-width: 80%;
-            height: auto;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            object-fit: cover;
-            transform: translateX(2%);
-            pointer-events: none;
-            -webkit-user-drag: none;
-        }
-
-        /* テキストエリア */
-        .text-group h1 {
-            font-size: 5rem;
-            color: var(--hover-green);
-            margin-bottom: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-
-        .text-group h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: var(--text-color);
-        }
-
-        .text-group p {
-            font-size: 1.4rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-
-        /* ボタンエリア */
-        .button-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-green);
-            color: var(--button-text);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--hover-green);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-        .btn-secondary {
-            border-color: var(--accent-peach);
-            color: var(--accent-peach);
-            background-color: transparent;
-        }
-
-        .btn-secondary:hover {
-            background-color: #f5e6de;
-            color: var(--accent-peach);
-            transform: translateY(-2px);
-        }
-
-        /* 落ち葉・花びら Canvas */
-        #petals-canvas {
+        /* index.html と完全同一仕様の全画面キャンバス */
+        #particle-canvas {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+        }
+
+        /* ドットボタンと完全に同期する透明なヒットボックス（クリック・タップ領域） */
+        .dot-hitbox-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 10;
         }
 
-        /* --- レスポンシブ --- */
-        @media (min-width: 601px) {
-            body { overflow: hidden; }
-            .container { max-width: 640px; }
-            .error-image {
-                max-width: 100%;
-                max-height: 36vh;
-                margin-bottom: 16px;
-                transform: translateX(2%);
-            }
-            .text-group h1 { font-size: 3.8rem; margin-bottom: 4px; }
-            .text-group h2 { font-size: 1.6rem; margin-bottom: 10px; }
-            .text-group p { font-size: 1.1rem; margin-bottom: 16px; line-height: 1.5; }
-            .btn { padding: 10px 22px; font-size: 0.95rem; }
+        .dot-hitbox {
+            position: absolute;
+            pointer-events: auto;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            outline: none;
+            text-decoration: none;
+            /* タップ時のハイライトを無効化 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* 標本室（ギャラリー）リンクボタン */
+        .archive-link {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 20;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(14, 16, 28, 0.45);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
         }
 
-        @media (max-height: 700px) {
-            body { overflow: hidden; }
-            .error-image { max-height: 30vh; margin-bottom: 2vh; }
-            .text-group h1 { font-size: clamp(2.5rem, 8vh, 3.8rem); margin-bottom: 0; }
-            .text-group h2 { font-size: clamp(1.2rem, 4vh, 1.6rem); margin-bottom: 1vh; }
-            .text-group p { font-size: clamp(0.9rem, 3vh, 1.1rem); margin-bottom: 3vh; }
-            .btn { padding: 8px 18px; font-size: 0.9rem; }
+        .archive-link:hover {
+            color: #46c8ff;
+            background: rgba(70, 200, 255, 0.12);
+            border-color: rgba(70, 200, 255, 0.35);
+            box-shadow: 0 0 12px rgba(70, 200, 255, 0.2);
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
 
-    <canvas id="petals-canvas"></canvas>
+    <!-- 漂流遺物標本室リンク -->
+    <a href="gallery.html" class="archive-link" title="漂流遺物標本室（ギャラリー）へ">
+        <span>ARCHIVE</span> ➔
+    </a>
 
-    <div class="container">
-        <img src="https://5gkyu.github.io/icon/404list.png" alt="ページが見つかりません" class="error-image">
+    <canvas id="particle-canvas"></canvas>
 
-        <div class="text-group">
-            <h1>404</h1>
-            <h2>That page isn't here.</h2>
-            <p>
-                Oh... I’m so sorry, <br>
-                but I can’t seem to find the page you’re looking for.<br>
-                Perhaps the link has wandered off, <br>
-                or it’s simply no longer here.
-            </p>
-        </div>
-
-        <div class="button-group">
-            <a href="/" class="btn btn-primary" id="btn-return-home">Return Home</a>
-            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
-        </div>
+    <!-- ドットボタン位置に同期配置される透明ヒットボックス -->
+    <div class="dot-hitbox-container">
+        <a href="/" class="dot-hitbox" id="hitbox-home" title="Return Home" aria-label="Return Home"></a>
+        <a href="javascript:history.back()" class="dot-hitbox" id="hitbox-back" title="Go Back" aria-label="Go Back"></a>
     </div>
 
+    <!-- 404 パーティクル生成スクリプト -->
+    <script src="./particle/404.js?v=20260923_tetrapod_cone"></script>
+
     <script>
-    // --- ページ読み込み時のフェードイン処理 ---
+    // --- ページ初期化 ＆ フェード処理 ---
     window.addEventListener('load', () => {
         document.body.classList.add('loaded');
     });
@@ -237,7 +149,7 @@
     document.addEventListener('copy', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
 
-    // --- 自動フェードアウト処理 (loading.js と同じロジック) ---
+    // --- ページ遷移のスムーズフェードアウト ---
     document.addEventListener('click', (e) => {
         const anchor = e.target.closest('a');
         if (!anchor) return;
@@ -245,158 +157,385 @@
         const href = anchor.getAttribute('href');
         const target = anchor.getAttribute('target');
 
-        // Go Back ボタン用（javascript:history.back() は特別に許可する）
         const isHistoryBack = href === 'javascript:history.back()';
         const isJavascript = href && href.startsWith('javascript:');
 
         if (href && !href.startsWith('#') && target !== '_blank' && (!isJavascript || isHistoryBack)) {
-            e.preventDefault(); // デフォルトの遷移をキャンセル
-            
-            // フェードアウト用のクラスを付与
+            e.preventDefault();
             document.body.classList.add('hl-page-fade-out');
 
-            // 0.5秒後に遷移を実行
             setTimeout(() => {
                 if (isHistoryBack) {
                     history.back();
                 } else if (href === '/' && window.location.protocol === 'file:') {
-                    // ローカルファイル直接閲覧時 (file://) のフォールバック
                     const currentPath = window.location.pathname;
                     const rootIndex = currentPath.substring(0, currentPath.lastIndexOf('/')) + '/index.html';
                     window.location.href = rootIndex;
                 } else {
                     window.location.href = anchor.href;
                 }
-            }, 500); 
+            }, 450);
         }
     });
 
-    // --- パーティクルアニメーション処理 ---
-    (function() {
-        const canvas = document.getElementById('petals-canvas');
+    // --- index.html と完全同一仕様のパーティクル・背景描画エンジン（ドットボタン統合） ---
+    (function () {
+        const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
 
-        const SHAPES = [
-            { type: 'leaf',  color: '#acc693', size: 10 },
-            { type: 'leaf',  color: '#c8dba8', size:  8 },
-            { type: 'petal', color: '#edb39b', size:  9 },
-            { type: 'petal', color: '#f5cfc0', size:  7 },
+        const hitboxHome = document.getElementById('hitbox-home');
+        const hitboxBack = document.getElementById('hitbox-back');
+
+        let canvasW = 0, canvasH = 0;
+        let dpr = 1;
+
+        // ドットボタンのホバー状態管理
+        let hoverBtn = null;
+        hitboxHome.addEventListener('mouseenter', () => { hoverBtn = 'home'; });
+        hitboxHome.addEventListener('mouseleave', () => { if (hoverBtn === 'home') hoverBtn = null; });
+        hitboxBack.addEventListener('mouseenter', () => { hoverBtn = 'back'; });
+        hitboxBack.addEventListener('mouseleave', () => { if (hoverBtn === 'back') hoverBtn = null; });
+
+        // カラーパレット（index.html準拠）
+        const PALETTE = [
+            [255, 107, 157],
+            [255, 160, 74],
+            [255, 215, 0],
+            [127, 255, 159],
+            [74, 232, 255],
+            [167, 139, 250],
         ];
 
-        function rand(min, max) { return Math.random() * (max - min) + min; }
+        // 背景星空データ（index.html準拠: 120個）
+        const BG_STAR_COUNT = 120;
+        const bgStarX = new Float32Array(BG_STAR_COUNT);
+        const bgStarY = new Float32Array(BG_STAR_COUNT);
+        const bgStarSize = new Float32Array(BG_STAR_COUNT);
+        const bgStarPhase = new Float32Array(BG_STAR_COUNT);
+        const bgStarSpeed = new Float32Array(BG_STAR_COUNT);
+        const bgStarBright = new Float32Array(BG_STAR_COUNT);
 
-        const groundPile = [];
-        function initGroundPile() {
-            groundPile.length = 0;
-            for (let i = 0; i < 150; i++) {
-                const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-                groundPile.push({
-                    x:       rand(0, canvas.width),
-                    y:       canvas.height - rand(2, 38),
-                    size:    rand(s.size * 0.8, s.size * 2.0),
-                    color:   s.color,
-                    type:    s.type,
-                    angle:   rand(-Math.PI / 2.2, Math.PI / 2.2),
-                    opacity: rand(0.28, 0.65),
-                });
+        // 流れ星データ（index.html準拠）
+        const shootingStars = [];
+        let nextShootTime = 0;
+
+        // アンビエント浮遊オーブ粒子（index.html準拠: 80個）
+        const AMBIENT_COUNT = 80;
+        const ambX = new Float32Array(AMBIENT_COUNT);
+        const ambY = new Float32Array(AMBIENT_COUNT);
+        const ambVx = new Float32Array(AMBIENT_COUNT);
+        const ambVy = new Float32Array(AMBIENT_COUNT);
+        const ambSize = new Float32Array(AMBIENT_COUNT);
+        const ambColorIdx = new Uint8Array(AMBIENT_COUNT);
+        const ambAlphaPhase = new Float32Array(AMBIENT_COUNT);
+
+        // 背後星雲グロー（index.html準拠）
+        let curNebulaR = 255, curNebulaG = 60, curNebulaB = 160;
+
+        // パーティクル配列
+        const TOTAL_PARTICLES = 6500;
+        const posX = new Float32Array(TOTAL_PARTICLES);
+        const posY = new Float32Array(TOTAL_PARTICLES);
+        const velX = new Float32Array(TOTAL_PARTICLES);
+        const velY = new Float32Array(TOTAL_PARTICLES);
+        const curR = new Float32Array(TOTAL_PARTICLES);
+        const curG = new Float32Array(TOTAL_PARTICLES);
+        const curB = new Float32Array(TOTAL_PARTICLES);
+        const curSize = new Float32Array(TOTAL_PARTICLES);
+        const curAlpha = new Float32Array(TOTAL_PARTICLES);
+
+        const colorCache = {};
+
+        function initBackground() {
+            for (let i = 0; i < BG_STAR_COUNT; i++) {
+                bgStarX[i] = Math.random() * (canvasW || window.innerWidth);
+                bgStarY[i] = Math.random() * (canvasH || window.innerHeight);
+                bgStarSize[i] = 0.5 + Math.random() * 1.8;
+                bgStarPhase[i] = Math.random() * Math.PI * 2;
+                bgStarSpeed[i] = 1.5 + Math.random() * 3.0;
+                bgStarBright[i] = 0.3 + Math.random() * 0.7;
+            }
+
+            for (let i = 0; i < AMBIENT_COUNT; i++) {
+                ambX[i] = Math.random() * (canvasW || window.innerWidth);
+                ambY[i] = Math.random() * (canvasH || window.innerHeight);
+                ambVx[i] = (Math.random() - 0.5) * 0.4;
+                ambVy[i] = -(0.3 + Math.random() * 0.5);
+                ambSize[i] = 1.6 + Math.random() * 2.4;
+                ambColorIdx[i] = Math.floor(Math.random() * PALETTE.length);
+                ambAlphaPhase[i] = Math.random() * Math.PI * 2;
+            }
+
+            for (let i = 0; i < TOTAL_PARTICLES; i++) {
+                posX[i] = Math.random() * (canvasW || window.innerWidth);
+                posY[i] = Math.random() * (canvasH || window.innerHeight);
+                velX[i] = (Math.random() - 0.5) * 1.5;
+                velY[i] = (Math.random() - 0.5) * 1.5;
+                curR[i] = 140;
+                curG[i] = 230;
+                curB[i] = 255;
+                curAlpha[i] = 0.8;
+                curSize[i] = 2.0;
             }
         }
 
         function resize() {
-            canvas.width  = window.innerWidth;
-            canvas.height = window.innerHeight;
-            initGroundPile();
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvasW = window.innerWidth;
+            canvasH = window.innerHeight;
+
+            canvas.width = Math.floor(canvasW * dpr);
+            canvas.height = Math.floor(canvasH * dpr);
+            canvas.style.width = canvasW + 'px';
+            canvas.style.height = canvasH + 'px';
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
         }
+
         window.addEventListener('resize', resize);
         resize();
+        initBackground();
 
-        const COUNT = 45;
-        const particles = [];
+        let frameCount = 0;
+        let modelTime = 0;
+        let lastTime = performance.now();
 
-        function createParticle(startAtTop) {
-            const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-            return {
-                x:     rand(0, canvas.width),
-                y:     startAtTop ? rand(-80, -10) : rand(-canvas.height, 0),
-                size:  rand(s.size * 0.8, s.size * 1.4),
-                color: s.color,
-                type:  s.type,
-                speed: rand(0.6, 1.6),
-                drift: rand(-0.4, 0.4),
-                angle: rand(0, Math.PI * 2),
-                spin:  rand(-0.02, 0.02),
-                sway:  rand(0.3, 0.8),
-                swaySpeed: rand(0.01, 0.025),
-                swayOffset: rand(0, Math.PI * 2),
-                opacity: rand(0.55, 0.85),
-            };
-        }
+        // 初回は背景を一括塗りつぶし
+        ctx.fillStyle = '#080811';
+        ctx.fillRect(0, 0, canvasW, canvasH);
 
-        for (let i = 0; i < COUNT; i++) {
-            particles.push(createParticle(false));
-        }
+        function drawLoop() {
+            const now = performance.now();
+            const dt = Math.min(0.05, (now - lastTime) / 1000);
+            lastTime = now;
+            modelTime += dt;
+            frameCount++;
 
-        function drawLeaf(ctx, size) {
-            ctx.beginPath();
-            ctx.moveTo(0, -size);
-            ctx.bezierCurveTo( size * 0.8, -size * 0.5,  size * 0.8,  size * 0.5, 0,  size);
-            ctx.bezierCurveTo(-size * 0.8,  size * 0.5, -size * 0.8, -size * 0.5, 0, -size);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(0, -size * 0.9);
-            ctx.lineTo(0,  size * 0.9);
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-        }
+            const time = frameCount * 0.02;
 
-        function drawPetal(ctx, size) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size * 0.5, size * 0.55, size, 0, 0, Math.PI * 2);
-            ctx.fill();
-        }
+            // --- 1. 背景クリア（index.html 準拠の残像モーションブラー） ---
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(8, 8, 17, 0.32)';
+            ctx.fillRect(0, 0, canvasW, canvasH);
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const isMobile = canvasW <= 768;
+            const isTabletLandscape = canvasW > 768 && canvasH <= 860;
 
-            groundPile.forEach(p => {
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.angle);
-                ctx.globalAlpha = p.opacity;
-                ctx.fillStyle   = p.color;
-                if (p.type === 'leaf') drawLeaf(ctx, p.size);
-                else                   drawPetal(ctx, p.size);
-                ctx.restore();
-            });
+            const cx = canvasW > 680 ? canvasW * 0.52 : canvasW * 0.5;
+            const cy = isMobile ? canvasH * 0.38 : (isTabletLandscape ? canvasH * 0.49 : canvasH * 0.51);
 
-            const now = performance.now() * 0.001;
+            // --- 2. 背景星空（120個の瞬く星） ---
+            for (let i = 0; i < BG_STAR_COUNT; i++) {
+                const twinkle = Math.sin(time * bgStarSpeed[i] + bgStarPhase[i]);
+                const alpha = bgStarBright[i] * (0.4 + twinkle * 0.6);
+                if (alpha < 0.05) continue;
+                const sz = bgStarSize[i] * (0.7 + twinkle * 0.3);
+                ctx.fillStyle = `rgba(200, 220, 255, ${alpha.toFixed(2)})`;
+                ctx.fillRect(bgStarX[i] - sz * 0.5, bgStarY[i] - sz * 0.5, sz, sz);
+            }
 
-            particles.forEach(p => {
-                p.y     += p.speed;
-                p.x     += p.drift + Math.sin(now * p.swaySpeed * 60 + p.swayOffset) * p.sway;
-                p.angle += p.spin;
+            // --- 3. 流れ星（Shooting Stars） ---
+            if (frameCount > nextShootTime) {
+                nextShootTime = frameCount + 120 + Math.floor(Math.random() * 300);
+                const startX = Math.random() * canvasW;
+                const startY = Math.random() * canvasH * 0.4;
+                const angle = 0.3 + Math.random() * 0.8;
+                shootingStars.push({
+                    x: startX, y: startY,
+                    vx: Math.cos(angle) * (6 + Math.random() * 6),
+                    vy: Math.sin(angle) * (6 + Math.random() * 6),
+                    life: 1.0,
+                    len: 25 + Math.random() * 40
+                });
+            }
+            for (let s = shootingStars.length - 1; s >= 0; s--) {
+                const ss = shootingStars[s];
+                ss.x += ss.vx;
+                ss.y += ss.vy;
+                ss.life -= 0.02;
+                if (ss.life <= 0) { shootingStars.splice(s, 1); continue; }
+                const tailX = ss.x - ss.vx * (ss.len / 8);
+                const tailY = ss.y - ss.vy * (ss.len / 8);
+                const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+                grad.addColorStop(0, `rgba(180, 220, 255, 0)`);
+                grad.addColorStop(1, `rgba(220, 240, 255, ${(ss.life * 0.8).toFixed(2)})`);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(ss.x, ss.y);
+                ctx.stroke();
+                ctx.fillStyle = `rgba(255, 255, 255, ${(ss.life * 0.9).toFixed(2)})`;
+                ctx.fillRect(ss.x - 1, ss.y - 1, 2, 2);
+            }
 
-                if (p.y > canvas.height + 20) {
-                    Object.assign(p, createParticle(true));
+            // --- 4. 背後星雲グロー（動的アンビエントオーロラ） ---
+            const targetNebulaR = 255, targetNebulaG = 60, targetNebulaB = 160;
+            curNebulaR += (targetNebulaR - curNebulaR) * 0.05;
+            curNebulaG += (targetNebulaG - curNebulaG) * 0.05;
+            curNebulaB += (targetNebulaB - curNebulaB) * 0.05;
+
+            const nebulaMult = 1.7;
+            const nebulaAlpha = (0.038 + Math.sin(time * 0.5) * 0.015) * nebulaMult;
+            const nebulaR = Math.min(canvasW, canvasH) * 0.48;
+            const nebGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, nebulaR);
+            nebGrad.addColorStop(0, `rgba(${curNebulaR | 0}, ${curNebulaG | 0}, ${curNebulaB | 0}, ${nebulaAlpha.toFixed(3)})`);
+            nebGrad.addColorStop(0.45, `rgba(${curNebulaR | 0}, ${curNebulaG | 0}, ${curNebulaB | 0}, ${(nebulaAlpha * 0.45).toFixed(3)})`);
+            nebGrad.addColorStop(1, 'rgba(8, 8, 17, 0)');
+            ctx.fillStyle = nebGrad;
+            ctx.fillRect(cx - nebulaR, cy - nebulaR, nebulaR * 2, nebulaR * 2);
+
+            // --- 5. 汎用アンビエント浮遊光粒子（80個） ---
+            for (let i = 0; i < AMBIENT_COUNT; i++) {
+                ambX[i] += ambVx[i] + Math.cos(time * 1.2 + ambAlphaPhase[i]) * 0.25;
+                ambY[i] += ambVy[i];
+
+                if (ambY[i] < -20) {
+                    ambY[i] = canvasH + 20;
+                    ambX[i] = Math.random() * canvasW;
                 }
 
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.angle);
-                ctx.globalAlpha = p.opacity;
-                ctx.fillStyle   = p.color;
+                const aTwinkle = 0.35 + Math.sin(time * 2.0 + ambAlphaPhase[i]) * 0.25;
+                const col = PALETTE[ambColorIdx[i]];
+                const sz = ambSize[i];
+                ctx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${aTwinkle.toFixed(2)})`;
+                ctx.fillRect(ambX[i] - sz * 0.5, ambY[i] - sz * 0.5, sz, sz);
+            }
 
-                if (p.type === 'leaf')  drawLeaf(ctx, p.size);
-                else                    drawPetal(ctx, p.size);
+            // --- 6. スケール計算 ＆ ドットボタン座標同期 ---
+            const activeScale = isMobile
+                ? Math.min(canvasW / 360, canvasH / 500) * 1.05
+                : (isTabletLandscape
+                    ? Math.min(canvasW / 520, canvasH / 440) * 1.22
+                    : Math.min(canvasW / 520, canvasH / 460) * 1.32);
+            const activeCy = isMobile ? canvasH * 0.38 : canvasH * 0.50;
 
-                ctx.restore();
-            });
+            // ドットボタン（y: 154）の透明ヒットボックスをスクリーン座標に完全同期
+            const btnY = 154;
+            const homeW = 172 * activeScale;
+            const homeH = 28 * activeScale;
+            const homeScreenX = cx + (-96) * activeScale;
+            const homeScreenY = activeCy + btnY * activeScale;
+            hitboxHome.style.left = (homeScreenX - homeW * 0.5) + 'px';
+            hitboxHome.style.top = (homeScreenY - homeH * 0.5) + 'px';
+            hitboxHome.style.width = homeW + 'px';
+            hitboxHome.style.height = homeH + 'px';
 
-            requestAnimationFrame(animate);
+            const backW = 118 * activeScale;
+            const backH = 28 * activeScale;
+            const backScreenX = cx + (96) * activeScale;
+            const backScreenY = activeCy + btnY * activeScale;
+            hitboxBack.style.left = (backScreenX - backW * 0.5) + 'px';
+            hitboxBack.style.top = (backScreenY - backH * 0.5) + 'px';
+            hitboxBack.style.width = backW + 'px';
+            hitboxBack.style.height = backH + 'px';
+
+            // --- 7. 404.js テンプレート生成（ドットボタン有効化） ---
+            const notfoundTmpl = (typeof generate404Template === 'function')
+                ? generate404Template(modelTime, { showButtons: true, hoverBtn: hoverBtn })
+                : [];
+            const activeCount = (notfoundTmpl && notfoundTmpl.length) || 1770;
+            const modelLen = activeCount;
+
+            // --- 8. パーティクル更新 ＆ レンダリング（index.html 準拠） ---
+            for (let i = 0; i < TOTAL_PARTICLES; i++) {
+                const isActive = (i < activeCount);
+                let tx, ty, tr, tg, tb, ts;
+
+                const charIdx = (i % modelLen);
+                const tm = (notfoundTmpl && modelLen > 0) ? notfoundTmpl[charIdx] : null;
+                if (!tm) continue;
+
+                // isExactModel による目標位置配置
+                tx = cx + (tm.bx * activeScale);
+                ty = activeCy + (tm.by * activeScale);
+
+                const tmColor = tm.rgb || tm.color;
+                tr = tmColor ? tmColor[0] : 255;
+                tg = tmColor ? tmColor[1] : 255;
+                tb = tmColor ? tmColor[2] : 255;
+                ts = (tm.size || 2.2) * 1.1;
+
+                if (!isActive) {
+                    // 不要な粒子は素早くフェードアウト
+                    if (curAlpha[i] > 0.03 && curSize[i] > 0.2) {
+                        curAlpha[i] *= 0.88;
+                        curSize[i] *= 0.88;
+                        posX[i] += velX[i];
+                        posY[i] += velY[i];
+
+                        if (curAlpha[i] > 0.05) {
+                            const cr = curR[i] | 0, cg = curG[i] | 0, cb = curB[i] | 0;
+                            const caStep = (curAlpha[i] * 40 | 0);
+                            const cKey = (cr << 20) | (cg << 12) | (cb << 4) | caStep;
+                            let cStyle = colorCache[cKey];
+                            if (!cStyle) {
+                                cStyle = `rgba(${cr},${cg},${cb},${(caStep * 0.025).toFixed(3)})`;
+                                colorCache[cKey] = cStyle;
+                            }
+                            ctx.fillStyle = cStyle;
+                            ctx.fillRect(posX[i] - curSize[i] * 0.5, posY[i] - curSize[i] * 0.5, curSize[i], curSize[i]);
+                        }
+                    } else {
+                        curAlpha[i] = 0;
+                    }
+                    continue;
+                }
+
+                // アクティブ粒子は 1.0 にフェードイン
+                curAlpha[i] += (1.0 - curAlpha[i]) * 0.06;
+
+                // 目標地点への距離に応じたカラーモーフィング
+                const tdx = tx - posX[i];
+                const tdy = ty - posY[i];
+                const tdistSq = tdx * tdx + tdy * tdy;
+
+                const formRatio = tdistSq < 48400 ? Math.max(0, Math.min(1, 1 - Math.sqrt(tdistSq) / 220)) : 0;
+                const colorSpeed = 0.02 + formRatio * 0.06;
+
+                curR[i] += (tr - curR[i]) * colorSpeed;
+                curG[i] += (tg - curG[i]) * colorSpeed;
+                curB[i] += (tb - curB[i]) * colorSpeed;
+                curSize[i] += (ts - curSize[i]) * 0.08;
+
+                // isExactModel: スナップ追従物理
+                if (tdistSq > 10000.0) {
+                    posX[i] = tx;
+                    posY[i] = ty;
+                    velX[i] = 0;
+                    velY[i] = 0;
+                } else if (tdistSq < 4.0) {
+                    posX[i] = tx;
+                    posY[i] = ty;
+                    velX[i] = 0;
+                    velY[i] = 0;
+                } else {
+                    posX[i] += (tx - posX[i]) * 0.35;
+                    posY[i] += (ty - posY[i]) * 0.35;
+                    velX[i] = 0;
+                    velY[i] = 0;
+                }
+
+                if (curAlpha[i] <= 0.015 || curSize[i] <= 0.1) continue;
+
+                // カラーキャッシュから描画スタイル取得
+                const cr = curR[i] | 0, cg = curG[i] | 0, cb = curB[i] | 0;
+                const caStep = (curAlpha[i] * 40 | 0);
+                const cKey = (cr << 20) | (cg << 12) | (cb << 4) | caStep;
+                let cStyle = colorCache[cKey];
+                if (!cStyle) {
+                    cStyle = `rgba(${cr},${cg},${cb},${(caStep * 0.025).toFixed(3)})`;
+                    colorCache[cKey] = cStyle;
+                }
+                ctx.fillStyle = cStyle;
+                ctx.fillRect(posX[i] - curSize[i] * 0.5, posY[i] - curSize[i] * 0.5, curSize[i], curSize[i]);
+            }
+
+            requestAnimationFrame(drawLoop);
         }
 
-        animate();
+        requestAnimationFrame(drawLoop);
     })();
     </script>
 </body>

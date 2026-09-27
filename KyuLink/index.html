@@ -6,22 +6,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes" />
   <title>KyuLink</title>
   <meta name="description" content="きゅーがよく使うリンクまとめ" />
-  <link rel="apple-touch-icon" sizes="180x180" href="https://5gkyu.github.io/icon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://5gkyu.github.io/icon/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="kyulink_k_logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="kyulink_k_logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="kyulink_k_logo.png">
   <link rel="manifest" href="https://5gkyu.github.io/icon/site.webmanifest">
 
-  <meta property="og:title" content="Halcyon">
-  <meta property="og:description" content="Where the world falls silent, we found our own halcyon days.">
+  <meta property="og:title" content="KyuLink">
+  <meta property="og:description" content="きゅーがよく使うリンクまとめ">
   <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
-  <meta property="og:url" content="https://5gkyu.github.io/">
+  <meta property="og:url" content="https://5gkyu.github.io/KyuLink/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="5gkyu">
+  <meta property="og:site_name" content="KyuLink">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@5gkyu">
-  <meta name="twitter:title" content="Halcyon">
-  <meta name="twitter:description" content="Where the world falls silent, we found our own halcyon days.">
+  <meta name="twitter:title" content="KyuLink">
+  <meta name="twitter:description" content="きゅーがよく使うリンクまとめ">
   <meta name="twitter:image" content="https://5gkyu.github.io/icon/ogp.png">
 
   <!-- Theme color (スマホ枠色) -->
@@ -95,7 +95,7 @@
     <div class="kyulink-loading-inner">
       <div class="kyulink-loading-logo-wrap">
         <div class="kyulink-loading-spinner"></div>
-        <img src="https://5gkyu.github.io/icon/apple-touch-icon.png" alt="logo" class="kyulink-loading-img">
+        <img src="kyulink_k_logo.png" alt="logo" class="kyulink-loading-img">
       </div>
       <div class="kyulink-loading-title">KyuLink</div>
       <div class="kyulink-loading-bar-wrap">
@@ -174,8 +174,8 @@
           <button id="sidebarHubBtn" class="open-btn" type="button"
             style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom: 12px;">ハブ</button>
 
-          <!-- Liveサーバーボタン -->
-          <div style="display:flex; gap:4px; align-items:center;">
+          <!-- Liveサーバーボタン（オーナーまたはローカル時のみ表示） -->
+          <div id="sidebarLiveServerWrapper" style="display:none; gap:4px; align-items:center;">
             <button id="sidebarLiveServerBtn" class="open-btn" type="button"
               style="flex:1; display:flex; justify-content:center; align-items:center; gap:6px;"
               title="Liveサーバーを開く">
@@ -205,59 +205,7 @@
         </div>
       </aside>
 
-      <script>
-        // Liveサーバーボタン処理
-        (function () {
-          var LS_KEY = 'kyulink_liveserver_url';
-          var DEFAULT_URL = '192.168.11.6:5500/';
 
-          function getSavedUrl() {
-            return localStorage.getItem(LS_KEY) || DEFAULT_URL;
-          }
-
-          function openLiveServer() {
-            var raw = getSavedUrl().trim();
-            // http:// / https:// が先頭にある場合は取り除く
-            raw = raw.replace(/^https?:\/\//i, '');
-            // プロトコル相対URL として開く
-            window.open('//' + raw, '_blank');
-          }
-
-          var openBtn = document.getElementById('sidebarLiveServerBtn');
-          var settingsBtn = document.getElementById('sidebarLiveServerSettingsBtn');
-          var panel = document.getElementById('liveServerSettingsPanel');
-          var urlInput = document.getElementById('liveServerUrlInput');
-          var saveBtn = document.getElementById('liveServerSettingsSaveBtn');
-          var cancelBtn = document.getElementById('liveServerSettingsCancelBtn');
-
-          if (openBtn) openBtn.addEventListener('click', openLiveServer);
-
-          if (settingsBtn) settingsBtn.addEventListener('click', function () {
-            if (!panel) return;
-            var isOpen = panel.style.display !== 'none';
-            if (!isOpen) {
-              // パネルを開くとき、現在の保存値を表示
-              if (urlInput) urlInput.value = getSavedUrl();
-              panel.style.display = 'block';
-            } else {
-              panel.style.display = 'none';
-            }
-          });
-
-          if (saveBtn) saveBtn.addEventListener('click', function () {
-            if (!urlInput) return;
-            var val = urlInput.value.trim();
-            if (val) {
-              localStorage.setItem(LS_KEY, val);
-            }
-            if (panel) panel.style.display = 'none';
-          });
-
-          if (cancelBtn) cancelBtn.addEventListener('click', function () {
-            if (panel) panel.style.display = 'none';
-          });
-        })();
-      </script>
 
       <main>
         <div class="list" id="list"></div>
@@ -475,6 +423,7 @@
           <div style="display:flex;align-items:center;gap:8px;">
             <label style="min-width:80px;font-weight:700">Theme:</label>
             <select id="themeSelect" aria-label="テーマ" style="padding:8px;border-radius:8px;min-width:160px;">
+              <option value="light">Light（既定）</option>
               <option value="awake">Awake</option>
               <option value="muse">Muse</option>
               <option value="eof">EOF</option>
@@ -568,48 +517,7 @@
   <!-- 外部スクリプト本体 -->
   <script src="linklocal.js?v=20260419a" defer></script>
 
-  <script>
-    // オーナーであれば常に右下にFABを表示する（mobile Safariのsafe-area考慮）
-    (function () {
-      const fab = document.getElementById('openAdd');
-      if (!fab) return;
 
-      function applyVisible(visible) {
-        try {
-          if (visible) {
-            fab.style.display = 'flex';
-            fab.setAttribute('aria-hidden', 'false');
-          } else {
-            fab.style.display = 'none';
-            fab.setAttribute('aria-hidden', 'true');
-          }
-        } catch (e) { /* ignore */ }
-      }
-
-      // 初期は非表示、linklocal.js 側でグローバル変数 `isReadOnlyMode` を設定します。
-      applyVisible(false);
-
-      // 変化をポーリングで監視（linklocal.js の処理が完了したら反映される）
-      let last;
-      const iv = setInterval(() => {
-        let v;
-        try {
-          if (typeof isReadOnlyMode === 'boolean') v = isReadOnlyMode; // top-level let を参照
-          else if (typeof window.isReadOnlyMode === 'boolean') v = window.isReadOnlyMode; // もし var で公開されている場合
-        } catch (e) { v = undefined; }
-        if (typeof v === 'boolean' && v !== last) {
-          last = v;
-          // オーナーなら編集可能 (= false の場合) として表示
-          applyVisible(!v);
-          // 値が確定したらポーリングは不要
-          clearInterval(iv);
-        }
-      }, 250);
-
-      // バックアップ: 30秒後に強制停止
-      setTimeout(() => clearInterval(iv), 30000);
-    })();
-  </script>
 
 
 
