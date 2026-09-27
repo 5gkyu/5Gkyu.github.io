@@ -1961,33 +1961,65 @@ function checkBookmarkletParams() {
     if (!bUrl) return;
 
     if (isSilent) {
-      // サイレントモード: 画面遷移なしでバックグラウンド保存・上書きを行い、タブを閉じる
+      // サイレントモード: タブを開かずに非表示iframe等の裏側で直接保存・上書き
       async function runSilentSave() {
         try {
-          // 初期化およびデータロードを待機
-          for (let i = 0; i < 30; i++) {
-            if (typeof DATA !== 'undefined' && Array.isArray(DATA) && (!window.firebase || (firebase.auth && firebase.auth().currentUser))) {
-              break;
+          // Firebase Authの初期化とオーナー認証を待機（最大8秒）
+          let currentUser = null;
+          for (let i = 0; i < 40; i++) {
+            if (window.firebase && firebase.auth) {
+              const u = firebase.auth().currentUser;
+              if (u && (u.uid === OWNER_UID || ['localhost', '127.0.0.1'].includes(window.location.hostname))) {
+                currentUser = u;
+                break;
+              }
             }
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 200));
           }
 
+          // 認証待ちフォールバック: onAuthStateChangedで1回待機
+          if (!currentUser && window.firebase && firebase.auth) {
+            currentUser = await new Promise(resolve => {
+              const timer = setTimeout(() => resolve(null), 3000);
+              const unsub = firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                  clearTimeout(timer);
+                  try { unsub(); } catch (_) { }
+                  resolve(user);
+                }
+              });
+            });
+          }
+
+          if (!currentUser && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+            console.warn('Silent save: Not logged in as owner');
+            try { window.parent.postMessage({ type: 'KYULINK_ERROR', message: 'KyuLinkにログインしていません。KyuLinkのページで一度ログインしてください。' }, '*'); } catch (_) { }
+            return;
+          }
+
+          if (currentUser) {
+            firebaseUid = currentUser.uid;
+            isReadOnlyMode = false;
+          }
+
+          // DATA配列をロード（必要に応じてリモートまたはローカルから）
+          let local = (getLocalBookmarks() || []).map(it => ensureIdAndTsForSync(it));
           const tags = bTag ? bTag.split(/[,;|]/).map(s => s.trim()).filter(Boolean) : [];
           const newKey = normalizeUrlForCompare(bUrl);
-          let existingIdx = (DATA || []).findIndex(d => normalizeUrlForCompare(d.url) === newKey);
+          let existingIdx = local.findIndex(d => normalizeUrlForCompare(d.url) === newKey);
 
           if (existingIdx !== -1) {
             // 既存エントリの上書き更新
-            const created = DATA[existingIdx].created_at || Date.now();
-            DATA[existingIdx].url = bUrl;
-            if (bTitle) DATA[existingIdx].title = bTitle;
-            if (bDesc) DATA[existingIdx].desc = bDesc;
-            if (bOgImage) DATA[existingIdx].og_image = bOgImage;
-            if (bFavicon) DATA[existingIdx].favicon_url = bFavicon;
-            if (bOgImage || bFavicon) DATA[existingIdx].icon_url = bOgImage || bFavicon;
-            if (tags.length > 0) DATA[existingIdx].tags = tags;
-            DATA[existingIdx].created_at = created;
-            DATA[existingIdx].updated_at = Date.now();
+            const created = local[existingIdx].created_at || Date.now();
+            local[existingIdx].url = bUrl;
+            if (bTitle) local[existingIdx].title = bTitle;
+            if (bDesc) local[existingIdx].desc = bDesc;
+            if (bOgImage) local[existingIdx].og_image = bOgImage;
+            if (bFavicon) local[existingIdx].favicon_url = bFavicon;
+            if (bOgImage || bFavicon) local[existingIdx].icon_url = bOgImage || bFavicon;
+            if (tags.length > 0) local[existingIdx].tags = tags;
+            local[existingIdx].created_at = created;
+            local[existingIdx].updated_at = Date.now();
           } else {
             // 新規作成
             const id = Date.now() + Math.floor(Math.random() * 1000);
@@ -2003,21 +2035,34 @@ function checkBookmarkletParams() {
               created_at: Date.now(),
               updated_at: Date.now()
             };
-            DATA.unshift(newItem);
+            local.unshift(newItem);
           }
 
+          setLocalBookmarks(local);
           saveToStorage();
-          if (typeof saveBookmarksToRemote === 'function') {
-            saveBookmarksToRemote();
+
+          // Firebase Realtime Database にリモート保存（awaitで完了を保証）
+          if (db && firebaseUid && !isReadOnlyMode) {
+            const ref = db.ref('bookmarks/' + firebaseUid);
+            await ref.set(local);
+            console.log('Silent save: Remote save completed successfully');
           }
 
-          // 短い待機後にバックグラウンドタブを閉じる
+          // 親ウィンドウ（拡張機能のiframe等）に完了通知を送信
+          try {
+            window.parent.postMessage({ type: 'KYULINK_SAVED', success: true, url: bUrl, title: bTitle }, '*');
+          } catch (_) { }
+
+          // タブとして開かれていた場合は閉じる
           setTimeout(() => {
             try { window.close(); } catch (_) { }
-          }, 800);
+          }, 600);
+
         } catch (err) {
           console.error('Silent save error:', err);
-          openAddModal();
+          try {
+            window.parent.postMessage({ type: 'KYULINK_ERROR', message: '保存中にエラーが発生しました: ' + (err.message || err) }, '*');
+          } catch (_) { }
         }
       }
 
@@ -2042,6 +2087,14 @@ function checkBookmarkletParams() {
     if (el.refreshImagesBtn) el.refreshImagesBtn.style.display = 'inline-block';
   } catch (e) { console.warn('checkBookmarkletParams error', e); }
 }
+
+// silentパラメータがある場合は即座に実行開始
+try {
+  const _sp = new URLSearchParams(window.location.search);
+  if (_sp.get('add') === '1' && _sp.get('silent') === '1') {
+    checkBookmarkletParams();
+  }
+} catch (_) { }
 
 /* Check if current user is owner and update UI accordingly */
 function updateEditPermissions(user) {
