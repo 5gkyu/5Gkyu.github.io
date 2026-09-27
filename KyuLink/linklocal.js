@@ -1943,7 +1943,7 @@ let currentRemoteRef = null;
 // isReadOnlyMode declaration moved to top
 let remoteImageUrlMigrationDone = false;
 
-/* ------------------ ブックマークレット用URLパラメータ処理 ------------------ */
+/* ------------------ ブックマークレット・拡張機能用URLパラメータ処理 ------------------ */
 function checkBookmarkletParams() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -1955,8 +1955,75 @@ function checkBookmarkletParams() {
     const bDesc = params.get('desc') || '';
     const bOgImage = params.get('og_image') || '';
     const bFavicon = params.get('favicon_url') || '';
+    const bTag = params.get('tag') || '';
+    const isSilent = params.get('silent') === '1';
 
     if (!bUrl) return;
+
+    if (isSilent) {
+      // サイレントモード: 画面遷移なしでバックグラウンド保存・上書きを行い、タブを閉じる
+      async function runSilentSave() {
+        try {
+          // 初期化およびデータロードを待機
+          for (let i = 0; i < 30; i++) {
+            if (typeof DATA !== 'undefined' && Array.isArray(DATA) && (!window.firebase || (firebase.auth && firebase.auth().currentUser))) {
+              break;
+            }
+            await new Promise(r => setTimeout(r, 100));
+          }
+
+          const tags = bTag ? bTag.split(/[,;|]/).map(s => s.trim()).filter(Boolean) : [];
+          const newKey = normalizeUrlForCompare(bUrl);
+          let existingIdx = (DATA || []).findIndex(d => normalizeUrlForCompare(d.url) === newKey);
+
+          if (existingIdx !== -1) {
+            // 既存エントリの上書き更新
+            const created = DATA[existingIdx].created_at || Date.now();
+            DATA[existingIdx].url = bUrl;
+            if (bTitle) DATA[existingIdx].title = bTitle;
+            if (bDesc) DATA[existingIdx].desc = bDesc;
+            if (bOgImage) DATA[existingIdx].og_image = bOgImage;
+            if (bFavicon) DATA[existingIdx].favicon_url = bFavicon;
+            if (bOgImage || bFavicon) DATA[existingIdx].icon_url = bOgImage || bFavicon;
+            if (tags.length > 0) DATA[existingIdx].tags = tags;
+            DATA[existingIdx].created_at = created;
+            DATA[existingIdx].updated_at = Date.now();
+          } else {
+            // 新規作成
+            const id = Date.now() + Math.floor(Math.random() * 1000);
+            const newItem = {
+              id,
+              title: bTitle || (function () { try { return new URL(bUrl).hostname; } catch (_) { return bUrl; } })(),
+              url: bUrl,
+              icon_url: bOgImage || bFavicon || faviconFromUrl(bUrl, 64),
+              og_image: bOgImage || null,
+              favicon_url: bFavicon || null,
+              desc: bDesc || '',
+              tags: tags,
+              created_at: Date.now(),
+              updated_at: Date.now()
+            };
+            DATA.unshift(newItem);
+          }
+
+          saveToStorage();
+          if (typeof saveBookmarksToRemote === 'function') {
+            saveBookmarksToRemote();
+          }
+
+          // 短い待機後にバックグラウンドタブを閉じる
+          setTimeout(() => {
+            try { window.close(); } catch (_) { }
+          }, 800);
+        } catch (err) {
+          console.error('Silent save error:', err);
+          openAddModal();
+        }
+      }
+
+      runSilentSave();
+      return;
+    }
 
     // URLパラメータをアドレスバーから除去（履歴を汚さないため）
     try {
