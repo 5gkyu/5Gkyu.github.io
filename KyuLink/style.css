@@ -13,7 +13,7 @@
 }
 
 /* ============================================================
-   KyuLink 繝ｭ繝ｼ繝�EぁE��ｳ繧�E�逕ｻ髱�E�
+   KyuLink 郢晢ｽｭ郢晢ｽｼ郢昴・縺・ｹ晢ｽｳ郢ｧ・ｰ騾包ｽｻ鬮ｱ・｢
 ============================================================ */
 #kyulink-loading {
   position: fixed;
@@ -69,7 +69,7 @@
   border-radius: 50%;
   background: conic-gradient(from 0deg, transparent, transparent, var(--accent-1), var(--accent-2));
   animation: kyulink-spin 1.2s linear infinite;
-  /* 蜀・・繧貞�E繧頑栢縺・※繝ｪ繝ｳ繧�E�迥�E�縺�E�縺吶�E�E*/
+  /* 陷繝ｻ繝ｻ郢ｧ雋槭・郢ｧ鬆第�｢邵ｺ繝ｻ窶ｻ郢晢ｽｪ郢晢ｽｳ郢ｧ・ｰ霑･・ｶ邵ｺ・ｫ邵ｺ蜷ｶ・・*/
   -webkit-mask: radial-gradient(transparent 64%, black 65%);
   mask: radial-gradient(transparent 64%, black 65%);
 }
@@ -130,7 +130,7 @@
 /* Dark mode variables applied when html has .dark-mode */
 
 
-/* 繝斐Φ繧�E� + 繧�E�繝ｼ繝ｩ繝ｫ (Awake) */
+/* 郢晄鱒ﾎｦ郢ｧ・ｯ + 郢ｧ・ｳ郢晢ｽｼ郢晢ｽｩ郢晢ｽｫ (Awake) */
 html.theme-awake {
   --bg: #ffdada;
   --card: #ffffff;
@@ -229,7 +229,7 @@ html.theme-awake .search-overlay-content {
   border: 1px solid rgba(255, 143, 163, 0.2);
 }
 
-/* 繝吶・繧�E�繝･ + 繧�E�繝ｪ繝ｼ繝ｳ邉ｻ (Muse) */
+/* 郢晏生繝ｻ郢ｧ・ｸ郢晢ｽ･ + 郢ｧ・ｰ郢晢ｽｪ郢晢ｽｼ郢晢ｽｳ驍会ｽｻ (Muse) */
 html.theme-muse {
   --bg: #F4F1E8;
   --card: #E6E0D2;
@@ -306,7 +306,7 @@ html.theme-muse .small-btn {
   border: 1px solid rgba(127, 163, 106, 0.2);
 }
 
-/* Muse繝�E・繝槫崋譛峨・繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ・育�E�大腰濶�E�邉ｻ縺�E�邨�E�荳・・*/
+/* Muse郢昴・繝ｻ郢晄ｧｫ蟠玖ｭ帛ｳｨ繝ｻ郢ｧ・ｰ郢晢ｽｩ郢昴・繝ｻ郢ｧ・ｷ郢晢ｽｧ郢晢ｽｳ繝ｻ閧ｲ・ｷ螟ｧ閻ｰ豼ｶ・ｲ驍会ｽｻ邵ｺ・ｧ驍ｨ・ｱ闕ｳﾂ繝ｻ繝ｻ*/
 html.theme-muse .chip.active,
 html.theme-muse .modal .chip.active,
 html.theme-muse .list.layout-grid .icon-wrap,
@@ -338,7 +338,7 @@ html.theme-muse .search-overlay-content {
   border: 1px solid rgba(127, 163, 106, 0.25);
 }
 
-/* ========== 繝槭ず繧�E�繧�E�繝�EぁE���E・繝�E(Majesty) ========== */
+/* ========== 郢晄ｧｭ縺夂ｹｧ・ｧ郢ｧ・ｹ郢昴・縺・ｹ昴・繝ｻ郢昴・(Majesty) ========== */
 
 
 
@@ -373,7 +373,7 @@ html.theme-muse .search-overlay-content {
 
 
 
-/* ========== EOF繝�E・繝�E========== */
+/* ========== EOF郢昴・繝ｻ郢昴・========== */
 html.theme-eof {
   --bg: #0d0d0d;
   --card: rgba(0, 0, 0, 0.55);
@@ -487,13 +487,13 @@ html.theme-eof .small-btn {
   box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
 }
 
-/* EOF繝�E・繝槫崋譛峨・繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ */
+/* EOF郢昴・繝ｻ郢晄ｧｫ蟠玖ｭ帛ｳｨ繝ｻ郢ｧ・ｰ郢晢ｽｩ郢昴・繝ｻ郢ｧ・ｷ郢晢ｽｧ郢晢ｽｳ */
 html.theme-eof .chip.active,
 html.theme-eof .modal .chip.active,
 html.theme-eof .list.layout-grid .icon-wrap,
 html.theme-eof .layout-toggle-btn.active,
 html.theme-eof.bottom-nav-show-desktop .layout-toggle-btn.active {
-  background: linear-gradient(135deg, #a35853 0%, #c46d6a 100%) !important;
+  background: #a35853 !important;
   color: #fff !important;
   box-shadow: 2px 2px 0px rgba(163, 88, 83, 0.3) !important;
   border-color: transparent !important;
@@ -549,7 +549,7 @@ html.theme-eof .sidebar-title {
   letter-spacing: 0.5px;
 }
 
-/* 繧�E�繝ｪ繝�Eラ繧�E�繝ｼ繝峨・騾乗�E鮟定レ譎ｯ */
+/* 郢ｧ・ｰ郢晢ｽｪ郢昴・繝ｩ郢ｧ・ｫ郢晢ｽｼ郢晏ｳｨ繝ｻ鬨ｾ荵励・魄溷ｮ壹Ξ隴趣ｽｯ */
 html.theme-eof .list.layout-grid .row {
   background: rgba(0, 0, 0, 0.30) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -665,11 +665,11 @@ body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
-  /* Firefox逕ｨ */
+  /* Firefox騾包ｽｨ */
   scrollbar-width: none;
 }
 
-/* Chrome, Safari, Edge逕ｨ */
+/* Chrome, Safari, Edge騾包ｽｨ */
 body::-webkit-scrollbar,
 html::-webkit-scrollbar {
   display: none;
@@ -1233,37 +1233,30 @@ header.card .selector {
     object-fit: contain;
   }
 
-  /* Subtle light overlay behind square hero images so theme color is muted
-     and the square icon/photo is clearly visible. Dark mode uses a faint
-     dark overlay instead for contrast. */
-  .list.layout-grid .icon-wrap img.hero.square {
-    background: rgba(255, 255, 255, 0.75);
+  /* 正方形画像（ロゴ等）やファビコン表示時は、背景色をカード本体色（var(--card)）と完全にそろえる */
+  .list.layout-grid .icon-wrap.has-square-hero,
+  .list.layout-grid .icon-wrap:has(img.hero.square),
+  .list.layout-grid .icon-wrap:has(img.fallback),
+  .list.layout-grid .icon-wrap:has(img.hero.small-badge) {
+    background: var(--card, #ffffff) !important;
   }
 
-  /* Low-res icons (favicons) shown as centered cards */
-  .list.layout-grid .icon-wrap img.hero.small-badge {
-    width: 64px !important;
-    height: 64px !important;
-    border-radius: 14px;
-    object-fit: contain !important;
-    background: rgba(255, 255, 255, 0.88);
-    padding: 8px;
-    box-shadow: 0 4px 14px rgba(2, 18, 22, 0.16);
-  }
-  html.dark .list.layout-grid .icon-wrap img.hero.small-badge {
-    background: rgba(30, 41, 59, 0.88);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  }
-
-
-
+  /* ファビコン・低解像度アイコン: 四角い座布団や枠をなくし、完全透過ですっきり配置 */
+  .list.layout-grid .icon-wrap img.hero.small-badge,
   .list.layout-grid .icon-wrap img.fallback {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
-    object-fit: contain;
-    box-shadow: 0 4px 12px rgba(2, 18, 22, 0.15);
-    background: rgba(255, 255, 255, 0.1);
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  html.dark .list.layout-grid .icon-wrap img.hero.small-badge,
+  html.dark .list.layout-grid .icon-wrap img.fallback {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   /* 404grid.png: fill entire icon-wrap area (same as hero image) */
@@ -1518,7 +1511,7 @@ body.edit-mode .actions .small-btn {
   transform: translateY(1px)
 }
 
-/* Primary action button (邱�E�髮・・繧�E�繝ｳ繝ｻ繝｢繝ｼ繝繝ｫ蜀・�E�晏ｭ倥・繧�E�繝ｳ) */
+/* Primary action button (驍ｱ・ｨ鬮ｮ繝ｻ繝ｻ郢ｧ・ｿ郢晢ｽｳ郢晢ｽｻ郢晢ｽ｢郢晢ｽｼ郢敖郢晢ｽｫ陷繝ｻ・ｿ譎擾ｽｭ蛟･繝ｻ郢ｧ・ｿ郢晢ｽｳ) */
 .open-btn {
   background: var(--card);
   color: var(--text);
@@ -1620,7 +1613,7 @@ body.edit-mode .actions {
   z-index: 3000 !important;
 }
 
-/* (蜑企勁貂�E 譌ｧ繝ｻ邱�E�髮・Δ繝ｼ繝峨・繝輔Ο繝ｼ繝�EぁE��ｳ繧�E�繝懊ち繝ｳ縺�E�蟒�E�E��E� */
+/* (陷台ｼ∝求雋ゅ・ 隴鯉ｽｧ郢晢ｽｻ驍ｱ・ｨ鬮ｮ繝ｻﾎ皮ｹ晢ｽｼ郢晏ｳｨ繝ｻ郢晁ｼ釆溽ｹ晢ｽｼ郢昴・縺・ｹ晢ｽｳ郢ｧ・ｰ郢晄㈱縺｡郢晢ｽｳ邵ｺ・ｯ陝偵・・ｭ・｢ */
 
 /* action buttons visibility in edit mode */
 .actions {
@@ -1710,7 +1703,7 @@ body.edit-mode .row .open-btn {
   position: relative
 }
 
-/* 陦�E�遉ｺ繧�E�繧�E�繧�E�驕ｸ謚槭Γ繝九Η繝ｼ */
+/* 髯ｦ・ｨ驕会ｽｺ郢ｧ・ｵ郢ｧ・､郢ｧ・ｺ鬩包ｽｸ隰壽ｧｭﾎ鍋ｹ昜ｹ斟礼ｹ晢ｽｼ */
 .view-mode-menu {
   position: absolute;
   top: 48px;
@@ -1765,7 +1758,7 @@ body.edit-mode .row .open-btn {
   color: var(--accent-1)
 }
 
-/* 陦�E�遉ｺ繝｢繝ｼ繝�E small・域怙蟆擾�E�・窶・繧�E�繝ｳ繝代け繝亥喧: 陦碁E��倥・菴咏區繧堤�E��E�繧√※繧医�E�螟壹�E�陦�E�遉ｺ */
+/* 髯ｦ・ｨ驕会ｽｺ郢晢ｽ｢郢晢ｽｼ郢昴・ small繝ｻ蝓滓呵氣謫ｾ・ｼ繝ｻ遯ｶ繝ｻ郢ｧ・ｳ郢晢ｽｳ郢昜ｻ｣縺醍ｹ昜ｺ･蝟ｧ: 髯ｦ遒・ｽｫ蛟･繝ｻ闖ｴ蜥丞項郢ｧ蝣､・ｸ・ｮ郢ｧ竏壺ｻ郢ｧ蛹ｻ・願棔螢ｹ・･髯ｦ・ｨ驕会ｽｺ */
 .list--small .row {
   height: auto;
   min-height: 32px;
@@ -1800,7 +1793,7 @@ body.edit-mode .row .open-btn {
   display: none
 }
 
-/* 隱�E�譏弱→繧�E�繧�E�繧帝撼陦�E�遉ｺ */
+/* 髫ｱ・ｬ隴丞ｼｱ竊堤ｹｧ・ｿ郢ｧ・ｰ郢ｧ蟶晄直髯ｦ・ｨ驕会ｽｺ */
 .list--small .actions {
   flex: 0 0 44px;
   height: 24px
@@ -1812,7 +1805,7 @@ body.edit-mode .row .open-btn {
   height: 36px
 }
 
-/* 蟁E���E��E�遉ｺ縺�E�邱�E�髮・・繧�E�繝ｳ繧偵�E�繧翫さ繝ｳ繝代け繝医↓縺吶�E��E郁E��後�E鬮倥�E�E��E���E繧帝亟豁E��・・*/
+/* 陝・臆・｡・ｨ驕会ｽｺ邵ｺ・ｧ驍ｱ・ｨ鬮ｮ繝ｻ繝ｻ郢ｧ・ｿ郢晢ｽｳ郢ｧ蛛ｵ・育ｹｧ鄙ｫ縺慕ｹ晢ｽｳ郢昜ｻ｣縺醍ｹ晏現竊鍋ｸｺ蜷ｶ・九・驛・ｽ｡蠕後・鬯ｮ蛟･・・�・懷・郢ｧ蟶昜ｺ溯ｱ・ｽ｢繝ｻ繝ｻ*/
 .list--small .open-btn {
   padding: 6px 8px;
   font-size: 12px;
@@ -1823,7 +1816,7 @@ body.edit-mode .row .open-btn {
   display: none
 }
 
-/* 陦�E�遉ｺ繝｢繝ｼ繝�E medium・域里蟁E���E�壹ョ繝輔か繝ｫ繝茨�E�俁E�・菴咏區繧貞炎貂帙＠縺�E�繧医�E�螟壹�E�陦�E�遉ｺ */
+/* 髯ｦ・ｨ驕会ｽｺ郢晢ｽ｢郢晢ｽｼ郢昴・ medium繝ｻ蝓滄㈹陝・∞・ｼ螢ｹ繝ｧ郢晁ｼ斐°郢晢ｽｫ郢晁肩・ｼ菫・繝ｻ闖ｴ蜥丞項郢ｧ雋樒ｎ雋ょｸ呻ｼ�邵ｺ・ｦ郢ｧ蛹ｻ・願棔螢ｹ・･髯ｦ・ｨ驕会ｽｺ */
 .list--medium .row {
   height: auto;
   min-height: 48px;
@@ -1910,10 +1903,10 @@ body.edit-mode .row .open-btn {
   }
 }
 
-/* ========== Kyu 迚ｹ蛻�E�莉墓ｧ・(雎ｪ闖ｯ陬・�E��E�) ========== */
+/* ========== Kyu 霑夲ｽｹ陋ｻ・･闔牙｢難ｽｧ繝ｻ(髮趣ｽｪ髣厄ｽｯ髯ｬ繝ｻ・｣・ｾ) ========== */
 .row.kyu-special {
   position: relative;
-  /* border-color 繧帝乗�E縺�E�縺励※閭梧勹繧�E�繝ｩ繝�E・繧�E�繝ｧ繝ｳ繧・border 縺�E�驕ｩ逕ｨ縺吶�E�E*/
+  /* border-color 郢ｧ蟶敖荵励・邵ｺ・ｫ邵ｺ蜉ｱ窶ｻ髢ｭ譴ｧ蜍ｹ郢ｧ・ｰ郢晢ｽｩ郢昴・繝ｻ郢ｧ・ｷ郢晢ｽｧ郢晢ｽｳ郢ｧ繝ｻborder 邵ｺ・ｫ鬩包ｽｩ騾包ｽｨ邵ｺ蜷ｶ・・*/
   border: 3px solid transparent !important;
   background:
     linear-gradient(180deg, var(--card), rgba(var(--card-rgb), 0.96)) padding-box,
@@ -2130,7 +2123,7 @@ body.edit-mode .row .open-btn {
   font-weight: 700
 }
 
-/* 繝ｦ繝ｼ繧�E�繝ｼ諠・�E��E�陦鯉ｼ医・繝�Eム繝ｼ蜀・�E�・*/
+/* 郢晢ｽｦ郢晢ｽｼ郢ｧ・ｶ郢晢ｽｼ隲�繝ｻ・ｽ・ｱ髯ｦ魃会ｽｼ蛹ｻ繝ｻ郢昴・繝�郢晢ｽｼ陷繝ｻ・ｼ繝ｻ*/
 .user-info-row {
   display: flex;
   align-items: center;
@@ -2301,7 +2294,7 @@ header.card {
   padding-top: calc(var(--hdr-h, 72px) + 16px)
 }
 
-/* 繝ｦ繝ｼ繧�E�繝ｼ險�E�螳壹Δ繝ｼ繝繝ｫ */
+/* 郢晢ｽｦ郢晢ｽｼ郢ｧ・ｶ郢晢ｽｼ髫ｪ・ｭ陞ｳ螢ｹﾎ皮ｹ晢ｽｼ郢敖郢晢ｽｫ */
 .user-avatar-large {
   width: 80px;
   height: 80px;
@@ -2431,7 +2424,7 @@ header.card {
     justify-content: center !important;
   }
 
-  /* auth-ui 繧偵さ繝ｳ繝代け繝医ↁE*/
+  /* auth-ui 郢ｧ蛛ｵ縺慕ｹ晢ｽｳ郢昜ｻ｣縺醍ｹ晏現竊・*/
   #auth-ui {
     flex-wrap: nowrap;
   }
@@ -2595,7 +2588,7 @@ body.modal-add-open {
 
 /* Hide overlay when JS sets display:none (no extra class needed) */
 
-/* 隧�E�邏ｰ繝懊ち繝ｳ・井ｸ闊ｬ繝ｦ繝ｼ繧�E�繝ｼ逕ｨ・・*/
+/* 髫ｧ・ｳ驍擾ｽｰ郢晄㈱縺｡郢晢ｽｳ繝ｻ莠包ｽｸﾂ髣奇ｽｬ郢晢ｽｦ郢晢ｽｼ郢ｧ・ｶ郢晢ｽｼ騾包ｽｨ繝ｻ繝ｻ*/
 .detail-btn {
   background: var(--accent-1);
   color: #fff;
@@ -2613,7 +2606,7 @@ body.modal-add-open {
 }
 
 
-/* 隧�E�邏ｰ蛟､縺�E�繧�E�繧�E�繧�E�繝ｫ */
+/* 髫ｧ・ｳ驍擾ｽｰ陋滂ｽ､邵ｺ・ｮ郢ｧ・ｹ郢ｧ・ｿ郢ｧ・､郢晢ｽｫ */
 .detail-value {
   color: var(--text);
   font-size: 14px;
@@ -2621,7 +2614,7 @@ body.modal-add-open {
 }
 
 .detail-value:empty::before {
-  content: '�E�なし！E;
+  content: '・医↑縺暦ｼ・;
   color: var(--muted);
 }
 
@@ -2680,7 +2673,7 @@ body.modal-add-open {
   color: var(--accent-1);
 }
 
-/* Layout toggle active styling 窶・mirrors .sidebar-tag for visual consistency */
+/* Layout toggle active styling 遯ｶ繝ｻmirrors .sidebar-tag for visual consistency */
 .layout-toggle-btn {
   background: rgba(6, 50, 58, 0.04);
   border: 1px solid transparent;
@@ -2953,6 +2946,12 @@ body.modal-add-open {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
+/* 透過ファビコン用（Steam, Google等）の白背景指定 */
+.primary-tag-btn.bg-white,
+.mobile-primary-tag-btn.bg-white {
+  background-color: #ffffff;
+}
+
 .mobile-primary-tag-btn:hover {
   background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), var(--tag-bg);
   border-color: rgba(255, 255, 255, 0.3);
@@ -2966,7 +2965,7 @@ body.modal-add-open {
   border-color: transparent;
 }
 
-/* 騾乗�E諢溘�E縺めE��迚ｹ蛻�E�繝懊ち繝ｳ (蜈ｨ縺�E�, 繧�E�繧�E�縺�E�縺礼�E�・ */
+/* 鬨ｾ荵励・隲｢貅倥・邵ｺ繧・ｽ玖ｿ夲ｽｹ陋ｻ・･郢晄㈱縺｡郢晢ｽｳ (陷茨ｽｨ邵ｺ・ｦ, 郢ｧ・ｿ郢ｧ・ｰ邵ｺ・ｪ邵ｺ遉ｼ・ｭ繝ｻ */
 .primary-tag-btn.special,
 .mobile-primary-tag-btn.special {
   background-image: none;

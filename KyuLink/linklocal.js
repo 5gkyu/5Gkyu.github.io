@@ -504,8 +504,8 @@ function renderSidebarTags() {
       { id: 'sns', label: 'SNS', tagValue: 'SNS', imgUrl: 'https://pbs.twimg.com/profile_images/1955359038532653056/OSHY3ewP_400x400.jpg' },
       { id: 'ai', label: 'AI', tagValue: 'AI', imgUrl: 'https://pbs.twimg.com/profile_images/1885410181409820672/ztsaR0JW_400x400.jpg' },
       { id: 'material', label: '素材', tagValue: '素材', imgUrl: 'https://pbs.twimg.com/profile_images/1328114095183204352/CNPySvgE_400x400.jpg' },
-      { id: 'search', label: '検索エンジン', tagValue: '検索エンジン', imgUrl: 'https://pbs.twimg.com/profile_images/2042749771337564160/AgOFPEL3_400x400.jpg' },
-      { id: 'live', label: '生配信', tagValue: '生配信', imgUrl: 'https://pbs.twimg.com/profile_images/1605211372585091073/p5dJeg51_400x400.jpg' }
+      { id: 'steam', label: 'Steam', tagValue: 'Steam', imgUrl: 'https://www.google.com/s2/favicons?sz=128&domain=store.steampowered.com', bgWhite: true },
+      { id: 'google', label: 'Google', tagValue: 'Google', imgUrl: 'https://www.google.com/s2/favicons?sz=128&domain=google.com', bgWhite: true }
     ];
 
     const renderToContainer = (container, baseClassName) => {
@@ -533,6 +533,7 @@ function renderSidebarTags() {
         let cls = baseClassName;
         if (btnInfo.isSpecial) cls += ' special';
         if (isActive) cls += ' active';
+        if (btnInfo.bgWhite) cls += ' bg-white';
         btn.className = cls;
         if (btnInfo.imgUrl) {
           btn.style.setProperty('--tag-bg', `url('${btnInfo.imgUrl}')`);
@@ -827,12 +828,15 @@ function renderList() {
                 if (nw < 140 && nh < 140) {
                   img.classList.add('small-badge');
                   img.style.objectFit = 'contain';
+                  iconWrap.classList.remove('has-square-hero');
                 } else if (ratio > 0.85 && ratio < 1.18) {
                   img.classList.add('square');
                   img.style.objectFit = 'contain';
+                  iconWrap.classList.add('has-square-hero');
                 } else {
                   img.classList.remove('square');
                   img.classList.remove('small-badge');
+                  iconWrap.classList.remove('has-square-hero');
                   img.style.objectFit = 'cover';
                 }
               }
@@ -3834,8 +3838,10 @@ document.addEventListener('keydown', (e) => {
 
     function openLiveServer() {
       let raw = getSavedUrl().trim();
-      raw = raw.replace(/^https?:\/\//i, '');
-      window.open('//' + raw, '_blank');
+      if (!/^https?:\/\//i.test(raw)) {
+        raw = 'http://' + raw;
+      }
+      window.open(raw, '_blank');
     }
 
     const openBtn = document.getElementById('sidebarLiveServerBtn');

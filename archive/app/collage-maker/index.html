@@ -173,6 +173,7 @@
             z-index: 1;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
         }
 
         #resultImage {
@@ -180,6 +181,8 @@
             max-height: calc(70vh - 3rem);
             width: auto;
             height: auto;
+            object-fit: contain;
+            flex-shrink: 0;
             display: block;
             margin: 0 auto;
             border-radius: 0;
@@ -188,8 +191,8 @@
             background: repeating-conic-gradient(#e0d8cc 0% 25%, #f5f0e8 0% 50%) 0 0 / 16px 16px;
             cursor: pointer;
             transition: filter 0.2s ease;
-            min-width: 16px;
-            min-height: 16px;
+            min-width: 48px;
+            min-height: 48px;
         }
 
         #resultImage:hover {
@@ -198,58 +201,78 @@
 
         .canvas-delete-btn {
             position: absolute;
-            width: 32px;
-            height: 32px;
-            background-color: var(--clr-brown);
-            color: white;
+            width: 36px;
+            height: 36px;
+            background-color: #C95D4A;
+            color: #FFFFFF;
             border-radius: 50%;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
             cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border: 2.5px solid #FFFFFF;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             z-index: 10;
             transform: translate(-50%, -50%);
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            display: none;
+            transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .canvas-delete-btn svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            pointer-events: none;
         }
 
         .canvas-delete-btn:hover {
             transform: translate(-50%, -50%) scale(1.15);
-            background-color: var(--clr-peach);
+            background-color: #B34836;
+            box-shadow: 0 6px 16px rgba(179, 72, 54, 0.4);
         }
 
-        /* サイズインジケーター */
-        .size-indicator {
-            position: absolute;
-            background: rgba(106, 86, 74, 0.8);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            color: #fff;
-            font-size: 0.7rem;
+        .canvas-delete-btn:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        /* プレビュー枠外のサイズ・レイアウト情報バー */
+        .preview-meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 1.2rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1.5px solid rgba(106, 86, 74, 0.12);
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
+            margin-bottom: 0.9rem;
+            font-size: 0.82rem;
+            color: var(--clr-brown);
+        }
+
+        .preview-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .preview-meta-item hl-icon {
+            color: var(--clr-sage);
+            font-size: 0.95rem;
+        }
+
+        .preview-meta-label {
+            opacity: 0.75;
+            font-size: 0.78rem;
+        }
+
+        .preview-meta-item strong {
             font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            pointer-events: none;
-            z-index: 5;
-            white-space: nowrap;
-            width: max-content;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            letter-spacing: 0.05em;
+            color: var(--clr-brown);
         }
 
-        .size-indicator.top-indicator {
-            top: -32px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .size-indicator.left-indicator {
-            left: -32px;
-            top: 50%;
-            transform: translate(-50%, -50%) rotate(-90deg);
+        /* 以前の枠内浮遊インジケーターは非表示（ウィンドウ外に統一） */
+        .size-indicator {
+            display: none !important;
         }
 
         /* サイドバー追従用のラッパー */
@@ -373,11 +396,14 @@
 
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
                 <input type="file" id="imageInput"
-                    accept="image/jpeg, image/png, image/webp, image/gif, image/svg+xml, image/bmp" multiple
+                    accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
                     style="display: none;">
+                <label for="imageInput" style="cursor: pointer; display: inline-block;">
+                    <hl-button id="uploadBtn" icon="plus" type="button">画像を追加</hl-button>
+                </label>
                 <hl-button id="resetBtn" variant="secondary" icon="">リセット</hl-button>
                 <span style="font-size: 0.75rem; color: var(--clr-brown); opacity: 0.6; font-weight: 700;">JPG ・ PNG ・
-                    WebP ・ GIF ・ SVG ・ BMP ｜ プレビューエリアをタップまたはドロップで画像を追加</span>
+                    WebP ・ GIF ・ SVG ・ BMP ・ HEIC ｜ プレビューエリアをタップまたはドロップでも画像を追加できます</span>
             </div>
 
             <hl-tabs>
@@ -386,13 +412,35 @@
                     <hl-alert style="margin-bottom: 0.8rem;">
                         <hl-icon name="lightbulb"></hl-icon> プレビュー上の画像をタップして、削除や入れ替えができます
                     </hl-alert>
+
+                    <div class="preview-meta-bar" id="previewMetaBar">
+                        <div class="preview-meta-item">
+                            <hl-icon name="ruler"></hl-icon>
+                            <span class="preview-meta-label">サイズ:</span>
+                            <strong id="metaSize">1200 x 630 px</strong>
+                        </div>
+                        <div class="preview-meta-item">
+                            <hl-icon name="layout"></hl-icon>
+                            <span class="preview-meta-label">グリッド:</span>
+                            <strong id="metaGrid">2行 x 2列 (1枠 約600 x 315 px)</strong>
+                        </div>
+                        <div class="preview-meta-item" id="metaCountItem">
+                            <hl-icon name="image"></hl-icon>
+                            <span class="preview-meta-label">画像:</span>
+                            <strong id="metaCount">0 / 4 枠</strong>
+                        </div>
+                    </div>
+
                     <div class="preview-area" id="previewArea">
                         <canvas id="previewCanvas"></canvas>
                         <div id="imageWrapper">
-                            <div id="sizeIndicatorTop" class="size-indicator top-indicator"></div>
-                            <div id="sizeIndicatorLeft" class="size-indicator left-indicator"></div>
                             <img id="resultImage" alt="生成された画像">
-                            <div id="canvasDeleteBtn" class="canvas-delete-btn" title="画像を削除"></div>
+                            <div id="canvasDeleteBtn" class="canvas-delete-btn" title="選択した画像を削除" aria-label="選択した画像を削除">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                     <div id="saveBtnContainer" style="display: none; margin-top: 1rem;">
@@ -553,6 +601,7 @@
 
     <!-- アプリケーションロジック -->
     <script>
+        // DOM要素の取得
         const imageInput = document.getElementById('imageInput');
         const resetBtn = document.getElementById('resetBtn');
         const previewArea = document.getElementById('previewArea');
@@ -567,6 +616,7 @@
         const saveBtnContainer = document.getElementById('saveBtnContainer');
         const saveBtn = document.getElementById('saveBtn');
 
+        // デスクトップ設定要素
         const sizePreset = document.getElementById('sizePreset');
         const layoutPreset = document.getElementById('layoutPreset');
         const fitMode = document.getElementById('fitMode');
@@ -578,52 +628,7 @@
         const customRows = document.getElementById('customRows');
         const customCols = document.getElementById('customCols');
 
-        let imageObjects = [];
-        let selectedId = null;
-        let currentDrawRows = 1;
-        let currentDrawCols = 1;
-
-        function updateLayoutOptions(count) {
-            const currentVal = layoutPreset.value;
-            layoutPreset.innerHTML = '';
-
-            if (count === 0) {
-                layoutPreset.innerHTML = `<option value="1,1">画像を追加してください</option><option value="custom">カスタム行列指定...</option>`;
-                return;
-            }
-
-            let optionsHtml = '';
-            for (let i = 1; i <= count; i++) {
-                if (count % i === 0) {
-                    const r = i;
-                    const c = count / i;
-                    let label = `${r}x${c} グリッド`;
-                    if (r === 1) label = `横並び (${c}枚)`;
-                    if (c === 1) label = `縦並び (${r}枚)`;
-                    optionsHtml += `<option value="${r},${c}">${label}</option>`;
-                }
-            }
-            optionsHtml += `<option value="custom">カスタム行列指定...</option>`;
-            layoutPreset.innerHTML = optionsHtml;
-
-            const optsArray = Array.from(layoutPreset.options);
-            const found = optsArray.some(opt => opt.value === currentVal);
-
-            if (found) {
-                layoutPreset.value = currentVal;
-            } else {
-                const validOpts = optsArray.filter(opt => opt.value !== 'custom');
-                const middleIdx = Math.floor((validOpts.length - 1) / 2);
-                layoutPreset.value = validOpts[middleIdx].value;
-            }
-            customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
-        }
-
-        updateLayoutOptions(0);
-
-        // ===============================================================
-        // モバイル設定パネルとデスクトップ設定の双方向同期
-        // ===============================================================
+        // モバイル設定要素
         const sizePreset_m = document.getElementById('sizePreset_m');
         const layoutPreset_m = document.getElementById('layoutPreset_m');
         const fitMode_m = document.getElementById('fitMode_m');
@@ -635,253 +640,207 @@
         const customRows_m = document.getElementById('customRows_m');
         const customCols_m = document.getElementById('customCols_m');
 
-        // モバイル→デスクトップへ値を伝播してcanvasを更新
-        function syncFromMobile(source) {
-            if (source === sizePreset_m) { sizePreset.value = sizePreset_m.value; }
-            if (source === layoutPreset_m) { layoutPreset.value = layoutPreset_m.value; }
-            if (source === fitMode_m) { fitMode.value = fitMode_m.value; }
-            if (source === exportFormat_m) { exportFormat.value = exportFormat_m.value; }
-            if (source === customW_m) { customW.value = customW_m.value; }
-            if (source === customH_m) { customH.value = customH_m.value; }
-            if (source === customRows_m) { customRows.value = customRows_m.value; }
-            if (source === customCols_m) { customCols.value = customCols_m.value; }
+        let imageObjects = [];
+        let selectedId = null;
+        let currentDrawRows = 1;
+        let currentDrawCols = 1;
+
+        // デスクトップとモバイルの設定値を完全に双方向同期
+        function syncSettings(source) {
+            const isDesktop = (source === 'desktop');
+            const srcSize = isDesktop ? sizePreset : sizePreset_m;
+            const dstSize = isDesktop ? sizePreset_m : sizePreset;
+            const srcLayout = isDesktop ? layoutPreset : layoutPreset_m;
+            const dstLayout = isDesktop ? layoutPreset_m : layoutPreset;
+            const srcFit = isDesktop ? fitMode : fitMode_m;
+            const dstFit = isDesktop ? fitMode_m : fitMode;
+            const srcFormat = isDesktop ? exportFormat : exportFormat_m;
+            const dstFormat = isDesktop ? exportFormat_m : exportFormat;
+
+            const srcW = isDesktop ? customW : customW_m;
+            const dstW = isDesktop ? customW_m : customW;
+            const srcH = isDesktop ? customH : customH_m;
+            const dstH = isDesktop ? customH_m : customH;
+            const srcR = isDesktop ? customRows : customRows_m;
+            const dstR = isDesktop ? customRows_m : customRows;
+            const srcC = isDesktop ? customCols : customCols_m;
+            const dstC = isDesktop ? customCols_m : customCols;
+
+            if (dstSize && srcSize) dstSize.value = srcSize.value;
+            if (dstLayout && srcLayout) dstLayout.value = srcLayout.value;
+            if (dstFit && srcFit) dstFit.value = srcFit.value;
+            if (dstFormat && srcFormat) dstFormat.value = srcFormat.value;
+
+            if (dstW && srcW) dstW.value = srcW.value;
+            if (dstH && srcH) dstH.value = srcH.value;
+            if (dstR && srcR) dstR.value = srcR.value;
+            if (dstC && srcC) dstC.value = srcC.value;
+
+            const isCustomSize = ((srcSize && srcSize.value === 'custom') || (dstSize && dstSize.value === 'custom'));
+            if (customSizeInputs) customSizeInputs.classList.toggle('active', isCustomSize);
+            if (customSizeInputs_m) customSizeInputs_m.classList.toggle('active', isCustomSize);
+
+            const isCustomGrid = ((srcLayout && srcLayout.value === 'custom') || (dstLayout && dstLayout.value === 'custom'));
+            if (customGridInputs) customGridInputs.classList.toggle('active', isCustomGrid);
+            if (customGridInputs_m) customGridInputs_m.classList.toggle('active', isCustomGrid);
         }
 
-        // デスクトップ→モバイルへ値を同期（updateLayoutOptions後など）
-        function syncToMobile() {
-            sizePreset_m.value = sizePreset.value;
-            fitMode_m.value = fitMode.value;
-            exportFormat_m.value = exportFormat.value;
-            customW_m.value = customW.value;
-            customH_m.value = customH.value;
-            customRows_m.value = customRows.value;
-            customCols_m.value = customCols.value;
-            // layoutPreset_m は updateLayoutOptions_m で別途更新
-            customSizeInputs_m.classList.toggle('active', sizePreset.value === 'custom');
-            customGridInputs_m.classList.toggle('active', layoutPreset.value === 'custom');
-        }
-
-        // モバイル側のレイアウト選択肢を更新（デスクトップ側と同じロジック）
-        function updateLayoutOptions_m(count) {
-            const currentVal = layoutPreset_m.value;
-            layoutPreset_m.innerHTML = '';
-            if (count === 0) {
-                layoutPreset_m.innerHTML = `<option value="1,1">画像を追加してください</option><option value="custom">カスタム行列指定...</option>`;
-                return;
-            }
+        // レイアウト選択肢の更新（デスクトップとモバイルの両方を一括同期）
+        function updateLayoutOptions(count) {
+            const currentVal = layoutPreset.value || (layoutPreset_m ? layoutPreset_m.value : '');
             let optionsHtml = '';
-            for (let i = 1; i <= count; i++) {
-                if (count % i === 0) {
-                    const r = i, c = count / i;
-                    let label = `${r}x${c} グリッド`;
-                    if (r === 1) label = `横並び (${c}枚)`;
-                    if (c === 1) label = `縦並び (${r}枚)`;
-                    optionsHtml += `<option value="${r},${c}">${label}</option>`;
-                }
-            }
-            optionsHtml += `<option value="custom">カスタム行列指定...</option>`;
-            layoutPreset_m.innerHTML = optionsHtml;
 
-            const optsArray = Array.from(layoutPreset_m.options);
+            if (count === 0) {
+                optionsHtml = `<option value="1,1">画像を追加してください</option><option value="custom">カスタム行列指定...</option>`;
+            } else {
+                for (let i = 1; i <= count; i++) {
+                    if (count % i === 0) {
+                        const r = i;
+                        const c = count / i;
+                        let label = `${r}x${c} グリッド`;
+                        if (r === 1) label = `横並び (${c}枚)`;
+                        if (c === 1) label = `縦並び (${r}枚)`;
+                        optionsHtml += `<option value="${r},${c}">${label}</option>`;
+                    }
+                }
+                optionsHtml += `<option value="custom">カスタム行列指定...</option>`;
+            }
+
+            if (layoutPreset) layoutPreset.innerHTML = optionsHtml;
+            if (layoutPreset_m) layoutPreset_m.innerHTML = optionsHtml;
+
+            const optsArray = Array.from((layoutPreset && layoutPreset.options) ? layoutPreset.options : []);
             const found = optsArray.some(opt => opt.value === currentVal);
+
             if (found) {
-                layoutPreset_m.value = currentVal;
+                if (layoutPreset) layoutPreset.value = currentVal;
+                if (layoutPreset_m) layoutPreset_m.value = currentVal;
+            } else if (currentVal === 'custom') {
+                if (layoutPreset) layoutPreset.value = 'custom';
+                if (layoutPreset_m) layoutPreset_m.value = 'custom';
             } else {
                 const validOpts = optsArray.filter(opt => opt.value !== 'custom');
-                const middleIdx = Math.floor((validOpts.length - 1) / 2);
-                layoutPreset_m.value = validOpts[middleIdx] ? validOpts[middleIdx].value : '1,1';
+                const middleIdx = Math.max(0, Math.floor((validOpts.length - 1) / 2));
+                const defaultVal = validOpts[middleIdx] ? validOpts[middleIdx].value : '1,1';
+                if (layoutPreset) layoutPreset.value = defaultVal;
+                if (layoutPreset_m) layoutPreset_m.value = defaultVal;
             }
-            customGridInputs_m.classList.toggle('active', layoutPreset_m.value === 'custom');
-            layoutPreset.value = layoutPreset_m.value;
+
+            syncSettings('desktop');
         }
 
-        // モバイルのセレクトにイベントを登録
-        [sizePreset_m, layoutPreset_m, fitMode_m].forEach(el => {
-            el.addEventListener('change', () => {
-                syncFromMobile(el);
-                customSizeInputs_m.classList.toggle('active', sizePreset_m.value === 'custom');
-                customGridInputs_m.classList.toggle('active', layoutPreset_m.value === 'custom');
-                customSizeInputs.classList.toggle('active', sizePreset.value === 'custom');
-                customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
-                updateCanvas();
-            });
-        });
-        exportFormat_m.addEventListener('change', () => { syncFromMobile(exportFormat_m); });
-        [customW_m, customH_m, customRows_m, customCols_m].forEach(el => {
-            el.addEventListener('input', () => { syncFromMobile(el); updateCanvas(); });
-        });
-
-        [sizePreset, layoutPreset, fitMode].forEach(el => {
-            el.addEventListener('change', () => {
-                customSizeInputs.classList.toggle('active', sizePreset.value === 'custom');
-                customGridInputs.classList.toggle('active', layoutPreset.value === 'custom');
-                updateCanvas();
-            });
-        });
-
-        exportFormat.addEventListener('change', () => { syncToMobile(); });
-
-        [customW, customH, customRows, customCols].forEach(el => {
-            el.addEventListener('input', () => updateCanvas());
-        });
-
-        resetBtn.addEventListener('click', () => {
-            if (confirm("すべての画像をクリアしますか？")) {
-                imageObjects = [];
-                selectedId = null;
-                updateLayoutOptions(0);
-                updateLayoutOptions_m(0);
-                updateCanvas();
-                imageWrapper.style.display = 'none';
-                previewArea.classList.remove('has-image');
-                saveBtnContainer.style.display = 'none';
-                if (window.HlToast) HlToast.show('<hl-icon name="trash"></hl-icon> リセットしました');
+        // 現在のキャンバスサイズ（幅・高さ）を取得
+        function getCanvasDimensions() {
+            let cw = 1200, ch = 630;
+            const currentSizeVal = sizePreset.value || (sizePreset_m ? sizePreset_m.value : '1200,630');
+            if (currentSizeVal === 'custom') {
+                const wInput = customW.value || (customW_m ? customW_m.value : '1200');
+                const hInput = customH.value || (customH_m ? customH_m.value : '630');
+                cw = Math.max(10, parseInt(wInput, 10) || 1200);
+                ch = Math.max(10, parseInt(hInput, 10) || 630);
+            } else if (currentSizeVal.includes(',')) {
+                [cw, ch] = currentSizeVal.split(',').map(Number);
             }
-        });
-
-        async function addImagesFromFiles(files) {
-            const imageFiles = (files || []).filter(file => file && file.type && file.type.startsWith('image/'));
-            if (imageFiles.length === 0) return;
-
-            for (const file of imageFiles) {
-                const img = await loadImage(file);
-                imageObjects.push({ id: Date.now() + Math.random(), img: img });
-            }
-
-            updateLayoutOptions(imageObjects.length);
-            updateLayoutOptions_m(imageObjects.length);
-            syncToMobile();
-            updateCanvas();
-            if (window.HlToast) HlToast.show('<hl-icon name="image"></hl-icon> 画像を追加しました');
-
-            const tabsBtns = document.querySelectorAll('.hl-tabs-btn');
-            if (tabsBtns[0]) tabsBtns[0].click();
+            return { cw, ch };
         }
 
-        imageInput.addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files || []);
-            await addImagesFromFiles(files);
-            imageInput.value = "";
-        });
-
-        // プレビューエリアをクリックしてもファイル選択を開く
-        previewArea.addEventListener('click', (e) => {
-            if (e.target === previewArea) imageInput.click();
-        });
-
-        // PC向けドラッグ&ドロップで画像追加
-        previewArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            previewArea.classList.add('is-dragover');
-        });
-
-        previewArea.addEventListener('dragleave', (e) => {
-            if (!previewArea.contains(e.relatedTarget)) {
-                previewArea.classList.remove('is-dragover');
+        // 現在の行列（行・列）を取得
+        function getGridDimensions() {
+            let rows = 1, cols = 1;
+            const currentLayoutVal = layoutPreset.value || (layoutPreset_m ? layoutPreset_m.value : '1,1');
+            if (currentLayoutVal === 'custom') {
+                const rInput = customRows.value || (customRows_m ? customRows_m.value : '2');
+                const cInput = customCols.value || (customCols_m ? customCols_m.value : '2');
+                rows = Math.max(1, parseInt(rInput, 10) || 1);
+                cols = Math.max(1, parseInt(cInput, 10) || 1);
+            } else if (currentLayoutVal.includes(',')) {
+                [rows, cols] = currentLayoutVal.split(',').map(Number);
             }
-        });
-
-        previewArea.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            previewArea.classList.remove('is-dragover');
-            const files = Array.from((e.dataTransfer && e.dataTransfer.files) ? e.dataTransfer.files : []);
-            await addImagesFromFiles(files);
-        });
-
-        // ドロップ時にブラウザが画像を開いてしまう挙動を防ぐ
-        document.addEventListener('dragover', (e) => e.preventDefault());
-        document.addEventListener('drop', (e) => {
-            if (!previewArea.contains(e.target)) e.preventDefault();
-        });
-
-        function loadImage(file) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.src = URL.createObjectURL(file);
-            });
+            return { rows, cols };
         }
 
-        resultImage.addEventListener('click', (e) => {
-            if (imageObjects.length === 0) return;
+        // キャンバスの描画更新
+        function updateCanvas(isExport = false) {
+            const { cw, ch } = getCanvasDimensions();
+            const { rows, cols } = getGridDimensions();
+            currentDrawRows = rows;
+            currentDrawCols = cols;
 
-            const rect = resultImage.getBoundingClientRect();
-            const px = (e.clientX - rect.left) / rect.width;
-            const py = (e.clientY - rect.top) / rect.height;
-
-            const c = Math.floor(px * currentDrawCols);
-            const r = Math.floor(py * currentDrawRows);
-            const idx = r * currentDrawCols + c;
-
-            if (idx < imageObjects.length) {
-                const targetId = imageObjects[idx].id;
-
-                if (selectedId === null) {
-                    selectedId = targetId;
-                } else if (selectedId === targetId) {
-                    selectedId = null;
-                } else {
-                    const idx1 = imageObjects.findIndex(o => o.id === selectedId);
-                    const idx2 = imageObjects.findIndex(o => o.id === targetId);
-                    [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
-                    selectedId = null;
-                }
-                updateCanvas();
-            }
-        });
-
-        canvasDeleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (selectedId) {
-                imageObjects = imageObjects.filter(o => o.id !== selectedId);
-                selectedId = null;
-                updateLayoutOptions(imageObjects.length);
-                updateLayoutOptions_m(imageObjects.length);
-                syncToMobile();
-                updateCanvas();
-                if (imageObjects.length === 0) {
-                    imageWrapper.style.display = 'none';
-                    previewArea.classList.remove('has-image');
-                    saveBtnContainer.style.display = 'none';
-                }
-            }
-        });
-
-        function updateCanvas() {
-            if (imageObjects.length < 1) return;
-
-            let cw, ch;
-            if (sizePreset.value === 'custom') {
-                cw = parseInt(customW.value) || 1200;
-                ch = parseInt(customH.value) || 630;
-            } else {
-                [cw, ch] = sizePreset.value.split(',').map(Number);
-            }
             canvas.width = cw;
             canvas.height = ch;
-
             ctx.clearRect(0, 0, cw, ch);
 
-            if (layoutPreset.value === 'custom') {
-                currentDrawRows = Math.max(1, parseInt(customRows.value) || 1);
-                currentDrawCols = Math.max(1, parseInt(customCols.value) || 1);
-            } else {
-                [currentDrawRows, currentDrawCols] = layoutPreset.value.split(',').map(Number);
-            }
-
-            const cellW = cw / currentDrawCols;
-            const cellH = ch / currentDrawRows;
-            const mode = fitMode.value;
+            const cellW = cw / cols;
+            const cellH = ch / rows;
+            const mode = fitMode.value || (fitMode_m ? fitMode_m.value : 'cover');
 
             // サイズインジケーターの更新
-            topIndicator.textContent = `W: ${cw}px (1枚: ${Math.round(cellW)}px)`;
-            leftIndicator.textContent = `H: ${ch}px (1枚: ${Math.round(cellH)}px)`;
+            const totalCells = rows * cols;
+            const imgCount = imageObjects.length;
+            let statusSuffix = '';
+            if (imgCount > 0 && imgCount < totalCells) {
+                statusSuffix = ` (${imgCount}/${totalCells}枠)`;
+            } else if (imgCount > totalCells) {
+                statusSuffix = ` (${totalCells}枠 / ${imgCount - totalCells}枚超過)`;
+            }
 
+            // ウィンドウ外のサイズ・レイアウト情報バーの更新
+            const metaSize = document.getElementById('metaSize');
+            const metaGrid = document.getElementById('metaGrid');
+            const metaCount = document.getElementById('metaCount');
+
+            if (metaSize) metaSize.textContent = `${cw} x ${ch} px`;
+            if (metaGrid) metaGrid.textContent = `${rows}行 x ${cols}列 (1枠 約${Math.round(cellW)} x ${Math.round(cellH)} px)`;
+            if (metaCount) {
+                if (imgCount === 0) {
+                    metaCount.textContent = `0 / ${totalCells} 枠 (未配置)`;
+                } else if (imgCount <= totalCells) {
+                    metaCount.textContent = `${imgCount} / ${totalCells} 枠`;
+                } else {
+                    metaCount.textContent = `${totalCells} / ${totalCells} 枠 (${imgCount - totalCells}枚超過)`;
+                }
+            }
+
+            if (topIndicator) topIndicator.textContent = `W: ${cw}px (1枠: ${Math.round(cellW)}px)${statusSuffix}`;
+            if (leftIndicator) leftIndicator.textContent = `H: ${ch}px (1枠: ${Math.round(cellH)}px)`;
+
+            // 画像が0枚の時のプレースホルダー表示
+            if (imgCount === 0) {
+                if (!isExport) {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.fillRect(0, 0, cw, ch);
+
+                    // セルごとの破線ガイド
+                    ctx.strokeStyle = 'rgba(106, 86, 74, 0.25)';
+                    ctx.lineWidth = Math.max(1, Math.min(cw, ch) * 0.003);
+                    ctx.setLineDash([8, 6]);
+
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            const dx = c * cellW;
+                            const dy = r * cellH;
+                            ctx.strokeRect(dx + 2, dy + 2, cellW - 4, cellH - 4);
+                        }
+                    }
+                    ctx.restore();
+
+                    resultImage.src = canvas.toDataURL('image/png');
+                    resultImage.style.aspectRatio = `${cw} / ${ch}`;
+                    imageWrapper.style.display = 'flex';
+                    previewArea.classList.add('has-image');
+                    canvasDeleteBtn.style.display = 'none';
+                    saveBtnContainer.style.display = 'none';
+                }
+                return;
+            }
+
+            // 画像の描画
             imageObjects.forEach((obj, i) => {
-                if (i >= currentDrawRows * currentDrawCols) return;
+                if (i >= totalCells) return;
 
-                const r = Math.floor(i / currentDrawCols);
-                const c = i % currentDrawCols;
+                const r = Math.floor(i / cols);
+                const c = i % cols;
                 const dx = c * cellW;
                 const dy = r * cellH;
                 const img = obj.img;
@@ -909,7 +868,8 @@
                     ctx.restore();
                 }
 
-                if (obj.id === selectedId) {
+                // 選択中ハイライト（エクスポート時は描画しない）
+                if (!isExport && obj.id === selectedId) {
                     ctx.save();
                     ctx.strokeStyle = "#EEAFA1";
                     ctx.lineWidth = Math.max(4, Math.min(cw, ch) * 0.015);
@@ -920,34 +880,335 @@
                 }
             });
 
-            resultImage.src = canvas.toDataURL('image/png');
-            imageWrapper.style.display = 'flex';
-            previewArea.classList.add('has-image');
+            // プレビュー時のみ、空き枠（画像未設定セル）に点線ガイドを描画
+            if (!isExport && imgCount < totalCells) {
+                ctx.save();
+                ctx.strokeStyle = "rgba(106, 86, 74, 0.3)";
+                ctx.lineWidth = Math.max(1, Math.min(cw, ch) * 0.003);
+                ctx.setLineDash([6, 6]);
 
-            if (selectedId !== null) {
-                const idx = imageObjects.findIndex(o => o.id === selectedId);
-                if (idx !== -1) {
-                    const r = Math.floor(idx / currentDrawCols);
-                    const c = idx % currentDrawCols;
-                    const leftPercent = ((c + 1) / currentDrawCols) * 100;
-                    const topPercent = (r / currentDrawRows) * 100;
+                for (let i = imgCount; i < totalCells; i++) {
+                    const r = Math.floor(i / cols);
+                    const c = i % cols;
+                    const dx = c * cellW;
+                    const dy = r * cellH;
+                    ctx.strokeRect(dx + 2, dy + 2, cellW - 4, cellH - 4);
+                }
+                ctx.restore();
+            }
 
-                    canvasDeleteBtn.style.left = `${leftPercent}%`;
-                    canvasDeleteBtn.style.top = `${topPercent}%`;
-                    canvasDeleteBtn.style.display = 'flex';
+            if (!isExport) {
+                resultImage.src = canvas.toDataURL('image/png');
+                resultImage.style.aspectRatio = `${cw} / ${ch}`;
+                imageWrapper.style.display = 'flex';
+                previewArea.classList.add('has-image');
+
+                if (selectedId !== null) {
+                    const idx = imageObjects.findIndex(o => o.id === selectedId);
+                    if (idx !== -1 && idx < totalCells) {
+                        const r = Math.floor(idx / cols);
+                        const c = idx % cols;
+                        const leftPercent = ((c + 1) / cols) * 100;
+                        const topPercent = (r / rows) * 100;
+
+                        canvasDeleteBtn.style.left = `${leftPercent}%`;
+                        canvasDeleteBtn.style.top = `${topPercent}%`;
+                        canvasDeleteBtn.style.display = 'flex';
+                    } else {
+                        canvasDeleteBtn.style.display = 'none';
+                    }
                 } else {
                     canvasDeleteBtn.style.display = 'none';
                 }
-            } else {
-                canvasDeleteBtn.style.display = 'none';
-            }
 
-            if (imageObjects.length >= 1) {
                 saveBtnContainer.style.display = 'block';
             }
         }
 
-        //  保存時のファイル名の接頭辞を「collagemaker_」に変更
+        // セレクトボックス変更時のハンドラ設定
+        [sizePreset, layoutPreset, fitMode, exportFormat].forEach(el => {
+            if (el) {
+                el.addEventListener('change', () => {
+                    syncSettings('desktop');
+                    updateCanvas();
+                });
+            }
+        });
+
+        [sizePreset_m, layoutPreset_m, fitMode_m, exportFormat_m].forEach(el => {
+            if (el) {
+                el.addEventListener('change', () => {
+                    syncSettings('mobile');
+                    updateCanvas();
+                });
+            }
+        });
+
+        // カスタム入力値変更時のハンドラ設定（デスクトップ）
+        [customW, customH, customRows, customCols].forEach(el => {
+            if (el) {
+                el.addEventListener('input', () => {
+                    syncSettings('desktop');
+                    updateCanvas();
+                });
+            }
+        });
+
+        // カスタム入力値変更時のハンドラ設定（モバイル）
+        [customW_m, customH_m, customRows_m, customCols_m].forEach(el => {
+            if (el) {
+                el.addEventListener('input', () => {
+                    syncSettings('mobile');
+                    updateCanvas();
+                });
+            }
+        });
+
+        // イベント委譲（万一DOMノードの再構築が起きても確実に捕捉）
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            if (!target) return;
+            if (target.id === 'sizePreset' || target.id === 'layoutPreset' || target.id === 'fitMode' || target.id === 'exportFormat') {
+                syncSettings('desktop');
+                updateCanvas();
+            } else if (target.id === 'sizePreset_m' || target.id === 'layoutPreset_m' || target.id === 'fitMode_m' || target.id === 'exportFormat_m') {
+                syncSettings('mobile');
+                updateCanvas();
+            }
+        });
+
+        document.addEventListener('input', (e) => {
+            const target = e.target;
+            if (!target) return;
+            if (['customW', 'customH', 'customRows', 'customCols'].includes(target.id)) {
+                syncSettings('desktop');
+                updateCanvas();
+            } else if (['customW_m', 'customH_m', 'customRows_m', 'customCols_m'].includes(target.id)) {
+                syncSettings('mobile');
+                updateCanvas();
+            }
+        });
+
+        // リセットボタン
+        resetBtn.addEventListener('click', () => {
+            if (confirm("すべての画像をクリアしますか？")) {
+                imageObjects = [];
+                selectedId = null;
+                updateLayoutOptions(0);
+                updateCanvas();
+                if (window.HlToast) HlToast.show('<hl-icon name="trash"></hl-icon> リセットしました');
+            }
+        });
+
+        // 画像ファイルの読み込み（iPad / iOS Safari 対応）
+        async function addImagesFromFiles(files) {
+            const isImageFile = (file) => {
+                if (!file) return false;
+                // MIMEタイプ判定
+                if (file.type && file.type.startsWith('image/')) return true;
+                // iOS Safari 等で file.type が空文字列の場合の拡張子フォールバック
+                const name = (file.name || '').toLowerCase();
+                return /\.(jpe?g|png|webp|gif|svg|bmp|heic|heif|tiff?)$/i.test(name) || !file.type;
+            };
+
+            const imageFiles = (files || []).filter(isImageFile);
+            if (imageFiles.length === 0) {
+                if (files && files.length > 0 && window.HlToast) {
+                    HlToast.show('<hl-icon name="alert-circle"></hl-icon> 対応していない画像形式です');
+                }
+                return;
+            }
+
+            let addedCount = 0;
+            for (const file of imageFiles) {
+                try {
+                    const img = await loadImage(file);
+                    if (img && img.width > 0 && img.height > 0) {
+                        imageObjects.push({ id: Date.now() + Math.random(), img: img });
+                        addedCount++;
+                    }
+                } catch (e) {
+                    console.warn('[CollageMaker] 画像読み込みエラー:', e);
+                }
+            }
+
+            if (addedCount > 0) {
+                updateLayoutOptions(imageObjects.length);
+                updateCanvas();
+                if (window.HlToast) HlToast.show('<hl-icon name="image"></hl-icon> 画像を追加しました');
+            } else {
+                if (window.HlToast) HlToast.show('<hl-icon name="alert-circle"></hl-icon> 画像を読み込めませんでした');
+            }
+
+            const tabsBtns = document.querySelectorAll('.hl-tabs-btn');
+            if (tabsBtns[0]) tabsBtns[0].click();
+        }
+
+        // 写真追加ボタンとの連携
+        const uploadBtn = document.getElementById('uploadBtn');
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+                imageInput.click();
+            });
+        }
+
+        imageInput.addEventListener('click', () => {
+            imageInput.value = "";
+        });
+
+        imageInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files || []);
+            await addImagesFromFiles(files);
+            imageInput.value = "";
+        });
+
+        // プレビューエリアをクリックした際のファイル選択
+        previewArea.addEventListener('click', (e) => {
+            // 画像がない場合は全体クリックでファイル選択、画像がある場合は外枠部分でファイル選択
+            if (imageObjects.length === 0 || e.target === previewArea) {
+                imageInput.click();
+            }
+        });
+
+        // ドラッグ&ドロップ
+        previewArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            previewArea.classList.add('is-dragover');
+        });
+
+        previewArea.addEventListener('dragleave', (e) => {
+            if (!previewArea.contains(e.relatedTarget)) {
+                previewArea.classList.remove('is-dragover');
+            }
+        });
+
+        previewArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            previewArea.classList.remove('is-dragover');
+            const files = Array.from((e.dataTransfer && e.dataTransfer.files) ? e.dataTransfer.files : []);
+            await addImagesFromFiles(files);
+        });
+
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => {
+            if (!previewArea.contains(e.target)) e.preventDefault();
+        });
+
+        // 画像の読み込み処理（FileReader + DataURL + タイムアウトで確実に resolve）
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const setupImage = (src, revokeUrl) => {
+                    const img = new Image();
+                    let isDone = false;
+
+                    const timer = setTimeout(() => {
+                        if (!isDone) {
+                            isDone = true;
+                            if (revokeUrl) try { URL.revokeObjectURL(revokeUrl); } catch (e) {}
+                            resolve(null);
+                        }
+                    }, 8000);
+
+                    img.onload = () => {
+                        if (!isDone) {
+                            isDone = true;
+                            clearTimeout(timer);
+                            if (revokeUrl) try { URL.revokeObjectURL(revokeUrl); } catch (e) {}
+                            resolve(img);
+                        }
+                    };
+
+                    img.onerror = () => {
+                        if (!isDone) {
+                            isDone = true;
+                            clearTimeout(timer);
+                            if (revokeUrl) try { URL.revokeObjectURL(revokeUrl); } catch (e) {}
+                            resolve(null);
+                        }
+                    };
+
+                    img.src = src;
+                };
+
+                // FileReader を優先（iOS Safari でのメモリ権限・キャッシュ問題を防ぐ）
+                if (typeof FileReader !== 'undefined') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        setupImage(e.target.result, null);
+                    };
+                    reader.onerror = () => {
+                        try {
+                            const blobUrl = URL.createObjectURL(file);
+                            setupImage(blobUrl, blobUrl);
+                        } catch (err) {
+                            resolve(null);
+                        }
+                    };
+                    try {
+                        reader.readAsDataURL(file);
+                        return;
+                    } catch (err) {
+                        // フォールバックへ
+                    }
+                }
+
+                // フォールバック: createObjectURL
+                try {
+                    const blobUrl = URL.createObjectURL(file);
+                    setupImage(blobUrl, blobUrl);
+                } catch (err) {
+                    resolve(null);
+                }
+            });
+        }
+
+        // 画像クリック時の選択・並び替え
+        resultImage.addEventListener('click', (e) => {
+            if (imageObjects.length === 0) {
+                imageInput.click();
+                return;
+            }
+
+            const rect = resultImage.getBoundingClientRect();
+            const px = (e.clientX - rect.left) / rect.width;
+            const py = (e.clientY - rect.top) / rect.height;
+
+            const c = Math.floor(px * currentDrawCols);
+            const r = Math.floor(py * currentDrawRows);
+            const idx = r * currentDrawCols + c;
+
+            if (idx < imageObjects.length) {
+                const targetId = imageObjects[idx].id;
+
+                if (selectedId === null) {
+                    selectedId = targetId;
+                } else if (selectedId === targetId) {
+                    selectedId = null;
+                } else {
+                    const idx1 = imageObjects.findIndex(o => o.id === selectedId);
+                    const idx2 = imageObjects.findIndex(o => o.id === targetId);
+                    [imageObjects[idx1], imageObjects[idx2]] = [imageObjects[idx2], imageObjects[idx1]];
+                    selectedId = null;
+                }
+                updateCanvas();
+            } else {
+                // 空き枠をクリックした場合は追加ファイル選択を開く
+                imageInput.click();
+            }
+        });
+
+        // 削除ボタン
+        canvasDeleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedId) {
+                imageObjects = imageObjects.filter(o => o.id !== selectedId);
+                selectedId = null;
+                updateLayoutOptions(imageObjects.length);
+                updateCanvas();
+            }
+        });
+
+        // ファイル名の生成
         function getFormattedFileName(ext) {
             const d = new Date();
             const yyyy = d.getFullYear();
@@ -967,17 +1228,19 @@
             localStorage.setItem('cm_downloadCount', currentCount.toString());
 
             const sequence = String(currentCount).padStart(3, '0');
-
             return `collagemaker_${currentDate}_${sequence}.${ext}`;
         }
 
+        // 保存実行
         function doSave() {
             const prevSelectedId = selectedId;
             selectedId = null;
-            updateCanvas();
 
-            const format = exportFormat.value;
-            let ext = format.split('/')[1];
+            // ガイド線や選択枠を除外した純粋な画像を再描画
+            updateCanvas(true);
+
+            const format = exportFormat.value || (exportFormat_m ? exportFormat_m.value : 'image/png');
+            let ext = format.split('/')[1] || 'png';
             if (ext === 'jpeg') ext = 'jpg';
 
             let dataUrl;
@@ -1007,12 +1270,16 @@
             if (window.HlToast) HlToast.show(` ${filename} を保存しました`);
 
             selectedId = prevSelectedId;
-            updateCanvas();
+            updateCanvas(false);
         }
 
         saveBtn.addEventListener('click', () => {
             doSave();
         });
+
+        // 初期化処理
+        updateLayoutOptions(0);
+        updateCanvas();
     </script>
 </body>
 

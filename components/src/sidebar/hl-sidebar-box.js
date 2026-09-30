@@ -12,9 +12,20 @@ class HlSidebarBox extends HTMLElement {
         iconHtml = `<span>${icon}</span>`;
       }
     }
-    const titleHtml = title ? `<div class="hl-sidebar-title">${iconHtml}${title}</div>` : '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'hl-sidebar-block';
+    if (title) {
+      const titleEl = document.createElement('div');
+      titleEl.className = 'hl-sidebar-title';
+      titleEl.innerHTML = `${iconHtml}${title}`;
+      wrapper.appendChild(titleEl);
+    }
 
-    this.innerHTML = `<div class="hl-sidebar-block">${titleHtml}${this.innerHTML}</div>`;
+    // 既存の子ノード（イベントリスナーや入力状態）を維持したまま移動
+    while (this.firstChild) {
+      wrapper.appendChild(this.firstChild);
+    }
+    this.appendChild(wrapper);
   }
 }
 customElements.define('hl-sidebar-box', HlSidebarBox);

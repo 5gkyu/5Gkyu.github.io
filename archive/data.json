@@ -8,13 +8,6 @@
         "cols": 3,
         "items": [
           {
-            "title": "ブロスタ クイズ早見表",
-            "tag": "ブロスタ",
-            "href": "/archive/play/brawl-quiz/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
-            "description": "言語クイズ（27言語×41単語）や雑学クイズのカンニングペーパー。2タップ・インクリメンタル検索で即座に答えを表示。"
-          },
-          {
             "title": "動画音声抽出・MP3変換",
             "tag": "メディアツール",
             "href": "/archive/app/video-to-audio/",
@@ -503,13 +496,6 @@
             "href": "/archive/play/brawl-firebase/",
             "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
             "description": "キャラ別の強さ・難易度・おすすめビルドをFirebase Realtime Database連携でリアルタイム管理・一覧表示。"
-          },
-          {
-            "title": "ブロスタ クイズ早見表",
-            "tag": "ブロスタ",
-            "href": "/archive/play/brawl-quiz/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
-            "description": "言語クイズ（27言語×41単語）や雑学クイズのカンニングペーパー。2タップ・インクリメンタル検索で即座に答えを表示。"
           },
           {
             "title": "BanPic-Brawl",
