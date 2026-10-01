@@ -103,9 +103,7 @@
 
 
     body.hl-page-fade-out { opacity: 0; pointer-events: none; }
-
-    body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 10% 10%, rgba(154, 176, 143, 0.12) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(238, 175, 161, 0.12) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(146, 181, 188, 0.08) 0%, transparent 50%); background-color: var(--clr-cream); filter: blur(40px); opacity: 0.8; pointer-events: none; z-index: -1; }
-    body::after { content: ''; position: fixed; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 100%), linear-gradient(to top, rgba(106, 86, 74, 0.12) 0%, transparent 150px); pointer-events: none; z-index: -1; opacity: 0.5; }
+    body::before, body::after { display: none; }
 
     /* ------------------------------------------------------------
        TYPOGRAPHY & LAYOUT
