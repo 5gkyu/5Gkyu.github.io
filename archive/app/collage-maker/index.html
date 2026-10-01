@@ -559,20 +559,10 @@
                 複数の画像を一枚に織り上げて、美しいコラージュを作成します。
             </div>
 
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <input type="file" id="imageInput"
-                    accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
-                    class="visually-hidden-file-input">
-                <button type="button" class="cm-main-upload-btn" id="uploadBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>画像を追加する</span>
-                </button>
-                <hl-button id="resetBtn" variant="secondary" icon="">リセット</hl-button>
-                <span style="font-size: 0.78rem; color: var(--clr-brown); opacity: 0.7; font-weight: 700;">JPG ・ PNG ・ WebP ・ GIF ・ SVG ・ BMP ・ HEIC 対応</span>
-            </div>
+            <!-- ファイル入力（非表示） -->
+            <input type="file" id="imageInput"
+                accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
+                class="visually-hidden-file-input">
 
             <hl-tabs>
                 <!-- タブ1: プレビュー -->
@@ -596,6 +586,9 @@
                             <hl-icon name="image"></hl-icon>
                             <span class="preview-meta-label">画像:</span>
                             <strong id="metaCount">0 / 4 枠</strong>
+                        </div>
+                        <div style="margin-left: auto; display: flex; align-items: center;">
+                            <hl-button id="resetBtn" variant="secondary" size="sm" icon="trash">リセット</hl-button>
                         </div>
                     </div>
 
@@ -1244,16 +1237,6 @@
             if (imageInput) {
                 imageInput.click();
             }
-        }
-
-        // 上部「画像を追加する」ボタン
-        const uploadBtn = document.getElementById('uploadBtn');
-        if (uploadBtn) {
-            uploadBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openFilePicker();
-            });
         }
 
         // プレビュー下の「さらに画像を追加」ボタン
