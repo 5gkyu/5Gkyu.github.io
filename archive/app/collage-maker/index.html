@@ -161,6 +161,38 @@
             cursor: pointer;
         }
 
+        .preview-upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10;
+            display: block;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .preview-area.has-image .preview-upload-overlay {
+            display: none;
+        }
+
+        .visually-hidden-file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         canvas {
             display: none;
         }
@@ -397,7 +429,7 @@
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
                 <input type="file" id="imageInput"
                     accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
-                    style="display: none;">
+                    class="visually-hidden-file-input">
                 <label for="imageInput" style="cursor: pointer; display: inline-block;">
                     <hl-button id="uploadBtn" icon="plus" type="button">画像を追加</hl-button>
                 </label>
@@ -432,6 +464,7 @@
                     </div>
 
                     <div class="preview-area" id="previewArea">
+                        <label for="imageInput" class="preview-upload-overlay" id="previewUploadOverlay" title="タップして画像を追加" aria-label="タップして画像を追加"></label>
                         <canvas id="previewCanvas"></canvas>
                         <div id="imageWrapper">
                             <img id="resultImage" alt="生成された画像">
@@ -828,7 +861,7 @@
                     resultImage.src = canvas.toDataURL('image/png');
                     resultImage.style.aspectRatio = `${cw} / ${ch}`;
                     imageWrapper.style.display = 'flex';
-                    previewArea.classList.add('has-image');
+                    previewArea.classList.remove('has-image');
                     canvasDeleteBtn.style.display = 'none';
                     saveBtnContainer.style.display = 'none';
                 }
