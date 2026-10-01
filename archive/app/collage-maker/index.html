@@ -161,7 +161,45 @@
             cursor: pointer;
         }
 
-        .preview-upload-overlay {
+        .cm-main-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.4rem;
+            background-color: var(--clr-sage);
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(154, 176, 143, 0.35);
+            transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            text-decoration: none;
+        }
+
+        .cm-main-upload-btn:hover {
+            background-color: #899f7e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(154, 176, 143, 0.45);
+        }
+
+        .cm-main-upload-btn:active {
+            transform: translateY(0);
+        }
+
+        .cm-main-upload-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+            display: block;
+        }
+
+        /* プレビューエリアの空状態UI */
+        .preview-empty-state {
             position: absolute;
             top: 0;
             left: 0;
@@ -169,14 +207,105 @@
             bottom: 0;
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            z-index: 5;
             cursor: pointer;
-            z-index: 10;
-            display: block;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .preview-area.has-image .preview-upload-overlay {
-            display: none;
+        .preview-area.has-image .preview-empty-state {
+            display: none !important;
+        }
+
+        .preview-empty-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: rgba(154, 176, 143, 0.18);
+            color: var(--clr-sage);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .preview-empty-state:hover .preview-empty-icon {
+            transform: scale(1.08);
+            background: rgba(154, 176, 143, 0.28);
+        }
+
+        .preview-empty-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .preview-empty-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--clr-brown);
+            margin-bottom: 0.35rem;
+        }
+
+        .preview-empty-desc {
+            font-size: 0.85rem;
+            color: var(--clr-brown);
+            opacity: 0.7;
+            margin-bottom: 1.25rem;
+        }
+
+        .preview-center-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.8rem;
+            background-color: var(--clr-sage);
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(154, 176, 143, 0.4);
+            transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+            pointer-events: auto;
+        }
+
+        .preview-center-btn:hover {
+            background-color: #899f7e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(154, 176, 143, 0.5);
+        }
+
+        .preview-center-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.5;
+            display: block;
+        }
+
+        .preview-actions-bar {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-actions-bar .cm-main-upload-btn {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .preview-actions-bar hl-button {
+            flex: 2;
+            min-width: 180px;
         }
 
         .visually-hidden-file-input {
@@ -430,12 +559,15 @@
                 <input type="file" id="imageInput"
                     accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
                     class="visually-hidden-file-input">
-                <label for="imageInput" style="cursor: pointer; display: inline-block;">
-                    <hl-button id="uploadBtn" icon="plus" type="button">画像を追加</hl-button>
+                <label for="imageInput" class="cm-main-upload-btn" id="uploadBtn" role="button" tabindex="0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>画像を追加する</span>
                 </label>
                 <hl-button id="resetBtn" variant="secondary" icon="">リセット</hl-button>
-                <span style="font-size: 0.75rem; color: var(--clr-brown); opacity: 0.6; font-weight: 700;">JPG ・ PNG ・
-                    WebP ・ GIF ・ SVG ・ BMP ・ HEIC ｜ プレビューエリアをタップまたはドロップでも画像を追加できます</span>
+                <span style="font-size: 0.78rem; color: var(--clr-brown); opacity: 0.7; font-weight: 700;">JPG ・ PNG ・ WebP ・ GIF ・ SVG ・ BMP ・ HEIC 対応</span>
             </div>
 
             <hl-tabs>
@@ -464,7 +596,24 @@
                     </div>
 
                     <div class="preview-area" id="previewArea">
-                        <label for="imageInput" class="preview-upload-overlay" id="previewUploadOverlay" title="タップして画像を追加" aria-label="タップして画像を追加"></label>
+                        <label for="imageInput" class="preview-empty-state" id="previewEmptyState" title="タップして画像を追加" aria-label="タップして画像を追加">
+                            <div class="preview-empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </div>
+                            <div class="preview-empty-title">コラージュする画像を選択</div>
+                            <div class="preview-empty-desc">ここをタップして写真を選ぶか、ファイルをドロップしてください</div>
+                            <div class="preview-center-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span>画像を選択する</span>
+                            </div>
+                        </label>
                         <canvas id="previewCanvas"></canvas>
                         <div id="imageWrapper">
                             <img id="resultImage" alt="生成された画像">
@@ -476,7 +625,16 @@
                             </div>
                         </div>
                     </div>
-                    <div id="saveBtnContainer" style="display: none; margin-top: 1rem;">
+
+                    <!-- プレビュー下アクションバー（画像配置時に表示） -->
+                    <div class="preview-actions-bar" id="saveBtnContainer" style="display: none;">
+                        <label for="imageInput" class="cm-main-upload-btn" role="button" tabindex="0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>さらに画像を追加</span>
+                        </label>
                         <hl-button id="saveBtn" icon="" block>画像を保存</hl-button>
                     </div>
 
@@ -954,7 +1112,7 @@
                     canvasDeleteBtn.style.display = 'none';
                 }
 
-                saveBtnContainer.style.display = 'block';
+                saveBtnContainer.style.display = 'flex';
             }
         }
 
@@ -1077,11 +1235,14 @@
             if (tabsBtns[0]) tabsBtns[0].click();
         }
 
-        // 写真追加ボタンとの連携
+        // キーボードアクセシビリティ対応（Enter/Spaceでファイル選択を起動）
         const uploadBtn = document.getElementById('uploadBtn');
         if (uploadBtn) {
-            uploadBtn.addEventListener('click', () => {
-                imageInput.click();
+            uploadBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    imageInput.click();
+                }
             });
         }
 
