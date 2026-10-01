@@ -179,6 +179,8 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             text-decoration: none;
+            border: none;
+            outline: none;
         }
 
         .cm-main-upload-btn:hover {
@@ -276,6 +278,8 @@
             box-shadow: 0 4px 14px rgba(154, 176, 143, 0.4);
             transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
             pointer-events: auto;
+            border: none;
+            outline: none;
         }
 
         .preview-center-btn:hover {
@@ -559,13 +563,13 @@
                 <input type="file" id="imageInput"
                     accept="image/*, .jpg, .jpeg, .png, .webp, .gif, .svg, .bmp, .heic, .heif" multiple
                     class="visually-hidden-file-input">
-                <label for="imageInput" class="cm-main-upload-btn" id="uploadBtn" role="button" tabindex="0">
+                <button type="button" class="cm-main-upload-btn" id="uploadBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                     <span>画像を追加する</span>
-                </label>
+                </button>
                 <hl-button id="resetBtn" variant="secondary" icon="">リセット</hl-button>
                 <span style="font-size: 0.78rem; color: var(--clr-brown); opacity: 0.7; font-weight: 700;">JPG ・ PNG ・ WebP ・ GIF ・ SVG ・ BMP ・ HEIC 対応</span>
             </div>
@@ -596,7 +600,7 @@
                     </div>
 
                     <div class="preview-area" id="previewArea">
-                        <label for="imageInput" class="preview-empty-state" id="previewEmptyState" title="タップして画像を追加" aria-label="タップして画像を追加">
+                        <div class="preview-empty-state" id="previewEmptyState" title="タップして画像を追加" aria-label="タップして画像を追加">
                             <div class="preview-empty-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -613,7 +617,7 @@
                                 </svg>
                                 <span>画像を選択する</span>
                             </div>
-                        </label>
+                        </div>
                         <canvas id="previewCanvas"></canvas>
                         <div id="imageWrapper">
                             <img id="resultImage" alt="生成された画像">
@@ -628,13 +632,13 @@
 
                     <!-- プレビュー下アクションバー（画像配置時に表示） -->
                     <div class="preview-actions-bar" id="saveBtnContainer" style="display: none;">
-                        <label for="imageInput" class="cm-main-upload-btn" role="button" tabindex="0">
+                        <button type="button" class="cm-main-upload-btn" id="addMoreBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                             <span>さらに画像を追加</span>
-                        </label>
+                        </button>
                         <hl-button id="saveBtn" icon="" block>画像を保存</hl-button>
                     </div>
 
@@ -1235,32 +1239,57 @@
             if (tabsBtns[0]) tabsBtns[0].click();
         }
 
-        // キーボードアクセシビリティ対応（Enter/Spaceでファイル選択を起動）
+        // ファイル選択ダイアログの起動
+        function openFilePicker() {
+            if (imageInput) {
+                imageInput.click();
+            }
+        }
+
+        // 上部「画像を追加する」ボタン
         const uploadBtn = document.getElementById('uploadBtn');
         if (uploadBtn) {
-            uploadBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    imageInput.click();
-                }
+            uploadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFilePicker();
             });
         }
 
-        imageInput.addEventListener('click', () => {
-            imageInput.value = "";
-        });
+        // プレビュー下の「さらに画像を追加」ボタン
+        const addMoreBtn = document.getElementById('addMoreBtn');
+        if (addMoreBtn) {
+            addMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFilePicker();
+            });
+        }
 
+        // プレビューエリア中央の空状態カードクリック
+        const previewEmptyState = document.getElementById('previewEmptyState');
+        if (previewEmptyState) {
+            previewEmptyState.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFilePicker();
+            });
+        }
+
+        // input[type=file] の change イベント
         imageInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files || []);
-            await addImagesFromFiles(files);
+            if (files.length > 0) {
+                await addImagesFromFiles(files);
+            }
             imageInput.value = "";
         });
 
         // プレビューエリアをクリックした際のファイル選択
         previewArea.addEventListener('click', (e) => {
-            // 画像がない場合は全体クリックでファイル選択、画像がある場合は外枠部分でファイル選択
+            if (e.target.closest('#canvasDeleteBtn') || e.target.closest('#resultImage')) return;
             if (imageObjects.length === 0 || e.target === previewArea) {
-                imageInput.click();
+                openFilePicker();
             }
         });
 
@@ -1280,7 +1309,9 @@
             e.preventDefault();
             previewArea.classList.remove('is-dragover');
             const files = Array.from((e.dataTransfer && e.dataTransfer.files) ? e.dataTransfer.files : []);
-            await addImagesFromFiles(files);
+            if (files.length > 0) {
+                await addImagesFromFiles(files);
+            }
         });
 
         document.addEventListener('dragover', (e) => e.preventDefault());
@@ -1359,7 +1390,7 @@
         // 画像クリック時の選択・並び替え
         resultImage.addEventListener('click', (e) => {
             if (imageObjects.length === 0) {
-                imageInput.click();
+                openFilePicker();
                 return;
             }
 
@@ -1387,7 +1418,7 @@
                 updateCanvas();
             } else {
                 // 空き枠をクリックした場合は追加ファイル選択を開く
-                imageInput.click();
+                openFilePicker();
             }
         });
 
