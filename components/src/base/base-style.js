@@ -553,15 +553,15 @@
     }
     .hl-alert--info {
       border-left-color: var(--clr-dusty-blue);
-      background: linear-gradient(135deg, rgba(146, 181, 188, 0.08) 0%, #ffffff 40%);
+      background: #ffffff;
     }
     .hl-alert--warning {
       border-left-color: var(--clr-peach);
-      background: linear-gradient(135deg, rgba(238, 175, 161, 0.08) 0%, #ffffff 40%);
+      background: #ffffff;
     }
     .hl-alert--success {
       border-left-color: var(--clr-sage);
-      background: linear-gradient(135deg, rgba(154, 176, 143, 0.08) 0%, #ffffff 40%);
+      background: #ffffff;
     }
     .hl-alert__icon {
       flex-shrink: 0;
