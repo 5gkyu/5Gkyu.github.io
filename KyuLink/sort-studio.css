@@ -1,0 +1,524 @@
+/* ========================================================
+   KyuLink 並び替えスタジオ (Sort Studio)
+   本番グリッドと100%同一のカード比率・見た目で並び順を直感的に操作
+   ======================================================== */
+
+#sortStudioOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(10, 10, 14, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+  font-family: inherit;
+  color: var(--text, #f3ede2);
+}
+
+#sortStudioOverlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* スタジオコンテナ（画面中央の広大なワークスペース） */
+.sort-studio-container {
+  display: flex;
+  flex-direction: column;
+  width: 96vw;
+  max-width: 1750px;
+  height: 94vh;
+  margin: auto;
+  background: var(--bg, #1a1716);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* スタジオ上部ヘッダー（固定） */
+.sort-studio-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--card, #231f1e);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  flex-wrap: wrap;
+}
+
+.sort-studio-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sort-studio-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--text, #f3ede2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-studio-count-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted, #b3a79d);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sort-studio-current-tag {
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(255, 107, 138, 0.18);
+  color: var(--accent-1, #ff6b8a);
+  border: 1px solid rgba(255, 107, 138, 0.35);
+}
+
+/* ツールバーコントロール群 */
+.sort-studio-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 列数切り替えボタン群 */
+.sort-studio-cols-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sort-studio-col-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted, #b3a79d);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sort-studio-col-btn:hover {
+  color: var(--text, #f3ede2);
+}
+
+.sort-studio-col-btn.active {
+  background: var(--accent-1, #ff6b8a);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* アクションボタン群 */
+.sort-studio-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-studio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text, #f3ede2);
+}
+
+.sort-studio-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.sort-studio-btn.btn-save {
+  background: linear-gradient(135deg, #ff6b8a, #ff8da1);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(255, 107, 138, 0.35);
+}
+
+.sort-studio-btn.btn-save:hover {
+  box-shadow: 0 6px 18px rgba(255, 107, 138, 0.45);
+}
+
+.sort-studio-btn.btn-save.has-changes {
+  animation: studioPulse 1.8s infinite;
+}
+
+@keyframes studioPulse {
+  0% { transform: scale(1); box-shadow: 0 4px 14px rgba(255, 107, 138, 0.35); }
+  50% { transform: scale(1.03); box-shadow: 0 6px 22px rgba(255, 107, 138, 0.6); }
+  100% { transform: scale(1); box-shadow: 0 4px 14px rgba(255, 107, 138, 0.35); }
+}
+
+.sort-studio-btn.btn-close {
+  padding: 7px 12px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* ヒント・ステータスバー（ヘッダー下） */
+.sort-studio-hint-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.78rem;
+  color: var(--muted, #b3a79d);
+}
+
+.sort-studio-hint-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ワークスペース（左右分割コンテナ） */
+.sort-studio-workspace {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 左サイドバー（タグ選択メニュー） */
+.sort-studio-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: var(--card, #231f1e);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 12px;
+  gap: 12px;
+}
+
+.sort-studio-sidebar-header {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #b3a79d);
+  padding: 2px 4px;
+}
+
+/* 主要タグ（3列グリッド） */
+.sort-studio-primary-tags {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+/* スタジオ用主要タグボタン（本番の .primary-tag-btn に準拠） */
+.sort-studio-tag-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 52px;
+  padding: 4px 2px;
+  border-radius: 10px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)), var(--tag-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  text-align: center;
+}
+
+.sort-studio-tag-btn.special {
+  background-image: none;
+  background: rgba(255, 255, 255, 0.07);
+  justify-content: center;
+}
+
+.sort-studio-tag-btn.bg-white {
+  background-color: #ffffff;
+}
+
+.sort-studio-tag-btn .tag-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+.sort-studio-tag-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.sort-studio-tag-btn.active {
+  border: 2px solid var(--accent-1, #ff6b8a);
+  box-shadow: 0 0 0 2px rgba(255, 107, 138, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.sort-studio-tag-btn.active::after {
+  content: '✓';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--accent-1, #ff6b8a);
+}
+
+/* 区切り線とサブタイトル */
+.sort-studio-sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.sort-studio-sidebar-subtitle {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--muted, #b3a79d);
+  padding: 0 4px;
+}
+
+/* その他のタグ縦スクロールリスト */
+.sort-studio-tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sort-studio-tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text, #f3ede2);
+  border: 1px solid transparent;
+  transition: all 0.14s ease;
+}
+
+.sort-studio-tag-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sort-studio-tag-item.active {
+  background: rgba(255, 107, 138, 0.15);
+  border-color: rgba(255, 107, 138, 0.4);
+  color: var(--accent-1, #ff6b8a);
+}
+
+.sort-studio-tag-item-count {
+  font-size: 0.7rem;
+  color: var(--muted, #b3a79d);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* 右メイン領域（並び替えグリッド） */
+.sort-studio-main {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px;
+  background: var(--bg, #1a1716);
+}
+
+/* 本番グリッド完全互換コンテナ */
+.sort-studio-main .list.layout-grid {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sort-studio-main .list.layout-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.sort-studio-main .list.layout-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.sort-studio-main .list.layout-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+.sort-studio-main .list.layout-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+.sort-studio-main .list.layout-grid.cols-7 { grid-template-columns: repeat(7, 1fr); }
+
+/* スタジオカード（本番の .list.layout-grid .row をベースに完全互換） */
+.sort-studio-main .list.layout-grid .row {
+  position: relative;
+  height: 260px; /* 本番と完全同一 */
+  cursor: grab;
+  user-select: none;
+  /* CSS transition は box-shadow のみにして、SortableJS の FLIP アニメーションとの衝突を防ぐ */
+  transition: box-shadow 0.2s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.2s ease;
+  will-change: transform;
+}
+
+.sort-studio-main .list.layout-grid .row:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.sort-studio-main .list.layout-grid .row:active {
+  cursor: grabbing;
+}
+
+/* カード上部の番号バッジ（#1, #2, #3...） */
+.studio-order-badge {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 25;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+/* クイック移動アクションバー（ホバーで表示） */
+.studio-quick-nav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 30;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  background: rgba(14, 14, 18, 0.88);
+  backdrop-filter: blur(6px);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.sort-studio-main .list.layout-grid .row:hover .studio-quick-nav {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.studio-quick-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  width: 24px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease;
+}
+
+.studio-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ff8da1;
+}
+
+/* SortableJS なめらかアニメーション用ドラッグスタイル */
+/* 1. 移動先のプレースホルダー（すっと吸い込まれる空き領域） */
+.sortable-ghost {
+  opacity: 0.22 !important;
+  border: 2px dashed var(--accent-1, #ff6b8a) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 107, 138, 0.08) !important;
+  box-shadow: inset 0 0 16px rgba(255, 107, 138, 0.15) !important;
+  transform: scale(0.97) !important;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* 2. つかんだ瞬間の元の要素 */
+.sortable-chosen {
+  cursor: grabbing !important;
+  border-color: var(--accent-1, #ff6b8a) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. ドラッグ中にカーソルに追従するカード（浮遊感と滑らかさ） */
+.sortable-drag {
+  opacity: 0.98 !important;
+  transform: scale(1.035) rotate(0.4deg) !important;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.65), 0 0 0 2px var(--accent-1, #ff6b8a) !important;
+  z-index: 10000 !important;
+  cursor: grabbing !important;
+  border-radius: 14px !important;
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out !important;
+}
+
+/* トースト通知 */
+.sort-studio-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  opacity: 0;
+  visibility: hidden;
+  background: #111;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  z-index: 1000000;
+  transition: all 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+.sort-studio-toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}

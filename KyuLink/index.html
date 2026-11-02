@@ -28,19 +28,26 @@
   <meta name="theme-color" content="#ff6b8a" />
   <meta name="msapplication-TileColor" content="#ff6b8a" />
 
-  <link rel="stylesheet" href="style.css?v=20260928f">
-  <!-- Load Google Fonts for additional font options -->
+  <link rel="stylesheet" href="style.css?v=20261014_fast">
+  <link rel="stylesheet" href="sort-studio.css?v=20261103">
+  <!-- Preload header key asset -->
+  <link rel="preload" as="image" href="https://5gkyu.github.io/icon/Fuka_header.png">
+  <!-- Preconnect for faster font and asset loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Load Google Fonts asynchronously to avoid render blocking -->
   <link
+    rel="preload"
+    as="style"
     href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=DotGothic16&family=M+PLUS+Rounded+1c&family=Kosugi+Maru&family=Yomogi&family=Noto+Sans+JP:wght@400;700&display=swap"
-    rel="stylesheet">
-  <!-- ローディング中のちらつき防止 -->
-  <style id="kyulink-fouc">
-    body>*:not(#kyulink-loading) {
-      opacity: 0 !important;
-      visibility: hidden !important;
-    }
-  </style>
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=DotGothic16&family=M+PLUS+Rounded+1c&family=Kosugi+Maru&family=Yomogi&family=Noto+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet">
+  </noscript>
   <style>
+
     /* When add/edit modal is open, disable FAB */
     body.modal-add-open .fab {
       display: none !important;
@@ -87,25 +94,8 @@
 </head>
 
 <body>
-  <!-- Fuka Animation (ローディングアイコン用) -->
-  <script src="/components/fuka-animation.js"></script>
 
-  <!-- KyuLink ローディング画面 -->
-  <div id="kyulink-loading">
-    <div class="kyulink-loading-inner">
-      <div class="kyulink-loading-logo-wrap">
-        <div class="kyulink-loading-spinner"></div>
-        <img src="kyulink_k_logo.png" alt="logo" class="kyulink-loading-img">
-      </div>
-      <div class="kyulink-loading-title">KyuLink</div>
-      <div class="kyulink-loading-bar-wrap">
-        <div class="kyulink-loading-bar-track">
-          <div class="kyulink-loading-bar-fill" id="kyulinkLoadingBar"></div>
-        </div>
-      </div>
-      <div class="kyulink-loading-msg" id="kyulinkLoadingMsg">読み込み中…</div>
-    </div>
-  </div>
+
   <div class="wrap">
     <header class="card" role="banner">
       <div class="top-row">
@@ -120,6 +110,7 @@
         </div>
 
         <button id="topEditModeBtn" class="small-btn" style="flex-shrink:0;margin-left:8px;display:none;">編集</button>
+        <button id="topSortStudioBtn" class="small-btn" style="flex-shrink:0;margin-left:8px;display:none;" title="並び替えスタジオを開く">並び替え</button>
 
         <div id="authRight" style="flex-shrink:0;z-index:1010;">
           <div class="user-info-row" id="userInfoBtn" title="ユーザー設定">
@@ -131,7 +122,7 @@
 
       <!-- Scroll Indicator (Fuka and Pino) -->
       <div id="kyu-scroll-indicator" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; z-index: 150; pointer-events: none;">
-        <img src="https://5gkyu.github.io/icon/Fuka_header.png" id="charLogoBtn" alt="KyuLink キャラクター" title="KyuLink キャラクター" role="button" tabindex="0" draggable="false" oncontextmenu="return false;"
+        <img src="https://5gkyu.github.io/icon/Fuka_header.png" id="charLogoBtn" alt="KyuLink キャラクター" title="KyuLink キャラクター" role="button" tabindex="0" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" fetchpriority="high"
           style="
             position: absolute; 
             left: 0px; 
@@ -144,7 +135,7 @@
           ">
         <div id="kyu-scroll-vine" style="height: 100%; background: var(--accent-1); width: 0%; border-radius: 0 3px 3px 0; transition: width 0.1s ease-out; position: relative; box-shadow: 0 0 8px var(--accent-1);">
           <!-- left: max() と calc() を使い、左端(Fukaの膝)と右端(画面端)の両方で位置が破綻しないように調整 -->
-          <img src="https://5gkyu.github.io/icon/Pino_header.png" id="kyu-header-bird" alt="" draggable="false" oncontextmenu="return false;"
+          <img src="https://5gkyu.github.io/icon/Pino_header.png" id="kyu-header-bird" alt="" draggable="false" oncontextmenu="return false;" loading="eager" decoding="async" fetchpriority="high"
             style="position: absolute; left: max(20px, calc(100% - 8px)); margin-left: -10px; transform: scaleX(-1); bottom: -1px; width: 18px; height: auto; transition: transform 0.2s ease-out; filter: drop-shadow(0 4px 6px rgba(106, 86, 74, 0.2)); z-index: 10;">
         </div>
       </div>
@@ -465,57 +456,18 @@
     </div>
   </div>
 
-  <!-- Firebase SDK（compat）: これを一度だけ読み込む -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- Firebase SDK（compat）: defer を付与してHTML描画を最優先 -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js" defer></script>
 
-  <!-- Firebase読み込み完了後にローディング画面を解除 -->
   <script>
-    (function () {
-      var bar = document.getElementById('kyulinkLoadingBar');
-      var msg = document.getElementById('kyulinkLoadingMsg');
-      var loading = document.getElementById('kyulink-loading');
-      var fouc = document.getElementById('kyulink-fouc');
-      var progress = 0;
-
-      function setProgress(p) {
-        progress = Math.min(p, 100);
-        if (bar) bar.style.width = progress + '%';
-      }
-
-      // Firebase SDKの存在チェック
-      if (typeof firebase !== 'undefined' && firebase.app) {
-        setProgress(60);
-        if (msg) msg.textContent = 'データを準備中…';
-      }
-
-      // ローディング解除関数
-      window._kyulinkFinishLoading = function () {
-        setProgress(100);
-        if (msg) msg.textContent = '完了！';
-        setTimeout(function () {
-          if (loading) {
-            loading.classList.add('is-out');
-            setTimeout(function () {
-              loading.remove();
-            }, 500);
-          }
-          if (fouc) fouc.remove();
-        }, 300);
-      };
-
-      // フォールバック: 8秒経ってもロードが終わらない場合は強制解除
-      setTimeout(function () {
-        if (document.getElementById('kyulink-loading')) {
-          window._kyulinkFinishLoading();
-        }
-      }, 8000);
-    })();
+    // ローディング画面廃止に伴う互換用関数
+    window._kyulinkFinishLoading = function () {};
   </script>
 
   <!-- 外部スクリプト本体 -->
-  <script src="linklocal.js?v=20260928i" defer></script>
+  <script src="linklocal.js?v=20261014_fast" defer></script>
 
 
 
@@ -680,7 +632,9 @@
       window.addEventListener('load', () => setTimeout(() => updateScroll(document), 100));
     })();
   </script>  <!-- SortableJS (Drag & Drop) -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
+  <!-- 並び替えスタジオ -->
+  <script src="sort-studio.js?v=20261103" defer></script>
 
 </body>
 

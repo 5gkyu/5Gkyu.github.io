@@ -76,8 +76,20 @@ const SORT_KEY = 'bookmark_sort_v2';
 // フォルダ機能は廃止されたため、関連する localStorage キーと定数は削除
 const state = { q: '', tags: new Set(), sort: 'custom', editMode: false, viewMode: 'medium', selectedIds: new Set(), noTagFilter: false };
 let _tagClickGuard = 0;
-// in-memory bookmark storage (initialized empty; populated from remote or user actions)
-let DATA = [];
+// in-memory bookmark storage (localStorageキャッシュから即座に初期化)
+let DATA = (function () {
+  try {
+    const raw = localStorage.getItem('kyulink_data_cache_v2');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const val = (parsed && parsed.data) ? parsed.data : parsed;
+      if (Array.isArray(val)) return val.filter(it => it && it.id);
+      if (typeof val === 'object' && val !== null) return Object.values(val).filter(it => it && it.id);
+    }
+  } catch (e) { }
+  return [];
+})();
+try { window.DATA = DATA; } catch (e) { }
 let isReadOnlyMode = true; // Will be set to false if logged-in user is the owner
 const el = {
   q: document.getElementById('q'),
@@ -97,6 +109,7 @@ const el = {
   topOpenAdd: document.getElementById('topOpenAdd'),
   editModeBtn: document.getElementById('editModeBtn'),
   topEditModeBtn: document.getElementById('topEditModeBtn'),
+  topSortStudioBtn: document.getElementById('topSortStudioBtn'),
   addModal: document.getElementById('addModal'),
   addUrl: document.getElementById('addUrl'),
   copyAddUrlBtn: document.getElementById('copyAddUrlBtn'),
@@ -176,6 +189,39 @@ const el = {
 };
 
 let TAG_ORDERS = {};
+
+/* ------------------ localStorage キャッシュ（0秒即時表示用） ------------------ */
+const _DATA_CACHE_KEY = 'kyulink_data_cache_v2';
+const _DATA_CACHE_TTL = 15 * 60 * 1000; // 15分（バックグラウンド再検証の目安）
+
+function _getCachedData(ignoreTtl = false) {
+  try {
+    const raw = localStorage.getItem(_DATA_CACHE_KEY);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (!ignoreTtl && Date.now() - ts > _DATA_CACHE_TTL) return null;
+    return data;
+  } catch (e) { return null; }
+}
+function _setCachedData(data) {
+  try { localStorage.setItem(_DATA_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) { }
+}
+function _clearDataCache() {
+  try { localStorage.removeItem(_DATA_CACHE_KEY); localStorage.removeItem(_DATA_CACHE_KEY + '_orders'); } catch (e) { }
+}
+function _getCachedOrders(ignoreTtl = false) {
+  try {
+    const raw = localStorage.getItem(_DATA_CACHE_KEY + '_orders');
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (!ignoreTtl && Date.now() - ts > _DATA_CACHE_TTL) return null;
+    return data;
+  } catch (e) { return null; }
+}
+function _setCachedOrders(data) {
+  try { localStorage.setItem(_DATA_CACHE_KEY + '_orders', JSON.stringify({ ts: Date.now(), data })); } catch (e) { }
+}
+
 const STORAGE_KEY = 'bookmark_data_v1';
 // If you run a local OGP proxy (see ogp-proxy-server), set its base URL here, e.g. 'http://localhost:3000'
 // Default OGP proxy (hidden; no UI required). Set to deployed Worker.
@@ -235,12 +281,9 @@ function migrateLegacyProxyImageUrls(items) {
 
 function saveToStorage() {
   try {
-    // ブックマーク関連はローカルに保存しない仕様に変更
-    // ここでは UI 関連のレンダリングのみ行う（保存は行わない）
     try { DATA = dedupeData(DATA || []); } catch (e) { }
-
-    console.log('saveToStorage: skipped writing bookmark_data_v1 to localStorage (UI-only mode)');
-  } catch (e) { console.warn('saveToStorage (UI-only) error', e); }
+    _setCachedData(DATA);
+  } catch (e) { console.warn('saveToStorage error', e); }
 }
 
 // --- Modal scroll lock helpers ------------------------------------------------
@@ -297,14 +340,35 @@ function dedupeData(arr) {
   });
   return res;
 }
-function loadFromStorage() {
-  // ブックマークはローカルに保存しないため、読み込みは行わない
-  return false;
+function parseRemoteData(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.filter(it => it && it.id);
+  }
+  return Object.values(val).filter(it => it && it.id);
 }
 
-// load and dedupe: called at init to ensure duplicates removed
+function loadFromStorage() {
+  return loadAndDedupeFromStorage();
+}
+
+// load and dedupe: キャッシュから即座にデータを復元して0秒表示を可能にする
 function loadAndDedupeFromStorage() {
-  // localStorage からブックマークをロードしない（UIのみローカル保持）
+  try {
+    const cached = _getCachedData(true); // 有効期限問わず即座に復元
+    const cachedOrders = _getCachedOrders(true);
+    if (cached) {
+      const arr = parseRemoteData(cached);
+      if (arr && arr.length > 0) {
+        DATA = dedupeData(arr);
+        window.DATA = DATA;
+        if (cachedOrders) TAG_ORDERS = cachedOrders;
+        return true;
+      }
+    }
+  } catch (e) {
+    console.warn('loadAndDedupeFromStorage error', e);
+  }
   return false;
 }
 
@@ -371,13 +435,14 @@ function renderTags() {
   try {
     if (el.chipContainer) {
       el.chipContainer.innerHTML = '';
+      const frag = document.createDocumentFragment();
       // 全て ボタン（タグなしの前）
       const allBtn = document.createElement('button');
       const isAllActive = !state.noTagFilter && state.tags.size === 0;
       allBtn.className = 'chip' + (isAllActive ? ' active' : '');
       allBtn.textContent = `全て (${(DATA || []).length})`;
       allBtn.addEventListener('click', () => { state.tags.clear(); state.noTagFilter = false; renderTags(); renderList(); renderSidebarTags(); });
-      el.chipContainer.appendChild(allBtn);
+      frag.appendChild(allBtn);
 
       // タグなし チップ
       const noTagCount = (DATA || []).filter(d => !(d.tags && d.tags.length)).length;
@@ -385,7 +450,7 @@ function renderTags() {
       noTagChip.className = 'chip' + (state.noTagFilter ? ' active' : '');
       noTagChip.textContent = `タグなし (${noTagCount})`;
       noTagChip.addEventListener('click', () => { state.noTagFilter = !state.noTagFilter; state.tags.clear(); renderTags(); renderList(); renderSidebarTags(); });
-      el.chipContainer.appendChild(noTagChip);
+      frag.appendChild(noTagChip);
 
       all.slice(0, showN).forEach(t => {
         const count = DATA.filter(d => (d.tags || []).includes(t)).length;
@@ -393,8 +458,9 @@ function renderTags() {
         chip.className = 'chip' + (state.tags.has(t) ? ' active' : '');
         chip.textContent = `${t} (${count})`;
         chip.addEventListener('click', (e) => { const _n = Date.now(); if (_n - _tagClickGuard < 350) { e.preventDefault(); return; } _tagClickGuard = _n; if (state.tags.has(t)) { state.tags.delete(t); } else { state.tags.clear(); state.tags.add(t); } state.noTagFilter = false; renderTags(); renderList(); renderSidebarTags(); });
-        el.chipContainer.appendChild(chip);
+        frag.appendChild(chip);
       });
+      el.chipContainer.appendChild(frag);
     }
     const remaining = Math.max(0, all.length - showN);
     if (el.moreTagsBtn) el.moreTagsBtn.textContent = remaining > 0 ? `タグ（あと ${remaining} 件）` : 'タグ';
@@ -498,7 +564,7 @@ function renderSidebarTags() {
       { id: 'notag', label: 'タグなし', isSpecial: true, action: () => { state.tags.clear(); state.noTagFilter = true; } },
       { id: 'kyu', label: 'Kyu', tagValue: 'Kyu', imgUrl: 'https://5gkyu.github.io/icon/Fuka_icon.jpg' },
       { id: 'brawlstars', label: 'ブロスタ', tagValue: 'ブロスタ', imgUrl: 'https://5gkyu.github.io/icon/Brawl.png' },
-      { id: 'proseka', label: 'プロセカ', tagValue: 'プロセカ', imgUrl: 'https://pbs.twimg.com/profile_images/1854064399478398976/W-uuO8DW_400x400.jpg' },
+      { id: 'proseka', label: 'プロセカ', tagValue: 'プロセカ', imgUrl: 'https://5gkyu.github.io/icon/page-grid-icon/crop_1791289331169.jpg' },
       { id: 'monst', label: 'モンスト', tagValue: 'モンスト', imgUrl: 'https://pbs.twimg.com/profile_images/2046049090723803136/dOoonFuu_400x400.png' },
       { id: 'vocalo', label: 'ボカロ', tagValue: 'ボカロ', imgUrl: 'https://pbs.twimg.com/profile_images/1509818267812364288/Y1EMCVdD_400x400.jpg' },
       { id: 'sns', label: 'SNS', tagValue: 'SNS', imgUrl: 'https://pbs.twimg.com/profile_images/1955359038532653056/OSHY3ewP_400x400.jpg' },
@@ -511,6 +577,7 @@ function renderSidebarTags() {
     const renderToContainer = (container, baseClassName) => {
       if (!container) return;
       container.innerHTML = '';
+      const frag = document.createDocumentFragment();
       buttonsData.forEach(btnInfo => {
         const btn = document.createElement('div');
 
@@ -554,8 +621,9 @@ function renderSidebarTags() {
           renderSidebarTags();
           if (typeof closeAllModals === 'function') closeAllModals();
         });
-        container.appendChild(btn);
+        frag.appendChild(btn);
       });
+      container.appendChild(frag);
     };
 
     renderToContainer(primaryContainer, 'primary-tag-btn');
@@ -692,17 +760,25 @@ function initSidebar() {
 /* ------------------ フィルタ・ソート・スマートフォン表示 ------------------ */
 function filterAndSort() {
   const qn = normalizeForSearch(state.q);
+  const tagList = Array.from(state.tags);
   let arr = (DATA || []).filter(item => {
-    const inName = normalizeForSearch(item.title).includes(qn);
-    const inUrl = normalizeForSearch(item.url).includes(qn);
-    const inDesc = normalizeForSearch(item.desc || '').includes(qn);
-    const tagsMatch = state.noTagFilter ? (!(item.tags && item.tags.length)) : Array.from(state.tags).every(t => (item.tags || []).includes(t));
-    return (qn === '' || inName || inUrl || inDesc) && tagsMatch;
+    if (state.noTagFilter) {
+      if (item.tags && item.tags.length) return false;
+    } else if (tagList.length > 0) {
+      const itemTags = item.tags || [];
+      for (let i = 0; i < tagList.length; i++) {
+        if (!itemTags.includes(tagList[i])) return false;
+      }
+    }
+    if (!qn) return true;
+    return normalizeForSearch(item.title).includes(qn) ||
+           normalizeForSearch(item.url).includes(qn) ||
+           normalizeForSearch(item.desc || '').includes(qn);
   });
 
   let effectiveSort = state.sort;
   const isAllOrNoTag = (state.tags.size === 0 || state.noTagFilter);
-  if (effectiveSort === 'custom' && isAllOrNoTag) {
+  if (effectiveSort === 'custom' && isAllOrNoTag && !state.editMode) {
     effectiveSort = 'date-new';
   }
 
@@ -775,17 +851,25 @@ function renderList() {
   // タブレット/PCレイアウトとカラム数を適用
   applyGridLayout();
 
-  arr.forEach(item => {
+  const fragment = document.createDocumentFragment();
+
+  arr.forEach((item, index) => {
     const row = document.createElement('a'); row.className = 'row';
-    row.href = item.url || '#';
-    row.target = '_blank';
-    row.rel = 'noopener noreferrer';
+    const isAboveFold = index < 12;
+    // 編集モード時はリンク遷移を完全に無効化
+    if (state.editMode) {
+      row.href = 'javascript:void(0);';
+      row.removeAttribute('target');
+      row.removeAttribute('rel');
+    } else {
+      row.href = item.url || '#';
+      row.target = '_blank';
+      row.rel = 'noopener noreferrer';
+    }
     row.dataset.id = item.id;
     if (item.tags && item.tags.includes('Kyu')) { row.classList.add('kyu-special'); }
 
-    const isAllOrNoTag = (state.tags.size === 0 || state.noTagFilter);
-    const canCustomSort = state.sort === 'custom' && !isAllOrNoTag && state.tags.size === 1;
-    if (state.editMode && canCustomSort && !isReadOnlyMode) {
+    if (state.editMode && !isReadOnlyMode) {
       const handle = document.createElement('div');
       handle.className = 'drag-handle';
       handle.innerHTML = '≡';
@@ -814,8 +898,9 @@ function renderList() {
           img.src = heroSrc;
           img.alt = item.title + ' アイコン';
           img.className = 'hero';
-          img.loading = 'lazy';
+          img.loading = isAboveFold ? 'eager' : 'lazy';
           img.decoding = 'async';
+          if (isAboveFold) { try { img.fetchPriority = 'high'; } catch (_) {} }
           try { img.referrerPolicy = 'no-referrer'; } catch (_) { }
           // 画像ロード時にサイズ・アスペクト比を判定
           img.addEventListener('load', () => {
@@ -865,7 +950,7 @@ function renderList() {
           img.alt = item.title ? item.title + ' ファビコン' : 'ファビコン';
           img.className = 'fallback';
           img.width = 64; img.height = 64;
-          img.loading = 'lazy'; img.decoding = 'async';
+          img.loading = isAboveFold ? 'eager' : 'lazy'; img.decoding = 'async';
           try { img.referrerPolicy = 'no-referrer'; } catch (_) { }
           img.onerror = () => { show404FallbackIcon(iconWrap, true, item.title); };
           iconWrap.appendChild(img);
@@ -878,7 +963,7 @@ function renderList() {
         img.alt = item.title ? item.title + ' ファビコン' : 'ファビコン';
         img.className = 'fallback';
         img.width = 40; img.height = 40;
-        img.loading = 'lazy'; img.decoding = 'async';
+        img.loading = isAboveFold ? 'eager' : 'lazy'; img.decoding = 'async';
         try { img.referrerPolicy = 'no-referrer'; } catch (_) { }
         img.onerror = () => { show404FallbackIcon(iconWrap, false, item.title); };
         iconWrap.appendChild(img);
@@ -974,14 +1059,16 @@ function renderList() {
 
     row.appendChild(iconWrap); row.appendChild(meta); row.appendChild(actions);
     
-    // 行クリック時の挙動（編集モード時はリンク遷移を抑止、URLがない場合も抑止）
+    // 行クリック時の挙動: 編集モード時はリンク遷移を抑止
     row.addEventListener('click', (e) => {
-      if ((state.editMode && canCustomSort && !isReadOnlyMode) || !item.url) {
+      if (state.editMode || !item.url) {
         e.preventDefault();
       }
     });
-    el.list.appendChild(row);
+    fragment.appendChild(row);
   });
+
+  el.list.appendChild(fragment);
 
   if (arr.length === 0) {
     el.list.classList.remove('layout-grid');
@@ -1035,7 +1122,7 @@ function renderList() {
         if (!TAG_ORDERS[tag]) {
           TAG_ORDERS[tag] = arr.map(item => item.id);
         }
-        // DOMの順番通りにID配列を再構築する
+        // DOMの順序通りにID配列を再構築する
         const newOrder = [];
         el.list.querySelectorAll('.row').forEach(row => {
           if (row.dataset.id) {
@@ -1216,6 +1303,11 @@ function toggleEditMode() {
 if (el.editModeBtn) el.editModeBtn.addEventListener('click', toggleEditMode);
 // Edit mode buttons (will be shown/hidden based on permissions)
 if (el.topEditModeBtn) el.topEditModeBtn.addEventListener('click', toggleEditMode);
+if (el.topSortStudioBtn) el.topSortStudioBtn.addEventListener('click', () => {
+  if (window.SortStudio && typeof window.SortStudio.open === 'function') {
+    window.SortStudio.open();
+  }
+});
 if (el.topDeleteSelectedBtn) el.topDeleteSelectedBtn.addEventListener('click', () => {
   if (!state.editMode) return;
   if (state.selectedIds.size === 0) { alert('削除対象が選択されていません'); return; }
@@ -1747,16 +1839,14 @@ el.saveAdd.addEventListener('click', async () => {
 // Enterキーによる自動保存機能は無効化しました（誤保存防止のため）。
 
 /* init */
-// load and dedupe stored bookmarks
-if (!loadAndDedupeFromStorage()) {
-  // keep initial DATA if local empty
-}
+// load and dedupe stored bookmarks (キャッシュから即時復元)
+const hasCachedBookmarks = loadAndDedupeFromStorage();
 
 loadViewMode(); // 表示モードを localStorage から読み込み
 loadSort(); // ソート設定を localStorage から読み込み
 updateViewModeUI(); // ラジオボタンの状態を更新
-renderTags(); renderList();
-// URL パラメータで状態を起動（全ユーザー向け）: ?tag= ?q= ?sort= ?layout= ?theme= ?notag=1
+
+// URL パラメータで状態を事前反映: ?tag= ?q= ?sort= ?layout= ?theme= ?notag=1
 ; (function () {
   try {
     const _p = new URLSearchParams(window.location.search);
@@ -1793,7 +1883,6 @@ renderTags(); renderList();
     }
     if (_layout === 'grid' || _layout === 'list') {
       localStorage.setItem('desktop_layout', _layout);
-      if (typeof applyGridLayout === 'function') applyGridLayout();
       _changed = true;
     }
     const _validThemes = ['light', 'dark', 'awake', 'muse', 'majesty', 'eof'];
@@ -1805,10 +1894,22 @@ renderTags(); renderList();
     }
     if (_changed) {
       try { window.history.replaceState(null, '', window.location.pathname); } catch (e) { }
-      renderTags(); renderList(); renderSidebarTags();
     }
   } catch (e) { }
 })();
+
+// パラメータ反映後に一度だけレンダリングを実行
+renderTags();
+renderList();
+renderSidebarTags();
+updateSidebarStats();
+
+// キャッシュが存在していた場合は、ローディング画面を即座に消去する
+if (hasCachedBookmarks) {
+  try {
+    if (window._kyulinkFinishLoading) window._kyulinkFinishLoading();
+  } catch (e) { }
+}
 initSidebar(); // サイドバーを初期化
 
 try {
@@ -2110,6 +2211,7 @@ function updateEditPermissions(user) {
     // Owner can edit: show all edit buttons
     if (el.topOpenAdd) el.topOpenAdd.style.display = 'inline-block';
     if (el.topEditModeBtn) el.topEditModeBtn.style.display = 'inline-block';
+    if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'inline-block';
     if (el.editModeBtn) el.editModeBtn.style.display = 'inline-block';
     if (el.openAdd) {
       el.openAdd.classList.add('owner-visible');
@@ -2121,6 +2223,7 @@ function updateEditPermissions(user) {
     // Not owner: hide edit buttons
     if (el.topOpenAdd) el.topOpenAdd.style.display = 'none';
     if (el.topEditModeBtn) el.topEditModeBtn.style.display = 'none';
+    if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'none';
     if (el.editModeBtn) el.editModeBtn.style.display = 'none';
     if (el.topDeleteSelectedBtn) el.topDeleteSelectedBtn.style.display = 'none';
     if (el.openAdd) {
@@ -2137,6 +2240,7 @@ function updateEditPermissions(user) {
       liveServerWrap.style.display = (isOwner || isLocalHost) ? 'flex' : 'none';
     }
   } catch (e) { }
+
 }
 
 /* local <-> functions (DATA を使う) */
@@ -2150,7 +2254,7 @@ function setLocalBookmarks(arr) {
 
   try { DATA = normalized; } catch (e) { }
   try { window.DATA = normalized; } catch (e) { }
-  // Do not persist bookmarks to localStorage in UI-only mode
+  _setCachedData(normalized);
   try { renderTags(); renderList(); renderSidebarTags(); updateSidebarStats(); } catch (e) { /* ignore */ }
   // ローディング画面を解除
   try { if (window._kyulinkFinishLoading) window._kyulinkFinishLoading(); } catch (e) { }
@@ -2202,39 +2306,6 @@ function deepEqualMaps(a, b) {
 }
 
 /* sync */
-// localStorage cache key / TTL for read-only public data
-const _DATA_CACHE_KEY = 'kyulink_data_cache_v2';
-const _DATA_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
-
-function _getCachedData() {
-  try {
-    const raw = localStorage.getItem(_DATA_CACHE_KEY);
-    if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > _DATA_CACHE_TTL) return null;
-    return data;
-  } catch (e) { return null; }
-}
-function _setCachedData(data) {
-  try { localStorage.setItem(_DATA_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) { }
-}
-function _clearDataCache() {
-  try { localStorage.removeItem(_DATA_CACHE_KEY); localStorage.removeItem(_DATA_CACHE_KEY + '_orders'); } catch (e) { }
-}
-
-function _getCachedOrders() {
-  try {
-    const raw = localStorage.getItem(_DATA_CACHE_KEY + '_orders');
-    if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > _DATA_CACHE_TTL) return null;
-    return data;
-  } catch (e) { return null; }
-}
-function _setCachedOrders(data) {
-  try { localStorage.setItem(_DATA_CACHE_KEY + '_orders', JSON.stringify({ ts: Date.now(), data })); } catch (e) { }
-}
-
 function startSyncForUser(uid) {
   if (!db) return;
   // Always use OWNER_UID for read-only public view
@@ -2255,19 +2326,21 @@ function startSyncForUser(uid) {
 
   // ── 読み取り専用ゲスト: キャッシュがあればFirebaseを叩かない ──
   if (isReadOnlyMode) {
-    const cached = _getCachedData();
+    const cached = _getCachedData(); // TTL内チェック
     const cachedOrders = _getCachedOrders();
     if (cached) {
       try {
         let arr = parseRemoteData(cached);
         if (cachedOrders) TAG_ORDERS = cachedOrders;
-        setLocalBookmarks(arr);
+        if (!DATA || DATA.length === 0) {
+          setLocalBookmarks(arr);
+        }
         console.log('startSyncForUser: served from localStorage cache');
       } catch (e) { console.error(e); }
       return; // Firebase読み込みをスキップ
     }
 
-    // キャッシュなし → once() のみで取得してキャッシュ保存（ref.on() は使わない）
+    // キャッシュなし、またはTTL切れ → once() で裏側バックグラウンド取得して最新化
     Promise.all([
       ref.once('value'),
       orderRef.once('value').catch(() => ({ val: () => ({}) }))
@@ -2279,8 +2352,11 @@ function startSyncForUser(uid) {
       try {
         if (remoteVal && ((Array.isArray(remoteVal) && remoteVal.length > 0) || (typeof remoteVal === 'object' && Object.keys(remoteVal).length > 0))) {
           let arr = parseRemoteData(remoteVal);
-          setLocalBookmarks(arr);
-          _setCachedData(remoteVal); // キャッシュに保存
+          _setCachedData(remoteVal);
+          // 差分がある場合のみ再描画（チラつき防止）
+          if (JSON.stringify(DATA || []) !== JSON.stringify(arr || [])) {
+            setLocalBookmarks(arr);
+          }
         } else {
           console.log('Remote empty (read-only mode) — no data to display');
         }
@@ -2298,6 +2374,7 @@ function startSyncForUser(uid) {
   // ── オーナーログイン時: ref.on() でリアルタイム同期 ──
   orderRef.on('value', snapshot => {
     TAG_ORDERS = snapshot.val() || {};
+    _setCachedOrders(TAG_ORDERS);
     renderList(); // 並び順が変わった場合は再描画
   });
   ref.on('value', snapshot => {
@@ -2306,6 +2383,7 @@ function startSyncForUser(uid) {
       // If remoteVal is empty/null, do not overwrite local data to avoid accidental data loss
       if (remoteVal && ((Array.isArray(remoteVal) && remoteVal.length > 0) || (typeof remoteVal === 'object' && Object.keys(remoteVal).length > 0))) {
         let arr = parseRemoteData(remoteVal);
+        _setCachedData(remoteVal); // オーナー時もキャッシュに即時保存
 
         // One-time migration: unwrap legacy worker-proxied image URLs and persist direct URLs.
         if (!remoteImageUrlMigrationDone) {
@@ -2315,13 +2393,16 @@ function startSyncForUser(uid) {
             arr = migrated.items;
             setLocalBookmarks(arr);
             ref.set(arr)
-              .then(() => { console.log('Firebase migration complete: normalized image URLs =', migrated.changed); _clearDataCache(); })
+              .then(() => { console.log('Firebase migration complete: normalized image URLs =', migrated.changed); })
               .catch((err) => { console.error('Firebase migration save failed', err); });
             return;
           }
         }
 
-        setLocalBookmarks(arr);
+        // 差分がある場合のみ再描画
+        if (JSON.stringify(DATA || []) !== JSON.stringify(arr || [])) {
+          setLocalBookmarks(arr);
+        }
       } else {
         console.log('Remote snapshot empty — ignoring to avoid overwriting local data');
       }
@@ -2335,8 +2416,6 @@ function startSyncForUser(uid) {
   });
 }
 
-
-
 function saveBookmarksToRemote() {
   if (isReadOnlyMode) { console.log('saveBookmarksToRemote: skipped (read-only mode)'); return; }
   if (!firebaseUid || !db) { console.warn('saveBookmarksToRemote: no firebase uid/db'); return; }
@@ -2347,6 +2426,7 @@ function saveBookmarksToRemote() {
     console.log('saveBookmarksToRemote: normalized legacy image URLs =', migrated.changed);
   }
   local = migrated.items;
+  _setCachedData(local); // キャッシュ即時最新化
   console.log('saveBookmarksToRemote uid=', firebaseUid, 'items=', local.length);
   // Safety guard: if local is empty but remote currently contains data, DO NOT overwrite (to avoid accidental deletion)
   try {
@@ -2355,23 +2435,34 @@ function saveBookmarksToRemote() {
       const remoteHasData = remoteVal && ((Array.isArray(remoteVal) && remoteVal.length > 0) || (typeof remoteVal === 'object' && Object.keys(remoteVal).length > 0));
       if (remoteHasData && (!Array.isArray(local) || local.length === 0)) {
         console.warn('Aborting remote save: remote has data but local is empty — prevented accidental overwrite');
-        // Optionally notify the user in UI
         try { if (window && window.alert) window.alert('リモート側にデータが存在するため、空のデータで上書きするのを防ぎました。手動で確認してください。'); } catch (e) { }
         return;
       }
-      // Otherwise it's safe to set (either remote empty or local has items)
-      ref.set(local).then(() => { console.log('saveBookmarksToRemote: saved', firebaseUid); _clearDataCache(); }).catch(err => { console.error('saveBookmarksToRemote error', err); alert('リモート保存に失敗しました: ' + (err && err.message || err)); });
-    }).catch(err => { console.error('saveBookmarksToRemote read-before-set failed', err); /* fallback to set to avoid blocking in unexpected cases */ ref.set(local).catch(e => { console.error('fallback set failed', e); }); });
-  } catch (e) { console.error('saveBookmarksToRemote guard error', e); ref.set(local).catch(err => { console.error('saveBookmarksToRemote final set error', err); }); }
+      ref.set(local).then(() => {
+        console.log('saveBookmarksToRemote: saved', firebaseUid);
+        _setCachedData(local);
+      }).catch(err => {
+        console.error('saveBookmarksToRemote error', err);
+        alert('リモート保存に失敗しました: ' + (err && err.message || err));
+      });
+    }).catch(err => {
+      console.error('saveBookmarksToRemote read-before-set failed', err);
+      ref.set(local).then(() => { _setCachedData(local); }).catch(e => { console.error('fallback set failed', e); });
+    });
+  } catch (e) {
+    console.error('saveBookmarksToRemote guard error', e);
+    ref.set(local).then(() => { _setCachedData(local); }).catch(err => { console.error('saveBookmarksToRemote final set error', err); });
+  }
 }
 
 function saveTagOrdersToRemote() {
   if (isReadOnlyMode) { console.log('saveTagOrdersToRemote: skipped (read-only mode)'); return; }
   if (!firebaseUid || !db) { console.warn('saveTagOrdersToRemote: no firebase uid/db'); return; }
   const ref = db.ref('tagOrders/' + firebaseUid);
+  _setCachedOrders(TAG_ORDERS); // キャッシュ即時最新化
   ref.set(TAG_ORDERS).then(() => {
     console.log('saveTagOrdersToRemote: saved', firebaseUid);
-    _clearDataCache();
+    _setCachedOrders(TAG_ORDERS);
   }).catch(err => {
     console.error('saveTagOrdersToRemote error', err);
     alert('並び順の保存に失敗しました: ' + (err && err.message || err));

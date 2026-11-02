@@ -1199,6 +1199,8 @@ header.card .selector {
     box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04);
     overflow: hidden;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 260px;
   }
 
   .list.layout-grid .row:hover {
@@ -1366,6 +1368,8 @@ header.card .selector {
   box-shadow: 0 2px 8px rgba(2, 18, 22, 0.04);
   text-decoration: none;
   color: inherit;
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--row-h, 56px);
 }
 
 .row:hover {
