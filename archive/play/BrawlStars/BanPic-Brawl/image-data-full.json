@@ -1,0 +1,1735 @@
+{
+  "modes": [
+    {
+      "id": "eme",
+      "name": "エメラルドハント",
+      "image": "e-eme.png"
+    },
+    {
+      "id": "heist",
+      "name": "強奪",
+      "image": "e-godatu.png"
+    },
+    {
+      "id": "bounty",
+      "name": "賞金稼ぎ",
+      "image": "e-syoukin.png"
+    },
+    {
+      "id": "soccer",
+      "name": "ブロストライカー",
+      "image": "e-soccer.png"
+    },
+    {
+      "id": "hotzone",
+      "name": "ホットゾーン",
+      "image": "e-hotzone.png"
+    },
+    {
+      "id": "knockout",
+      "name": "ノックアウト",
+      "image": "e-knock.png"
+    }
+  ],
+  "maps": [
+    {
+      "id": "hard_rock_mine",
+      "name": "ごつごつ坑道",
+      "image": "eme/ごつごつ坑道.png",
+      "modes": [
+        "eme"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "undermine",
+      "name": "アンダーマイン",
+      "image": "eme/アンダーマイン.png",
+      "modes": [
+        "eme"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "crystal_fortress",
+      "name": "エメラルドの要塞",
+      "image": "eme/エメラルドの要塞.png",
+      "modes": [
+        "eme"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "double_swoosh",
+      "name": "ダブルレール",
+      "image": "eme/ダブルレール.png",
+      "modes": [
+        "eme"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "last_stop",
+      "name": "ラストストップ",
+      "image": "eme/ラストストップ.png",
+      "modes": [
+        "eme"
+      ]
+    },
+    {
+      "id": "crystal_arcade",
+      "name": "クリスタルアーケード",
+      "image": "eme/クリスタルアーケード.png",
+      "modes": [
+        "eme"
+      ]
+    },
+    {
+      "id": "trolley_madness",
+      "name": "トロッコの狂気",
+      "image": "eme/トロッコの狂気.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "open_space",
+      "name": "オープンスペース",
+      "image": "eme/オープンスペース.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "cross_cut",
+      "name": "クロスカット",
+      "image": "eme/クロスカット.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "satomi_spring",
+      "name": "サトミの泉",
+      "image": "eme/サトミの泉.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "cactus_trap",
+      "name": "サボテンの罠",
+      "image": "eme/サボテンの罠.png",
+      "modes": [
+        "eme"
+      ]
+    },
+    {
+      "id": "deep_diner",
+      "name": "ディープダイナー",
+      "image": "eme/ディープダイナー.png",
+      "modes": [
+        "eme"
+      ]
+    },
+    {
+      "id": "sharp_angle",
+      "name": "鋭いアングル",
+      "image": "eme/鋭いアングル.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "sunken_mine",
+      "name": "沈んだ鉱山",
+      "image": "eme/沈んだ鉱山.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "cozy_place",
+      "name": "落ち着ける場所",
+      "image": "eme/落ち着ける場所.png",
+      "modes": [
+        "eme"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "safe_zone",
+      "name": "安全地帯",
+      "image": "heist/安全地帯.png",
+      "modes": [
+        "heist"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "hot_potato",
+      "name": "ホットポテト",
+      "image": "heist/ホットポテト.png",
+      "modes": [
+        "heist"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "kaboom_canyon",
+      "name": "どんぱち谷",
+      "image": "heist/どんぱち谷.png",
+      "modes": [
+        "heist"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "bridge_too_far",
+      "name": "橋の彼方",
+      "image": "heist/橋の彼方.png",
+      "modes": [
+        "heist"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "gg_mortuary",
+      "name": "G,G,遺体安置所",
+      "image": "heist/G,G,遺体安置所.png",
+      "modes": [
+        "heist"
+      ]
+    },
+    {
+      "id": "pit_stop",
+      "name": "ピットストップ",
+      "image": "heist/ピットストップ.png",
+      "modes": [
+        "heist"
+      ]
+    },
+    {
+      "id": "shooting_star",
+      "name": "流れ星",
+      "image": "bounty/流れ星.png",
+      "modes": [
+        "bounty"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "hideout",
+      "name": "隠れ家",
+      "image": "bounty/隠れ家.png",
+      "modes": [
+        "bounty"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "layer_cake",
+      "name": "ミルフィーユ",
+      "image": "bounty/ミルフィーユ.png",
+      "modes": [
+        "bounty"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "sneaky_fields",
+      "name": "ジグザグ草原",
+      "image": "bounty/ジグザグ草原.png",
+      "modes": [
+        "bounty"
+      ]
+    },
+    {
+      "id": "dry_season",
+      "name": "乾燥地帯",
+      "image": "bounty/乾燥地帯.png",
+      "modes": [
+        "bounty"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "grand_canal",
+      "name": "グランドカナル",
+      "image": "bounty/グランドカナル.png",
+      "modes": [
+        "bounty"
+      ]
+    },
+    {
+      "id": "no_excuse",
+      "name": "言い訳厳禁",
+      "image": "bounty/言い訳厳禁.png",
+      "modes": [
+        "bounty"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "chorus_room",
+      "name": "合唱の間",
+      "image": "bounty/合唱の間.png",
+      "modes": [
+        "bounty"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "purple_paradise",
+      "name": "紫の楽園",
+      "image": "bounty/紫の楽園.png",
+      "modes": [
+        "bounty"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "snake_prairie",
+      "name": "静かな広場",
+      "image": "soccer/静かな広場.png",
+      "modes": [
+        "soccer"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "pinball_dreams",
+      "name": "ピンボールドリーム",
+      "image": "soccer/ピンボールドリーム.png",
+      "modes": [
+        "soccer"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "triple_dribble",
+      "name": "トリプルドリブル",
+      "image": "soccer/トリプルドリブル.png",
+      "modes": [
+        "soccer"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "center_stage",
+      "name": "中央コート",
+      "image": "soccer/中央コート.png",
+      "modes": [
+        "soccer"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "goalkeeper_dream",
+      "name": "ゴールキーパーの夢",
+      "image": "soccer/ゴールキーパーの夢.png",
+      "modes": [
+        "soccer"
+      ],
+      "disabled": true
+    },
+    {
+      "id": "sunny_soccer",
+      "name": "サニーサッカー",
+      "image": "soccer/サニーサッカー.png",
+      "modes": [
+        "soccer"
+      ]
+    },
+    {
+      "id": "super_beach",
+      "name": "スーパービーチ",
+      "image": "soccer/スーパービーチ.png",
+      "modes": [
+        "soccer"
+      ]
+    },
+    {
+      "id": "beach_ball",
+      "name": "ビーチボール",
+      "image": "soccer/ビーチボール.png",
+      "modes": [
+        "soccer"
+      ]
+    },
+    {
+      "id": "iron_defense",
+      "name": "鉄壁の守り",
+      "image": "soccer/鉄壁の守り.png",
+      "modes": [
+        "soccer"
+      ]
+    },
+    {
+      "id": "ring_of_fire",
+      "name": "炎のリング",
+      "image": "hotzone/炎のリング.png",
+      "modes": [
+        "hotzone"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "beetle_battle",
+      "name": "ビートルバトル",
+      "image": "hotzone/ビートルバトル.png",
+      "modes": [
+        "hotzone"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "open_business",
+      "name": "オープンビジネス",
+      "image": "hotzone/オープンビジネス.png",
+      "modes": [
+        "hotzone"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "parallel_plays",
+      "name": "パラレルワールド",
+      "image": "hotzone/パラレルワールド.png",
+      "modes": [
+        "hotzone"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "open_zone",
+      "name": "オープンゾーン",
+      "image": "hotzone/オープンゾーン.png",
+      "modes": [
+        "hotzone"
+      ]
+    },
+    {
+      "id": "split",
+      "name": "スプリット",
+      "image": "hotzone/スプリット.png",
+      "modes": [
+        "hotzone"
+      ]
+    },
+    {
+      "id": "turbulent_ground",
+      "name": "激動の地",
+      "image": "hotzone/激動の地.png",
+      "modes": [
+        "hotzone"
+      ]
+    },
+    {
+      "id": "dimensional_rift",
+      "name": "次元の狭間",
+      "image": "hotzone/次元の狭間.png",
+      "modes": [
+        "hotzone"
+      ]
+    },
+    {
+      "id": "belle_rock",
+      "name": "ベルの岩",
+      "image": "knockout/ベルの岩.png",
+      "modes": [
+        "knockout"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "flaming_phoenix",
+      "name": "燃える不死鳥",
+      "image": "knockout/燃える不死鳥.png",
+      "modes": [
+        "knockout"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "goldarm_gulch",
+      "name": "ゴールドアームの渓谷",
+      "image": "knockout/ゴールドアームの渓谷.png",
+      "modes": [
+        "knockout"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "new_horizons",
+      "name": "新たなる地平",
+      "image": "knockout/新たなる地平.png",
+      "modes": [
+        "knockout"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "out_in_the_open",
+      "name": "オープンフィールド",
+      "image": "knockout/オープンフィールド.png",
+      "modes": [
+        "knockout"
+      ],
+      "kyougi": true
+    },
+    {
+      "id": "deep_end",
+      "name": "ディープエンド",
+      "image": "knockout/ディープエンド.png",
+      "modes": [
+        "knockout"
+      ]
+    },
+    {
+      "id": "chivalry",
+      "name": "騎士道",
+      "image": "knockout/騎士道.png",
+      "modes": [
+        "knockout"
+      ]
+    },
+    {
+      "id": "pure_spring",
+      "name": "淀みなき泉",
+      "image": "knockout/淀みなき泉.png",
+      "modes": [
+        "knockout"
+      ]
+    }
+  ],
+  "brawlers": [
+    {
+      "id": "brawler_105",
+      "api_id": 16000094,
+      "name": "カゼ",
+      "name_en": "KAZE",
+      "image": "c-51kaze.png",
+      "rarity": "7",
+      "rarityLevel": 7,
+      "order": 1,
+      "yomi": "かぜ"
+    },
+    {
+      "id": "brawler_106",
+      "api_id": 16000102,
+      "name": "シリウス",
+      "name_en": "SIRIUS",
+      "image": "c-52sirius.png",
+      "rarity": "7",
+      "rarityLevel": 7,
+      "order": 2,
+      "yomi": "しりうす"
+    },
+    {
+      "id": "brawler_91",
+      "api_id": 16000005,
+      "name": "スパイク",
+      "name_en": "SPIKE",
+      "image": "c-41-spike.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 3,
+      "yomi": "すぱいく"
+    },
+    {
+      "id": "brawler_92",
+      "api_id": 16000012,
+      "name": "クロウ",
+      "name_en": "CROW",
+      "image": "c-42-crow.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 4,
+      "yomi": "くろう"
+    },
+    {
+      "id": "brawler_93",
+      "api_id": 16000023,
+      "name": "レオン",
+      "name_en": "LEON",
+      "image": "c-43-leon.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 5,
+      "yomi": "れおん"
+    },
+    {
+      "id": "brawler_94",
+      "api_id": 16000028,
+      "name": "サンディ",
+      "name_en": "SANDY",
+      "image": "c-44-sandy.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 6,
+      "yomi": "さんでぃ"
+    },
+    {
+      "id": "brawler_95",
+      "api_id": 16000040,
+      "name": "アンバー",
+      "name_en": "AMBER",
+      "image": "c-45-amber.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 7,
+      "yomi": "あんばー"
+    },
+    {
+      "id": "brawler_96",
+      "api_id": 16000052,
+      "name": "メグ",
+      "name_en": "MEG",
+      "image": "c-46-meg.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 8,
+      "yomi": "めぐ"
+    },
+    {
+      "id": "brawler_97",
+      "api_id": 16000038,
+      "name": "サージ",
+      "name_en": "SURGE",
+      "image": "c-48-surge.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 9,
+      "yomi": "さーじ"
+    },
+    {
+      "id": "brawler_98",
+      "api_id": 16000063,
+      "name": "チェスター",
+      "name_en": "CHESTER",
+      "image": "c-47-cheser.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 10,
+      "yomi": "ちぇすたー"
+    },
+    {
+      "id": "brawler_99",
+      "api_id": 16000070,
+      "name": "コーデリアス",
+      "name_en": "CORDELIUS",
+      "image": "c-49-0cordelious.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 11,
+      "yomi": "こーでりあすす"
+    },
+    {
+      "id": "brawler_100",
+      "api_id": 16000076,
+      "name": "キット",
+      "name_en": "KIT",
+      "image": "c-49-1kit.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 12,
+      "yomi": "きっと"
+    },
+    {
+      "id": "brawler_101",
+      "api_id": 16000080,
+      "name": "ドラコ",
+      "name_en": "DRACO",
+      "image": "c-49-2draco.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 13,
+      "yomi": "どらこ"
+    },
+    {
+      "id": "brawler_102",
+      "api_id": 16000085,
+      "name": "ケンジ",
+      "name_en": "KENJI",
+      "image": "c-49-3kenji.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 14,
+      "yomi": "けんじ"
+    },
+    {
+      "id": "brawler_103",
+      "api_id": 16000099,
+      "name": "ピアス",
+      "name_en": "PIERCE",
+      "image": "c-49-4pierce.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 15,
+      "yomi": "ぴあす"
+    },
+    {
+      "id": "brawler_104",
+      "api_id": 16000107,
+      "name": "ノリ",
+      "name_en": "NORI",
+      "image": "c-49-5nori.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 16,
+      "yomi": "のり"
+    },
+    {
+      "id": "brawler_50",
+      "api_id": 16000011,
+      "name": "モーティス",
+      "name_en": "MORTIS",
+      "image": "c-31-mortis.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 17,
+      "yomi": "もーてぃす"
+    },
+    {
+      "id": "brawler_51",
+      "api_id": 16000017,
+      "name": "タラ",
+      "name_en": "TARA",
+      "image": "c-32-tara.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 18,
+      "yomi": "たら"
+    },
+    {
+      "id": "brawler_52",
+      "api_id": 16000021,
+      "name": "ジーン",
+      "name_en": "GENE",
+      "image": "c-33-gene.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 19,
+      "yomi": "じーん"
+    },
+    {
+      "id": "brawler_53",
+      "api_id": 16000032,
+      "name": "MAX",
+      "name_en": "MAX",
+      "image": "c-34-max.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 20,
+      "yomi": "まっくす"
+    },
+    {
+      "id": "brawler_54",
+      "api_id": 16000031,
+      "name": "ミスターP",
+      "name_en": "MR. P",
+      "image": "c-35-mrp.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 21,
+      "yomi": "ミスターP"
+    },
+    {
+      "id": "brawler_55",
+      "api_id": 16000037,
+      "name": "スプラウト",
+      "name_en": "SPROUT",
+      "image": "c-36-sprout.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 22,
+      "yomi": "すぷらうと"
+    },
+    {
+      "id": "brawler_56",
+      "api_id": 16000042,
+      "name": "バイロン",
+      "name_en": "BYRON",
+      "image": "c-37-byron.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 23,
+      "yomi": "ばいろん"
+    },
+    {
+      "id": "brawler_57",
+      "api_id": 16000047,
+      "name": "スクウィーク",
+      "name_en": "SQUEAK",
+      "image": "c-38-squeak.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 24,
+      "yomi": "すくうぃーく"
+    },
+    {
+      "id": "brawler_58",
+      "api_id": 16000041,
+      "name": "ルー",
+      "name_en": "LOU",
+      "image": "c-39-00lou.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 25,
+      "yomi": "るー"
+    },
+    {
+      "id": "brawler_59",
+      "api_id": 16000044,
+      "name": "ラフス",
+      "name_en": "RUFFS",
+      "image": "c-39-0ruffs.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 26,
+      "yomi": "らふす"
+    },
+    {
+      "id": "brawler_60",
+      "api_id": 16000049,
+      "name": "バズ",
+      "name_en": "BUZZ",
+      "image": "c-39-1buzz.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 27,
+      "yomi": "ばず"
+    },
+    {
+      "id": "brawler_61",
+      "api_id": 16000054,
+      "name": "ファング",
+      "name_en": "FANG",
+      "image": "c-39-2fang.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 28,
+      "yomi": "ふぁんぐ"
+    },
+    {
+      "id": "brawler_62",
+      "api_id": 16000056,
+      "name": "イヴ",
+      "name_en": "EVE",
+      "image": "c-39-3eve.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 29,
+      "yomi": "いゔ"
+    },
+    {
+      "id": "brawler_63",
+      "api_id": 16000057,
+      "name": "ジャネット",
+      "name_en": "JANET",
+      "image": "c-39-4janet.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 30,
+      "yomi": "じゃねっと"
+    },
+    {
+      "id": "brawler_64",
+      "api_id": 16000059,
+      "name": "オーティス",
+      "name_en": "OTIS",
+      "image": "c-39-5otis.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 31,
+      "yomi": "おーてぃす"
+    },
+    {
+      "id": "brawler_65",
+      "api_id": 16000062,
+      "name": "バスター",
+      "name_en": "BUSTER",
+      "image": "c-39-6buster.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 32,
+      "yomi": "ばすたー"
+    },
+    {
+      "id": "brawler_66",
+      "api_id": 16000064,
+      "name": "グレイ",
+      "name_en": "GRAY",
+      "image": "c-39-7gray.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 33,
+      "yomi": "ぐれい"
+    },
+    {
+      "id": "brawler_67",
+      "api_id": 16000066,
+      "name": "R-T",
+      "name_en": "R-T",
+      "image": "c-39-8rt.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 34,
+      "yomi": "あーるてぃー"
+    },
+    {
+      "id": "brawler_68",
+      "api_id": 16000067,
+      "name": "ウィロー",
+      "name_en": "WILLOW",
+      "image": "c-39-9willow.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 35,
+      "yomi": "うぃろー"
+    },
+    {
+      "id": "brawler_69",
+      "api_id": 16000071,
+      "name": "ダグ",
+      "name_en": "DOUG",
+      "image": "c-39-10dug.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 36,
+      "yomi": "だぐ"
+    },
+    {
+      "id": "brawler_70",
+      "api_id": 16000073,
+      "name": "チャック",
+      "name_en": "CHUCK",
+      "image": "c-39-11chuck.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 37,
+      "yomi": "ちゃっく"
+    },
+    {
+      "id": "brawler_71",
+      "api_id": 16000074,
+      "name": "チャーリー",
+      "name_en": "CHARLIE",
+      "image": "c-39-12charlie.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 38,
+      "yomi": "ちゃーりー"
+    },
+    {
+      "id": "brawler_72",
+      "api_id": 16000075,
+      "name": "ミコ",
+      "name_en": "MICO",
+      "image": "c-39-13mico.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 39,
+      "yomi": "みこ"
+    },
+    {
+      "id": "brawler_73",
+      "api_id": 16000078,
+      "name": "メロディー",
+      "name_en": "MELODIE",
+      "image": "c-39-14melodhi.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 40,
+      "yomi": "めろでぃー"
+    },
+    {
+      "id": "brawler_74",
+      "api_id": 16000081,
+      "name": "リリー",
+      "name_en": "LILY",
+      "image": "c-39-15lily.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 41,
+      "yomi": "りりー"
+    },
+    {
+      "id": "brawler_75",
+      "api_id": 16000083,
+      "name": "クランシー",
+      "name_en": "CLANCY",
+      "image": "c-39-16clancy.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 42,
+      "yomi": "くらんしー"
+    },
+    {
+      "id": "brawler_76",
+      "api_id": 16000084,
+      "name": "モー",
+      "name_en": "MOE",
+      "image": "c-39-17moo.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 43,
+      "yomi": "もー"
+    },
+    {
+      "id": "brawler_77",
+      "api_id": 16000087,
+      "name": "ジュジュ",
+      "name_en": "JUJU",
+      "image": "c-39-18juju.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 44,
+      "yomi": "じゅじゅ"
+    },
+    {
+      "id": "brawler_78",
+      "api_id": 16000090,
+      "name": "オーリー",
+      "name_en": "OLLIE",
+      "image": "c-39-19ollie.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 45,
+      "yomi": "おーりー"
+    },
+    {
+      "id": "brawler_79",
+      "api_id": 16000092,
+      "name": "フィンクス",
+      "name_en": "FINX",
+      "image": "c-39-20finx.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 46,
+      "yomi": "ふぃんくす"
+    },
+    {
+      "id": "brawler_80",
+      "api_id": 16000091,
+      "name": "ルミ",
+      "name_en": "LUMI",
+      "image": "c-39-21lumi.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 47,
+      "yomi": "るみ"
+    },
+    {
+      "id": "brawler_81",
+      "api_id": 16000093,
+      "name": "ジェヨン",
+      "name_en": "JAE-YONG",
+      "image": "c-39-22jaeyong.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 48,
+      "yomi": "じぇよん"
+    },
+    {
+      "id": "brawler_82",
+      "api_id": 16000095,
+      "name": "アリー",
+      "name_en": "ALLI",
+      "image": "c-39-23alli.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 49,
+      "yomi": "ありー"
+    },
+    {
+      "id": "brawler_83",
+      "api_id": 16000097,
+      "name": "ミナ",
+      "name_en": "MINA",
+      "image": "c-39-24mina.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 50,
+      "yomi": "みな"
+    },
+    {
+      "id": "brawler_84",
+      "api_id": 16000098,
+      "name": "ジギー",
+      "name_en": "ZIGGY",
+      "image": "c-39-25ziggy.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 51,
+      "yomi": "じぎー"
+    },
+    {
+      "id": "brawler_85",
+      "api_id": 16000100,
+      "name": "ジジ",
+      "name_en": "GIGI",
+      "image": "c-39-26gigi.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 52,
+      "yomi": "じじ"
+    },
+    {
+      "id": "brawler_86",
+      "api_id": 16000101,
+      "name": "グローウィー",
+      "name_en": "GLOWY",
+      "image": "c-39-27glowy.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 53,
+      "yomi": "ぐろーうぃー"
+    },
+    {
+      "id": "brawler_87",
+      "api_id": 16000103,
+      "name": "ナジア",
+      "name_en": "NAJIA",
+      "image": "c-39-28najia.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 54,
+      "yomi": "なじあ"
+    },
+    {
+      "id": "brawler_88",
+      "api_id": 16000104,
+      "name": "ダミアン",
+      "name_en": "DAMIAN",
+      "image": "c-39-29damian.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 55,
+      "yomi": "だみあん"
+    },
+    {
+      "id": "brawler_89",
+      "api_id": 16000105,
+      "name": "スターノヴァ",
+      "name_en": "STARR NOVA",
+      "image": "c-39-30starnova.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 56,
+      "yomi": "すたーのゔぁ"
+    },
+    {
+      "id": "brawler_90",
+      "api_id": 16000108,
+      "name": "ウェンディ",
+      "name_en": "WENDY",
+      "image": "c-39-31wendy.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 57,
+      "yomi": "うぇんでぃ"
+    },
+    {
+      "id": "brawler_20",
+      "api_id": 16000014,
+      "name": "ボウ",
+      "name_en": "BO",
+      "image": "c-21-bo.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 58,
+      "yomi": "ぼう"
+    },
+    {
+      "id": "brawler_21",
+      "api_id": 16000030,
+      "name": "emz",
+      "name_en": "EMZ",
+      "image": "c-22-emz.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 59,
+      "yomi": "えむず"
+    },
+    {
+      "id": "brawler_22",
+      "api_id": 16000045,
+      "name": "ストゥー",
+      "name_en": "STU",
+      "image": "c-23-stu.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 60,
+      "yomi": "すとぅー"
+    },
+    {
+      "id": "brawler_23",
+      "api_id": 16000015,
+      "name": "エリザベス",
+      "name_en": "PIPER",
+      "image": "c-24-piper.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 61,
+      "yomi": "えりざべす"
+    },
+    {
+      "id": "brawler_24",
+      "api_id": 16000016,
+      "name": "パム",
+      "name_en": "PAM",
+      "image": "c-25-pam.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 62,
+      "yomi": "ぱむ"
+    },
+    {
+      "id": "brawler_25",
+      "api_id": 16000020,
+      "name": "フランケン",
+      "name_en": "FRANK",
+      "image": "c-26-frank.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 63,
+      "yomi": "ふらんけん"
+    },
+    {
+      "id": "brawler_26",
+      "api_id": 16000026,
+      "name": "ビビ",
+      "name_en": "BIBI",
+      "image": "c-27-bibi.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 64,
+      "yomi": "びび"
+    },
+    {
+      "id": "brawler_27",
+      "api_id": 16000029,
+      "name": "ビー",
+      "name_en": "BEA",
+      "image": "c-28-bea.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 65,
+      "yomi": "びー"
+    },
+    {
+      "id": "brawler_28",
+      "api_id": 16000036,
+      "name": "ナーニ",
+      "name_en": "NANI",
+      "image": "c-29-0nani.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 66,
+      "yomi": "なーに"
+    },
+    {
+      "id": "brawler_29",
+      "api_id": 16000043,
+      "name": "エドガー",
+      "name_en": "EDGAR",
+      "image": "c-29-1edger.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 67,
+      "yomi": "えどがー"
+    },
+    {
+      "id": "brawler_30",
+      "api_id": 16000050,
+      "name": "グリフ",
+      "name_en": "GRIFF",
+      "image": "c-29-2griff.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 68,
+      "yomi": "ぐりふ"
+    },
+    {
+      "id": "brawler_31",
+      "api_id": 16000048,
+      "name": "グロム",
+      "name_en": "GROM",
+      "image": "c-29-3grom.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 69,
+      "yomi": "ぐろむ"
+    },
+    {
+      "id": "brawler_32",
+      "api_id": 16000058,
+      "name": "ボニー",
+      "name_en": "BONNIE",
+      "image": "c-29-4bonny.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 70,
+      "yomi": "ぼにー"
+    },
+    {
+      "id": "brawler_33",
+      "api_id": 16000035,
+      "name": "ゲイル",
+      "name_en": "GALE",
+      "image": "c-29-5gale.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 71,
+      "yomi": "げいる"
+    },
+    {
+      "id": "brawler_34",
+      "api_id": 16000039,
+      "name": "コレット",
+      "name_en": "COLETTE",
+      "image": "c-29-6collet.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 72,
+      "yomi": "これっと"
+    },
+    {
+      "id": "brawler_35",
+      "api_id": 16000046,
+      "name": "ベル",
+      "name_en": "BELLE",
+      "image": "c-29-7belle.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 73,
+      "yomi": "べる"
+    },
+    {
+      "id": "brawler_36",
+      "api_id": 16000051,
+      "name": "アッシュ",
+      "name_en": "ASH",
+      "image": "c-29-8ash.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 74,
+      "yomi": "あっしゅ"
+    },
+    {
+      "id": "brawler_37",
+      "api_id": 16000053,
+      "name": "ローラ",
+      "name_en": "LOLA",
+      "image": "c-29-9lola.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 75,
+      "yomi": "ろーら"
+    },
+    {
+      "id": "brawler_38",
+      "api_id": 16000060,
+      "name": "サム",
+      "name_en": "SAM",
+      "image": "c-29-10sam.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 76,
+      "yomi": "さむ"
+    },
+    {
+      "id": "brawler_39",
+      "api_id": 16000065,
+      "name": "マンディ",
+      "name_en": "MANDY",
+      "image": "c-29-11mandy.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 77,
+      "yomi": "まんでぃ"
+    },
+    {
+      "id": "brawler_40",
+      "api_id": 16000068,
+      "name": "メイジー",
+      "name_en": "MAISIE",
+      "image": "c-29-12maisie.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 78,
+      "yomi": "めいじー"
+    },
+    {
+      "id": "brawler_41",
+      "api_id": 16000069,
+      "name": "ハンク",
+      "name_en": "HANK",
+      "image": "c-29-13hank.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 79,
+      "yomi": "はんく"
+    },
+    {
+      "id": "brawler_42",
+      "api_id": 16000072,
+      "name": "パール",
+      "name_en": "PEARL",
+      "image": "c-29-14pearl.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 80,
+      "yomi": "ぱーる"
+    },
+    {
+      "id": "brawler_43",
+      "api_id": 16000077,
+      "name": "ラリー＆ローリー",
+      "name_en": "LARRY & LAWRIE",
+      "image": "c-29-15larry.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 81,
+      "yomi": "ラリー＆ローリー"
+    },
+    {
+      "id": "brawler_44",
+      "api_id": 16000079,
+      "name": "アンジェロ",
+      "name_en": "ANGELO",
+      "image": "c-29-16angero.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 82,
+      "yomi": "あんじぇろ"
+    },
+    {
+      "id": "brawler_45",
+      "api_id": 16000082,
+      "name": "ベリー",
+      "name_en": "BERRY",
+      "image": "c-29-17berry.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 83,
+      "yomi": "べりー"
+    },
+    {
+      "id": "brawler_46",
+      "api_id": 16000086,
+      "name": "シェイド",
+      "name_en": "SHADE",
+      "image": "c-29-18shade.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 84,
+      "yomi": "しぇいど"
+    },
+    {
+      "id": "brawler_47",
+      "api_id": 16000089,
+      "name": "ミープル",
+      "name_en": "MEEPLE",
+      "image": "c-29-19meeple.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 85,
+      "yomi": "みーぷる"
+    },
+    {
+      "id": "brawler_48",
+      "api_id": 16000096,
+      "name": "トランク",
+      "name_en": "TRUNK",
+      "image": "c-29-20trunk.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 86,
+      "yomi": "とらんく"
+    },
+    {
+      "id": "brawler_49",
+      "api_id": 16000106,
+      "name": "ボルト",
+      "name_en": "BOLT",
+      "image": "c-29-21bolt.png",
+      "rarity": "ハイパーレア",
+      "rarityLevel": 4,
+      "order": 87,
+      "yomi": "ぼると"
+    },
+    {
+      "id": "brawler_10",
+      "api_id": 16000007,
+      "name": "ジェシー",
+      "name_en": "JESSIE",
+      "image": "c-11-jessi.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 88,
+      "yomi": "じぇしー"
+    },
+    {
+      "id": "brawler_11",
+      "api_id": 16000009,
+      "name": "ダイナマイク",
+      "name_en": "DYNAMIKE",
+      "image": "c-12-dynamike.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 89,
+      "yomi": "だいなまいく"
+    },
+    {
+      "id": "brawler_12",
+      "api_id": 16000022,
+      "name": "ティック",
+      "name_en": "TICK",
+      "image": "c-13-tick.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 90,
+      "yomi": "てぃっく"
+    },
+    {
+      "id": "brawler_13",
+      "api_id": 16000027,
+      "name": "8ビット",
+      "name_en": "8-BIT",
+      "image": "c-14-bit.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 91,
+      "yomi": "えいとびっと"
+    },
+    {
+      "id": "brawler_14",
+      "api_id": 16000004,
+      "name": "リコ",
+      "name_en": "RICO",
+      "image": "c-15-rico.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 92,
+      "yomi": "りこ"
+    },
+    {
+      "id": "brawler_15",
+      "api_id": 16000018,
+      "name": "ダリル",
+      "name_en": "DARRYL",
+      "image": "c-16-darryl.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 93,
+      "yomi": "だりる"
+    },
+    {
+      "id": "brawler_16",
+      "api_id": 16000019,
+      "name": "ペニー",
+      "name_en": "PENNY",
+      "image": "c-17-penny.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 94,
+      "yomi": "ぺにー"
+    },
+    {
+      "id": "brawler_17",
+      "api_id": 16000025,
+      "name": "カール",
+      "name_en": "CARL",
+      "image": "c-18-carl.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 95,
+      "yomi": "かーる"
+    },
+    {
+      "id": "brawler_18",
+      "api_id": 16000034,
+      "name": "ジャッキー",
+      "name_en": "JACKY",
+      "image": "c-19-0jacky.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 96,
+      "yomi": "じゃっきー"
+    },
+    {
+      "id": "brawler_19",
+      "api_id": 16000061,
+      "name": "ガス",
+      "name_en": "GUS",
+      "image": "c-19-1gas.png",
+      "rarity": "スーパーレア",
+      "rarityLevel": 3,
+      "order": 97,
+      "yomi": "がす"
+    },
+    {
+      "id": "brawler_1",
+      "api_id": 16000000,
+      "name": "シェリー",
+      "name_en": "SHELLY",
+      "image": "c-01-shelly.png",
+      "rarity": "初期キャラクター",
+      "rarityLevel": 1,
+      "order": 98,
+      "yomi": "しぇりー"
+    },
+    {
+      "id": "brawler_2",
+      "api_id": 16000008,
+      "name": "ニタ",
+      "name_en": "NITA",
+      "image": "c-02-nita.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 99,
+      "yomi": "にた"
+    },
+    {
+      "id": "brawler_3",
+      "api_id": 16000001,
+      "name": "コルト",
+      "name_en": "COLT",
+      "image": "c-03-colt.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 100,
+      "yomi": "こると"
+    },
+    {
+      "id": "brawler_4",
+      "api_id": 16000002,
+      "name": "ブル",
+      "name_en": "BULL",
+      "image": "c-04-bull.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 101,
+      "yomi": "ぶる"
+    },
+    {
+      "id": "brawler_5",
+      "api_id": 16000003,
+      "name": "ブロック",
+      "name_en": "BROCK",
+      "image": "c-05-block.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 102,
+      "yomi": "ぶろっく"
+    },
+    {
+      "id": "brawler_6",
+      "api_id": 16000010,
+      "name": "エル・プリモ",
+      "name_en": "EL PRIMO",
+      "image": "c-06-elprimo.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 103,
+      "yomi": "えるぷりも"
+    },
+    {
+      "id": "brawler_7",
+      "api_id": 16000006,
+      "name": "バーリー",
+      "name_en": "BARLEY",
+      "image": "c-07-barley.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 104,
+      "yomi": "ばーりー"
+    },
+    {
+      "id": "brawler_8",
+      "api_id": 16000013,
+      "name": "ポコ",
+      "name_en": "POCO",
+      "image": "c-08-poco.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 105,
+      "yomi": "ぽこ"
+    },
+    {
+      "id": "brawler_9",
+      "api_id": 16000024,
+      "name": "ローサ",
+      "name_en": "ROSA",
+      "image": "c-09-rosa.png",
+      "rarity": "レア",
+      "rarityLevel": 2,
+      "order": 106,
+      "yomi": "ろーさ"
+    },
+    {
+      "id": "brawler_108",
+      "api_id": 16000109,
+      "name": "コスモ",
+      "name_en": "COSMO",
+      "image": "c-53-cosmo.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 107,
+      "yomi": "コスモ"
+    },
+    {
+      "id": "brawler_109",
+      "api_id": 16000110,
+      "name": "ヴィンス",
+      "name_en": "VINCE",
+      "image": "c-54-vince.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 108,
+      "yomi": "ヴィンス"
+    },
+    {
+      "id": "brawler_110",
+      "api_id": 16000111,
+      "name": "サンダーフロッグ",
+      "name_en": "THUNDER FROGS",
+      "image": "BS_Portrait_THUNDER-FROGS_Export_V1.png",
+      "rarity": "レジェンドレア",
+      "rarityLevel": 6,
+      "order": 109,
+      "yomi": "サンダーフロッグ"
+    },
+    {
+      "id": "brawler_111",
+      "api_id": 16000112,
+      "name": "レイ",
+      "name_en": "REY",
+      "image": "BS_Portrait_Rey.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 110,
+      "yomi": "レイ"
+    },
+    {
+      "id": "brawler_112",
+      "api_id": 16000113,
+      "name": "ルビー",
+      "name_en": "RUBY",
+      "image": "BS_Portrait_Ruby.png",
+      "rarity": "ウルトラレア",
+      "rarityLevel": 5,
+      "order": 111,
+      "yomi": "ルビー"
+    }
+  ]
+}

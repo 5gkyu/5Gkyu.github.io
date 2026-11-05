@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ブロスタ 作戦盤 (Tactics Board) | Halcyon - 5Gkyu</title>
+  
+  <meta name="description" content="ブロスタ（Brawl Stars）のマップ上でキャラクターやピンをドラッグ配置・線描画できるタクティクス作戦盤。">
+  <link rel="canonical" href="https://5gkyu.github.io/archive/play/BrawlStars/tactics-board/">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+  <link rel="manifest" href="/icon/site.webmanifest">
+
+  <meta property="og:title" content="ブロスタ 作戦盤 (Tactics Board) | Halcyon - 5Gkyu">
+  <meta property="og:description" content="ValoPlant風UI。マップ上にキャラを配置・ドラッグ移動し、作戦や立ち回りを組み立てられるブロスタ専用タクティクスボード。">
+  <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+  <meta property="og:url" content="https://5gkyu.github.io/archive/play/BrawlStars/tactics-board/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Halcyon">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="vp-body">
+
+  <div class="vp-app">
+
+    <!-- 1. トップコントロールバー -->
+    <header class="vp-topbar">
+      
+      <!-- 左：戻る & タイトル -->
+      <div class="vp-topbar-left">
+        <a href="/archive/play/BrawlStars/" class="vp-back-btn" title="ブロスタ一覧へ戻る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          <span>戻る</span>
+        </a>
+        <div class="vp-title-group">
+          <span class="vp-badge">TACTICS</span>
+          <span class="vp-title">ブロスタ 作戦盤</span>
+        </div>
+      </div>
+
+      <!-- 中央：トップバーをスッキリ整理（JS互換用の非表示セレクトのみ保持） -->
+      <div class="vp-topbar-center" style="display:none;">
+        <select id="modeSelect" aria-label="ゲームモード選択" style="display:none;"></select>
+        <select id="mapSelect" aria-label="マップ選択" style="display:none;"></select>
+      </div>
+
+      <!-- 右：履歴 & クリア & エクスポート -->
+      <div class="vp-topbar-right">
+        <button id="btnUndo" class="vp-btn" type="button" title="元に戻す (Ctrl+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          <span>戻す</span>
+        </button>
+        <button id="btnRedo" class="vp-btn" type="button" title="やり直す (Ctrl+Y)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+          <span>進む</span>
+        </button>
+        <button id="btnClearDraw" class="vp-btn" type="button" title="手描きの線をクリア">
+          <span>線クリア</span>
+        </button>
+        <button id="btnClearPieces" class="vp-btn danger" type="button" title="配置したキャラ・ピンを全消去">
+          <span>全消去</span>
+        </button>
+        <button id="btnExportImage" class="vp-btn primary" type="button" title="作戦盤をPNG画像で保存">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>画像保存</span>
+        </button>
+      </div>
+
+    </header>
+
+    <!-- 2. メイン作業スペース（左側コントロールサイドバー + 右側メイン作業エリア） -->
+    <div class="vp-main-body">
+
+      <!-- 左側：全体コントロールサイドバー -->
+      <aside class="vp-sidebar" aria-label="作戦コントロールパネル">
+
+        <!-- セクション1: 作戦ツール & 描画カラー（一番上） -->
+        <div class="vp-sidebar-section">
+          <div class="vp-sidebar-title">作戦ツール</div>
+          <div class="vp-sidebar-tools-grid">
+            <button class="vp-tool-btn active" data-tool="select" type="button" title="選択・移動">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3 7 18 3-7 7-3L3 3z"/><path d="m13 13 6 6"/></svg>
+              <span>選択</span>
+            </button>
+            <button class="vp-tool-btn" data-tool="pen" type="button" title="手描きペン">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              <span>ペン</span>
+            </button>
+            <button class="vp-tool-btn" data-tool="arrow" type="button" title="矢印指示線">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <span>矢印</span>
+            </button>
+            <button class="vp-tool-btn" data-tool="eraser" type="button" title="消しゴム (長押し連続消去)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+              <span>消しゴム</span>
+            </button>
+          </div>
+
+          <div class="vp-sidebar-title" style="margin-top: 10px;">描画カラー</div>
+          <div class="vp-color-picker vp-sidebar-color-picker">
+            <span class="vp-color-dot active" data-color="#3B82F6" style="background:#3B82F6;" title="青色"></span>
+            <span class="vp-color-dot" data-color="#EF4444" style="background:#EF4444;" title="赤色"></span>
+            <span class="vp-color-dot" data-color="#EAB308" style="background:#EAB308;" title="黄色"></span>
+            <span class="vp-color-dot" data-color="#22C55E" style="background:#22C55E;" title="緑色"></span>
+            <span class="vp-color-dot" data-color="#FFFFFF" style="background:#FFFFFF;" title="白色"></span>
+          </div>
+        </div>
+
+        <div class="vp-sidebar-divider"></div>
+
+        <!-- セクション2: 表示モード切り替え（キャラ / マップ / ピン） -->
+        <div class="vp-sidebar-section">
+          <div class="vp-sidebar-title">表示モード</div>
+          <div class="vp-tray-tabs vp-sidebar-tabs">
+            <button class="vp-tab-btn active" data-tab="characters" type="button">
+              <span>キャラ</span>
+              <span id="paletteCount" class="vp-tab-count">0</span>
+            </button>
+            <button class="vp-tab-btn" data-tab="maps" type="button">
+              <span>マップ</span>
+              <span id="mapCount" class="vp-tab-count">0</span>
+            </button>
+            <button class="vp-tab-btn" data-tab="markers" type="button">
+              <span>ピン</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- セクション3-A: キャラモード用コントロール -->
+        <div id="charControlsSection" class="vp-sidebar-section">
+          <div class="vp-sidebar-title">チーム枠線</div>
+          <div id="teamToggle" class="vp-team-toggle vp-sidebar-team-toggle">
+            <button class="vp-team-btn blue active" data-team="blue" type="button">味方 (青枠)</button>
+            <button class="vp-team-btn red" data-team="red" type="button">敵 (赤枠)</button>
+          </div>
+
+          <div class="vp-sidebar-title" style="margin-top: 10px;">キャラクター検索</div>
+          <div id="searchWrap" class="vp-search-wrap vp-sidebar-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="searchInput" placeholder="名前を検索..." aria-label="キャラクター名検索">
+          </div>
+
+          <div class="vp-sidebar-title" style="margin-top: 10px;">レアリティ</div>
+          <div id="rarityFilters" class="vp-sidebar-chips">
+            <button class="vp-chip active" data-filter-rarity="all" type="button">全</button>
+            <button class="vp-chip" data-filter-rarity="1" type="button">初期</button>
+            <button class="vp-chip" data-filter-rarity="2" type="button">レア</button>
+            <button class="vp-chip" data-filter-rarity="3" type="button">スーパー</button>
+            <button class="vp-chip" data-filter-rarity="4" type="button">ハイパー</button>
+            <button class="vp-chip" data-filter-rarity="5" type="button">ウルトラ</button>
+            <button class="vp-chip" data-filter-rarity="6" type="button">レジェンド</button>
+          </div>
+        </div>
+
+        <!-- セクション3-B: マップモード用コントロール -->
+        <div id="mapControlsSection" class="vp-sidebar-section" style="display:none;">
+          <div class="vp-sidebar-title">モード分類</div>
+          <div id="modeCategoryFilters" class="vp-sidebar-chips">
+            <button class="vp-chip active" data-filter-mode-cat="standard" type="button">定番</button>
+            <button class="vp-chip" data-filter-mode-cat="survival" type="button">バトロワ系</button>
+            <button class="vp-chip" data-filter-mode-cat="5v5" type="button">5v5</button>
+            <button class="vp-chip" data-filter-mode-cat="pve" type="button">PvE</button>
+            <button class="vp-chip" data-filter-mode-cat="event" type="button">期間限定</button>
+            <button class="vp-chip" data-filter-mode-cat="enjoy" type="button">エンジョイ</button>
+          </div>
+
+          <div class="vp-sidebar-title" style="margin-top: 10px;">ゲームモード</div>
+          <div id="mapModeChips" class="vp-sidebar-mode-list">
+            <!-- JavaScriptで動的生成：各モードの押しやすいボタン -->
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- 右側：メイン作業エリア（ステージ ＋ 全幅カードトレイ） -->
+      <div class="vp-main-content">
+
+        <!-- 中央：大画面作戦盤ステージ -->
+        <section class="vp-stage-area">
+          <!-- 左上：BanPicスタイル バナーHUD表示（モードアイコン + モード名 + マップ名 + マップサムネイル + 埋め込みMODスロット） -->
+          <div id="modeBanner" class="vp-mode-banner vp-stage-banner" title="現在のゲームモードとマップ">
+            <img id="modeBannerIcon" class="vp-mode-logo" src="/image/brawl/e-eme.png" alt="モードアイコン">
+            <div class="vp-banner-text">
+              <span id="modeBannerText" class="vp-mode-name">エメラルドハント</span>
+              <span id="modeBannerMapText" class="vp-map-name">マップ未選択</span>
+            </div>
+            <span class="vp-map-view-hint" title="マッププレビュー">
+              <img id="modeBannerMapThumb" src="" alt="MAP" style="display:none;">
+            </span>
+
+            <!-- バナー内埋め込み MODスロット -->
+            <div class="vp-banner-mod-wrap">
+              <button id="modSlotBtn" class="vp-banner-mod-btn" type="button" title="モディファイア（特殊バトル条件）を設定">
+                <img id="modSlotIcon" class="vp-banner-mod-icon" src="" alt="MOD" style="display:none;">
+                <span id="modSlotLabel" class="vp-banner-mod-label">＋ MOD</span>
+              </button>
+
+              <!-- MODドロップダウンポップアップ -->
+              <div id="modDropdown" class="vp-mod-dropdown" style="display:none;">
+                <div class="vp-mod-dropdown-header">
+                  <span class="vp-mod-dropdown-title">モディファイア（MOD）</span>
+                  <button id="modClearBtn" class="vp-mod-clear-btn" type="button">解除</button>
+                </div>
+                <div id="modListGrid" class="vp-mod-grid">
+                  <!-- JavaScriptで動的生成 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右上：MOD情報バッジ（設定時のみ浮遊表示） -->
+          <div class="vp-stage-info-pill">
+            <span id="stageModeName" class="vp-info-badge" style="display:none;">モード</span>
+            <span id="stageModBadge" class="vp-info-badge vp-info-mod" style="display:none;"></span>
+            <span id="stageMapTitle" class="vp-info-title" style="display:none;">マップ名</span>
+          </div>
+
+          <!-- マップビューポート（アスペクト比追従コンテナ） -->
+          <div class="vp-stage-container">
+            <div id="stageViewport" class="vp-stage-viewport tool-select">
+              <!-- 手描き線描画用Canvas -->
+              <canvas id="drawCanvas" class="vp-draw-canvas"></canvas>
+
+              <!-- 配置キャラクターレイヤー -->
+              <div id="piecesLayer" class="vp-pieces-layer"></div>
+
+              <!-- 空表示用メッセージ -->
+              <div id="stageEmptyNotice" class="vp-stage-empty" style="display:none;">
+                <span>マップ画像が読み込まれていません</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 下部：全幅カードセレクタートレイ -->
+        <footer class="vp-bottom-tray">
+          <div class="vp-tray-content-area">
+            <!-- 左スクロールボタン -->
+            <button id="btnScrollLeft" class="vp-scroll-btn left" type="button" aria-label="左へスクロール">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+
+            <!-- キャラクター 2行横スクロール一覧 -->
+            <div id="paletteGrid" class="vp-scroll-grid vp-palette-characters">
+              <!-- JavaScriptで動的生成 -->
+            </div>
+
+            <!-- マップ 2行横スクロール一覧 (BanPic仕様) -->
+            <div id="mapsGrid" class="vp-scroll-grid vp-palette-maps" style="display:none;">
+              <!-- JavaScriptで動的生成 -->
+            </div>
+
+            <!-- マーカー・ピン 2行横スクロール一覧 -->
+            <div id="markersGrid" class="vp-scroll-grid vp-palette-markers" style="display:none;">
+              <!-- JavaScriptで動的生成 -->
+            </div>
+
+            <!-- 右スクロールボタン -->
+            <button id="btnScrollRight" class="vp-scroll-btn right" type="button" aria-label="右へスクロール">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </footer>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
