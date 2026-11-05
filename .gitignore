@@ -27,6 +27,8 @@ archive/play/5paz/
 archive/play/gravity-connect-four/
 archive/play/Logicpaz/
 archive/play/pazzle/
+archive/play/wikirace/
+archive/play/trivia/
 particle/DRIFT_SPEC.md
 gallery.html
 
@@ -42,6 +44,7 @@ scratch/
 *backup*.*
 *めも
 *メモ*
+!image/pjsk/mysekai/*メモリア*
 *.tmp
 *.temp
 .agents/
@@ -60,3 +63,25 @@ steam-client-plugin/
 *.key
 *.pem
 serviceAccountKey*.json
+# [Webアプリ・ツール（非公開）]
+archive/app/brawl-api/
+archive/app/review-rewriter/
+archive/app/steam-review/
+SteamReviewEditor/
+tools/
+
+# [非公開ゲーム・制作物]
+archive/play/a-robot/
+archive/play/codename/
+archive/play/pjsekai-mv/
+archive/play/pjsekai-skill/
+archive/play/pjsekai/mv/
+archive/play/pjsekai/skill/
+archive/other/dusk-ruins/
+
+# [ルート直下の作業・一時ファイル（非公開）]
+8b42acd4-bdc0-4a05-89ca-5cdb1c910546.png
+INDEX_TECH_SPEC.md
+Start_LiveServer.bat
+bg-test.html
+booklet-extension.zip

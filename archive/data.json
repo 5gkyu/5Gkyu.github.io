@@ -8,31 +8,59 @@
         "cols": 3,
         "items": [
           {
+            "title": "AIコードネーム",
+            "tag": "AIボードゲーム",
+            "href": "/archive/play/codename/",
+            "image": "/icon/404grid.png",
+            "description": "人間2人は指示役（スパイマスター）。現場でカードを推理してめくるのは相方AI（Gemini 3.5 Flash Lite）。2人対戦型ワード連想ゲーム。"
+          },
+          {
+            "title": "Lexis - Steamレビュー リライター",
+            "tag": "テキストツール",
+            "href": "/archive/app/review-rewriter/",
+            "image": "/icon/404grid.png",
+            "description": "思ったままの下書きを、語彙力とワードセンスあふれるSteamレビューに磨き上げるAIリライター。文体・熱量・長さ・BBCode装飾に対応。"
+          },
+          {
+            "title": "Leetハンドルネーム生成",
+            "tag": "テキストツール",
+            "href": "/archive/app/leet-generator/",
+            "image": "/icon/404grid.png",
+            "description": "平文やニックネームをLeet（1337）表記に変換し、ゲーマータグやサイバー風ハンドルネームを自動提案。初級・中級・上級対応、A〜Z早見表付き。"
+          },
+          {
+            "title": "Steam レビューフォーマッター",
+            "tag": "テキストツール",
+            "href": "/archive/app/steam-review/",
+            "image": "/icon/404grid.png",
+            "description": "Steamレビュー・コミュニティ投稿のBBCode装飾（見出し・太字・スポイラー・テーブル・チェックリスト等）を手軽に作成・リアルタイムプレビューできるエディタ。"
+          },
+          {
             "title": "動画音声抽出・MP3変換",
             "tag": "メディアツール",
             "href": "/archive/app/video-to-audio/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
           },
           {
             "title": "ラグトレイン",
             "tag": "メディアアート",
             "href": "/archive/other/lagtrain/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/lagt.png",
+            "image": "/icon/page-grid-icon/lagt.png",
             "description": "ラグトレインのドット粒子アニメーションとMIDI再生。"
           },
           {
             "title": "ブロスタ キャラクター評価",
             "tag": "ブロスタ",
-            "href": "/archive/play/Brawl/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
-            "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+            "href": "/archive/play/BrawlStars/brawl-firebase/",
+            "image": "/icon/page-grid-icon/Brawl.png",
+            "description": "キャラ別の強さ・難易度・おすすめビルドをFirebase連携で一覧表示。"
           },
           {
             "title": "Halcyon Component Gallery",
             "tag": "コンポーネント",
             "href": "/archive/other/halcyon_ui_design/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Components.png",
+            "image": "/icon/page-grid-icon/Components.png",
             "description": "デザイントークン・カラーパレット・レイアウト・タイポグラフィーのリファレンス。"
           }
         ]
@@ -50,14 +78,14 @@
             "title": "動画音声抽出・MP3変換",
             "tag": "メディアツール",
             "href": "/archive/app/video-to-audio/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "動画から音声をブラウザ上で安全に抽出・MP3（最高320kbps）やWAVに変換。アーティスト名・年・ジャケット画像の設定に対応。"
           },
           {
             "title": "楽曲タグ・メタデータ編集",
             "tag": "メディアツール",
             "href": "/archive/app/audio-tag-editor/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "音声ファイル（MP3/FLAC/WAV/M4A）の曲名・アーティスト・アルバム・ジャケット画像をブラウザ上で直接編集・保存。"
           }
         ]
@@ -71,35 +99,35 @@
             "title": "画像コラージュ作成",
             "tag": "画像ツール",
             "href": "/archive/app/collage-maker/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "複数の画像を一枚に織り上げるコラージュ作成ツール。"
           },
           {
             "title": "画像変換・圧縮ツール",
             "tag": "画像ツール",
             "href": "/archive/app/image-compression/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ブラウザ上で画像をリサイズ・圧縮し、軽量化やフォーマット変換ができるツールです。JPEG / PNG / WebP に対応。"
           },
           {
             "title": "画像→PDF変換",
             "tag": "画像ツール",
             "href": "/archive/app/image-pdf/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "複数の画像を選択して1つのPDFにまとめます。JPEG・PNG・WebP対応。"
           },
           {
             "title": "画像分割ツール",
             "tag": "画像ツール",
             "href": "/archive/app/image-splitter/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "1枚の画像を均等なサイズ（正方形・長方形）に分割して一括保存できるツールです。"
           },
           {
             "title": "OGP画像トリミング",
             "tag": "画像ツール",
             "href": "/archive/app/ogp-cropper/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "SNSやブログに最適なOGPアイキャッチサイズ（1200×630 / 1.91:1等）へ簡単トリミング・編集できるツールです。"
           }
         ]
@@ -110,39 +138,67 @@
         "cols": 3,
         "items": [
           {
+            "title": "Lexis - Steamレビュー リライター",
+            "tag": "テキストツール",
+            "href": "/archive/app/review-rewriter/",
+            "image": "/icon/404grid.png",
+            "description": "思ったままの下書きを、語彙力とワードセンスあふれるSteamレビューに磨き上げるAIリライター。文体・熱量・長さ・BBCode装飾に対応。"
+          },
+          {
+            "title": "Leetハンドルネーム生成",
+            "tag": "テキストツール",
+            "href": "/archive/app/leet-generator/",
+            "image": "/icon/404grid.png",
+            "description": "平文やニックネームをLeet（1337）表記に変換し、ゲーマータグやサイバー風ハンドルネームを自動提案。初級・中級・上級対応、A〜Z早見表付き。"
+          },
+          {
+            "title": "Steam レビューフォーマッター",
+            "tag": "テキストツール",
+            "href": "/archive/app/steam-review/",
+            "image": "/icon/404grid.png",
+            "description": "Steamレビュー・コミュニティ投稿のBBCode装飾（見出し・太字・スポイラー・テーブル・チェックリスト等）を手軽に作成・リアルタイムプレビューできるエディタ。"
+          },
+          {
             "title": "QRコード作成＆読み取りスタジオ",
             "tag": "Webツール",
             "href": "/archive/app/qr-code/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "URLからデザインQRコードを生成（色・ドット形状・中央ロゴ対応）。さらに画像ドロップやカメラからのQRコード逆変換（読み取り）にも対応。"
           },
           {
             "title": "Markdown Previewer",
             "tag": "開発ツール",
             "href": "/archive/app/markdown-preview/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ブラウザ上で動作する軽量なMarkdownプレビューツール。GitHub風デザインの切り替え機能付き。"
           },
           {
             "title": "Xplore",
             "tag": "開発ツール",
             "href": "https://5gkyu.github.io/Xplore/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "会話や思考を探索的にたどれる Web ツール。"
           },
           {
             "title": "リダイレクトページ作成",
             "tag": "開発ツール",
             "href": "/archive/app/redirect-gen/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "URLを入力するだけでリダイレクトページHTMLを自動生成。シームレス・ボタン・カウントダウンの3タイプに対応。"
           },
           {
             "title": "カラー名検索",
             "tag": "開発ツール",
             "href": "/archive/app/color/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "カラーコードに近い色の「日本語名」を検索。Webデザインやイラスト制作に。"
+          },
+          {
+            "title": "Brawl API 取得例まとめ",
+            "tag": "開発ツール",
+            "href": "/archive/app/brawl-api/",
+            "image": "/icon/page-grid-icon/Brawl.png",
+            "description": "Brawl APIから取得できるキャラクター画像、マップ俯瞰図、ゲームモード情報、生JSONレスポンスの取得実例とエクスプローラー。"
           }
         ]
       },
@@ -155,21 +211,21 @@
             "title": "X Intentリンク作成",
             "tag": "Xツール",
             "href": "/archive/app/x/intent/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "事前入力テキストのIntentリンクを作成します。Xの重み付き文字数（日本語・URL）表示に対応。"
           },
           {
             "title": "X DMリンク作成",
             "tag": "Xツール",
             "href": "/archive/app/x/dm/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "相手の数値IDを指定して、XのDM作成リンクを生成します。"
           },
           {
             "title": "X動画保存ツール",
             "tag": "Xツール",
             "href": "/app/x/x-video/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "X（旧Twitter）の動画やGIFを高画質MP4として直接保存・ダウンロードします。video/1形式にも対応。"
           }
         ]
@@ -186,7 +242,7 @@
           {
             "title": "ヤマアラシのジレンマ",
             "href": "/archive/note/thought/hedgehog-dilemma/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "近づくと傷つけ合い、遠ざかると寂しい。ショーペンハウアーの寓話を手がかりに、人間関係における距離感の本質を考察します。",
             "tags": [
               "心理学",
@@ -197,7 +253,7 @@
           {
             "title": "騒音の中であなたの声だけ聞こえる ── カクテルパーティー効果",
             "href": "/archive/note/thought/cocktail-party/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "大勢の声が飛び交う中で、自分の名前だけがふと耳に届く。情報過多な世界で「必要なものだけを拾う」脳の防衛術を考察します。",
             "tags": [
               "心理学",
@@ -208,7 +264,7 @@
           {
             "title": "言葉よりも雄弁に",
             "href": "/archive/note/thought/nonverbal/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "沈黙・表情・距離・触れ方——。人は言葉を使う以前から、体全体で伝え合っている。ノンバーバル・コミュニケーションの科学と、その意外な奥深さを考察します。",
             "tags": [
               "心理学",
@@ -219,7 +275,7 @@
           {
             "title": "終わり良ければすべて良し、は本当 ── ピーク・エンドの法則",
             "href": "/archive/note/thought/peak-end/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "人は経験を「一番感情が動いた瞬間（ピーク）」と「終わった時（エンド）」の記憶だけで判断する。だから、別れ際に「またね」と笑うことには、思いのほか大きな意味がある。",
             "tags": [
               "心理学",
@@ -230,7 +286,7 @@
           {
             "title": "やる気は『やってから』ついてくる ── 「作業興奮」",
             "href": "/archive/note/thought/sakugyo-kofun/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "最初の一歩が重い理由。動けない自分を責めず、「とりあえず5分だけ」で脳をだます。クレペリンが発見した「作業興奮」からわかる、やる気の本当のしくみ。",
             "tags": [
               "脳科学",
@@ -246,9 +302,20 @@
         "cols": 3,
         "items": [
           {
+            "title": "同じ「射程10.0」なのに届く距離が違う理由 ── ブロスタ「1マス」と弾の太さ・エイム角度の幾何学",
+            "href": "/archive/note/culture/brawl-range-paradox/",
+            "image": "/icon/page-grid-icon/Brawl.png",
+            "description": "カタログ射程10.0のエリザベスとビーでなぜ届く距離が違うのか。1マスの規格、弾の太さ（Width）一覧、人間が可能なエイム角度のパターン数からその仕組みを解明。",
+            "tags": [
+              "ブロスタ",
+              "ゲームシステム",
+              "ゲームデザイン"
+            ]
+          },
+          {
             "title": "画面の向こうのあなたへ ── 第四の壁と繋がりの魔法",
             "href": "/archive/note/culture/fourth-wall/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "舞台と客席を隔てる見えない壁「第四の壁」。フィクションを守るこの壁を、時にキャラクターは越えて語りかけてくる。その瞬間なぜ心が動くのかを考察します。",
             "tags": [
               "フィクション",
@@ -259,7 +326,7 @@
           {
             "title": "ビジュアルノベルの歴史 ── ADVからVNへ",
             "href": "/archive/note/culture/visual-novel-history/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "「読む」ゲームはどのように生まれたか。ポートピアから弟切草、かまいたちの夜、To Heart、CLANNADへ。ビジュアルノベルの誕生と進化をたどるガイド。",
             "tags": [
               "ゲーム史",
@@ -270,7 +337,7 @@
           {
             "title": "サンドボックスの語源 ── 「目標がない」が最大の目標",
             "href": "/archive/note/culture/sandbox/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ゲームの「サンドボックス」という言葉は、子供が遊ぶ砂場が語源。クリア条件がなく、プレイヤーが自分で目的を作り出すこのジャンルを世界的に有名にしたのがMinecraftだ。",
             "tags": [
               "ゲームデザイン",
@@ -281,7 +348,7 @@
           {
             "title": "メトロイドヴァニア ── 2つの名作が合体して生まれた言葉",
             "href": "/archive/note/culture/metroidvania/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "「メトロイドヴァニア」は任天堂の『メトロイド』とコナミの『キャッスルヴァニア』を掛け合わせた造語。新能力で行動範囲が広がる探索×成長の快感が、インディーゲーム界を席巻している。",
             "tags": [
               "ゲームデザイン",
@@ -292,7 +359,7 @@
           {
             "title": "ローグライクとローグライト ── 一度死んだらすべてを失う快感",
             "href": "/archive/note/culture/roguelike/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ローグライクは1980年の『Rogue』に由来。自動生成ダンジョンとパーマデスが特徴で、死んだら最初からやり直し。現代では一部引き継ぎ要素を持つローグライトも大流行。",
             "tags": [
               "ゲームデザイン",
@@ -303,7 +370,7 @@
           {
             "title": "機械が歌うということ ── 私がボカロ曲に求める4つの基準",
             "href": "/archive/note/culture/vocaloid/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "音・詞・声・映像。好きなボカロ曲には「これでなければならなかった」という感覚が宿っている。その基準を言語化した個人的なコラム。",
             "tags": [
               "音楽",
@@ -321,7 +388,7 @@
           {
             "title": "なぜ夜空は暗いのか ── オルバースのパラドックス",
             "href": "/archive/note/science/test-article/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "宇宙に無数の星があるなら、夜空は昼間のように明るいはずでは？この素朴な疑問が、宇宙の始まりを証明することになったお話。",
             "tags": [
               "宇宙",
@@ -332,7 +399,7 @@
           {
             "title": "ぽっかり浮かぶ白い雲は、ゾウ100頭分よりも重い",
             "href": "/archive/note/science/cloud-weight/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ふわふわと空に漂う積雲は、実はアフリカゾウ約100頭分・約500トンの重さを持っている。それでも落ちてこない理由とは。",
             "tags": [
               "気象",
@@ -343,7 +410,7 @@
           {
             "title": "イチゴはベリーじゃないのに、スイカやバナナはベリー",
             "href": "/archive/note/science/berry-paradox/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "「ストロベリー」と名乗っているのに植物学上はベリーではなく、名前に「ベリー」のないスイカやバナナは正真正銘のベリー。果物の分類が意外すぎる件。",
             "tags": [
               "植物学",
@@ -354,7 +421,7 @@
           {
             "title": "キツツキの舌は、頭蓋骨をぐるりと巻いて「脳のシートベルト」になっている",
             "href": "/archive/note/science/woodpecker-tongue/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "1秒間に20回、重力の1000倍の衝撃で木をつつくキツツキ。なぜ脳が無事なのか。その答えは、頭蓋骨をぐるりと一周する「異様に長い舌」にあった。",
             "tags": [
               "動物学",
@@ -365,7 +432,7 @@
           {
             "title": "フランスと最も長く国境を接している国は、ブラジル",
             "href": "/archive/note/science/france-brazil/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "フランスの隣国といえばドイツやスペイン——と思いきや、国境線が最も長い隣国はブラジル。南アメリカに存在するフランスの「飛び地」が生む、地図の意外な事実。",
             "tags": [
               "地理",
@@ -383,7 +450,7 @@
           {
             "title": "色に名前をつけるということ",
             "href": "/archive/note/language/color-and-design/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "人間はなぜ色に名前をつけるのか。カラーコードと日本語色名の間に横たわる、言語と知覚の不思議な関係を考察します。",
             "tags": [
               "色彩論",
@@ -394,7 +461,7 @@
           {
             "title": "日本語じゃなかった「イクラ」── お寿司のイクラはロシア語",
             "href": "/archive/note/language/ikura-russian/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "お寿司の定番「イクラ」は実はロシア語（икра）。ロシアでは魚卵全般を指すこの言葉が、日露戦争のころに製法とともに日本へ渡ってきた。",
             "tags": [
               "語源",
@@ -412,7 +479,7 @@
           {
             "title": "QRコード完全解剖 ── なぜ中央にロゴがあっても、白黒でなくても読み取れるのか？",
             "href": "/archive/note/tech/qr-code/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "1994年の誕生秘話から3つの目玉の幾何学、リード・ソロモン符号による驚異の誤り訂正まで。日常のコードに潜む数学的トリックを徹底解剖。",
             "tags": [
               "QRコード",
@@ -424,7 +491,7 @@
           {
             "title": "Git 超入門ノート ── 4つの「場所」と基本コマンド",
             "href": "/archive/note/tech/git-guide/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "ファイルが今どこにあるかという4つの場所（状態）さえ分かれば、Gitは怖くない。超初心者向けの実践ガイド。",
             "tags": [
               "Git",
@@ -435,7 +502,7 @@
           {
             "title": "Webタイポグラフィ入門",
             "href": "/archive/note/tech/typography/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "フォントの種類からCSS実装、Google Fontsの使い方まで。Webデザインにおけるタイポグラフィの基礎を体系的に解説するガイド。",
             "tags": [
               "タイポグラフィ",
@@ -446,7 +513,7 @@
           {
             "title": "ブラウザのすべて ── 歴史・仕組み・現役ブラウザ徹底ガイド",
             "href": "/archive/note/tech/browser/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "1990年の誕生から現代まで。ブラウザの歴史・レンダリングエンジンの仕組み・Chrome／Firefox／Safari／Edgeなど現役ブラウザを網羅した解説ガイド。",
             "tags": [
               "ブラウザ",
@@ -464,7 +531,7 @@
           {
             "title": "雨の日に窓の外を見るのが好きな理由",
             "href": "/archive/note/essay/rain-and-cozy/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "なぜ人は、安全な部屋の中から嵐や雨を見るのが好きなのか。「守られた空間（シェルター）」から外界を見ることで得られる根源的な安心感についてのコラム。",
             "tags": [
               "エッセイ",
@@ -484,25 +551,39 @@
         "cols": 3,
         "items": [
           {
-            "title": "ブロスタ キャラクター評価",
-            "tag": "ブロスタ",
-            "href": "/archive/play/Brawl/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
-            "description": "キャラ別の強さ・難易度・おすすめビルドをCSV連携で一覧表示。"
+            "title": "ブロスタ 作戦盤 (Tactics Board)",
+            "tag": "ブロスタ・作戦盤",
+            "href": "/archive/play/BrawlStars/tactics-board/",
+            "image": "/icon/page-grid-icon/BanPic-Brawl.png",
+            "description": "マップ上にキャラカードやピンをドラッグ＆ドロップして配置し、手描きペンや矢印で戦術・動線を組み立てられる作戦ボード。"
           },
           {
             "title": "ブロスタ キャラクター評価 (Firebase版)",
             "tag": "ブロスタ",
-            "href": "/archive/play/brawl-firebase/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Brawl.png",
+            "href": "/archive/play/BrawlStars/brawl-firebase/",
+            "image": "/icon/page-grid-icon/Brawl.png",
             "description": "キャラ別の強さ・難易度・おすすめビルドをFirebase Realtime Database連携でリアルタイム管理・一覧表示。"
           },
           {
             "title": "BanPic-Brawl",
             "tag": "ブロスタ",
-            "href": "/archive/play/BanPic-Brawl/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/BanPic-Brawl.png",
+            "href": "/archive/play/BrawlStars/BanPic-Brawl/",
+            "image": "/icon/page-grid-icon/BanPic-Brawl.png",
             "description": "ブロスタのBan/Pickツールです。"
+          },
+          {
+            "title": "ブロスタ 言語・クイズ 早見表",
+            "tag": "ブロスタ",
+            "href": "/archive/play/BrawlStars/brawl-quiz/",
+            "image": "/icon/page-grid-icon/Brawl.png",
+            "description": "ブロスタの言語クイズ・雑学問題の超高速カンニングペーパー。1画面で5秒以内に答えを確認。"
+          },
+          {
+            "title": "15パズル 解法ツール",
+            "tag": "ブロスタ・パズル",
+            "href": "/archive/play/BrawlStars/slide-puzzle/",
+            "image": "/icon/page-grid-icon/slide.png",
+            "description": "手元の15パズルの配置を入力すると、解法手順を自動で算出してステップ再生で確認できます。"
           }
         ]
       },
@@ -512,11 +593,11 @@
         "cols": 3,
         "items": [
           {
-            "title": "プロセカ スキル計算",
+            "title": "マイセカイ 必要素材量計算",
             "tag": "プロジェクトセカイ",
-            "href": "/archive/play/pjsekai-skill/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/pjsekai-skill.png",
-            "description": "5つのスキル値を連結して入力すると分割・検証し、実効値と内部値をリアルタイム表示します。"
+            "href": "/archive/play/pjsekai/mysekai/",
+            "image": "/icon/page-grid-icon/pjsekai-mysekai.png",
+            "description": "現在のゲートレベルから目標レベル（Lv70まで）に必要な素材量を自動計算。想いのメモリアやレア素材も一括算出。"
           }
         ]
       },
@@ -526,11 +607,18 @@
         "cols": 3,
         "items": [
           {
-            "title": "15パズル 解法ツール",
-            "tag": "パズルツール",
-            "href": "/archive/play/slide-puzzle/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
-            "description": "手元の15パズルの配置を入力すると、解法手順を自動で算出してステップ再生で確認できます。"
+            "title": "AIコードネーム",
+            "tag": "AIボードゲーム",
+            "href": "/archive/play/codename/",
+            "image": "/icon/404grid.png",
+            "description": "人間2人は指示役（スパイマスター）。現場でカードを推理してめくるのは相方AI（Gemini 3.5 Flash Lite）。2人対戦型ワード連想ゲーム。"
+          },
+          {
+            "title": "ウィキレース (WikiRace)",
+            "tag": "ミニゲーム",
+            "href": "/archive/play/wikirace/",
+            "image": "/icon/404grid.png",
+            "description": "ランダムなWikipedia記事からスタートし、記事内のリンクだけを辿って指定されたゴール「人間」を目指す探索ゲーム。"
           }
         ]
       }
@@ -547,8 +635,15 @@
             "title": "ラグトレイン",
             "tag": "メディアアート",
             "href": "/archive/other/lagtrain/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/lagt.png",
+            "image": "/icon/page-grid-icon/lagt.png",
             "description": "ラグトレインのドット粒子アニメーションとMIDI再生。"
+          },
+          {
+            "title": "黄昏の廃都",
+            "tag": "メディアアート",
+            "href": "/archive/other/dusk-ruins/",
+            "image": "https://5gkyu.github.io/archive/other/dusk-ruins/thumb.jpg",
+            "description": "夕暮れの廃墟を見つめる少女と黒猫。雲・旗・水面・光の塵がドット単位で動くピクセルアート・アニメーション。"
           }
         ]
       },
@@ -561,7 +656,7 @@
             "title": "ブックマークレット集",
             "tag": "ブラウザツール",
             "href": "/archive/other/booklet/",
-            "image": "https://5gkyu.github.io/icon/404grid.png",
+            "image": "/icon/404grid.png",
             "description": "タイトル・URLコピーやYouTubeツールなど、ブラウザのブックマークに登録してワンタップで実行できる便利な小さなJavaScriptスクリプト集。"
           }
         ]
@@ -575,7 +670,7 @@
             "title": "Halcyon Component Gallery",
             "tag": "コンポーネント",
             "href": "/archive/other/halcyon-ui-design/",
-            "image": "https://5gkyu.github.io/icon/page-grid-icon/Components.png",
+            "image": "/icon/page-grid-icon/Components.png",
             "description": "デザイントークン・カラーパレット・レイアウト・タイポグラフィーのリファレンス。"
           }
         ]
