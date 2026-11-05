@@ -14,7 +14,7 @@ function normalizeForSearch(s) { if (!s) return ''; return toHiragana(s).replace
 
 /* CSV parser removed (unused). Keep utilities small. */
 function get404FallbackIconUrl(isGrid) {
-  return isGrid ? 'https://5gkyu.github.io/icon/404grid.png' : 'https://5gkyu.github.io/icon/404list.png';
+  return isGrid ? '/icon/404grid.png?v=2' : '/icon/404list.png?v=2';
 }
 
 function show404FallbackIcon(iconWrap, isGrid, title) {
@@ -75,6 +75,7 @@ const VIEW_MODE_KEY = 'bookmark_view_mode_v1'; // localStorage キー
 const SORT_KEY = 'bookmark_sort_v2';
 // フォルダ機能は廃止されたため、関連する localStorage キーと定数は削除
 const state = { q: '', tags: new Set(), sort: 'custom', editMode: false, viewMode: 'medium', selectedIds: new Set(), noTagFilter: false };
+try { window.state = state; } catch (e) { }
 let _tagClickGuard = 0;
 // in-memory bookmark storage (localStorageキャッシュから即座に初期化)
 let DATA = (function () {
@@ -189,6 +190,7 @@ const el = {
 };
 
 let TAG_ORDERS = {};
+try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
 
 /* ------------------ localStorage キャッシュ（0秒即時表示用） ------------------ */
 const _DATA_CACHE_KEY = 'kyulink_data_cache_v2';
@@ -362,7 +364,10 @@ function loadAndDedupeFromStorage() {
       if (arr && arr.length > 0) {
         DATA = dedupeData(arr);
         window.DATA = DATA;
-        if (cachedOrders) TAG_ORDERS = cachedOrders;
+        if (cachedOrders) {
+          TAG_ORDERS = cachedOrders;
+          try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
+        }
         return true;
       }
     }
@@ -777,26 +782,25 @@ function filterAndSort() {
   });
 
   let effectiveSort = state.sort;
-  const isAllOrNoTag = (state.tags.size === 0 || state.noTagFilter);
-  if (effectiveSort === 'custom' && isAllOrNoTag && !state.editMode) {
-    effectiveSort = 'date-new';
-  }
 
   if (effectiveSort === 'custom') {
-    // タグが1つの場合のみ、そのタグ専用の並び順 (TAG_ORDERS) を適用
-    if (state.tags.size === 1) {
+    // タグが1つの場合はそのタグ専用の並び順 (TAG_ORDERS) を適用
+    if (state.tags.size === 1 && !state.noTagFilter) {
       const tag = Array.from(state.tags)[0];
-      const order = TAG_ORDERS[tag] || [];
-      arr.sort((a, b) => {
-        const idxA = order.indexOf(a.id);
-        const idxB = order.indexOf(b.id);
-        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-        if (idxA !== -1) return -1;
-        if (idxB !== -1) return 1;
-        // どちらもオーダー未登録なら新着順
-        return (b.created_at || 0) - (a.created_at || 0);
-      });
+      const order = (TAG_ORDERS && TAG_ORDERS[tag]) || [];
+      if (order && order.length > 0) {
+        const orderMap = new Map(order.map((id, idx) => [String(id), idx]));
+        arr.sort((a, b) => {
+          const idxA = orderMap.has(String(a.id)) ? orderMap.get(String(a.id)) : -1;
+          const idxB = orderMap.has(String(b.id)) ? orderMap.get(String(b.id)) : -1;
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return (b.created_at || 0) - (a.created_at || 0);
+        });
+      }
     }
+    // タグなし、または「全て」の場合は、保存されたDATA配列の順序をそのまま維持
     return arr;
   }
 
@@ -828,7 +832,6 @@ function filterAndSort() {
   return arr;
 }
 
-let sortableInstance = null;
 function renderList() {
   const arr = filterAndSort();
   el.list.innerHTML = '';
@@ -869,19 +872,7 @@ function renderList() {
     row.dataset.id = item.id;
     if (item.tags && item.tags.includes('Kyu')) { row.classList.add('kyu-special'); }
 
-    if (state.editMode && !isReadOnlyMode) {
-      const handle = document.createElement('div');
-      handle.className = 'drag-handle';
-      handle.innerHTML = '≡';
-      handle.style.cursor = 'grab';
-      handle.style.padding = '0 10px';
-      handle.style.fontSize = '1.2rem';
-      handle.style.color = 'var(--muted)';
-      handle.style.display = 'flex';
-      handle.style.alignItems = 'center';
-      handle.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
-      row.appendChild(handle);
-    }
+
 
     const iconWrap = document.createElement('div'); iconWrap.className = 'icon-wrap';
     // Show checkbox in edit mode if owner (Removed per user request)
@@ -1039,18 +1030,16 @@ function renderList() {
     } else {
       // オーナー用編集ボタン
       if (!isReadOnlyMode) {
-        if (!state.editMode) {
-          const btn = document.createElement('button');
-          btn.className = 'open-btn';
-          btn.setAttribute('aria-label', item.title + ' を編集する');
-          btn.textContent = '編集';
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openEdit(item);
-          });
-          actions.appendChild(btn);
-        }
+        const btn = document.createElement('button');
+        btn.className = 'open-btn';
+        btn.setAttribute('aria-label', item.title + ' を編集する');
+        btn.textContent = '編集';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openEdit(item);
+        });
+        actions.appendChild(btn);
       }
     }
 
@@ -1061,7 +1050,7 @@ function renderList() {
     
     // 行クリック時の挙動: 編集モード時はリンク遷移を抑止
     row.addEventListener('click', (e) => {
-      if (state.editMode || !item.url) {
+      if (!item.url) {
         e.preventDefault();
       }
     });
@@ -1099,40 +1088,6 @@ function renderList() {
         });
       }
     }
-  }
-
-  // SortableJSの初期化
-  if (sortableInstance) {
-    sortableInstance.destroy();
-    sortableInstance = null;
-  }
-  const isAllOrNoTagSort = (state.tags.size === 0 || state.noTagFilter);
-  const canCustomSortDrag = state.sort === 'custom' && !isAllOrNoTagSort && state.tags.size === 1;
-  if (state.editMode && canCustomSortDrag && !isReadOnlyMode && typeof Sortable !== 'undefined') {
-    sortableInstance = Sortable.create(el.list, {
-      handle: '.drag-handle',
-      animation: 150,
-      forceFallback: true, // ネイティブドラッグを無効化し、マウスホイールを効くようにする
-      scroll: true,
-      bubbleScroll: true,
-      scrollSensitivity: 80,
-      scrollSpeed: 15,
-      onEnd: function (evt) {
-        const tag = Array.from(state.tags)[0];
-        if (!TAG_ORDERS[tag]) {
-          TAG_ORDERS[tag] = arr.map(item => item.id);
-        }
-        // DOMの順序通りにID配列を再構築する
-        const newOrder = [];
-        el.list.querySelectorAll('.row').forEach(row => {
-          if (row.dataset.id) {
-            newOrder.push(Number(row.dataset.id));
-          }
-        });
-        TAG_ORDERS[tag] = newOrder;
-        saveTagOrdersToRemote();
-      }
-    });
   }
 }
 
@@ -1196,9 +1151,7 @@ function updateHeaderControls() {
       if (hasSelection || isReadOnlyMode) el.openAdd.classList.remove('owner-visible');
       else el.openAdd.classList.add('owner-visible');
     }
-    if (el.topEditModeBtn) el.topEditModeBtn.classList.toggle('active', state.editMode);
-    if (el.editModeBtn) el.editModeBtn.classList.toggle('active', state.editMode);
-  } catch (e) {/* ignore */ }
+          } catch (e) {/* ignore */ }
 }
 
 function updateViewModeUI() {
@@ -1286,26 +1239,15 @@ if (headerToggleBtn) {
   headerToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); /* reserved */ });
 }
 
-function toggleEditMode() {
-  if (isReadOnlyMode) {
-    console.log('toggleEditMode: disabled in read-only mode');
-    alert('編集権限がありません。オーナーとしてログインしてください。');
-    return;
-  }
-  state.editMode = !state.editMode;
-  document.body.classList.toggle('edit-mode', state.editMode);
-  if (el.editModeBtn) el.editModeBtn.classList.toggle('active', state.editMode);
-  if (el.topEditModeBtn) el.topEditModeBtn.classList.toggle('active', state.editMode);
-  updateHeaderControls();
-  renderList();
-}
-// Edit mode button (will be shown/hidden based on permissions)
-if (el.editModeBtn) el.editModeBtn.addEventListener('click', toggleEditMode);
-// Edit mode buttons (will be shown/hidden based on permissions)
-if (el.topEditModeBtn) el.topEditModeBtn.addEventListener('click', toggleEditMode);
 if (el.topSortStudioBtn) el.topSortStudioBtn.addEventListener('click', () => {
   if (window.SortStudio && typeof window.SortStudio.open === 'function') {
-    window.SortStudio.open();
+    let currentTag = null;
+    if (state.noTagFilter) {
+      currentTag = '__notag__';
+    } else if (state.tags && state.tags.size > 0) {
+      currentTag = Array.from(state.tags)[0];
+    }
+    window.SortStudio.open(currentTag);
   }
 });
 if (el.topDeleteSelectedBtn) el.topDeleteSelectedBtn.addEventListener('click', () => {
@@ -1885,7 +1827,7 @@ updateViewModeUI(); // ラジオボタンの状態を更新
       localStorage.setItem('desktop_layout', _layout);
       _changed = true;
     }
-    const _validThemes = ['light', 'dark', 'awake', 'muse', 'majesty', 'eof'];
+    const _validThemes = ['light', 'dark', 'awake', 'muse', 'majesty', 'eof', 'stargazer'];
     if (_theme && _validThemes.includes(_theme)) {
       if (typeof applyTheme === 'function') applyTheme(_theme);
       const _themeEl = document.getElementById('themeSelect');
@@ -1988,16 +1930,8 @@ document.addEventListener('keydown', async (e) => {
       }
     }
   }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-    e.preventDefault();
-    toggleEditMode();
-  }
-  if (e.key === 'e' || e.key === 'E') {
-    if (!e.target.matches('input, textarea')) {
-      e.preventDefault();
-      toggleEditMode();
-    }
-  }
+
+
 });
 
 /* ------------------ Firebase + RealtimeDB 同期 + Google Sign-in ------------------ */
@@ -2210,10 +2144,8 @@ function updateEditPermissions(user) {
   if (isOwner) {
     // Owner can edit: show all edit buttons
     if (el.topOpenAdd) el.topOpenAdd.style.display = 'inline-block';
-    if (el.topEditModeBtn) el.topEditModeBtn.style.display = 'inline-block';
-    if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'inline-block';
-    if (el.editModeBtn) el.editModeBtn.style.display = 'inline-block';
-    if (el.openAdd) {
+        if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'inline-block';
+        if (el.openAdd) {
       el.openAdd.classList.add('owner-visible');
       el.openAdd.setAttribute('aria-hidden', 'false');
     }
@@ -2222,10 +2154,8 @@ function updateEditPermissions(user) {
   } else {
     // Not owner: hide edit buttons
     if (el.topOpenAdd) el.topOpenAdd.style.display = 'none';
-    if (el.topEditModeBtn) el.topEditModeBtn.style.display = 'none';
-    if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'none';
-    if (el.editModeBtn) el.editModeBtn.style.display = 'none';
-    if (el.topDeleteSelectedBtn) el.topDeleteSelectedBtn.style.display = 'none';
+        if (el.topSortStudioBtn) el.topSortStudioBtn.style.display = 'none';
+        if (el.topDeleteSelectedBtn) el.topDeleteSelectedBtn.style.display = 'none';
     if (el.openAdd) {
       el.openAdd.classList.remove('owner-visible');
       el.openAdd.setAttribute('aria-hidden', 'true');
@@ -2331,7 +2261,10 @@ function startSyncForUser(uid) {
     if (cached) {
       try {
         let arr = parseRemoteData(cached);
-        if (cachedOrders) TAG_ORDERS = cachedOrders;
+        if (cachedOrders) {
+          TAG_ORDERS = cachedOrders;
+          try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
+        }
         if (!DATA || DATA.length === 0) {
           setLocalBookmarks(arr);
         }
@@ -2348,6 +2281,7 @@ function startSyncForUser(uid) {
       const remoteVal = snap.val();
       const orderVal = orderSnap.val() || {};
       TAG_ORDERS = orderVal;
+      try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
       _setCachedOrders(orderVal);
       try {
         if (remoteVal && ((Array.isArray(remoteVal) && remoteVal.length > 0) || (typeof remoteVal === 'object' && Object.keys(remoteVal).length > 0))) {
@@ -2374,6 +2308,7 @@ function startSyncForUser(uid) {
   // ── オーナーログイン時: ref.on() でリアルタイム同期 ──
   orderRef.on('value', snapshot => {
     TAG_ORDERS = snapshot.val() || {};
+    try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
     _setCachedOrders(TAG_ORDERS);
     renderList(); // 並び順が変わった場合は再描画
   });
@@ -2469,6 +2404,73 @@ function saveTagOrdersToRemote() {
   });
 }
 
+// タグ別並び順の更新と本番即時同期
+function setTagOrder(tag, ids) {
+  TAG_ORDERS[tag] = ids;
+  try { window.TAG_ORDERS = TAG_ORDERS; } catch (e) { }
+  _setCachedOrders(TAG_ORDERS);
+  saveTagOrdersToRemote();
+  state.sort = 'custom';
+  saveSort();
+  if (el.sortSelect) el.sortSelect.value = 'custom';
+  if (el.sidebarSort) el.sidebarSort.value = 'custom';
+  renderList();
+}
+
+// 全体並び順の更新と本番即時同期
+function setGlobalOrder(ids) {
+  const idMap = new Map(ids.map((id, idx) => [String(id), idx]));
+  if (DATA && DATA.length) {
+    DATA.sort((a, b) => {
+      const ia = idMap.has(String(a.id)) ? idMap.get(String(a.id)) : 999999;
+      const ib = idMap.has(String(b.id)) ? idMap.get(String(b.id)) : 999999;
+      return ia - ib;
+    });
+  }
+  setLocalBookmarks(DATA);
+  saveBookmarksToRemote();
+  state.sort = 'custom';
+  saveSort();
+  if (el.sortSelect) el.sortSelect.value = 'custom';
+  if (el.sidebarSort) el.sidebarSort.value = 'custom';
+  renderList();
+}
+
+// 本番画面のタグ選択とソート状態の同期
+function selectTagInMain(tag) {
+  if (tag === null || tag === '__all__') {
+    state.tags.clear();
+    state.noTagFilter = false;
+  } else if (tag === '__notag__') {
+    state.tags.clear();
+    state.noTagFilter = true;
+  } else {
+    state.tags.clear();
+    state.tags.add(tag);
+    state.noTagFilter = false;
+  }
+  state.sort = 'custom';
+  saveSort();
+  if (el.sortSelect) el.sortSelect.value = 'custom';
+  if (el.sidebarSort) el.sidebarSort.value = 'custom';
+  renderTags();
+  renderList();
+  renderSidebarTags();
+}
+
+// グローバル公開 (並び替えスタジオ等の外部モジュール用)
+try {
+  window.setTagOrder = setTagOrder;
+  window.setGlobalOrder = setGlobalOrder;
+  window.selectTagInMain = selectTagInMain;
+  window.saveBookmarksToRemote = saveBookmarksToRemote;
+  window.saveTagOrdersToRemote = saveTagOrdersToRemote;
+  window.setLocalBookmarks = setLocalBookmarks;
+  window.renderList = renderList;
+  window._setCachedOrders = _setCachedOrders;
+  window._setCachedData = _setCachedData;
+} catch (e) { }
+
 /* helper wrapper */
 function addBookmarkAndSync(bookmark) {
   bookmark = ensureIdAndTsForSync(bookmark);
@@ -2552,7 +2554,7 @@ if (userSettingsModal) userSettingsModal.addEventListener('click', (e) => { if (
 function applyTheme(themeName) {
   try {
     // Remove all theme classes first
-    document.documentElement.classList.remove('dark-mode', 'theme-awake', 'theme-muse', 'theme-majesty', 'theme-eof');
+    document.documentElement.classList.remove('dark-mode', 'theme-awake', 'theme-muse', 'theme-majesty', 'theme-eof', 'theme-stargazer');
 
     if (themeName === 'awake') {
       document.documentElement.classList.add('theme-awake');
@@ -2560,6 +2562,12 @@ function applyTheme(themeName) {
       document.documentElement.classList.add('theme-muse');
     } else if (themeName === 'eof') {
       document.documentElement.classList.add('theme-eof');
+    } else if (themeName === 'stargazer') {
+      document.documentElement.classList.add('theme-stargazer');
+    } else if (themeName === 'majesty') {
+      document.documentElement.classList.add('theme-majesty');
+    } else if (themeName === 'dark') {
+      document.documentElement.classList.add('dark-mode');
     } else if (themeName === 'kohane' || themeName === 'awake-dark') {
       // Legacy aliases: map to awake
       document.documentElement.classList.add('theme-awake');
@@ -2579,7 +2587,8 @@ function applyTheme(themeName) {
       else if (themeName === 'awake' || themeName === 'kohane' || themeName === 'awake-dark') themeColor = '#ffdada';
       else if (themeName === 'muse' || themeName === 'dreamer' || themeName === 'dreamer2') themeColor = '#F4F1E8';
       else if (themeName === 'majesty') themeColor = '#f0eef5';
-      else if (themeName === 'eof') themeColor = '#f5f2ee';
+      else if (themeName === 'eof') themeColor = '#0d0d0d';
+      else if (themeName === 'stargazer') themeColor = '#070b12';
       else if (themeName === 'light') themeColor = getComputedStyle(document.documentElement).getPropertyValue('--bg') || themeColor;
 
       var meta = document.querySelector('meta[name="theme-color"]');
@@ -2736,17 +2745,13 @@ function updateAuthUI(user) {
       // 非ログイン時は追加や編集ボタンを隠す
       if (el && el.openAdd) el.openAdd.style.display = 'none';
       if (el && el.topOpenAdd) el.topOpenAdd.style.display = 'none';
-      if (el && el.editModeBtn) el.editModeBtn.style.display = 'none';
-      if (el && el.topEditModeBtn) el.topEditModeBtn.style.display = 'none';
-    } catch (e) { }
+                } catch (e) { }
   } else {
     // ログイン時は UI を有効化
     try {
       if (el && el.openAdd) el.openAdd.style.display = '';
       if (el && el.topOpenAdd) el.topOpenAdd.style.display = '';
-      if (el && el.editModeBtn) el.editModeBtn.style.display = '';
-      if (el && el.topEditModeBtn) el.topEditModeBtn.style.display = '';
-    } catch (e) { }
+                } catch (e) { }
     const isAnonymous = user.isAnonymous === true;
     const displayText = isAnonymous ? 'ゲスト' : (user.email || user.displayName || user.uid);
     userInfoText.textContent = 'ユーザー: ' + displayText;

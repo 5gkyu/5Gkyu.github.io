@@ -115,7 +115,7 @@
 .kyulink-loading-bar-fill {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   border-radius: 4px;
   transition: width 0.4s ease;
 }
@@ -174,10 +174,20 @@ html.theme-awake .open-btn,
 html.theme-awake .actions .open-btn,
 html.theme-awake .row .open-btn,
 html.theme-awake .panel .open-btn {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
-  color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(255, 143, 163, 0.25) !important;
+  background: rgba(255, 107, 138, 0.14) !important;
+  color: #d64567 !important;
+  border: 1px solid rgba(255, 107, 138, 0.28) !important;
+  box-shadow: 0 2px 6px rgba(255, 107, 138, 0.08) !important;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+html.theme-awake .open-btn:hover,
+html.theme-awake .actions .open-btn:hover,
+html.theme-awake .row .open-btn:hover,
+html.theme-awake .panel .open-btn:hover {
+  background: rgba(255, 107, 138, 0.24) !important;
+  border-color: rgba(255, 107, 138, 0.45) !important;
 }
 
 html.theme-awake .icon-wrap {
@@ -274,10 +284,20 @@ html.theme-muse .open-btn,
 html.theme-muse .actions .open-btn,
 html.theme-muse .row .open-btn,
 html.theme-muse .panel .open-btn {
-  background: var(--accent-1) !important;
-  color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(127, 163, 106, 0.28) !important;
+  background: rgba(127, 163, 106, 0.14) !important;
+  color: #4f703e !important;
+  border: 1px solid rgba(127, 163, 106, 0.30) !important;
+  box-shadow: 0 2px 6px rgba(127, 163, 106, 0.08) !important;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+html.theme-muse .open-btn:hover,
+html.theme-muse .actions .open-btn:hover,
+html.theme-muse .row .open-btn:hover,
+html.theme-muse .panel .open-btn:hover {
+  background: rgba(127, 163, 106, 0.25) !important;
+  border-color: rgba(127, 163, 106, 0.45) !important;
 }
 
 html.theme-muse .icon-wrap {
@@ -312,7 +332,7 @@ html.theme-muse .modal .chip.active,
 html.theme-muse .list.layout-grid .icon-wrap,
 html.theme-muse .layout-toggle-btn.active,
 html.theme-muse.bottom-nav-show-desktop .layout-toggle-btn.active {
-  background: linear-gradient(135deg, #7FA36A 0%, #8EAE7B 50%, #A5BA8C 100%) !important;
+  background: var(--accent-1, #7FA36A) !important;
 }
 
 html.theme-muse .modal .panel {
@@ -441,11 +461,20 @@ html.theme-eof .open-btn,
 html.theme-eof .actions .open-btn,
 html.theme-eof .row .open-btn,
 html.theme-eof .panel .open-btn {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
-  color: #ffffff !important;
-  border: none !important;
-  box-shadow: 2px 2px 0px rgba(163, 88, 83, 0.3) !important;
+  background: rgba(163, 88, 83, 0.25) !important;
+  color: #f2aba6 !important;
+  border: 1px solid rgba(163, 88, 83, 0.40) !important;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3) !important;
+  font-weight: 700;
   transition: all 0.2s ease;
+}
+
+html.theme-eof .open-btn:hover,
+html.theme-eof .actions .open-btn:hover,
+html.theme-eof .row .open-btn:hover,
+html.theme-eof .panel .open-btn:hover {
+  background: rgba(163, 88, 83, 0.40) !important;
+  border-color: rgba(163, 88, 83, 0.60) !important;
 }
 
 html.theme-eof .icon-wrap {
@@ -576,6 +605,246 @@ html.theme-eof .list.layout-grid .title {
 
 html.theme-eof .list.layout-grid .desc {
   color: rgba(255, 255, 255, 0.80) !important;
+}
+
+/* ==========================================================================
+   Stargazer（星空・透過ガラス）テーマ
+   ========================================================================== */
+html.theme-stargazer {
+  --bg: #070b14;
+  --card: rgba(13, 22, 40, 0.55);
+  --card-rgb: 13, 22, 40;
+  --accent-1: #38bdf8;
+  --accent-2: #818cf8;
+  --text: #f8fafc;
+  --muted: rgba(226, 232, 240, 0.65);
+}
+
+html.theme-stargazer,
+html.theme-stargazer body {
+  background-color: #070b14;
+}
+
+html.theme-stargazer body {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px),
+    url('../archive/other/dusk-ruins/scene_night.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  color: var(--text);
+}
+
+html.theme-stargazer .desc {
+  color: rgba(248, 250, 252, 0.82);
+}
+
+html.theme-stargazer .tag {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+}
+
+html.theme-stargazer .title {
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+html.theme-stargazer header.card {
+  background: rgba(7, 11, 20, 0.70);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+html.theme-stargazer .row {
+  background: rgba(7, 15, 30, 0.40);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+html.theme-stargazer .row:hover {
+  background: rgba(14, 25, 48, 0.55);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.2);
+  transform: translateY(-2px);
+}
+
+html.theme-stargazer .open-btn,
+html.theme-stargazer .actions .open-btn,
+html.theme-stargazer .row .open-btn,
+html.theme-stargazer .panel .open-btn {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.32) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+html.theme-stargazer .open-btn:hover,
+html.theme-stargazer .actions .open-btn:hover,
+html.theme-stargazer .row .open-btn:hover,
+html.theme-stargazer .panel .open-btn:hover {
+  background: rgba(56, 189, 248, 0.28) !important;
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3) !important;
+}
+
+html.theme-stargazer .icon-wrap {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+}
+
+html.theme-stargazer .icon-wrap img {
+  border-radius: 6px;
+}
+
+html.theme-stargazer select,
+html.theme-stargazer input[type="url"],
+html.theme-stargazer input,
+html.theme-stargazer textarea {
+  background: rgba(13, 22, 40, 0.65);
+  color: #f8fafc;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+}
+
+html.theme-stargazer select:focus,
+html.theme-stargazer input[type="url"]:focus,
+html.theme-stargazer input:focus,
+html.theme-stargazer textarea:focus {
+  border-color: #38bdf8;
+  outline: none;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+html.theme-stargazer button:not(.open-btn):not(.bottom-nav-btn) {
+  background: rgba(13, 22, 40, 0.6);
+  color: #f8fafc;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+
+html.theme-stargazer button:not(.open-btn):not(.bottom-nav-btn):hover {
+  background: rgba(22, 36, 66, 0.75);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+html.theme-stargazer button:not(.open-btn):not(.bottom-nav-btn):active {
+  transform: translateY(1px);
+}
+
+html.theme-stargazer .chip,
+html.theme-stargazer .small-btn {
+  background: rgba(13, 22, 40, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  color: #e2e8f0;
+}
+
+html.theme-stargazer .chip:hover,
+html.theme-stargazer .small-btn:hover {
+  background: rgba(22, 36, 66, 0.7);
+  border-color: rgba(56, 189, 248, 0.38);
+}
+
+html.theme-stargazer .chip.active,
+html.theme-stargazer .modal .chip.active,
+html.theme-stargazer .list.layout-grid .icon-wrap,
+html.theme-stargazer .layout-toggle-btn.active,
+html.theme-stargazer.bottom-nav-show-desktop .layout-toggle-btn.active {
+  background: rgba(56, 189, 248, 0.25) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
+}
+
+html.theme-stargazer .modal .panel {
+  background: rgba(11, 18, 33, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
+  border-radius: 10px;
+  color: #f8fafc;
+}
+
+html.theme-stargazer .modal .panel h3,
+html.theme-stargazer .modal .panel label {
+  color: #ffffff;
+}
+
+html.theme-stargazer .bottom-nav {
+  background: rgba(7, 11, 20, 0.80);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(56, 189, 248, 0.18);
+}
+
+html.theme-stargazer .bottom-nav-btn {
+  color: #e2e8f0;
+}
+
+html.theme-stargazer .bottom-nav-btn:hover {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
+
+html.theme-stargazer .search-overlay-content {
+  background: rgba(11, 18, 33, 0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+html.theme-stargazer .sidebar {
+  background: rgba(7, 11, 20, 0.60);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+html.theme-stargazer .sidebar-title {
+  color: rgba(226, 232, 240, 0.75);
+  letter-spacing: 0.5px;
+}
+
+html.theme-stargazer .list.layout-grid .row {
+  background: rgba(7, 15, 30, 0.35) !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+html.theme-stargazer .list.layout-grid .row:hover {
+  background: rgba(14, 25, 48, 0.50) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+
+html.theme-stargazer .list.layout-grid .meta {
+  background: rgba(7, 15, 30, 0.25) !important;
+  backdrop-filter: none;
+  color: #f8fafc;
+}
+
+html.theme-stargazer .list.layout-grid .title {
+  color: #ffffff !important;
+}
+
+html.theme-stargazer .list.layout-grid .desc {
+  color: rgba(248, 250, 252, 0.82) !important;
 }
 
 /* Dark-mode specific background overlay and text tweaks */
@@ -878,7 +1147,7 @@ textarea,
 }
 
 .sidebar-tags::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   border-radius: 4px;
 }
 
@@ -939,7 +1208,7 @@ textarea,
 }
 
 .sidebar-tag.active {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   color: #fff;
   border-color: transparent
 }
@@ -1036,7 +1305,7 @@ html.theme-kohane .sidebar-tag:hover {
 }
 
 html.theme-kohane .sidebar-tag.active {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2))
+  background: var(--accent-1);
 }
 
 
@@ -1218,7 +1487,7 @@ header.card .selector {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    background: var(--accent-1);
   }
 
   /* Hero image fills the icon area; fallback favicon uses smaller centered style */
@@ -1238,14 +1507,14 @@ header.card .selector {
   /* 正方形画像（ロゴ等）やファビコン表示時は、背景色をカード本体色（var(--card)）と完全にそろえる */
   .list.layout-grid .icon-wrap.has-square-hero,
   .list.layout-grid .icon-wrap:has(img.hero.square),
-  .list.layout-grid .icon-wrap:has(img.fallback),
+  .list.layout-grid .icon-wrap:has(img.fallback:not(.grid-fallback)),
   .list.layout-grid .icon-wrap:has(img.hero.small-badge) {
     background: var(--card, #ffffff) !important;
   }
 
   /* ファビコン・低解像度アイコン: 四角い座布団や枠をなくし、完全透過ですっきり配置 */
   .list.layout-grid .icon-wrap img.hero.small-badge,
-  .list.layout-grid .icon-wrap img.fallback {
+  .list.layout-grid .icon-wrap img.fallback:not(.grid-fallback) {
     width: 56px !important;
     height: 56px !important;
     border-radius: 0 !important;
@@ -1255,7 +1524,7 @@ header.card .selector {
     padding: 0 !important;
   }
   html.dark .list.layout-grid .icon-wrap img.hero.small-badge,
-  html.dark .list.layout-grid .icon-wrap img.fallback {
+  html.dark .list.layout-grid .icon-wrap img.fallback:not(.grid-fallback) {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -1263,12 +1532,12 @@ header.card .selector {
 
   /* 404grid.png: fill entire icon-wrap area (same as hero image) */
   .list.layout-grid .icon-wrap img.grid-fallback {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-    object-fit: cover;
-    box-shadow: none;
-    background: none;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    object-fit: cover !important;
+    box-shadow: none !important;
+    background: none !important;
   }
 
   /* Content area with semi-transparent background */
@@ -1411,7 +1680,7 @@ body.edit-mode .actions .small-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   font-weight: 700;
   color: #ffffff;
   margin-right: 4px
@@ -1517,13 +1786,19 @@ body.edit-mode .actions .small-btn {
 
 /* Primary action button (驍ｱ・ｨ鬮ｮ繝ｻ繝ｻ郢ｧ・ｿ郢晢ｽｳ郢晢ｽｻ郢晢ｽ｢郢晢ｽｼ郢敖郢晢ｽｫ陷繝ｻ・ｿ譎擾ｽｭ蛟･繝ｻ郢ｧ・ｿ郢晢ｽｳ) */
 .open-btn {
-  background: var(--card);
-  color: var(--text);
-  border: 1px solid rgba(6, 50, 58, 0.08);
+  background: rgba(15, 184, 191, 0.08);
+  color: #0b5e63;
+  border: 1px solid rgba(15, 184, 191, 0.22);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(2, 18, 22, 0.06);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+  box-shadow: 0 2px 6px rgba(2, 18, 22, 0.04);
+  transition: all 0.15s ease;
+}
+
+.open-btn:hover {
+  background: rgba(15, 184, 191, 0.16);
+  border-color: rgba(15, 184, 191, 0.38);
+  transform: translateY(-1px);
 }
 
 .open-btn:hover {
@@ -1568,7 +1843,7 @@ body.edit-mode .actions {
 .tag-btn {
   padding: 6px 14px;
   border-radius: 8px;
-  background: linear-gradient(90deg, #ffd7a8, #ffb199);
+  background: #ffb199;
   color: #0b2b2a;
   border: none;
   cursor: pointer;
@@ -1595,7 +1870,7 @@ body.edit-mode .actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   color: #ffffff;
   font-weight: 900;
   font-size: 28px;
@@ -1677,7 +1952,7 @@ body.edit-mode .row .open-btn {
 
 /* top header buttons active state */
 .top-buttons .top-btn.active {
-  background: linear-gradient(90deg, #ff6b6b, #ff8787);
+  background: #ff6b6b;
   color: #ffffff;
   border-color: transparent
 }
@@ -2091,7 +2366,7 @@ body.edit-mode .row .open-btn {
 }
 
 .chip.active {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   color: #ffffff;
   border-color: transparent;
   font-weight: 700
@@ -2103,7 +2378,7 @@ body.edit-mode .row .open-btn {
 }
 
 .modal .chip.active {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  background: var(--accent-1) !important;
   color: #ffffff !important;
   border-color: transparent !important;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
@@ -2148,7 +2423,7 @@ body.edit-mode .row .open-btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2303,7 +2578,7 @@ header.card {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  background: var(--accent-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2691,7 +2966,7 @@ body.modal-add-open {
 }
 
 .layout-toggle-btn.active {
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+  background: var(--accent-1) !important;
   color: #fff !important;
   border-color: transparent;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);

@@ -1,6 +1,6 @@
 /**
  * KyuLink 並び替えスタジオ (Sort Studio)
- * 本番グリッドと100%同一のカード比率・見た目で並び順を直感的に操作
+ * 4列前提特化: 横長スリムカードで画面内に50個以上を一望＆快適並び替え
  */
 
 (function () {
@@ -10,10 +10,9 @@
   let sortable = null;
   let currentTargetTag = null; // nullなら「全て」、'__notag__'ならタグなし、それ以外はタグ名
   let initialOrderIds = [];
-  let currentCols = parseInt(localStorage.getItem('grid_cols') || '4', 10);
   let hasChanges = false;
 
-  // オートスクロール & ホイール制御用ステート
+  // オートスクロール & ポインター制御用ステート
   let isDraggingInStudio = false;
   let autoScrollRaf = null;
   let autoScrollSpeed = 0;
@@ -34,6 +33,17 @@
     { id: 'Steam', label: 'Steam', imgUrl: 'https://www.google.com/s2/favicons?sz=128&domain=store.steampowered.com', bgWhite: true },
     { id: 'Google', label: 'Google', imgUrl: 'https://www.google.com/s2/favicons?sz=128&domain=google.com', bgWhite: true }
   ];
+
+  // URLからドメインを抽出するヘルパー関数
+  function extractDomain(urlStr) {
+    if (!urlStr) return '';
+    try {
+      const u = new URL(urlStr);
+      return u.hostname.replace(/^www\./, '');
+    } catch (_) {
+      return '';
+    }
+  }
 
   // トースト表示
   function showToast(msg) {
@@ -61,7 +71,6 @@
     }
     if (autoScrollSpeed !== 0) {
       mainEl.scrollTop += autoScrollSpeed;
-      // スクロール後にマウスイベントを再発行してSortableJSへカード追従を促す
       if (lastPointerPos.x || lastPointerPos.y) {
         const moveEvt = new MouseEvent('mousemove', {
           clientX: lastPointerPos.x,
@@ -84,23 +93,20 @@
     if (!mainEl) return;
     const rect = mainEl.getBoundingClientRect();
 
-    // studioMain の横幅範囲外なら何もしない
     if (e.clientX < rect.left || e.clientX > rect.right) {
       autoScrollSpeed = 0;
       return;
     }
 
-    const threshold = 140; // 上端・下端 140px 以内でスクロール開始
+    const threshold = 120;
     const topDist = e.clientY - rect.top;
     const bottomDist = rect.bottom - e.clientY;
 
     if (topDist > 0 && topDist < threshold) {
-      // 上方向スクロール (端に近づくほど加速)
       const factor = Math.max(0, (threshold - topDist) / threshold);
       autoScrollSpeed = -Math.round(4 + factor * 26);
       if (!autoScrollRaf) autoScrollRaf = requestAnimationFrame(runStudioAutoScroll);
     } else if (bottomDist > 0 && bottomDist < threshold) {
-      // 下方向スクロール (端に近づくほど加速)
       const factor = Math.max(0, (threshold - bottomDist) / threshold);
       autoScrollSpeed = Math.round(4 + factor * 26);
       if (!autoScrollRaf) autoScrollRaf = requestAnimationFrame(runStudioAutoScroll);
@@ -109,7 +115,6 @@
     }
   }, { passive: true });
 
-  // マウスを離したときはオートスクロール停止
   window.addEventListener('mouseup', () => {
     isDraggingInStudio = false;
     autoScrollSpeed = 0;
@@ -119,7 +124,6 @@
     }
   });
 
-  // ドラッグ中のマウスホイール操作（ホイールによる自在なスクロール）
   window.addEventListener('wheel', (e) => {
     if (!isDraggingInStudio) return;
     const mainEl = document.getElementById('studioMain');
@@ -152,29 +156,14 @@
             <div class="sort-studio-current-tag" id="studioCurrentTagBadge">対象: 全て</div>
           </div>
 
-          <div class="sort-studio-controls">
-            <div class="sort-studio-cols-group" id="studioColsGroup">
-              <button class="sort-studio-col-btn" data-cols="3">3列</button>
-              <button class="sort-studio-col-btn active" data-cols="4">4列</button>
-              <button class="sort-studio-col-btn" data-cols="5">5列</button>
-              <button class="sort-studio-col-btn" data-cols="6">6列</button>
-              <button class="sort-studio-col-btn" data-cols="7">7列</button>
-            </div>
+          <div class="sort-studio-search-wrap">
+            <input type="text" id="studioSearchInput" class="sort-studio-search-input" placeholder="タイトル・URL・タグを検索..." autocomplete="off">
           </div>
 
           <div class="sort-studio-actions">
-            <button class="sort-studio-btn" id="studioResetBtn" title="スタジオを開いた時点の並び順に戻す">リセット</button>
-            <button class="sort-studio-btn btn-save" id="studioSaveBtn">保存して閉じる</button>
-            <button class="sort-studio-btn btn-close" id="studioCloseBtn" title="閉じる (Esc)">×</button>
+            <button class="sort-studio-btn btn-close" id="studioCloseBtn" title="閉じる (Esc)">閉じる ×</button>
           </div>
         </header>
-
-        <div class="sort-studio-hint-bar">
-          <div class="sort-studio-hint-text">
-            <span>左メニューでタグを選び、カードをドラッグ（マウスホイールや画面端で自動スクロール）またはボタン（⇤ ← → ⇥）で並び替えられます。</span>
-          </div>
-          <div id="studioStatusText" style="font-weight:700;"></div>
-        </div>
 
         <div class="sort-studio-workspace">
           <!-- 左サイドバー（タグ選択メニュー） -->
@@ -187,9 +176,9 @@
             <div class="sort-studio-tag-list" id="studioTagList"></div>
           </aside>
 
-          <!-- 右メイン領域（並び替えグリッド） -->
+          <!-- 右メイン領域（並び替えグリッド: 4列固定） -->
           <main class="sort-studio-main" id="studioMain">
-            <div class="list layout-grid cols-4" id="studioGrid"></div>
+            <div class="list layout-grid" id="studioGrid"></div>
           </main>
         </div>
       </div>
@@ -198,38 +187,72 @@
     document.body.appendChild(overlay);
     studioEl = overlay;
 
-    // イベントバインド
-    document.getElementById('studioCloseBtn').addEventListener('click', closeStudio);
-    document.getElementById('studioSaveBtn').addEventListener('click', saveAndClose);
-    document.getElementById('studioResetBtn').addEventListener('click', resetOrder);
+    // オーバーレイ背景クリックで自動保存して閉じる
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeStudio();
+      }
+    });
 
-    // 列数切り替え
-    document.getElementById('studioColsGroup').addEventListener('click', (e) => {
-      const btn = e.target.closest('.sort-studio-col-btn');
-      if (!btn) return;
-      const cols = parseInt(btn.dataset.cols, 10);
-      setCols(cols);
+    // 閉じるボタン (自動保存して閉じる)
+    document.getElementById('studioCloseBtn').addEventListener('click', closeStudio);
+
+    // インクリメンタル検索イベント
+    const searchInput = document.getElementById('studioSearchInput');
+    searchInput.addEventListener('input', handleStudioSearch);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        handleStudioSearch();
+        searchInput.blur();
+      }
     });
 
     // キーボードショートカット (Esc で閉じる)
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && studioEl.classList.contains('is-open')) {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.id === 'studioSearchInput' && activeEl.value) {
+          // 検索入力がある場合は先に検索クリア
+          return;
+        }
         closeStudio();
       }
     });
   }
 
-  // 列数の設定
-  function setCols(cols) {
-    currentCols = cols;
+  // クイック検索処理 (非一致カードをディミング表示)
+  function handleStudioSearch() {
+    const searchInput = document.getElementById('studioSearchInput');
+    const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
     const grid = document.getElementById('studioGrid');
-    if (grid) {
-      grid.className = `list layout-grid cols-${cols}`;
-    }
-    const btns = document.querySelectorAll('#studioColsGroup .sort-studio-col-btn');
-    btns.forEach(b => {
-      b.classList.toggle('active', parseInt(b.dataset.cols, 10) === cols);
+    if (!grid) return;
+
+    const rows = grid.querySelectorAll('.row');
+    let matchCount = 0;
+
+    rows.forEach(row => {
+      if (!query) {
+        row.classList.remove('is-dimmed');
+        matchCount++;
+      } else {
+        const title = row.dataset.title || '';
+        const url = row.dataset.url || '';
+        const tags = row.dataset.tags || '';
+        const isMatch = title.includes(query) || url.includes(query) || tags.includes(query);
+        row.classList.toggle('is-dimmed', !isMatch);
+        if (isMatch) matchCount++;
+      }
     });
+
+    const countBadge = document.getElementById('studioCountBadge');
+    if (countBadge) {
+      if (query) {
+        countBadge.textContent = `${matchCount} / ${rows.length} 件`;
+      } else {
+        countBadge.textContent = `${rows.length} 件`;
+      }
+    }
   }
 
   // 左サイドバーのタグメニューをレンダリング
@@ -267,8 +290,8 @@
       btn.addEventListener('click', () => {
         const nextTag = btnInfo.isSpecial ? (btnInfo.id === '__all__' ? null : '__notag__') : btnInfo.id;
         if (nextTag === currentTargetTag) return;
-        if (hasChanges && !confirm('未保存の並び替えがあります。保存せずに切り替えますか？')) {
-          return;
+        if (hasChanges) {
+          saveCurrentOrder();
         }
         openStudio(nextTag);
       });
@@ -301,8 +324,8 @@
 
       item.addEventListener('click', () => {
         if (tagName === currentTargetTag) return;
-        if (hasChanges && !confirm('未保存の並び替えがあります。保存せずに切り替えますか？')) {
-          return;
+        if (hasChanges) {
+          saveCurrentOrder();
         }
         openStudio(tagName);
       });
@@ -322,7 +345,7 @@
       if (!badge) {
         badge = document.createElement('div');
         badge.className = 'studio-order-badge';
-        row.appendChild(badge);
+        row.insertBefore(badge, row.firstChild);
       }
       badge.textContent = `#${idx + 1}`;
     });
@@ -330,32 +353,33 @@
     // 変更の有無を確認
     const curIds = Array.from(rows).map(r => r.dataset.id);
     hasChanges = JSON.stringify(curIds) !== JSON.stringify(initialOrderIds);
-    const saveBtn = document.getElementById('studioSaveBtn');
-    const statusText = document.getElementById('studioStatusText');
-    if (saveBtn) {
-      saveBtn.classList.toggle('has-changes', hasChanges);
-    }
-    if (statusText) {
-      statusText.textContent = hasChanges ? '未保存の変更があります' : '最新の状態です';
-      statusText.style.color = hasChanges ? 'var(--accent-1, #ff6b8a)' : 'var(--muted, #b3a79d)';
-    }
   }
 
-  // 本番と100%同一のカード要素を生成
+  // グリッド互換ミニカード要素を生成 (本番グリッドと同一の横長ワイドサムネイル比率)
   function createStudioCard(item) {
     const row = document.createElement('div');
     row.className = 'row';
     row.dataset.id = String(item.id);
+    row.dataset.title = (item.title || '').toLowerCase();
+    row.dataset.url = (item.url || '').toLowerCase();
+    row.dataset.tags = (item.tags || []).join(' ').toLowerCase();
 
-    // 1. アイコンラップ
+    // 1. 順序バッジ (#1, #2... 左上にフロート)
+    const badge = document.createElement('div');
+    badge.className = 'studio-order-badge';
+    badge.textContent = '#';
+
+    // 2. 本番互換ワイドサムネイル領域 (icon-wrap)
     const iconWrap = document.createElement('div');
     iconWrap.className = 'icon-wrap';
 
     const heroSrc = item.og_image || item.icon_url;
+    const fallbackSrc = item.favicon_url || item.icon_url || `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(item.url || '')}`;
+
     if (heroSrc) {
       const img = document.createElement('img');
       img.src = heroSrc;
-      img.alt = item.title + ' アイコン';
+      img.alt = item.title || 'アイコン';
       img.className = 'hero';
       img.loading = 'lazy';
       img.decoding = 'async';
@@ -384,51 +408,56 @@
           }
         } catch (_) { }
       });
+
       img.onerror = () => {
         img.remove();
         const f = document.createElement('img');
         f.className = 'fallback';
-        f.src = item.favicon_url || item.icon_url || `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(item.url || '')}`;
+        f.src = fallbackSrc;
         f.alt = item.title || 'アイコン';
-        f.width = 64; f.height = 64;
+        f.onerror = () => {
+          f.className = 'fallback grid-fallback';
+          f.src = '/icon/404grid.png?v=2';
+        };
         iconWrap.appendChild(f);
       };
+
       iconWrap.appendChild(img);
     } else {
       const f = document.createElement('img');
       f.className = 'fallback';
-      f.src = item.favicon_url || item.icon_url || `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(item.url || '')}`;
+      f.src = fallbackSrc;
       f.alt = item.title || 'アイコン';
-      f.width = 64; f.height = 64;
+      f.onerror = () => {
+        f.className = 'fallback grid-fallback';
+        f.src = '/icon/404grid.png?v=2';
+      };
       iconWrap.appendChild(f);
     }
 
-    // 2. メタ領域
+    // 3. 下部メタ領域 (タイトル & ドメイン/タグ)
     const meta = document.createElement('div');
     meta.className = 'meta';
 
-    const title = document.createElement('div');
-    title.className = 'title';
-    title.textContent = item.title || '無題';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'title';
+    titleEl.textContent = item.title || '無題';
+    titleEl.title = item.title || '';
 
-    const desc = document.createElement('div');
-    desc.className = 'desc';
-    desc.textContent = item.desc || '';
+    const descEl = document.createElement('div');
+    descEl.className = 'desc';
+    const domain = extractDomain(item.url);
+    const tagList = (item.tags && item.tags.length) ? item.tags.slice(0, 2).join(', ') : '';
+    let subText = domain;
+    if (tagList) {
+      subText = domain ? `${domain} ・ ${tagList}` : tagList;
+    }
+    descEl.textContent = subText || 'リンク';
 
-    const tagsWrap = document.createElement('div');
-    tagsWrap.className = 'tags';
-    (item.tags || []).slice().sort((a, b) => a.localeCompare(b, 'ja')).forEach(t => {
-      const tag = document.createElement('span');
-      tag.className = 'tag';
-      tag.textContent = t;
-      tagsWrap.appendChild(tag);
-    });
+    meta.appendChild(titleEl);
+    meta.appendChild(descEl);
 
-    meta.appendChild(title);
-    meta.appendChild(desc);
-    meta.appendChild(tagsWrap);
-
-    // 3. クイック移動ボタン群 (⇤ ← → ⇥)
+    // 4. クイック移動ボタン群 (ホバー時にサムネイル右上に表示: ⇤ ← → ⇥)
     const quickNav = document.createElement('div');
     quickNav.className = 'studio-quick-nav';
     quickNav.innerHTML = `
@@ -460,6 +489,7 @@
       updateOrderBadges();
     });
 
+    row.appendChild(badge);
     row.appendChild(iconWrap);
     row.appendChild(meta);
     row.appendChild(quickNav);
@@ -484,11 +514,23 @@
     }
 
     // 初期ターゲットタグの決定
-    if (targetTag === null && window.state && window.state.tags && window.state.tags.size === 1 && !window.state.noTagFilter) {
-      currentTargetTag = Array.from(window.state.tags)[0];
-    } else {
+    if (targetTag !== null && targetTag !== undefined) {
       currentTargetTag = targetTag;
+    } else if (window.state) {
+      if (window.state.noTagFilter) {
+        currentTargetTag = '__notag__';
+      } else if (window.state.tags && window.state.tags.size > 0) {
+        currentTargetTag = Array.from(window.state.tags)[0];
+      } else {
+        currentTargetTag = null;
+      }
+    } else {
+      currentTargetTag = null;
     }
+
+    // 検索入力をリセット
+    const searchInput = document.getElementById('studioSearchInput');
+    if (searchInput) searchInput.value = '';
 
     // 左サイドバーのタグ一覧を描画
     renderStudioSidebar(allData);
@@ -504,22 +546,19 @@
     // 対象アイテムの抽出と並び順の決定
     let items = [];
     if (currentTargetTag === '__notag__') {
-      // タグなし
       items = allData.filter(d => !(d.tags && d.tags.length));
     } else if (currentTargetTag) {
-      // 特定タグ
       items = allData.filter(d => (d.tags || []).includes(currentTargetTag));
       const order = (window.TAG_ORDERS && window.TAG_ORDERS[currentTargetTag]) || [];
       if (order && order.length) {
-        const idMap = new Map(order.map((id, idx) => [Number(id), idx]));
+        const idMap = new Map(order.map((id, idx) => [String(id), idx]));
         items.sort((a, b) => {
-          const ia = idMap.has(Number(a.id)) ? idMap.get(Number(a.id)) : 999999;
-          const ib = idMap.has(Number(b.id)) ? idMap.get(Number(b.id)) : 999999;
+          const ia = idMap.has(String(a.id)) ? idMap.get(String(a.id)) : 999999;
+          const ib = idMap.has(String(b.id)) ? idMap.get(String(b.id)) : 999999;
           return ia - ib;
         });
       }
     } else {
-      // 全ての場合（DATAの現在の並び順）
       items = [...allData];
     }
 
@@ -543,21 +582,21 @@
     hasChanges = false;
     updateOrderBadges();
 
-    // SortableJS の初期化（スクロール連動・なめらかアニメーション仕様）
+    // SortableJS の初期化
     if (sortable) {
       sortable.destroy();
       sortable = null;
     }
     if (typeof Sortable !== 'undefined') {
       sortable = Sortable.create(grid, {
-        animation: 260,
+        animation: 240,
         easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
-        swapThreshold: 0.65, // グリッドでの不要なチラつきを防ぎ、スムーズに入れ替える
-        invertSwap: true,     // グリッドレイアウトにおける安定した入れ替え
-        scroll: mainEl,       // スクロール対象のDOM要素を直接指定
+        swapThreshold: 0.65,
+        invertSwap: true,
+        scroll: mainEl,
         scrollSensitivity: 140,
         scrollSpeed: 25,
         bubbleScroll: true,
@@ -581,75 +620,61 @@
       });
     }
 
-    // デフォルトは4列（または設定済み列数）に合わせる
-    const defaultCols = currentCols || parseInt(localStorage.getItem('grid_cols') || '4', 10);
-    setCols(defaultCols);
-
     studioEl.classList.add('is-open');
     document.body.style.overflow = 'hidden';
   }
 
-  // スタジオを閉じる
-  function closeStudio() {
-    if (hasChanges && !confirm('未保存の並び替えがあります。破棄して閉じますか？')) {
-      return;
-    }
-    isDraggingInStudio = false;
-    autoScrollSpeed = 0;
-    if (autoScrollRaf) {
-      cancelAnimationFrame(autoScrollRaf);
-      autoScrollRaf = null;
-    }
-    if (sortable) {
-      sortable.destroy();
-      sortable = null;
-    }
-    if (studioEl) {
-      studioEl.classList.remove('is-open');
-    }
-    document.body.style.overflow = '';
-  }
-
-  // リセット
-  function resetOrder() {
+  // 並び順を保存
+  function saveCurrentOrder() {
     if (!hasChanges) return;
-    if (!confirm('変更を破棄して開いた時点の並び順に戻しますか？')) return;
-    openStudio(currentTargetTag);
-  }
-
-  // 保存して閉じる
-  function saveAndClose() {
     const grid = document.getElementById('studioGrid');
     if (!grid) return;
     const rows = Array.from(grid.querySelectorAll('.row'));
-    const newIds = rows.map(r => Number(r.dataset.id));
+    const newIds = rows.map(r => r.dataset.id);
 
     if (currentTargetTag && currentTargetTag !== '__notag__') {
-      // 特定タグの順序保存
-      if (!window.TAG_ORDERS) window.TAG_ORDERS = {};
-      window.TAG_ORDERS[currentTargetTag] = newIds;
-      if (typeof window.saveTagOrdersToRemote === 'function') {
-        window.saveTagOrdersToRemote();
+      if (typeof window.setTagOrder === 'function') {
+        window.setTagOrder(currentTargetTag, newIds);
+      } else {
+        if (!window.TAG_ORDERS) window.TAG_ORDERS = {};
+        window.TAG_ORDERS[currentTargetTag] = newIds;
+        if (typeof window._setCachedOrders === 'function') window._setCachedOrders(window.TAG_ORDERS);
+        if (typeof window.saveTagOrdersToRemote === 'function') window.saveTagOrdersToRemote();
       }
     } else {
-      // 全体（またはタグなし）の順序保存
-      const idMap = new Map(newIds.map((id, idx) => [id, idx]));
-      if (window.DATA) {
-        window.DATA.sort((a, b) => {
-          const ia = idMap.has(Number(a.id)) ? idMap.get(Number(a.id)) : 999999;
-          const ib = idMap.has(Number(b.id)) ? idMap.get(Number(b.id)) : 999999;
-          return ia - ib;
-        });
+      if (typeof window.setGlobalOrder === 'function') {
+        window.setGlobalOrder(newIds);
+      } else {
+        const idMap = new Map(newIds.map((id, idx) => [String(id), idx]));
+        if (window.DATA) {
+          window.DATA.sort((a, b) => {
+            const ia = idMap.has(String(a.id)) ? idMap.get(String(a.id)) : 999999;
+            const ib = idMap.has(String(b.id)) ? idMap.get(String(b.id)) : 999999;
+            return ia - ib;
+          });
+        }
+        if (typeof window.setLocalBookmarks === 'function') window.setLocalBookmarks(window.DATA);
+        if (typeof window.saveBookmarksToRemote === 'function') window.saveBookmarksToRemote();
       }
-      if (typeof window.saveToStorage === 'function') window.saveToStorage();
-      if (typeof window.saveBookmarksToRemote === 'function') window.saveBookmarksToRemote();
     }
 
-    // 本番画面の更新
     if (typeof window.renderList === 'function') window.renderList();
 
     hasChanges = false;
     showToast('並び順を保存しました');
+  }
+
+  // スタジオを閉じる (閉じた時点で自動保存)
+  function closeStudio() {
+    // 変更があれば自動保存を実行
+    if (hasChanges) {
+      saveCurrentOrder();
+    }
+
+    // 本番画面の表示タグとソート状態を同期
+    if (typeof window.selectTagInMain === 'function') {
+      window.selectTagInMain(currentTargetTag);
+    }
 
     isDraggingInStudio = false;
     autoScrollSpeed = 0;
