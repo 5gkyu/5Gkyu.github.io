@@ -703,7 +703,7 @@
             <span class="panel-label" style="margin: 0; font-size: 15px;">現在のゲートレベルを入力</span>
             <div class="level-input-badge-wrap">
               <span class="level-input-prefix">Lv.</span>
-              <input type="number" id="curLevelInput" class="level-num-input" min="1" max="69" value="1">
+              <input type="number" id="curLevelInput" class="level-num-input" min="1" max="69" value="1" inputmode="numeric" autocomplete="off">
             </div>
           </div>
           <input type="range" id="curLevelSlider" class="level-slider" min="1" max="69" value="1">
@@ -750,7 +750,7 @@
     const levelBreakdownContainer = document.getElementById('levelBreakdownContainer');
 
     window.setCurLevel = (lvl) => {
-      curLevel = Math.max(1, Math.min(69, parseInt(lvl, 10)));
+      curLevel = Math.max(1, Math.min(69, parseInt(lvl, 10) || 1));
       syncInputs();
       calculate();
     };
@@ -760,16 +760,54 @@
       curLevelSlider.value = curLevel;
     }
 
+    // 数値入力欄：フォーカス時に全選択して打ち替えやすくする
+    curLevelInput.addEventListener('focus', () => {
+      curLevelInput.select();
+    });
+
+    // 数値入力欄：編集中はユーザーの入力を妨げないよう入力欄自身を強制上書きしない
     curLevelInput.addEventListener('input', (e) => {
-      let val = parseInt(e.target.value, 10) || 1;
-      curLevel = Math.max(1, Math.min(69, val));
+      const raw = e.target.value.trim();
+      if (raw === '') {
+        // 空欄（打ち直し中）のときは強制上書きせず待機
+        return;
+      }
+      let val = parseInt(raw, 10);
+      if (isNaN(val)) return;
+
+      if (val > 69) {
+        val = 69;
+        curLevelInput.value = 69;
+      }
+
+      if (val >= 1 && val <= 69) {
+        curLevel = val;
+        curLevelSlider.value = curLevel;
+        calculate();
+      }
+    });
+
+    // 数値入力欄：フォーカス離脱または確定時に 1〜69 の範囲に正規化
+    curLevelInput.addEventListener('blur', () => {
+      let val = parseInt(curLevelInput.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      if (val > 69) val = 69;
+      curLevel = val;
       syncInputs();
       calculate();
     });
 
+    // Enterキー押下で確定
+    curLevelInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        curLevelInput.blur();
+      }
+    });
+
+    // スライダー操作
     curLevelSlider.addEventListener('input', (e) => {
       curLevel = parseInt(e.target.value, 10);
-      syncInputs();
+      curLevelInput.value = curLevel;
       calculate();
     });
 
