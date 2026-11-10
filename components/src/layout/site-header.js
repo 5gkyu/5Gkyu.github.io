@@ -224,7 +224,7 @@ class SiteHeader extends HTMLElement {
           <div class="site-header__logo-area">
             <a href="/" class="site-header__logo-link">
               <span class="site-header__logo-icon" aria-hidden="true">
-                <img src="https://5gkyu.github.io/icon/hl-logo-6A7963.png" alt="Halcyon Logo" draggable="false" oncontextmenu="return false;">
+                <img src="/icon/hl-logo-6A7963.png" alt="Halcyon Logo" draggable="false" oncontextmenu="return false;">
               </span>
               <span class="site-header__logo-text">Halcyon</span>
             </a>
@@ -260,7 +260,6 @@ class SiteHeader extends HTMLElement {
               <li><a href="/archive/note/" class="site-header__nav-link">Note</a></li>
               <li><a href="/archive/other/" class="site-header__nav-link">Other</a></li>
               <li><a href="https://5gkyu.github.io/KyuLink/?tag=Kyu" class="site-header__nav-link">Links</a></li>
-              <li><a href="/contact/" class="site-header__contact">Contact</a></li>
             </ul>
           </nav>
         </div>
@@ -271,7 +270,7 @@ class SiteHeader extends HTMLElement {
           PinoがFukaの膝の上に戻ってくるというストーリー性のあるギミックです。
         -->
         <div style="position: absolute; bottom: -2px; left: 0; width: calc(100% - 15px); height: 3px; z-index: 150; pointer-events: none;">
-          <img src="https://5gkyu.github.io/icon/Fuka_header.png" alt="" draggable="false" oncontextmenu="return false;"
+          <img src="/icon/Fuka_header.png" alt="" draggable="false" oncontextmenu="return false;"
             style="
               position: absolute; 
               left: 0px; 
@@ -290,7 +289,7 @@ class SiteHeader extends HTMLElement {
               position: relative; 
               box-shadow: 0 0 8px rgba(238, 175, 161, 0.5);
             ">
-            <img src="https://5gkyu.github.io/icon/Pino_header.png" id="hl-header-bird" alt="" draggable="false" oncontextmenu="return false;"
+            <img src="/icon/Pino_header.png" id="hl-header-bird" alt="" draggable="false" oncontextmenu="return false;"
               style="
                 position: absolute; 
                 left: max(20px, 100%);
@@ -299,7 +298,7 @@ class SiteHeader extends HTMLElement {
                 bottom: -1px; 
                 width: 18px; 
                 max-width: none;
-                min-width: 18px;
+                min-width: 18px; 
                 height: auto; 
                 z-index: 10;
                 transition: transform 0.2s ease;
@@ -330,7 +329,7 @@ class SiteHeader extends HTMLElement {
           if (list) {
             drawer.innerHTML = `
               <div style="font-size: 0.85rem; font-weight: 700; color: var(--clr-sage); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span><img src="https://5gkyu.github.io/icon/content.svg" alt="" style="width:1em;height:1em;vertical-align:middle;display:inline-block;"></span>Contents
+                <span><img src="/icon/content.svg" alt="" style="width:1em;height:1em;vertical-align:middle;display:inline-block;"></span>Contents
               </div>
               ${list.outerHTML}
             `;

@@ -551,7 +551,7 @@
 
         .hero-nav-deck {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.4rem;
             width: 100%;
             pointer-events: auto;
@@ -726,11 +726,6 @@
         #nav-card-archive:hover {
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(162, 224, 72, 0.25);
             border-color: rgba(162, 224, 72, 0.4) !important;
-        }
-
-        #nav-card-contact:hover {
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(166, 196, 124, 0.25);
-            border-color: rgba(166, 196, 124, 0.4) !important;
         }
 
         .nav-card-icon {
@@ -1493,21 +1488,7 @@
                     </div>
                 </a>
 
-                <!-- 3. Contact -->
-                <a href="/contact/" class="hero-nav-card" id="nav-card-contact">
-                    <div class="nav-card-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" />
-                        </svg>
-                    </div>
-                    <div class="nav-card-texts">
-                        <span class="nav-card-title">Contact</span>
-                        <span class="nav-card-sub">お問い合わせ</span>
-                    </div>
-                </a>
-
-                <!-- 4. Policy (小豆沢こはねモデル) -->
+                <!-- 3. Policy (小豆沢こはねモデル) -->
                 <a href="/policy/" class="hero-nav-card" id="nav-card-policy">
                     <div class="nav-card-icon">
                         <svg viewBox="0 0 24 24">
@@ -1528,7 +1509,6 @@
             <div class="mobile-snap-trigger" id="m-trig-top" data-model="stargazer"></div>
             <div class="mobile-snap-trigger" id="m-trig-archive" data-model="archive"></div>
             <div class="mobile-snap-trigger" id="m-trig-links" data-model="links"></div>
-            <div class="mobile-snap-trigger" id="m-trig-contact" data-model="contact"></div>
             <div class="mobile-snap-trigger" id="m-trig-policy" data-model="policy"></div>
         </div>
 
@@ -1555,8 +1535,7 @@
             <div class="step-dot active" data-step="0" title="Top"></div>
             <div class="step-dot" data-step="1" title="Archive"></div>
             <div class="step-dot" data-step="2" title="Links"></div>
-            <div class="step-dot" data-step="3" title="Contact"></div>
-            <div class="step-dot" data-step="4" title="Policy"></div>
+            <div class="step-dot" data-step="3" title="Policy"></div>
         </div>
 
     </main>
@@ -1571,6 +1550,7 @@
     <script src="./particle/404.js?v=20260923_tetrapod_cone"></script>
     <script src="./particle/gears.js?v=20260822_1"></script>
     <script src="./particle/tetris.js?v=20260923_verified"></script>
+    <script src="./particle/breakout.js?v=20261106_cyber"></script>
     <script src="./particle/meadow.js?v=20260917_steady_girl"></script>
     <script src="./particle/jellyfish.js?v=20260918_oral_200"></script>
     <script src="./particle/dragon.js?v=20260825_1"></script>
@@ -1844,9 +1824,9 @@
                     desc: '画像圧縮、PDF変換、コラージュメーカー、カラーツールなど、ブラウザ上で快適に動作する便利Webアプリ群です。'
                 },
                 archive_play: {
-                    name: 'Neon Tetris (7-Bag System)',
+                    name: 'Cyber Breakout (ネオン・ブロック崩し)',
                     type: 'Fan Art',
-                    ip: 'The Tetris Company / Guideline 7-Bag',
+                    ip: 'Taito / Atari Breakout Homage',
                     color: '#38bdf8',
                     title: 'Play & Games',
                     subtitle: 'Games & Tools',
@@ -2030,7 +2010,6 @@
             // ナビゲーションカードのマウスホバー・フォーカスイベント（イースターエッグ）
             const navHoverMap = [
                 { id: 'nav-card-links', key: 'links' },
-                { id: 'nav-card-contact', key: 'contact' },
                 { id: 'nav-card-policy', key: 'policy' }
             ];
 
@@ -2128,18 +2107,8 @@
             <a href="/KyuLink/?tag=Kyu" target="_blank" rel="noopener noreferrer" class="m-primary-btn">Open KyuLink Portal ➔</a>
           `
                 },
-                contact: {
-                    badge: '03 / Contact',
-                    title: 'Contact',
-                    sub: 'お問い合わせ',
-                    desc: 'ご質問・ご要望・ご依頼などのお問い合わせはこちらから。',
-                    showHint: false,
-                    actionsHtml: `
-            <a href="/contact/" class="m-primary-btn">Go to Contact Form ➔</a>
-          `
-                },
                 policy: {
-                    badge: '04 / Policy',
+                    badge: '03 / Policy',
                     title: 'Policy',
                     sub: '利用規約・ポリシー',
                     desc: '利用規約、免責事項、プライバシーポリシー、各種ツールの利用方針について掲載しています。',
@@ -2241,6 +2210,7 @@
                 let notfoundTmpl = [];
                 let gearsTmpl = [];
                 let tetrisTmpl = [];
+                let breakoutTmpl = [];
                 let meadowTmpl = [];
                 let pianorollTmpl = [];
                 let jellyfishTmpl = [];
@@ -2638,6 +2608,8 @@
                             customModelCategory = 'penrose';
                         } else if (nameLower.includes('404') || nameLower.includes('notfound') || textLower.includes('generate404template')) {
                             customModelCategory = '404';
+                        } else if (nameLower.includes('breakout') || textLower.includes('generatebreakouttemplate') || textLower.includes('buildstaticbreakout')) {
+                            customModelCategory = 'breakout';
                         } else if (nameLower.includes('tetris') || textLower.includes('generatetetristemplate') || textLower.includes('buildstatictetris')) {
                             customModelCategory = 'tetris';
                         } else if (nameLower.includes('meadow') || textLower.includes('generatemeadowtemplate') || textLower.includes('buildmeadowparticles')) {
@@ -2690,6 +2662,7 @@
                 if (text.includes('generatePenroseTemplate') && typeof generatePenroseTemplate === 'function') return generatePenroseTemplate;
                 if (text.includes('generate404Template') && typeof generate404Template === 'function') return generate404Template;
                 if (text.includes('generateTetrisTemplate') && typeof generateTetrisTemplate === 'function') return generateTetrisTemplate;
+                if (text.includes('generateBreakoutTemplate') && typeof generateBreakoutTemplate === 'function') return generateBreakoutTemplate;
                 return window.generateCustomTemplate || window.generateHourglassTemplate || window.generateMeadowTemplate || null;
               `);
                             const fnOrArr = sandboxFn();
@@ -3116,7 +3089,8 @@
 
                     const is404Model = (effectiveModel === 'archive_note' || effectiveModel === 'notfound' || effectiveModel === '404' || (effectiveModel === 'custom' && customModelCategory === '404'));
                     const isGearsModel = (effectiveModel === 'archive_app' || effectiveModel === 'gears' || (effectiveModel === 'custom' && customModelCategory === 'gears'));
-                    const isTetrisModel = (effectiveModel === 'archive_play' || effectiveModel === 'tetris' || (effectiveModel === 'custom' && customModelCategory === 'tetris'));
+                    const isBreakoutModel = (effectiveModel === 'archive_play' || effectiveModel === 'breakout' || (effectiveModel === 'custom' && customModelCategory === 'breakout'));
+                    const isTetrisModel = (effectiveModel === 'tetris' || (effectiveModel === 'custom' && customModelCategory === 'tetris'));
                     const isMeadowModel = (effectiveModel === 'policy' || effectiveModel === 'meadow' || (effectiveModel === 'custom' && customModelCategory === 'meadow'));
                     const isJellyfishModel = (effectiveModel === 'links' || effectiveModel === 'jellyfish' || (effectiveModel === 'custom' && customModelCategory === 'jellyfish'));
                     const isDragonModel = (effectiveModel === 'dragon' || (effectiveModel === 'custom' && customModelCategory === 'dragon'));
@@ -3126,7 +3100,7 @@
                     const isStargazerModel = (effectiveModel === 'stargazer');
                     const isFukaModel = (effectiveModel === 'sns_discord' || effectiveModel === 'sns_note' || effectiveModel === 'fuka');
                     const isDogModel = (effectiveModel === 'sns_github' || effectiveModel === 'dog');
-                    const isExactModel = (isStargazerModel || isVerandaModel || isDragonModel || is404Model || isGearsModel || isTetrisModel || isMeadowModel || isJellyfishModel || isFlashAnzanModel || effectiveModel === 'custom');
+                    const isExactModel = (isStargazerModel || isVerandaModel || isDragonModel || is404Model || isGearsModel || isBreakoutModel || isTetrisModel || isMeadowModel || isJellyfishModel || isFlashAnzanModel || effectiveModel === 'custom');
 
                     const orbitStarLen = 600; // 周回するスターダスト数
                     const streamStarLen = Math.max(0, 4000 - turtleLen - orbitStarLen); // かきわけ横流れスターダスト数 (合計4000に調整)
@@ -3161,7 +3135,11 @@
                         if (typeof generateGearsTemplate === 'function') {
                             gearsTmpl = generateGearsTemplate(modelTime);
                         }
-                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'breakout') {
+                        if (typeof generateBreakoutTemplate === 'function') {
+                            breakoutTmpl = generateBreakoutTemplate(modelTime);
+                        }
+                    } else if (effectiveModel === 'tetris') {
                         if (typeof generateTetrisTemplate === 'function') {
                             tetrisTmpl = generateTetrisTemplate(modelTime);
                         }
@@ -3211,7 +3189,9 @@
                         activeCount = (tmpl && tmpl.length) || 4592;
                     } else if (effectiveModel === 'archive_app' || effectiveModel === 'gears') {
                         activeCount = (gearsTmpl && gearsTmpl.length) || 2986;
-                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'breakout') {
+                        activeCount = (breakoutTmpl && breakoutTmpl.length) || 2220;
+                    } else if (effectiveModel === 'tetris') {
                         activeCount = (tetrisTmpl && tetrisTmpl.length) || 3042;
                     } else if (effectiveModel === 'custom') {
                         activeCount = (customModelTmpl && customModelTmpl.length) || mCustomLen;
@@ -3301,7 +3281,7 @@
                                 ? Math.min(canvasW / 520, canvasH / 440) * 1.22
                                 : Math.min(canvasW / 520, canvasH / 460) * 1.35);
                         activeCy = isMobile ? canvasH * 0.38 : canvasH * 0.50;
-                    } else if (isTetrisModel) {
+                    } else if (isBreakoutModel || isTetrisModel) {
                         activeScale = isMobile
                             ? Math.min(canvasW / 360, canvasH / 500) * 1.05
                             : (isTabletLandscape
@@ -3323,7 +3303,9 @@
                         modelTmpl = getContactTmpl(); modelLen = (modelTmpl && modelTmpl.length) || 4008;
                     } else if (effectiveModel === 'archive_app' || effectiveModel === 'gears') {
                         modelTmpl = gearsTmpl; modelLen = (gearsTmpl && gearsTmpl.length) || 2986;
-                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'tetris') {
+                    } else if (effectiveModel === 'archive_play' || effectiveModel === 'breakout') {
+                        modelTmpl = breakoutTmpl; modelLen = (breakoutTmpl && breakoutTmpl.length) || 2220;
+                    } else if (effectiveModel === 'tetris') {
                         modelTmpl = tetrisTmpl; modelLen = (tetrisTmpl && tetrisTmpl.length) || 3042;
                     } else if (effectiveModel === 'links' || effectiveModel === 'jellyfish') {
                         modelTmpl = jellyfishTmpl; modelLen = (jellyfishTmpl && jellyfishTmpl.length) || 4000;
