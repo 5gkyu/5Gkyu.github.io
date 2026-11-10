@@ -39,6 +39,24 @@
       min-height: 100vh;
     }
 
+    /* 画像の長押し保存・ドラッグ・選択の誤操作を防止 */
+    img {
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+    }
+
+    .mat-img-wrap,
+    .lvl-item-badge,
+    .unit-btn,
+    .lvl-unit-btn {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
     .container {
       max-width: 100%;
       margin: 0;
@@ -679,19 +697,19 @@
         <div class="panel-label">ユニットの選択</div>
         <div class="unit-selector" id="unitSelector">
           <button class="unit-btn active" data-unit="Leo/need" aria-label="Leo/need" title="Leo/need">
-            <img src="/image/pjsk/001_logo.png.webp" alt="Leo/need" class="unit-logo-img">
+            <img src="/image/pjsk/001_logo.png.webp" alt="Leo/need" class="unit-logo-img" draggable="false">
           </button>
           <button class="unit-btn" data-unit="MORE MORE JUMP!" aria-label="MORE MORE JUMP!" title="MORE MORE JUMP!">
-            <img src="/image/pjsk/002_logo.png.webp" alt="MORE MORE JUMP!" class="unit-logo-img">
+            <img src="/image/pjsk/002_logo.png.webp" alt="MORE MORE JUMP!" class="unit-logo-img" draggable="false">
           </button>
           <button class="unit-btn" data-unit="Vivid BAD SQUAD" aria-label="Vivid BAD SQUAD" title="Vivid BAD SQUAD">
-            <img src="/image/pjsk/003_logo.png.webp" alt="Vivid BAD SQUAD" class="unit-logo-img">
+            <img src="/image/pjsk/003_logo.png.webp" alt="Vivid BAD SQUAD" class="unit-logo-img" draggable="false">
           </button>
           <button class="unit-btn" data-unit="ワンダーランズ×ショウタイム" aria-label="ワンダーランズ×ショウタイム" title="ワンダーランズ×ショウタイム">
-            <img src="/image/pjsk/004_logo.png.webp" alt="ワンダーランズ×ショウタイム" class="unit-logo-img">
+            <img src="/image/pjsk/004_logo.png.webp" alt="ワンダーランズ×ショウタイム" class="unit-logo-img" draggable="false">
           </button>
           <button class="unit-btn" data-unit="25時、ナイトコードで。" aria-label="25時、ナイトコードで。" title="25時、ナイトコードで。">
-            <img src="/image/pjsk/005_logo.png.webp" alt="25時、ナイトコードで。" class="unit-logo-img">
+            <img src="/image/pjsk/005_logo.png.webp" alt="25時、ナイトコードで。" class="unit-logo-img" draggable="false">
           </button>
         </div>
       </div>
@@ -918,9 +936,10 @@
           const isZero = (count === 0);
           const card = document.createElement('div');
           card.className = 'mat-card' + (isZero ? ' is-zero' : '');
+          card.title = name;
 
           const imgTag = image
-            ? `<img src="${image}" alt="${name}" class="mat-img" loading="lazy">`
+            ? `<img src="${image}" alt="${name}" class="mat-img" loading="lazy" draggable="false">`
             : `<div style="font-size: 11px; color: #888;">No Img</div>`;
 
           card.innerHTML = `
@@ -988,7 +1007,7 @@
           // ユニットごとに素材が異なる場合はユニット選択ボタンを表示
           const unitBtnsHtml = UNITS.map(u => `
             <button class="lvl-unit-btn ${u.id === currentUnit ? 'active' : ''}" data-unit="${u.id}" title="${u.id}">
-              <img src="${u.logo}" alt="${u.id}">
+              <img src="${u.logo}" alt="${u.id}" draggable="false">
             </button>
           `).join('');
 
@@ -1018,7 +1037,7 @@
           badge.title = it.name;
 
           const imgTag = it.image
-            ? `<img src="${it.image}" alt="${it.name}" class="lvl-item-img" loading="lazy">`
+            ? `<img src="${it.image}" alt="${it.name}" class="lvl-item-img" loading="lazy" draggable="false">`
             : `<div style="font-size: 10px; color: #888;">No Img</div>`;
 
           badge.innerHTML = `
