@@ -585,6 +585,39 @@ body {
   background: rgba(154, 176, 143, 0.05);
 }
 
+/* バフィー持ちキャラクターの行ハイライト（ラベンダー・パープル系 + 連続時統合縁取り） */
+.rating-table tbody tr.row-buffie {
+  background: rgba(178, 138, 224, 0.16) !important;
+}
+
+.rating-table tbody tr.row-buffie:hover {
+  background: rgba(178, 138, 224, 0.25) !important;
+}
+
+@media (min-width: 769px) {
+  .rating-table tbody tr.row-buffie td {
+    border-top: 2px solid #8e5ec7;
+    border-bottom: 2px solid #8e5ec7;
+  }
+
+  .rating-table tbody tr.row-buffie td:first-child {
+    border-left: 3px solid #8e5ec7;
+  }
+
+  .rating-table tbody tr.row-buffie td:last-child {
+    border-right: 2px solid #8e5ec7;
+  }
+
+  /* 連続するバフィーキャラの間は1pxの薄い区切り線に統一 */
+  .rating-table tbody tr.row-buffie:has(+ tr.row-buffie) td {
+    border-bottom: 1px solid rgba(142, 94, 199, 0.28);
+  }
+
+  .rating-table tbody tr.row-buffie + tr.row-buffie td {
+    border-top: 1px solid rgba(142, 94, 199, 0.28);
+  }
+}
+
 /* ==== BanPic-Brawl と同形式のキャラクターカードアイコン ==== */
 .character-card,
 .table-image-wrap {
@@ -1464,6 +1497,8 @@ body {
   margin-left: auto;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .editor-status-toggle-group {
@@ -1508,6 +1543,20 @@ body {
   color: #ffffff;
   font-weight: 800;
   box-shadow: 0 2px 6px rgba(168, 66, 50, 0.4);
+}
+
+.editor-status-btn.active.btn-buffie-off {
+  background: #8a7b70;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(106, 86, 74, 0.3);
+}
+
+.editor-status-btn.active.btn-buffie-on {
+  background: #8e5ec7;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(142, 94, 199, 0.4);
 }
 
 /* テーブル用 未実装バッジ */
@@ -3287,17 +3336,39 @@ body.modal-open {
     white-space: nowrap;
   }
 
+  /* スマホ用：バフィー持ちキャラクターの縁取り（連続時は1つの枠に統合） */
+  .rating-table tbody tr.row-buffie {
+    outline: none;
+    border: 2px solid #8e5ec7;
+    border-radius: 6px;
+  }
+
+  .rating-table tbody tr.row-buffie:has(+ tr.row-buffie) {
+    border-bottom: 1px solid rgba(142, 94, 199, 0.28);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .rating-table tbody tr.row-buffie + tr.row-buffie {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .rating-table .strength-wrap,
   .rating-table .strength-wrap.strength-table {
     gap: 1px;
   }
 
+  .rating-table .strength-wrap .strength-meter,
   .rating-table .strength-wrap.strength-table .strength-meter {
-    gap: 1px;
+    gap: 1.5px;
   }
 
+  .rating-table .strength-wrap .strength-bar,
   .rating-table .strength-wrap.strength-table .strength-bar {
-    width: 6px;
-    height: 6px;
+    width: 6.5px;
+    height: 6.5px;
   }
 
   .diff-badge {
@@ -5016,7 +5087,7 @@ body.modal-open {
     transform: rotate(0deg);
   }
 
-  /* ツール & 凡例カードをスマホでコンパクトな横3列に */
+  /* ツールカードをスマホでコンパクトな横2列に */
   .sidebar-box-tools {
     padding: 8px 11px;
   }
@@ -5026,18 +5097,32 @@ body.modal-open {
   }
 
   .sidebar-tools-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 5px;
-  }
-
-  .criteria-open-btn {
-    grid-column: auto;
-    height: 30px !important;
   }
 
   .sidebar-admin-footer {
     padding: 6px 10px;
   }
+}
+
+#ownerToolsBox[hidden] {
+  display: none !important;
+}
+
+.criteria-standalone-btn {
+  width: 100% !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(154, 176, 143, 0.5) !important;
+  box-shadow: 0 2px 6px rgba(106, 86, 74, 0.04);
+  font-size: 0.78rem !important;
+}
+
+.criteria-standalone-btn:hover {
+  background: rgba(154, 176, 143, 0.16) !important;
+  border-color: var(--clr-sage) !important;
 }
 
 @media (max-width: 600px) {

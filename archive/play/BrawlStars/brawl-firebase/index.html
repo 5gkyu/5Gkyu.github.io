@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=20261114_07">
+  <link rel="stylesheet" href="styles.css?v=20261114_14">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
@@ -227,9 +227,15 @@
             </div>
           </div>
 
-          <!-- ツールカード -->
-          <div class="sidebar-box sidebar-box-tools">
-            <h3 class="sidebar-section-title">ツール & 凡例</h3>
+          <!-- 評価基準・凡例ボタン（常時表示） -->
+          <button id="btnOpenCriteriaModal" class="sidebar-tool-btn criteria-open-btn criteria-standalone-btn" type="button"
+            title="強さや装備の評価基準・凡例を表示">
+            評価基準・凡例
+          </button>
+
+          <!-- ツールカード（オーナーのみ表示） -->
+          <div id="ownerToolsBox" class="sidebar-box sidebar-box-tools" hidden>
+            <h3 class="sidebar-section-title">ツール</h3>
             <div class="sidebar-tools-grid">
               <button id="btnOpenTierModal" class="sidebar-tool-btn tier-generator-btn" type="button"
                 title="現在の評価でTier表を生成・保存">
@@ -238,10 +244,6 @@
               <button id="btnOpenYearModal" class="sidebar-tool-btn year-generator-btn" type="button"
                 title="実装年ごとのキャラクター年表を生成・保存">
                 実装年別表
-              </button>
-              <button id="btnOpenCriteriaModal" class="sidebar-tool-btn criteria-open-btn" type="button"
-                title="強さや装備の評価基準・凡例を表示">
-                評価基準・凡例
               </button>
             </div>
           </div>
@@ -296,6 +298,15 @@
           <span id="editorCharSubtitle" class="editor-char-subtitle"></span>
         </div>
         <div class="editor-status-switch-wrap">
+          <div class="editor-status-toggle-group" id="buffieToggleGroup" role="group" aria-label="バフィー所持状態">
+            <button type="button" class="editor-status-btn btn-buffie-off active" data-buffie="false" title="バフィー未実装・未所持として扱う">
+              バフィーなし
+            </button>
+            <button type="button" class="editor-status-btn btn-buffie-on" data-buffie="true" title="バフィー持ちキャラクターとしてマーク">
+              バフィーあり
+            </button>
+          </div>
+          <input type="hidden" id="editBuffie" value="false" />
           <div class="editor-status-toggle-group" id="unreleasedToggleGroup" role="group" aria-label="実装ステータス">
             <button type="button" class="editor-status-btn btn-status-released active" data-unreleased="false" title="実装済みキャラクターとして扱う">
               実装済み
@@ -556,8 +567,8 @@
       <div class="criteria-modal-header">
         <h3 id="criteriaModalTitle" class="criteria-modal-title">ブロスタ 評価基準 & 凡例</h3>
         <p class="criteria-lead">
-          主に3対3（ガチバトル）を想定した個人評価です。<br>
-          使用率・勝率などの外部データに基づくものではなく、<strong>筆者の個人的な感覚と独断</strong>によって決定しています。
+          主に3対3（ガチバトル）を想定した評価です。<br>
+          使用率・勝率などの外部データに基づくものではなく、<strong>個人的な感覚と独断</strong>によって決定しています。
         </p>
       </div>
 
@@ -624,21 +635,21 @@
               <span class="diff-badge diff-1">低</span>
               <div class="difficulty-legend-desc">
                 <strong>3か月ぶりに使っても動かせる</strong>
-                <p>操作がシンプルで癖が少なく、久しぶりのプレイでも感覚を取り戻してすぐ動かせるキャラクター。</p>
+                <p>操作がシンプルで癖が少なく、久しぶりのプレイでも感覚を取り戻してすぐに扱えます。</p>
               </div>
             </li>
             <li class="difficulty-legend-item">
               <span class="diff-badge diff-2">中</span>
               <div class="difficulty-legend-desc">
                 <strong>使い慣れていないと戦犯になりがち</strong>
-                <p>立ち回りやスキルの使い所にコツが必要で、慣れていない人が使うとチームの負担になってしまいやすいキャラクター。</p>
+                <p>立ち回りやスキルの使い所にコツが必要で、慣れていないと味方の足を引っ張ってしまいやすいです。</p>
               </div>
             </li>
             <li class="difficulty-legend-item">
               <span class="diff-badge diff-3">高</span>
               <div class="difficulty-legend-desc">
                 <strong>難しい</strong>
-                <p>精密なエイムやシビアな判断、高いキャラコンが求められ、安定して活躍するまでのハードルが高い玄人向けキャラクター。</p>
+                <p>精密なエイムやシビアな判断、高いキャラコンが求められ、安定して活躍するまでのハードルが高めです。</p>
               </div>
             </li>
           </ul>
@@ -647,18 +658,18 @@
         <div class="criteria-duo-grid">
           <div class="criteria-card">
             <h4 class="criteria-subheading">スタパ & ガジェット</h4>
-            <p>「コインを節約して優先購入するならまずはどちらを買うべきか」という実践的な基準です。</p>
+            <p>コインを節約して優先購入するなら、まずはどちらを買うべきかという実践的な基準で選んでいます。</p>
           </div>
           <div class="criteria-card">
             <h4 class="criteria-subheading">推奨ギア</h4>
-            <p>左から順におすすめ。シールドとビジョン（明らかに不要なキャラはダメージ）はマストで購入を推奨します。</p>
+            <p>左から順におすすめです。シールドとビジョン（明らかに不要なキャラはダメージ）の購入を推奨します。</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20261114_02"></script>
+  <script type="module" src="app.js?v=20261114_04"></script>
 </body>
 
 </html>

@@ -2174,6 +2174,31 @@ const editGuide = document.getElementById("editGuide");
 const editWiki = document.getElementById("editWiki");
 const editUnreleased = document.getElementById("editUnreleased");
 const unreleasedToggleGroup = document.getElementById("unreleasedToggleGroup");
+const editBuffie = document.getElementById("editBuffie");
+const buffieToggleGroup = document.getElementById("buffieToggleGroup");
+
+// キャラクターがバフィー持ちかどうかを判定
+function hasCharBuffie(c) {
+  if (!c) return false;
+  if (typeof c.buffie === "boolean") return c.buffie;
+  const hasGadgetBuffie = Array.isArray(c.gadgets) && c.gadgets.some(g => g && g.buffie_description);
+  const hasStarBuffie = Array.isArray(c.star_powers) && c.star_powers.some(s => s && s.buffie_description);
+  const hasHyperBuffie = !!(c.hypercharge && c.hypercharge.buffie_description);
+  return hasGadgetBuffie || hasStarBuffie || hasHyperBuffie;
+}
+
+// エディターモーダル内のバフィー所持トグル状態を反映
+function setEditorBuffieState(hasBuffie) {
+  if (editBuffie) {
+    editBuffie.value = hasBuffie ? "true" : "false";
+  }
+  if (buffieToggleGroup) {
+    buffieToggleGroup.querySelectorAll(".editor-status-btn").forEach(btn => {
+      const btnVal = btn.dataset.buffie === "true";
+      btn.classList.toggle("active", btnVal === hasBuffie);
+    });
+  }
+}
 
 // エディターモーダル内の未実装ステータストグル状態を反映
 function setEditorUnreleasedState(isUnreleased) {
@@ -2421,6 +2446,11 @@ function setupFirebaseListeners() {
                 needsCleanup = true;
               }
             }
+            // バフィー所持フラグが未設定の場合は既存データから補完
+            if (typeof c.buffie !== "boolean") {
+              c.buffie = hasCharBuffie(c);
+              needsCleanup = true;
+            }
           });
           allChars.push(...list);
         }
@@ -2547,6 +2577,10 @@ function updateOwnerOnlyVisibility() {
   const tagSelectSection = document.getElementById("tagSelectSection");
   if (tagSelectSection) {
     tagSelectSection.hidden = !ownerOnly;
+  }
+  const ownerToolsBox = document.getElementById("ownerToolsBox");
+  if (ownerToolsBox) {
+    ownerToolsBox.hidden = !ownerOnly;
   }
   if (!ownerOnly) {
     if (tagFilterPanel) tagFilterPanel.hidden = true;
@@ -2739,6 +2773,16 @@ function setupToggleButtons() {
       btn.addEventListener("click", () => {
         const isUnreleased = btn.dataset.unreleased === "true";
         setEditorUnreleasedState(isUnreleased);
+      });
+    });
+  }
+
+  // バフィー所持トグルのクリック設定
+  if (buffieToggleGroup) {
+    buffieToggleGroup.querySelectorAll(".editor-status-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const hasBuffie = btn.dataset.buffie === "true";
+        setEditorBuffieState(hasBuffie);
       });
     });
   }
@@ -3762,7 +3806,11 @@ function renderCharacterRowHtml(c, isEditable) {
     }
   }
 
-  const rowClass = isUnreleased ? 'class="row-unreleased"' : '';
+  const hasBuffie = hasCharBuffie(c);
+  const rowClasses = [];
+  if (isUnreleased) rowClasses.push("row-unreleased");
+  if (hasBuffie) rowClasses.push("row-buffie");
+  const rowClass = rowClasses.length > 0 ? `class="${rowClasses.join(" ")}"` : '';
   const unreleasedTag = isUnreleased ? `<span class="table-char-unreleased-tag">未実装</span>` : '';
   const rarityLevel = c.rarity_id || RARITY_HEX_TO_LEVEL[(c.rare || "").toLowerCase()] || 2;
 
@@ -4561,6 +4609,7 @@ window.openEditorModal = function (charId) {
     editGuide.value = char.guide || "";
     editWiki.value = char.wiki || "";
     setEditorUnreleasedState(!!char.unreleased);
+    setEditorBuffieState(hasCharBuffie(char));
   } else {
     editorModalTitle.textContent = "新規キャラクター追加";
     if (editorCharIcon) {
@@ -4579,6 +4628,7 @@ window.openEditorModal = function (charId) {
     editGuide.value = "";
     editWiki.value = "";
     setEditorUnreleasedState(false);
+    setEditorBuffieState(false);
   }
 
   // トグルボタンの状態設定
@@ -4651,6 +4701,7 @@ async function handleFormSubmit(e) {
   });
 
   const isUnreleased = editUnreleased ? (editUnreleased.value === "true") : false;
+  const isBuffie = editBuffie ? (editBuffie.value === "true") : false;
 
   const updatedChar = {
     ...(oldChar || {}),
@@ -4662,6 +4713,7 @@ async function handleFormSubmit(e) {
     image: (editCharId.value && oldChar?.image) || `${id}.png`,
     rare: editRare.value,
     unreleased: isUnreleased,
+    buffie: isBuffie,
     tuyosa: Number(editTuyosa.value),
     difficulty: Number(editDifficulty.value),
     sutapa: Number(editSutapa.value),
