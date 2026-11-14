@@ -362,10 +362,10 @@ const BRAWLER_RANGE_MAP = {
   },
   "リコ": {
     "items": [
-      "10.0 (直進)",
-      "11.67 (反射)"
+      "9.67 (直進)",
+      "11.33 (反射)"
     ],
-    "effective": 10.0,
+    "effective": 9.67,
     "detail": "通常直進9.67マス＋弾丸半径0.33マス（太さ0.67）で実射程10.0マス、壁反射後11.33マス＋0.33マスで実射程11.67マス。メイン（直進）実射程は10.0マス。"
   },
   "ラフス": {
@@ -503,8 +503,8 @@ const BRAWLER_RANGE_MAP = {
       "11.0 (十字)",
       "7.67 (投擲)"
     ],
-    "effective": 11,
-    "detail": "十字爆風込みの実効最大射程11.0マス、投擲飛距離7.67マス"
+    "effective": 11.42,
+    "detail": "投擲中心距離7.67マス（内部CastingRange: 23）＋十字分裂飛距離3.33マス（内部Distance: 10）＋十字弾半径0.42マス（内部Radius: 125、太さ0.83）で実射程11.42マス"
   },
   "スプラウト": {
     "items": [
@@ -848,11 +848,11 @@ const BRAWLER_RANGE_MAP = {
   },
   "イヴ": {
     "items": [
-      "9.33 (逆回転)",
-      "9.33 (通常)"
+      "9.33 (大卵)",
+      "9.33 (小卵)"
     ],
-    "effective": 9.67,
-    "detail": "通常攻撃は小(0.33)・中(0.50)・大(0.67)の3連射。スタパ「逆回転」時は最前線の初弾が大卵(太さ0.67)になり初弾実射程9.67マス、通常時は小卵(太さ0.33)が先頭のため初弾実射程9.50マス。"
+    "effective": 10.0,
+    "detail": "通常攻撃は小(太さ0.67)・中(太さ1.00)・大(太さ1.33)の3連射（基礎射程9.33マス）。大卵（内部Radius: 200）到達時の実射程は10.0マス、小卵（内部Radius: 100）は実射程9.67マス。"
   },
   "オーティス": {
     "items": [
@@ -957,10 +957,11 @@ const BRAWLER_RANGE_MAP = {
   },
   "ノリ": {
     "items": [
-      "3.67"
+      "8.0 (長押し)",
+      "3.67 (近接)"
     ],
-    "effective": 3.67,
-    "detail": "通常攻撃（近接扇状薙ぎ払い）3.67マス（ビビやケンジと同等の近接スイング）"
+    "effective": 8.43,
+    "detail": "長押しチャージ斬撃波は最大8.0マス（内部MaxCastingRange: 24）＋弾半径0.43マス（内部Radius: 130、太さ0.87）で実射程8.43マス、タップ近接斬撃は3.67マス"
   },
   "オーリー": {
     "items": [
@@ -1055,8 +1056,8 @@ const BRAWLER_RANGE_MAP = {
     "items": [
       "8.0"
     ],
-    "effective": 8.83,
-    "detail": "通常旋風弾8.0マス＋旋風半径0.83マス（内部Radius: 250、太さ1.67）で実射程8.83マス"
+    "effective": 8.67,
+    "detail": "通常旋風弾8.0マス＋旋風半径0.67マス（内部Radius: 200、太さ1.33）で実射程8.67マス"
   },
   "コスモ": {
     "items": [
@@ -1074,10 +1075,10 @@ const BRAWLER_RANGE_MAP = {
   },
   "サンダーフロッグ": {
     "items": [
-      "9.67"
+      "8.67"
     ],
-    "effective": 9.67,
-    "detail": "通常投擲9.67マス＋三角形電撃ゾーン。ウルト最大25マス（3段跳躍）"
+    "effective": 10.0,
+    "detail": "指定地点へのカエル投擲: 中心距離8.67マス（内部CastingRange: 26）＋着弾電撃エリア半径1.33マス（内部Radius: 400、直径2.67）で実射程10.0マス"
   },
   "レイ": {
     "items": [
@@ -1090,8 +1091,8 @@ const BRAWLER_RANGE_MAP = {
     "items": [
       "9.67"
     ],
-    "effective": 9.67,
-    "detail": "通常攻撃9.67マス（螺旋軌道）。ウルト高火力バースト"
+    "effective": 10.07,
+    "detail": "通常攻撃9.67マス（内部CastingRange: 29）＋カード半径0.40マス（内部Radius: 120、太さ0.80）で実射程10.07マス"
   },
   "ボルト": {
     "items": [
@@ -1226,8 +1227,12 @@ const BRAWLER_BULLET_WIDTH_MAP = {
     "num": 0.67
   },
   "ノリ": {
-    "text": "-",
-    "num": 0
+    "items": [
+      "0.87 (長押し)",
+      "- (近接)"
+    ],
+    "text": "0.87 (長押し)",
+    "num": 0.87
   },
   "モーティス": {
     "items": [
@@ -1303,11 +1308,11 @@ const BRAWLER_BULLET_WIDTH_MAP = {
   },
   "イヴ": {
     "items": [
-      "0.67 (逆回転)",
-      "0.33 (通常)"
+      "1.33 (大卵)",
+      "0.67 (小卵)"
     ],
-    "text": "0.67 (逆回転)",
-    "num": 0.67
+    "text": "1.33 (大卵)",
+    "num": 1.33
   },
   "ジャネット": {
     "text": "0.67",
@@ -1510,11 +1515,11 @@ const BRAWLER_BULLET_WIDTH_MAP = {
   },
   "グロム": {
     "items": [
-      "1.00 (十字)",
-      "1.00 (投擲)"
+      "0.83 (十字)",
+      "- (投擲)"
     ],
-    "text": "1.00",
-    "num": 1
+    "text": "0.83 (十字)",
+    "num": 0.83
   },
   "ボニー": {
     "items": [
@@ -1709,16 +1714,16 @@ const BRAWLER_BULLET_WIDTH_MAP = {
     "num": 1
   },
   "サンダーフロッグ": {
-    "text": "0.80",
-    "num": 0.8
+    "text": "2.67 (電撃)",
+    "num": 2.67
   },
   "レイ": {
     "text": "0.67",
     "num": 0.67
   },
   "ルビー": {
-    "text": "0.67",
-    "num": 0.67
+    "text": "0.80",
+    "num": 0.8
   },
   "エムズ": {
     "items": [
@@ -1733,17 +1738,7 @@ const BRAWLER_BULLET_WIDTH_MAP = {
 function getCharBulletWidthInfo(char) {
   if (!char) return { items: ["-"], text: "-", num: 0.0 };
 
-  // 1. キャラクターデータ自身に bullet_width_num があれば最優先で使用
-  if (char.bullet_width_num !== undefined && char.bullet_width_num !== null) {
-    const text = char.bullet_width || String(char.bullet_width_num);
-    return {
-      items: [text],
-      text: text,
-      num: Number(char.bullet_width_num)
-    };
-  }
-
-  // 2. 辞書マップからの参照（フォールバック）
+  // 1. 最新マスター辞書マップからの参照（最優先）
   const name = (char.name || "").trim();
   const mapInfo = BRAWLER_BULLET_WIDTH_MAP[name];
   if (mapInfo) {
@@ -1754,6 +1749,17 @@ function getCharBulletWidthInfo(char) {
       num: typeof mapInfo.num === "number" ? mapInfo.num : 0.0
     };
   }
+
+  // 2. フォールバック：キャラクターデータ自身に bullet_width_num がある場合
+  if (char.bullet_width_num !== undefined && char.bullet_width_num !== null) {
+    const text = char.bullet_width || String(char.bullet_width_num);
+    return {
+      items: [text],
+      text: text,
+      num: Number(char.bullet_width_num)
+    };
+  }
+
   const w = char.bullet_width || "-";
   const numMatch = String(w).match(/\d+(\.\d+)?/);
   const n = numMatch ? parseFloat(numMatch[0]) : 0.0;
@@ -1764,20 +1770,7 @@ function getCharBulletWidthInfo(char) {
 function getCharRangeInfo(char) {
   if (!char) return { effective: 0, range: 0, items: ["-"], mainText: "-", subText: null, detail: null };
 
-  // 1. キャラクターデータ自身に range_effective があれば最優先で使用
-  if (char.range_effective !== undefined && char.range_effective !== null) {
-    const items = Array.isArray(char.range_items) && char.range_items.length > 0 ? char.range_items : [String(char.range_effective)];
-    return {
-      effective: Number(char.range_effective),
-      range: Number(char.range_effective),
-      items: items,
-      mainText: items[0] || "-",
-      subText: items[1] || null,
-      detail: char.range_detail || null
-    };
-  }
-
-  // 2. 辞書マップからの参照（フォールバック）
+  // 1. 最新マスター辞書マップからの参照（最優先）
   const name = (char.name || "").trim();
   const mapInfo = BRAWLER_RANGE_MAP[name];
   if (mapInfo) {
@@ -1789,6 +1782,19 @@ function getCharRangeInfo(char) {
       mainText: items[0] || "-",
       subText: items[1] || null,
       detail: mapInfo.detail
+    };
+  }
+
+  // 2. フォールバック：キャラクターデータ自身に range_effective がある場合
+  if (char.range_effective !== undefined && char.range_effective !== null) {
+    const items = Array.isArray(char.range_items) && char.range_items.length > 0 ? char.range_items : [String(char.range_effective)];
+    return {
+      effective: Number(char.range_effective),
+      range: Number(char.range_effective),
+      items: items,
+      mainText: items[0] || "-",
+      subText: items[1] || null,
+      detail: char.range_detail || null
     };
   }
 
@@ -1840,7 +1846,7 @@ function getCharEffectiveReachInfo(char) {
   const charName = (char.name || "").trim();
 
   // すでに射程値に爆風・水たまり・特殊効果半径が完全包含されているキャラ（二重加算防止）
-  const ALREADY_INCLUDES_BLAST = ["ダイナマイク", "バーリー", "ティック", "ラリー＆ローリー", "ベリー", "ウィロー", "スクウィーク"];
+  const ALREADY_INCLUDES_BLAST = ["ダイナマイク", "バーリー", "ティック", "ラリー＆ローリー", "ベリー", "ウィロー", "スクウィーク", "ハンク"];
 
   const reachItems = rangeInfo.items.map((it, idx) => {
     if (!it || it === "-") return "-";
@@ -1871,12 +1877,15 @@ function getCharEffectiveReachInfo(char) {
     else if (Math.abs(rowWidthNum - 1.33) < 0.02) radius = 2 / 3;     // Radius 200
     else if (Math.abs(rowWidthNum - 1.13) < 0.02) radius = 17 / 30;   // Radius 170
     else if (Math.abs(rowWidthNum - 1.00) < 0.02) radius = 0.5;       // Radius 150
+    else if (Math.abs(rowWidthNum - 0.87) < 0.02) radius = 13 / 30;   // Radius 130
     else if (Math.abs(rowWidthNum - 0.83) < 0.02) radius = 5 / 12;    // Radius 125
+    else if (Math.abs(rowWidthNum - 0.80) < 0.02) radius = 0.4;       // Radius 120
     else if (Math.abs(rowWidthNum - 0.73) < 0.02) radius = 11 / 30;   // Radius 110
     else if (Math.abs(rowWidthNum - 0.67) < 0.02) radius = 1 / 3;     // Radius 100
     else if (Math.abs(rowWidthNum - 0.53) < 0.02) radius = 4 / 15;    // Radius 80
     else if (Math.abs(rowWidthNum - 0.47) < 0.02) radius = 7 / 30;    // Radius 70
     else if (Math.abs(rowWidthNum - 0.40) < 0.02) radius = 0.2;       // Radius 60
+    else if (Math.abs(rowWidthNum - 0.38) < 0.02) radius = 58 / 300;  // Radius 58
     else if (Math.abs(rowWidthNum - 0.33) < 0.02) radius = 1 / 6;     // Radius 50
     else if (Math.abs(rowWidthNum - 0.27) < 0.02) radius = 2 / 15;    // Radius 40
     else radius = rowWidthNum / 2;
@@ -1913,6 +1922,155 @@ function getCharEffectiveReachInfo(char) {
   };
 }
 
+// 大型ヒットボックスキャラクター（19体: CollisionRadius: 145 / 直径0.97マス）
+const LARGE_HITBOX_CHARACTERS = new Set([
+  "ブル", "エル・プリモ", "ローサ", "ダリル", "8ビット", "ジャッキー",
+  "パム", "フランケン", "アッシュ", "サム", "ハンク", "パール",
+  "トランク", "ファング", "R-T", "ダグ", "チャック", "ジェヨン", "サンディ",
+  // 英語名・エイリアス対応
+  "Bull", "El Primo", "Rosa", "Darryl", "8-Bit", "Jacky",
+  "Pam", "Frank", "Ash", "Sam", "Hank", "Pearl",
+  "Buster", "Trunk", "Fang", "RT", "Doug", "Chuck", "Jaeyong", "Sandy"
+]);
+
+// キャラクターのヒットボックス判定サイズ（並 / 大）を取得
+function getCharHitboxInfo(char) {
+  if (!char) return { hitbox: "並", radius: 120, diameter: 0.80 };
+
+  // 1. キャラクターデータに明示的な指定がある場合
+  if (char.hitbox === "大" || char.hitbox === "並") {
+    const isLarge = char.hitbox === "大";
+    return {
+      hitbox: char.hitbox,
+      radius: char.hitbox_radius || (isLarge ? 145 : 120),
+      diameter: char.hitbox_diameter || (isLarge ? 0.97 : 0.80)
+    };
+  }
+
+  // 2. 判定マスター辞書との照合
+  const name = (char.name || "").trim();
+  const nameEn = (char.name_en || "").trim();
+  const id = (char.id || "").trim();
+
+  const isLarge = LARGE_HITBOX_CHARACTERS.has(name) ||
+                  LARGE_HITBOX_CHARACTERS.has(nameEn) ||
+                  LARGE_HITBOX_CHARACTERS.has(id);
+
+  return {
+    hitbox: isLarge ? "大" : "並",
+    radius: isLarge ? 145 : 120,
+    diameter: isLarge ? 0.97 : 0.80
+  };
+}
+
+// 形態変化・段階強化を持つキャラクターの速度マップ
+const BRAWLER_SPEED_MAP = {
+  "サージ": {
+    speed: 705,
+    sortSpeed: 846, // 最高速度（段階2〜4: 846）を参照してソート
+    items: ["705", "846"],
+    labels: ["段階1: 普通", "段階2〜4: 超高速"],
+    detail: "段階1（初期）705、段階2以降（1回以上ウルト使用時）846（+20%加速）"
+  },
+  "ボルト": {
+    speed: 545,
+    sortSpeed: 1635, // 最高速度（フル加速時: 1635）を参照してソート
+    items: ["545", "1635"],
+    labels: ["初動: 超低速", "最高速: フル加速"],
+    detail: "初動545（超低速）、直線移動を継続するとメーターが溜まり最大1635まで加速"
+  },
+  "ボニー": {
+    speed: 630,
+    sortSpeed: 630,
+    items: ["630", "855"],
+    labels: ["大砲: 低速", "生身: 超高速"],
+    detail: "大砲クライド形態630（低速）、ウルト射出後の生身形態855（超高速）"
+  },
+  "メグ": {
+    speed: 750,
+    sortSpeed: 750,
+    items: ["750", "855"],
+    labels: ["メカ: 普通", "生身: 超高速"],
+    detail: "メカ搭乗時750（普通）、メカ破壊・生身時855（超高速）"
+  },
+  "R-T": {
+    speed: 750,
+    sortSpeed: 750,
+    items: ["750", "800"],
+    labels: ["合体: 普通", "分離頭部: 高速"],
+    detail: "通常合体時750（普通）、ウルト分離時の頭部800（高速、本体脚部は定点）"
+  },
+  "RT": {
+    speed: 750,
+    sortSpeed: 750,
+    items: ["750", "800"],
+    labels: ["合体: 普通", "分離頭部: 高速"],
+    detail: "通常合体時750（普通）、ウルト分離時の頭部800（高速、本体脚部は定点）"
+  }
+};
+
+function getSpeedBadgeClass(speed) {
+  const num = Number(speed) || 0;
+  if (num >= 850) return "speed-very-fast";
+  if (num >= 800) return "speed-fast";
+  if (num >= 700) return "speed-normal";
+  return "speed-slow";
+}
+
+// キャラクターの移動速度情報（数値 / ラベル / バッジクラス / 複数段アイテム）を取得
+function getCharSpeedInfo(char) {
+  if (!char) return { speed: 750, sortSpeed: 750, label: "普通", badgeCls: "speed-normal", items: ["750"], detail: "" };
+
+  const name = (char.name || "").trim();
+  const mapEntry = BRAWLER_SPEED_MAP[name];
+
+  if (mapEntry) {
+    const primarySpeed = mapEntry.speed;
+    const sortSpeed = mapEntry.sortSpeed !== undefined ? mapEntry.sortSpeed : primarySpeed;
+    const badgeCls = getSpeedBadgeClass(primarySpeed);
+    return {
+      speed: primarySpeed,
+      sortSpeed: sortSpeed,
+      label: mapEntry.labels ? mapEntry.labels[0] : (char.speed_label || "普通"),
+      badgeCls,
+      items: mapEntry.items,
+      labels: mapEntry.labels,
+      detail: mapEntry.detail
+    };
+  }
+
+  // char 自身に speed_items がある場合
+  if (Array.isArray(char.speed_items) && char.speed_items.length > 0) {
+    const primarySpeed = Number(char.speed_items[0]) || Number(char.speed) || 750;
+    const sortSpeed = (name === "サージ" || name === "ボルト")
+      ? Math.max(...char.speed_items.map(Number))
+      : primarySpeed;
+    return {
+      speed: primarySpeed,
+      sortSpeed: sortSpeed,
+      label: char.speed_label || "普通",
+      badgeCls: getSpeedBadgeClass(primarySpeed),
+      items: char.speed_items,
+      labels: char.speed_labels || [char.speed_label || "普通"],
+      detail: char.speed_detail || ""
+    };
+  }
+
+  const speed = Number(char.speed) || 750;
+  let label = char.speed_label || "";
+
+  if (!label) {
+    if (speed >= 850) label = "超高速";
+    else if (speed >= 800) label = "高速";
+    else if (speed >= 700) label = "普通";
+    else if (speed >= 600) label = "低速";
+    else label = "超低速";
+  }
+
+  const badgeCls = getSpeedBadgeClass(speed);
+  return { speed, sortSpeed: speed, label, badgeCls, items: [String(speed)], labels: [label], detail: "" };
+}
+
 let characters = [];
 let currentUser = null;
 const ADMIN_UID = "GXgKpWNF0WSg6hhP9qQtXF2Plop1";
@@ -1943,6 +2101,10 @@ const btnResetTagFilter = document.getElementById("btnResetTagFilter");
 const activeTagBanner = document.getElementById("activeTagBanner");
 const activeTagName = document.getElementById("activeTagName");
 const activeTagClearBtn = document.getElementById("activeTagClearBtn");
+const filterSidebarBox = document.getElementById("filterSidebarBox");
+const btnToggleFilterPanel = document.getElementById("btnToggleFilterPanel");
+const filterActiveCountBadge = document.getElementById("filterActiveCountBadge");
+const btnResetAllFilters = document.getElementById("btnResetAllFilters");
 
 let selectedRarityFilter = "";
 let selectedRoleFilter = "";
@@ -1982,6 +2144,12 @@ const btnExportYearPdf = document.getElementById("btnExportYearPdf");
 const yearCaptureArea = document.getElementById("yearCaptureArea");
 const yearRowsContainer = document.getElementById("yearRowsContainer");
 const yearBoardMeta = document.getElementById("yearBoardMeta");
+
+// 評価基準・凡例モーダル
+const criteriaModalEl = document.getElementById("criteriaModal");
+const criteriaModalBackdropEl = document.getElementById("criteriaModalBackdrop");
+const criteriaModalCloseBtn = document.getElementById("criteriaModalCloseBtn");
+const btnOpenCriteriaModal = document.getElementById("btnOpenCriteriaModal");
 
 // エディタモーダル
 const editorModalEl = document.getElementById("editorModal");
@@ -2209,14 +2377,41 @@ function setupFirebaseListeners() {
                 needsCleanup = true;
               }
             }
-            // 射程データが未保存の場合は辞書から補完
-            if (c.range === undefined || c.range === null) {
-              const rInfo = getCharRangeInfo(c);
-              if (rInfo.range !== null) {
-                c.range = rInfo.range;
-                if (rInfo.detail) c.range_detail = rInfo.detail;
+            // 射程・弾の太さ・判定データを最新マスター辞書と自動同期
+            const rInfo = getCharRangeInfo(c);
+            const wInfo = getCharBulletWidthInfo(c);
+            const hInfo = getCharHitboxInfo(c);
+            if (rInfo && rInfo.items && rInfo.items[0] !== "-") {
+              if (c.range_effective !== rInfo.effective || JSON.stringify(c.range_items) !== JSON.stringify(rInfo.items) || c.range_detail !== rInfo.detail) {
+                c.range_effective = rInfo.effective;
+                c.range_items = rInfo.items;
+                c.range_main = rInfo.mainText;
+                c.range_sub = rInfo.subText;
+                c.range_detail = rInfo.detail;
                 needsCleanup = true;
               }
+            }
+            if (wInfo) {
+              if (c.bullet_width !== wInfo.text || c.bullet_width_num !== wInfo.num) {
+                c.bullet_width = wInfo.text;
+                c.bullet_width_num = wInfo.num;
+                needsCleanup = true;
+              }
+            }
+            if (hInfo) {
+              if (c.hitbox !== hInfo.hitbox || c.hitbox_radius !== hInfo.radius) {
+                c.hitbox = hInfo.hitbox;
+                c.hitbox_radius = hInfo.radius;
+                c.hitbox_diameter = hInfo.diameter;
+                needsCleanup = true;
+              }
+            }
+            // 移動速度データが未設定の場合は補完
+            if (!c.speed || !c.speed_label) {
+              const sInfo = getCharSpeedInfo(c);
+              c.speed = sInfo.speed;
+              c.speed_label = sInfo.label;
+              needsCleanup = true;
             }
             // 実装日が未設定または空の場合は辞書から補完
             if (!c.addedDate || String(c.addedDate).trim() === "" || c.addedDate === "-") {
@@ -2341,8 +2536,27 @@ function setupFirebaseListeners() {
       if (btnAddNew) btnAddNew.style.display = "none";
       if (btnReseed) btnReseed.style.display = "none";
     }
+    updateOwnerOnlyVisibility();
     renderTableView();
   });
+}
+
+// オーナー（管理者）専用UIの表示切替
+function updateOwnerOnlyVisibility() {
+  const ownerOnly = isAdmin();
+  const tagSelectSection = document.getElementById("tagSelectSection");
+  if (tagSelectSection) {
+    tagSelectSection.hidden = !ownerOnly;
+  }
+  if (!ownerOnly) {
+    if (tagFilterPanel) tagFilterPanel.hidden = true;
+    if (tagFilterToggleBtn) tagFilterToggleBtn.classList.remove("is-open");
+    if (selectedTagFilter) {
+      selectedTagFilter = "";
+      if (tagFilterSelect) tagFilterSelect.value = "";
+      if (activeTagBanner) activeTagBanner.hidden = true;
+    }
+  }
 }
 
 function setupEventListeners() {
@@ -2362,6 +2576,7 @@ function setupEventListeners() {
   initRoleQuickFilterUI();
   initMetaQuickFilterUI();
   initTagFilterUI();
+  initFilterPanelCollapseUI();
 
   btnLogin.addEventListener("click", async () => {
     try {
@@ -2442,12 +2657,27 @@ function setupEventListeners() {
     btnExportYearPdf.addEventListener("click", exportYearAsPdf);
   }
 
+  // 評価基準・凡例モーダルイベント
+  if (btnOpenCriteriaModal) {
+    btnOpenCriteriaModal.addEventListener("click", openCriteriaModal);
+  }
+  if (criteriaModalCloseBtn) {
+    criteriaModalCloseBtn.addEventListener("click", closeCriteriaModal);
+  }
+  if (criteriaModalBackdropEl) {
+    criteriaModalBackdropEl.addEventListener("click", closeCriteriaModal);
+  }
+
+  // 表示列選択UIの初期化
+  initColumnVisibilityUI();
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeEditorModal();
       closeDetailModal();
       closeTierModal();
       closeYearModal();
+      closeCriteriaModal();
     }
   });
 }
@@ -2518,6 +2748,56 @@ function setupToggleButtons() {
 
   // タグエディタ初期化
   initTagEditor();
+}
+
+// ---- スマホ向け絞り込み折りたたみ & 適用中インジケータ ----
+function updateFilterActiveStatus() {
+  let activeCount = 0;
+  if (searchInput && (searchInput.value || "").trim() !== "") activeCount++;
+  if (selectedRarityFilter) activeCount++;
+  if (selectedRoleFilter) activeCount++;
+  if (selectedMetaFilter) activeCount++;
+  if (selectedTagFilter) activeCount++;
+
+  if (filterActiveCountBadge) {
+    if (activeCount > 0) {
+      filterActiveCountBadge.textContent = `${activeCount}件適用中`;
+      filterActiveCountBadge.hidden = false;
+    } else {
+      filterActiveCountBadge.hidden = true;
+    }
+  }
+
+  if (btnResetAllFilters) {
+    btnResetAllFilters.hidden = activeCount === 0;
+  }
+}
+
+function initFilterPanelCollapseUI() {
+  if (btnToggleFilterPanel && filterSidebarBox) {
+    btnToggleFilterPanel.addEventListener("click", () => {
+      // PC表示(901px以上)では常時展開のままにする
+      if (window.innerWidth > 900) return;
+      const isCollapsed = filterSidebarBox.classList.toggle("is-collapsed");
+      btnToggleFilterPanel.setAttribute("aria-expanded", String(!isCollapsed));
+    });
+  }
+
+  if (btnResetAllFilters) {
+    btnResetAllFilters.addEventListener("click", () => {
+      if (searchInput) searchInput.value = "";
+      selectedRarityFilter = "";
+      selectedRoleFilter = "";
+      selectedMetaFilter = "";
+      updateRarityQuickFilterUI();
+      updateRoleQuickFilterUI();
+      updateMetaQuickFilterUI();
+      // setTagFilter内でrenderTableView()およびupdateFilterActiveStatus()が呼ばれる
+      setTagFilter("");
+    });
+  }
+
+  updateFilterActiveStatus();
 }
 
 // ---- レアリティ絞り込みフィルター ----
@@ -2776,6 +3056,94 @@ function setTagFilter(tag) {
   renderTableView();
 }
 
+// ---- 表示列の選択フィルター ----
+const COLUMN_KEYS = [
+  { key: "strength", label: "強さ" },
+  { key: "difficulty", label: "難易度" },
+  { key: "build", label: "おすすめビルド" },
+  { key: "range", label: "射程" },
+  { key: "bullet-width", label: "弾の太さ" },
+  { key: "effective-reach", label: "実射程" },
+  { key: "hitbox", label: "判定" },
+  { key: "speed", label: "移動速度" },
+  { key: "date", label: "実装日" }
+];
+
+const STORAGE_KEY_COL_VISIBILITY = "brawl_table_col_visibility_v2";
+
+function getColumnVisibility() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_COL_VISIBILITY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed === "object" && parsed !== null) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  // デフォルト設定：射程と弾の太さは非表示、それ以外は表示
+  const def = {
+    "strength": true,
+    "difficulty": true,
+    "build": true,
+    "range": false,
+    "bullet-width": false,
+    "effective-reach": true,
+    "hitbox": true,
+    "speed": true,
+    "date": true
+  };
+  return def;
+}
+
+function saveColumnVisibility(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY_COL_VISIBILITY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function applyColumnVisibility() {
+  const state = getColumnVisibility();
+  if (!tableViewEl) return;
+
+  COLUMN_KEYS.forEach(c => {
+    const isVisible = state[c.key] !== false;
+    tableViewEl.classList.toggle(`hide-col-${c.key}`, !isVisible);
+
+    const input = document.querySelector(`.col-checkbox-item input[data-col="${c.key}"]`);
+    if (input && input.checked !== isVisible) {
+      input.checked = isVisible;
+    }
+  });
+}
+
+function initColumnVisibilityUI() {
+  // チェックボックスの変更イベント
+  document.querySelectorAll(".col-checkbox-item input[data-col]").forEach(cb => {
+    cb.addEventListener("change", (e) => {
+      const colKey = e.target.dataset.col;
+      const state = getColumnVisibility();
+      state[colKey] = e.target.checked;
+      saveColumnVisibility(state);
+      applyColumnVisibility();
+    });
+  });
+
+  // 全表示ボタン
+  const btnResetColVisibility = document.getElementById("btnResetColVisibility");
+  if (btnResetColVisibility) {
+    btnResetColVisibility.addEventListener("click", () => {
+      const state = {};
+      COLUMN_KEYS.forEach(c => state[c.key] = true);
+      saveColumnVisibility(state);
+      applyColumnVisibility();
+    });
+  }
+
+  // 初回適用
+  applyColumnVisibility();
+}
+
 // ---- Tier表モーダル & エクスポート ----
 const TIER_DEFINITIONS = [
   { rank: "S", level: 5, label: "最上位", classKey: "s" },
@@ -2977,6 +3345,20 @@ function closeYearModal() {
   document.body.classList.remove("modal-open");
 }
 
+function openCriteriaModal() {
+  if (!criteriaModalEl) return;
+  criteriaModalEl.hidden = false;
+  document.body.classList.add("modal-open");
+}
+window.openCriteriaModal = openCriteriaModal;
+
+function closeCriteriaModal() {
+  if (!criteriaModalEl) return;
+  criteriaModalEl.hidden = true;
+  document.body.classList.remove("modal-open");
+}
+window.closeCriteriaModal = closeCriteriaModal;
+
 async function exportYearAsImage() {
   if (!yearCaptureArea) return;
   if (typeof html2canvas === "undefined") {
@@ -3037,6 +3419,10 @@ const SORT_MODES = [
   { value: "bullet-width-asc", label: "弾の太さ (細い順)" },
   { value: "effective-reach-desc", label: "実射程 (長い順)" },
   { value: "effective-reach-asc", label: "実射程 (短い順)" },
+  { value: "hitbox-desc", label: "判定 (大きい順)" },
+  { value: "hitbox-asc", label: "判定 (小さい順)" },
+  { value: "speed-desc", label: "移動速度 (速い順)" },
+  { value: "speed-asc", label: "移動速度 (遅い順)" },
   { value: "name-asc", label: "50音順" },
 ];
 
@@ -3156,9 +3542,7 @@ function getFilteredAndSortedCharacters() {
       } else if (selectedRoleFilter === "壁破壊") {
         matchesRole = tags.includes("ガジェットで破壊") || tags.includes("ウルトで破壊");
       } else if (selectedRoleFilter === "召喚物") {
-        const SPAWN_BRAWLERS = ["ニタ", "ジェシー", "ペニー", "ミスターP", "ラリー＆ローリー", "タラ", "アッシュ", "チャーリー"];
-        const name = (c.name || "").trim();
-        matchesRole = SPAWN_BRAWLERS.includes(name) || (Array.isArray(c.tags) && c.tags.includes("召喚物"));
+        matchesRole = tags.includes("召喚物");
       } else {
         const charRole = getCharRole(c);
         matchesRole = (charRole === selectedRoleFilter) || (Array.isArray(c.tags) && c.tags.includes(selectedRoleFilter));
@@ -3168,20 +3552,7 @@ function getFilteredAndSortedCharacters() {
     // メタ対策絞り込み判定
     let matchesMeta = true;
     if (selectedMetaFilter) {
-      const hasDirectTag = Array.isArray(c.tags) && c.tags.includes(selectedMetaFilter);
-      if (hasDirectTag) {
-        matchesMeta = true;
-      } else {
-        const META_FALLBACK_MAP = {
-          "タンク対策": ["コレット", "シェリー", "グリフ", "サージ", "メイジー", "スパイク", "オーティス", "パール"],
-          "投げ対策": ["モーティス", "エドガー", "ブロック", "ストゥー", "ファング", "ミコ", "リリー", "カゼ"],
-          "アサシン対策": ["メイジー", "ジーン", "シェリー", "ゲイル", "サージ", "オーティス", "チャーリー", "タラ"],
-          "召喚物対策": ["ペニー", "ジェシー", "ベル", "アンバー", "サンダーフロッグ"]
-        };
-        const fallbackList = META_FALLBACK_MAP[selectedMetaFilter] || [];
-        const name = (c.name || "").trim();
-        matchesMeta = fallbackList.includes(name);
-      }
+      matchesMeta = Array.isArray(c.tags) && c.tags.includes(selectedMetaFilter);
     }
 
     return matchesSearch && matchesTag && matchesRarity && matchesRole && matchesMeta;
@@ -3226,6 +3597,14 @@ function sortCharacterList(list, sortKey) {
         diff = Number(getCharEffectiveReachInfo(b).effective || 0) - Number(getCharEffectiveReachInfo(a).effective || 0);
       } else if (sortKey === "effective-reach-asc") {
         diff = Number(getCharEffectiveReachInfo(a).effective || 0) - Number(getCharEffectiveReachInfo(b).effective || 0);
+      } else if (sortKey === "hitbox-desc") {
+        diff = getCharHitboxInfo(b).radius - getCharHitboxInfo(a).radius;
+      } else if (sortKey === "hitbox-asc") {
+        diff = getCharHitboxInfo(a).radius - getCharHitboxInfo(b).radius;
+      } else if (sortKey === "speed-desc") {
+        diff = getCharSpeedInfo(b).sortSpeed - getCharSpeedInfo(a).sortSpeed;
+      } else if (sortKey === "speed-asc") {
+        diff = getCharSpeedInfo(a).sortSpeed - getCharSpeedInfo(b).sortSpeed;
       } else if (sortKey === "name-asc") {
         const kanaA = getKanaReading(a);
         const kanaB = getKanaReading(b);
@@ -3348,6 +3727,41 @@ function renderCharacterRowHtml(c, isEditable) {
     `;
   }
 
+  const hitboxInfo = getCharHitboxInfo(c);
+  let hitboxCellContent = "-";
+  if (!isUnreleased) {
+    const isLarge = hitboxInfo.hitbox === "大";
+    const badgeCls = isLarge ? "hitbox-large" : "hitbox-normal";
+    const titleText = isLarge
+      ? "判定: 大 (半径0.48マス / 直径0.97マス)\n※並キャラより約0.08マス手前で着弾し、横幅も約0.17マス広い"
+      : "判定: 並 (半径0.40マス / 直径0.80マス)\n※標準サイズ（大半の92体が該当）";
+    hitboxCellContent = `<span class="hitbox-badge ${badgeCls}" title="${titleText}">${escapeHtml(hitboxInfo.hitbox)}</span>`;
+  }
+
+  const speedInfo = getCharSpeedInfo(c);
+  let speedCellContent = "-";
+  if (!isUnreleased) {
+    if (speedInfo.items && speedInfo.items.length > 1) {
+      const detail = speedInfo.detail ? `\n${speedInfo.detail}` : "";
+      const tooltip = `移動速度:\n${speedInfo.items.map((it, idx) => `${it} (${(speedInfo.labels && speedInfo.labels[idx]) || ''})`).join('\n')}${detail}`;
+      const spansHtml = speedInfo.items.map((it, idx) => {
+        const numVal = Number(it);
+        const bCls = getSpeedBadgeClass(numVal);
+        const cls = idx === 0 ? `table-range-val speed-pill-val ${bCls}` : "range-sub-text speed-sub-val";
+        return `<span class="${cls}">${escapeHtml(it)}</span>`;
+      }).join("");
+
+      speedCellContent = `
+        <div class="table-range-wrap is-multi" title="${tooltip}">
+          ${spansHtml}
+        </div>
+      `;
+    } else {
+      const titleText = `移動速度: ${speedInfo.speed} (${speedInfo.label})`;
+      speedCellContent = `<span class="speed-badge ${speedInfo.badgeCls}" title="${titleText}">${escapeHtml(String(speedInfo.speed))}</span>`;
+    }
+  }
+
   const rowClass = isUnreleased ? 'class="row-unreleased"' : '';
   const unreleasedTag = isUnreleased ? `<span class="table-char-unreleased-tag">未実装</span>` : '';
   const rarityLevel = c.rarity_id || RARITY_HEX_TO_LEVEL[(c.rare || "").toLowerCase()] || 2;
@@ -3371,6 +3785,8 @@ function renderCharacterRowHtml(c, isEditable) {
       <td class="cell-range desktop-only">${rangeCellContent}</td>
       <td class="cell-bullet-width desktop-only">${bulletWidthCellContent}</td>
       <td class="cell-effective-reach desktop-only">${effectiveReachCellContent}</td>
+      <td class="cell-hitbox desktop-only">${hitboxCellContent}</td>
+      <td class="cell-speed desktop-only">${speedCellContent}</td>
       <td class="cell-date desktop-only">${dateCellContent}</td>
     </tr>
   `;
@@ -3402,6 +3818,8 @@ function buildSingleTableBlockHtml(charList, groupTitle = "", isEditable = false
               <th class="sortable-th cell-range desktop-only" data-sorts="range-desc,range-asc" title="タップで射程順（長い順/短い順）">射程 <span class="sort-indicator"></span></th>
               <th class="sortable-th cell-bullet-width desktop-only" data-sorts="bullet-width-desc,bullet-width-asc" title="タップで弾の太さ順（太い順/細い順）">弾の太さ <span class="sort-indicator"></span></th>
               <th class="sortable-th cell-effective-reach desktop-only" data-sorts="effective-reach-desc,effective-reach-asc" title="タップで実射程順（長い順/短い順）">実射程 <span class="sort-indicator"></span></th>
+              <th class="sortable-th cell-hitbox desktop-only" data-sorts="hitbox-desc,hitbox-asc" title="タップで判定サイズ順（大/並）&#10;大: 半径0.48マス（間合い+0.08マス/横幅+0.17マス）&#10;並: 半径0.40マス（標準）">判定 <span class="sort-indicator"></span></th>
+              <th class="sortable-th cell-speed desktop-only" data-sorts="speed-desc,speed-asc" title="タップで移動速度順（速い順/遅い順）">移動速度 <span class="sort-indicator"></span></th>
               <th class="sortable-th cell-date desktop-only" data-sorts="date-desc,date-asc" title="タップで実装日順（新しい順/古い順）">実装日 <span class="sort-indicator"></span></th>
             </tr>
           </thead>
@@ -3413,6 +3831,7 @@ function buildSingleTableBlockHtml(charList, groupTitle = "", isEditable = false
 }
 
 function renderTableView() {
+  updateFilterActiveStatus();
   const filtered = getFilteredAndSortedCharacters();
   const isEditable = isAdmin() || isDevMode();
 
@@ -3435,7 +3854,7 @@ function renderTableView() {
       mainHtml = `
         <div class="table-empty-notice" style="padding: 24px 16px; text-align: center; color: rgba(106,86,74,0.7); background: rgba(251,246,234,0.6); border-radius: 12px; margin-bottom: 1.5rem; border: 1.5px dashed var(--brawl-border);">
           <p style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">サポート（スピード / ヒール / バフ）が設定されたキャラクターはまだいません (0体)</p>
-          <p style="font-size: 0.8rem; color: rgba(106,86,74,0.6);">※ 下記の未設定キャラクター一覧からタグを追加できます。</p>
+          ${isAdmin() ? '<p style="font-size: 0.8rem; color: rgba(106,86,74,0.6);">※ 下記の未設定キャラクター一覧からタグを追加できます。</p>' : ''}
         </div>
       `;
     }
@@ -3453,7 +3872,7 @@ function renderTableView() {
       mainHtml = `
         <div class="table-empty-notice" style="padding: 24px 16px; text-align: center; color: rgba(106,86,74,0.7); background: rgba(251,246,234,0.6); border-radius: 12px; margin-bottom: 1.5rem; border: 1.5px dashed var(--brawl-border);">
           <p style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">壁破壊（ガジェットで破壊 / ウルトで破壊）が設定されたキャラクターはまだいません (0体)</p>
-          <p style="font-size: 0.8rem; color: rgba(106,86,74,0.6);">※ 下記の未設定キャラクター一覧からタグを追加できます。</p>
+          ${isAdmin() ? '<p style="font-size: 0.8rem; color: rgba(106,86,74,0.6);">※ 下記の未設定キャラクター一覧からタグを追加できます。</p>' : ''}
         </div>
       `;
     }
@@ -3514,8 +3933,8 @@ function renderTableView() {
     activeTag = selectedMetaFilter;
   }
 
-  if (activeTag) {
-    // 全キャラクターから、そのロール/タグを持っていないキャラを抽出
+  if (activeTag && isAdmin()) {
+    // 全キャラクターから、そのロール/タグを持っていないキャラを抽出（オーナーのみ表示）
     const untaggedChars = characters.filter(c => {
       const tags = Array.isArray(c.tags) ? c.tags : [];
       if (activeTag === "サポート") {
@@ -3525,9 +3944,7 @@ function renderTableView() {
         return !tags.includes("ガジェットで破壊") && !tags.includes("ウルトで破壊");
       }
       if (activeTag === "召喚物") {
-        const SPAWN_BRAWLERS = ["ニタ", "ジェシー", "ペニー", "ミスターP", "ラリー＆ローリー", "タラ", "アッシュ", "チャーリー"];
-        const name = (c.name || "").trim();
-        return !SPAWN_BRAWLERS.includes(name) && !tags.includes("召喚物");
+        return !tags.includes("召喚物");
       }
       // 通常ロール（タンク、アサシン、スナイパー、シューター、投げ等）
       const charRole = getCharRole(c);
@@ -3595,6 +4012,10 @@ function renderTableView() {
       else if (currentSortKey === "bullet-width-asc") indicator.textContent = "▲";
       else if (currentSortKey === "effective-reach-desc") indicator.textContent = "▼";
       else if (currentSortKey === "effective-reach-asc") indicator.textContent = "▲";
+      else if (currentSortKey === "hitbox-desc") indicator.textContent = "▼";
+      else if (currentSortKey === "hitbox-asc") indicator.textContent = "▲";
+      else if (currentSortKey === "speed-desc") indicator.textContent = "▼";
+      else if (currentSortKey === "speed-asc") indicator.textContent = "▲";
     } else {
       th.classList.remove("is-active");
       indicator.textContent = "▼";
@@ -3614,6 +4035,9 @@ function renderTableView() {
       }
     });
   });
+
+  // 表示列の可視性を適用
+  applyColumnVisibility();
 }
 
 // 難易度を「低/中/高」バッジで表示（Brawlディレクトリと同じ表示）
@@ -3956,7 +4380,7 @@ window.openDetailModal = function (charId) {
 
   const tagsHtml = groupedTagsHtml
     ? `<div class="modal-tags-grouped-container">${groupedTagsHtml}</div>`
-    : '<div class="modal-tags-empty">タグ未設定</div>';
+    : (isAdmin() ? '<div class="modal-tags-empty">タグ未設定</div>' : '');
 
   // 開発者モード専用：全射程データ確認ブロック
   let devRangeBlockHtml = "";
@@ -3985,6 +4409,14 @@ window.openDetailModal = function (charId) {
           <div class="dev-range-row">
             <span class="dev-range-label">実射程 (自動計算):</span>
             <span class="dev-range-val">${escapeHtml(getCharEffectiveReachInfo(char).items.join(", "))} マス</span>
+          </div>
+          <div class="dev-range-row">
+            <span class="dev-range-label">判定 (Hitbox):</span>
+            <span class="dev-range-val">${escapeHtml(getCharHitboxInfo(char).hitbox)} (半径 ${getCharHitboxInfo(char).radius} / 直径 ${getCharHitboxInfo(char).diameter}マス)</span>
+          </div>
+          <div class="dev-range-row">
+            <span class="dev-range-label">移動速度 (Speed):</span>
+            <span class="dev-range-val">${escapeHtml(getCharSpeedInfo(char).label)} (${getCharSpeedInfo(char).speed})</span>
           </div>
           ${rInfo.detail ? `
             <div class="dev-range-row">
@@ -4036,11 +4468,12 @@ window.openDetailModal = function (charId) {
       </div>
 
       <!-- 3. タグ一覧 -->
-      <div class="modal-grid-tags">
-        <p class="modal-meta-title modal-tags-heading">タグ一覧</p>
-        ${tagsHtml}
-        ${devRangeBlockHtml}
-      </div>
+      ${(tagsHtml || devRangeBlockHtml) ? `
+        <div class="modal-grid-tags">
+          ${tagsHtml ? `<p class="modal-meta-title modal-tags-heading">タグ一覧</p>${tagsHtml}` : ''}
+          ${devRangeBlockHtml}
+        </div>
+      ` : ''}
     </div>
   `;
 

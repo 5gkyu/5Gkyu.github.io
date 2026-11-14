@@ -11,46 +11,49 @@
   <meta property="og:description" content="ブロスタ（Brawl Stars）のキャラクター評価。Firebase Realtime Database リアルタイム連携版。" />
   <meta property="og:url" content="https://5gkyu.github.io/archive/play/BrawlStars/brawl-firebase/" />
 
-  <style id="fouc-prevent">
-    body {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      background-color: #FBF6EA !important;
-    }
-  </style>
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
+  <link rel="manifest" href="/icon/site.webmanifest">
 
-  <link rel="stylesheet" href="styles.css?v=20261101_82">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css?v=20261114_07">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
 
-  <site-header site-name="Brawl Stars 評価 (Firebase版)"></site-header>
+  <div class="brawl-page-container">
 
-  <hl-layout cols="1" style="max-width: 1280px" class="fluffy-entry delay-1">
-    <div class="hl-layout-main">
+    <div class="brawl-page-header">
+      <h1 class="brawl-page-title">ブロスタ キャラクター評価</h1>
+    </div>
 
-      <hl-breadcrumb level1-name="Archive" level1-url="/archive/" level2-name="Play" level2-url="/archive/play/"
-        level3-name="BrawlStars" level3-url="/archive/play/BrawlStars/" current="ブロスタ キャラクター評価 (Firebase連携)">
-      </hl-breadcrumb>
-
-      <page-title>ブロスタ キャラクター評価</page-title>
-
-      <!-- 2カラムレイアウト (左: 操作パネル / 右: キャラクター一覧) -->
+    <!-- 2カラムレイアウト (左: 操作パネル / 右: キャラクター一覧) -->
       <div class="brawl-app-container">
 
         <!-- 左カラム: 操作パネル -->
         <aside class="brawl-sidebar-panel">
 
           <!-- 検索 & 絞り込みカード -->
-          <div class="sidebar-box sidebar-box-filter">
+          <div class="sidebar-box sidebar-box-filter is-collapsed" id="filterSidebarBox">
             <div class="sidebar-box-header">
-              <h3 class="sidebar-section-title">絞り込み</h3>
+              <button id="btnToggleFilterPanel" class="filter-collapse-toggle" type="button" aria-expanded="false" aria-controls="filterCollapsibleBody">
+                <span class="sidebar-section-title">絞り込み</span>
+                <span id="filterActiveCountBadge" class="filter-active-badge" hidden></span>
+                <svg class="filter-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
               <button id="btnResetAllFilters" class="filter-reset-all-btn" type="button" title="すべての絞り込み条件を解除" hidden>
                 条件クリア
               </button>
             </div>
 
+            <div id="filterCollapsibleBody" class="filter-collapsible-body">
             <div class="brawl-search-wrap">
               <input id="searchInput" type="text" placeholder="キャラ名・読みで検索..." autocomplete="off" />
             </div>
@@ -131,8 +134,8 @@
               </div>
             </div>
 
-            <!-- 詳細タグ絞り込み -->
-            <div class="filter-section tag-select-section">
+            <!-- 詳細タグ絞り込み（オーナーのみ表示） -->
+            <div id="tagSelectSection" class="filter-section tag-select-section" hidden>
               <div class="filter-section-label">詳細タグ</div>
               <div class="tag-select-row">
                 <select id="tagFilterSelect" class="tag-filter-select" aria-label="タグで絞り込み">
@@ -173,6 +176,55 @@
                 <span id="tagExplanationText" class="tag-explanation-text">タグにカーソルを合わせると解説が表示されます</span>
               </div>
             </div>
+
+            <!-- 表示列の選択セクション（スマホでは非表示） -->
+            <div class="filter-section col-visibility-section desktop-only">
+              <div class="col-visibility-header">
+                <div class="filter-section-label">表示列</div>
+                <button id="btnResetColVisibility" class="col-visibility-reset-btn" type="button" title="すべての列を表示状態に戻す">
+                  全表示
+                </button>
+              </div>
+              <div class="col-visibility-grid" id="colVisibilityGroup">
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="strength" checked>
+                  <span>強さ</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="difficulty" checked>
+                  <span>難易度</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="build" checked>
+                  <span>ビルド</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="range">
+                  <span>射程</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="bullet-width">
+                  <span>弾の太さ</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="effective-reach" checked>
+                  <span>実射程</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="hitbox" checked>
+                  <span>判定</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="speed" checked>
+                  <span>移動速度</span>
+                </label>
+                <label class="col-checkbox-item">
+                  <input type="checkbox" class="col-checkbox" data-col="date" checked>
+                  <span>実装日</span>
+                </label>
+              </div>
+            </div>
+            </div>
           </div>
 
           <!-- ツールカード -->
@@ -191,10 +243,6 @@
                 title="強さや装備の評価基準・凡例を表示">
                 評価基準・凡例
               </button>
-              <a href="/archive/note/culture/brawl-range-paradox/" class="sidebar-tool-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;"
-                title="1マスの概念やブロック・エリザベスの射程と当たり判定の仕組みを図解・アニメーションで解説">
-                射程の仕組み図解
-              </a>
             </div>
           </div>
 
@@ -218,13 +266,12 @@
         <!-- 右カラム: キャラクター一覧 -->
         <main class="brawl-main-panel">
           <p id="status" class="brawl-status">Firebaseへ接続中...</p>
-          <div id="tableView" class="view-panel"></div>
+          <div id="tableView" class="view-panel hide-col-range hide-col-bullet-width"></div>
         </main>
 
       </div>
 
-    </div>
-  </hl-layout>
+  </div>
 
   <!-- キャラクター詳細モーダル -->
   <div id="detailModal" class="modal" hidden>
@@ -407,8 +454,8 @@
           </details>
 
           <div class="editor-btn-group">
-            <hl-button id="btnCancelEdit" variant="secondary" type="button">キャンセル</hl-button>
-            <hl-button variant="primary" type="submit">Firebaseに保存</hl-button>
+            <button id="btnCancelEdit" class="editor-btn editor-btn-secondary" type="button">キャンセル</button>
+            <button class="editor-btn editor-btn-primary" type="submit">Firebaseに保存</button>
           </div>
         </div>
       </form>
@@ -576,22 +623,22 @@
             <li class="difficulty-legend-item">
               <span class="diff-badge diff-1">低</span>
               <div class="difficulty-legend-desc">
-                <strong>だれでも使える</strong>
-                <p>操作がシンプルでオートエイムでも活躍しやすい。初心者でも直感的に動かせるキャラクター。</p>
+                <strong>3か月ぶりに使っても動かせる</strong>
+                <p>操作がシンプルで癖が少なく、久しぶりのプレイでも感覚を取り戻してすぐ動かせるキャラクター。</p>
               </div>
             </li>
             <li class="difficulty-legend-item">
               <span class="diff-badge diff-2">中</span>
               <div class="difficulty-legend-desc">
-                <strong>ある程度練習が必要</strong>
-                <p>手動エイムでの偏差撃ちや射程の間合い管理、スキルの使い所など、強みを引き出すには一定の慣れと練習が求められる。</p>
+                <strong>使い慣れていないと戦犯になりがち</strong>
+                <p>立ち回りやスキルの使い所にコツが必要で、慣れていない人が使うとチームの負担になってしまいやすいキャラクター。</p>
               </div>
             </li>
             <li class="difficulty-legend-item">
               <span class="diff-badge diff-3">高</span>
               <div class="difficulty-legend-desc">
-                <strong>端末や回線の性能も必要</strong>
-                <p>精密なエイムや瞬間的な連続タップ・キャラコンが求められ、プレイヤーの腕前だけでなく端末スペックや安定した通信環境まで勝敗に直結する玄人向けキャラクター。</p>
+                <strong>難しい</strong>
+                <p>精密なエイムやシビアな判断、高いキャラコンが求められ、安定して活躍するまでのハードルが高い玄人向けキャラクター。</p>
               </div>
             </li>
           </ul>
@@ -611,10 +658,7 @@
     </div>
   </div>
 
-  <site-footer copy="5Gkyu"></site-footer>
-
-  <script src="/components/components.js"></script>
-  <script type="module" src="app.js?v=20261106_08"></script>
+  <script type="module" src="app.js?v=20261114_02"></script>
 </body>
 
 </html>
