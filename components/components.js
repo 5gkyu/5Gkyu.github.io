@@ -94,7 +94,8 @@
     'extensions/hl-copy-box.js',
     'extensions/hl-gauge.js',
     'extensions/hl-before-after.js',
-    'extensions/hl-tag-filter.js'
+    'extensions/hl-tag-filter.js',
+    'extensions/hl-view-counter.js'
   ];
 
   // 全モジュールを並列ロード

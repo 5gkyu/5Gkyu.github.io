@@ -94,6 +94,8 @@
 </head>
 
 <body>
+  <!-- Stargazer 動的背景用 iframe -->
+  <iframe id="stargazerBg" class="stargazer-bg-iframe" title="Stargazer Animated Background" tabindex="-1" aria-hidden="true"></iframe>
 
 
   <div class="wrap">
@@ -191,6 +193,28 @@
               <button id="liveServerSettingsCancelBtn" class="small-btn" type="button" style="font-size:12px; padding:5px 10px;">閉じる</button>
               <button id="liveServerSettingsSaveBtn" class="open-btn" type="button" style="font-size:12px; padding:5px 10px;">保存</button>
             </div>
+                    </div>
+        </div>
+
+        <!-- クイックメモ帳（3スロット・localStorage自動保存） -->
+        <div class="sidebar-section sidebar-memo-section">
+          <div class="sidebar-memo-header">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="sidebar-memo-title">メモ</span>
+              <span id="sidebarMemoSaveStatus" class="sidebar-memo-status">保存済</span>
+            </div>
+            <div class="sidebar-memo-tabs" id="sidebarMemoTabs" role="tablist" aria-label="メモスロット">
+              <button class="sidebar-memo-tab active" data-slot="0" type="button" role="tab" aria-selected="true" title="スロット 1">1</button>
+              <button class="sidebar-memo-tab" data-slot="1" type="button" role="tab" aria-selected="false" title="スロット 2">2</button>
+              <button class="sidebar-memo-tab" data-slot="2" type="button" role="tab" aria-selected="false" title="スロット 3">3</button>
+            </div>
+          </div>
+          <div class="sidebar-memo-body">
+            <textarea id="sidebarMemoInput" class="sidebar-memo-textarea" placeholder="ここにメモを入力... (自動保存)" spellcheck="false" aria-label="クイックメモ入力"></textarea>
+          </div>
+          <div class="sidebar-memo-footer">
+            <span id="sidebarMemoCount">0 文字</span>
+            <button id="sidebarMemoClearBtn" class="small-btn" type="button" title="現在のスロットをクリア">クリア</button>
           </div>
         </div>
       </aside>
@@ -417,6 +441,8 @@
               <option value="awake">Awake</option>
               <option value="muse">Muse</option>
               <option value="eof">EOF</option>
+              <option value="daybreak">Daybreak（夜明け・透過）</option>
+              <option value="twilight">Twilight（黄昏・透過）</option>
               <option value="stargazer">Stargazer（星空・透過）</option>
             </select>
           </div>
@@ -636,6 +662,7 @@
   <!-- 並び替えスタジオ -->
   <script src="sort-studio.js?v=20261103" defer></script>
 
+<script src="/components/src/extensions/hl-view-counter.js" defer></script>
 </body>
 
 </html>
