@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>黄昏の廃都 - Dusk Ruins | Halcyon</title>
+    <meta name="description" content="夕暮れに沈む廃墟の街を見つめる少女と黒猫。雲の流れ、旗のはためき、水面のきらめき、光の塵をドット単位で動かしたピクセルアート・アニメーション。">
+    <link rel="canonical" href="https://5gkyu.github.io/archive/other/dusk-ruins/">
+    <script>
+        (function () {
+            try {
+                var p = new URLSearchParams(window.location.search);
+                if (p.has("bg") || p.has("embed")) {
+                    document.documentElement.classList.add("bg-mode");
+                }
+            } catch (e) {}
+        })();
+    </script>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="https://5gkyu.github.io/icon/favicon-32x32.png">
+    <meta property="og:title" content="黄昏の廃都 - Dusk Ruins | Halcyon">
+    <meta property="og:description" content="夕暮れに沈む廃墟の街を見つめる少女と黒猫。ドット単位で息づくピクセルアート・アニメーション。">
+    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:url" content="https://5gkyu.github.io/archive/other/dusk-ruins/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Halcyon">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#140b20">
+
+    <style id="fouc-prevent">
+        body {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            background-color: #140b20 !important;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Quicksand:wght@600;700&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="preload" as="image" href="scene.png">
+
+    <style>
+        :root {
+            --clr-ink: #140b20;
+            --clr-dusk: #ff8a5c;
+            --clr-rose: #ff6f91;
+            --clr-violet: #a98bd8;
+            --clr-cream: #FBF6EA;
+            --glass: rgba(20, 11, 32, 0.55);
+            --glass-border: rgba(255, 170, 140, 0.28);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--clr-ink);
+            color: var(--clr-cream);
+            font-family: 'Zen Maru Gothic', 'Hiragino Sans', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            transition: opacity 0.4s ease;
+        }
+
+        body.is-leaving {
+            opacity: 0;
+        }
+
+        /* ステージ（全画面・はみ出しは隠す） */
+        .stage {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 40% 45%, #3a1a3c 0%, #140b20 70%);
+        }
+
+        /* 絵本体（JSでカバーサイズ・位置を計算） */
+        .scene {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            transition: opacity 1.6s ease;
+            will-change: transform;
+        }
+
+        .scene.is-ready {
+            opacity: 1;
+        }
+
+        .scene>img,
+        .scene>canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .scene>img {
+            object-fit: fill;
+        }
+
+        /* ドット演出レイヤーは低解像度のまま拡大してジャギーを保つ */
+        #scene-fx {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            pointer-events: none;
+        }
+
+        /* ---------- UI ---------- */
+        .ui {
+            position: fixed;
+            z-index: 10;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        body.ui-hidden .ui {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.ui-hidden .ui-top {
+            transform: translateY(-10px);
+        }
+
+        html.bg-mode body .ui,
+        html.bg-mode body #loader,
+        html.bg-mode body .help-modal,
+        html.bg-mode body .custom-cursor,
+        html.bg-mode body #grid-toast {
+            display: none !important;
+        }
+        html.bg-mode,
+        html.bg-mode body {
+            overflow: hidden !important;
+            background: transparent !important;
+            cursor: default !important;
+            pointer-events: none !important;
+        }
+
+        body.ui-hidden .ui-caption {
+            transform: translateY(10px);
+        }
+
+        .ui-top {
+            top: calc(16px + env(safe-area-inset-top));
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .ui-top>* {
+            pointer-events: auto;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.5rem 0.95rem 0.5rem 0.75rem;
+            border-radius: 999px;
+            color: var(--clr-cream);
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            transition: border-color 0.25s ease, transform 0.25s ease, color 0.25s ease;
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .back-link:hover {
+            color: var(--clr-dusk);
+            border-color: rgba(255, 138, 92, 0.65);
+            transform: translateX(-2px);
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 999px;
+        }
+
+        .slider-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0 0.4rem;
+        }
+
+        .slider-label {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--clr-dusk);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .slider-val {
+            font-family: 'DotGothic16', monospace;
+            font-size: 0.72rem;
+            color: var(--clr-cream);
+            min-width: 2.1rem;
+            text-align: right;
+            user-select: none;
+        }
+
+        .dither-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 78px;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.22);
+            outline: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .dither-slider:hover {
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .dither-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--clr-dusk);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 6px rgba(255, 138, 92, 0.7);
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+
+        .dither-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #FFA07A;
+        }
+
+        .dither-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--clr-dusk);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 6px rgba(255, 138, 92, 0.7);
+            cursor: pointer;
+        }
+
+        .tool-sep {
+            width: 1px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.18);
+            margin: 0 0.15rem;
+        }
+
+        /* 時間帯切替（朝 / 夕 / 夜） */
+        .time-seg {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .time-btn {
+            min-width: 30px;
+            height: 28px;
+            padding: 0 0.45rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: rgba(251, 246, 234, 0.72);
+            font-family: 'DotGothic16', monospace;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .time-btn:hover,
+        .time-btn:focus-visible {
+            color: var(--clr-cream);
+            border-color: rgba(255, 255, 255, 0.35);
+            outline: none;
+        }
+
+        .time-btn[aria-pressed="true"] {
+            background: var(--time-accent, var(--clr-dusk));
+            color: #1a1222;
+        }
+
+        body[data-time="morning"] {
+            --time-accent: #f6d7a7;
+        }
+
+        body[data-time="dusk"] {
+            --time-accent: #ff8a5c;
+        }
+
+        body[data-time="night"] {
+            --time-accent: #b9c4f2;
+        }
+
+        body[data-time="morning"] .stage {
+            background: radial-gradient(ellipse at 40% 45%, #2a3d58 0%, #161c2c 70%);
+        }
+
+        body[data-time="night"] .stage {
+            background: radial-gradient(ellipse at 40% 45%, #161c36 0%, #090b16 70%);
+        }
+
+        body[data-time="morning"] .caption-title {
+            background-image: linear-gradient(100deg, #fff6e2 0%, #f8d9a8 45%, #a9c3e6 100%);
+        }
+
+        body[data-time="night"] .caption-title {
+            background-image: linear-gradient(100deg, #f4f2ff 0%, #b9c4f2 50%, #7d8bd6 100%);
+        }
+
+        body[data-time]:not([data-time="dusk"]) .caption-badge {
+            color: var(--time-accent);
+            border-color: var(--time-accent);
+        }
+
+        @media (max-width: 580px) {
+            .slider-bar-item {
+                gap: 0.3rem;
+                padding: 0 0.2rem;
+            }
+
+            .slider-label {
+                display: none;
+            }
+
+            .dither-slider {
+                width: 54px;
+            }
+        }
+
+        /* 投げ縄ツール（水面マスク編集モード） */
+        #lasso-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        body.is-lasso-mode #lasso-canvas {
+            pointer-events: auto;
+            cursor: crosshair;
+        }
+
+        body.is-lasso-mode #btn-lasso {
+            background: rgba(255, 138, 92, 0.45);
+            border-color: var(--clr-dusk);
+            color: #FFF;
+        }
+
+        .lasso-bar {
+            display: none;
+            position: fixed;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 0.82rem;
+            color: var(--clr-cream);
+            white-space: nowrap;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        body.is-lasso-mode .lasso-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .lasso-guide {
+            color: var(--clr-dusk);
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .lasso-bar-btn {
+            background: rgba(255, 138, 92, 0.22);
+            border: 1px solid rgba(255, 138, 92, 0.6);
+            color: var(--clr-cream);
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .lasso-bar-btn:hover {
+            background: rgba(255, 138, 92, 0.5);
+            border-color: #FFF;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--clr-cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .tool-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .tool-btn:hover,
+        .tool-btn:focus-visible {
+            background: rgba(255, 138, 92, 0.16);
+            border-color: rgba(255, 138, 92, 0.5);
+            color: var(--clr-dusk);
+            outline: none;
+        }
+
+        .tool-btn .icon-play {
+            display: none;
+        }
+
+        body.is-paused .tool-btn .icon-play {
+            display: block;
+        }
+
+        body.is-paused .tool-btn .icon-pause {
+            display: none;
+        }
+
+        .ui-caption {
+            left: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom));
+            max-width: min(400px, calc(100vw - 32px));
+            padding: 1rem 1.25rem 0.9rem;
+            border-radius: 18px;
+        }
+
+        .caption-badge {
+            display: inline-block;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            color: var(--clr-dusk);
+            border: 1px solid rgba(255, 138, 92, 0.5);
+            border-radius: 4px;
+            padding: 0.1rem 0.45rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .caption-title {
+            font-family: 'DotGothic16', sans-serif;
+            font-weight: 400;
+            font-size: clamp(1.35rem, 3vw, 1.75rem);
+            letter-spacing: 0.12em;
+            line-height: 1.2;
+            background: linear-gradient(100deg, #ffe2c4 0%, #ff9f7a 45%, #ff6f91 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 18px rgba(255, 120, 100, 0.25);
+        }
+
+        .caption-sub {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            color: rgba(251, 246, 234, 0.7);
+            margin-top: 0.15rem;
+        }
+
+        .caption-desc {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: rgba(251, 246, 234, 0.82);
+            margin-top: 0.55rem;
+        }
+
+        .caption-keys {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem 0.8rem;
+            margin-top: 0.65rem;
+            padding-top: 0.55rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.68rem;
+            color: rgba(251, 246, 234, 0.6);
+        }
+
+        .caption-keys kbd {
+            font-family: 'DotGothic16', monospace;
+            font-size: 0.66rem;
+            padding: 0.05rem 0.35rem;
+            margin-right: 0.25rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--clr-cream);
+        }
+
+        /* ローディング */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .loader.is-done {
+            opacity: 0;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .loader-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--clr-dusk);
+            animation: dot-blink 1.2s steps(2, jump-none) infinite;
+        }
+
+        .loader-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+            background: var(--clr-rose);
+        }
+
+        .loader-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+            background: var(--clr-violet);
+        }
+
+        .loader-text {
+            font-family: 'DotGothic16', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.25em;
+            color: rgba(251, 246, 234, 0.7);
+        }
+
+        @keyframes dot-blink {
+            0% {
+                opacity: 0.2;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .caption-desc {
+                display: none;
+            }
+
+            .ui-caption {
+                padding: 0.8rem 1rem 0.75rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .loader-dots span {
+                animation: none;
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="stage" id="stage" aria-label="黄昏の廃都アニメーション">
+        <div class="scene" id="scene">
+            <img id="scene-fallback" src="scene.png" alt="夕暮れの廃墟の街を瓦礫の上から眺める少女と黒猫のピクセルアート" draggable="false">
+            <canvas id="scene-gl" aria-hidden="true"></canvas>
+            <canvas id="scene-fx" width="418" height="235" aria-hidden="true"></canvas>
+            <canvas id="lasso-canvas" width="1672" height="941" aria-hidden="true"></canvas>
+        </div>
+    </main>
+
+    <div class="loader" id="loader" aria-hidden="true">
+        <div class="loader-dots"><span></span><span></span><span></span></div>
+        <div class="loader-text">LOADING</div>
+    </div>
+
+    <!-- 投げ縄モード用フローティング操作バー -->
+    <div class="lasso-bar glass" id="lasso-bar" role="toolbar" aria-label="投げ縄ツール操作">
+        <span class="lasso-guide">水面にする領域をマウスドラッグで囲んでください</span>
+        <button class="lasso-bar-btn" id="btn-lasso-clear" type="button">クリア</button>
+        <button class="lasso-bar-btn" id="btn-lasso-reset" type="button">デフォルトに戻す</button>
+        <button class="lasso-bar-btn" id="btn-lasso-export" type="button"
+            title="指定した領域の座標JSONをクリップボードにコピー">座標をコピー</button>
+        <button class="lasso-bar-btn" id="btn-lasso-done" type="button">完了 (M)</button>
+    </div>
+
+    <nav class="ui ui-top" aria-label="ページ操作">
+        <a href="/archive/other/" class="back-link glass" id="back-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+            Archive
+        </a>
+        <div class="tool-group glass">
+            <div class="time-seg" role="group" aria-label="時間帯切替" title="時間帯切替 (T)">
+                <button class="time-btn" id="btn-time-morning" type="button" data-time="morning" aria-pressed="false"
+                    hidden>朝</button>
+                <button class="time-btn" id="btn-time-dusk" type="button" data-time="dusk"
+                    aria-pressed="true">夕</button>
+                <button class="time-btn" id="btn-time-night" type="button" data-time="night" aria-pressed="false"
+                    hidden>夜</button>
+                <button class="time-btn" id="btn-time-rain" type="button" data-time="rain" aria-pressed="false"
+                    hidden>雨</button>
+            </div>
+            <div class="tool-sep" aria-hidden="true"></div>
+            <div class="slider-bar-item" title="四角いディザの強さをスライダーで調整します (0%で滑らか)">
+                <span class="slider-label">Dither</span>
+                <input type="range" id="slider-dither" class="dither-slider" min="0" max="100" value="0" step="1"
+                    aria-label="ディザ強度">
+                <span class="slider-val" id="val-dither">0%</span>
+            </div>
+            <div class="tool-sep" aria-hidden="true"></div>
+            <button class="tool-btn" id="btn-lasso" type="button" title="水面投げ縄ツール (M) - ドラッグして水面範囲を指定"
+                aria-label="水面投げ縄ツール">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M15.5 5.5c-2.5-2.5-6.5-2.5-9 0s-2.5 6.5 0 9l3.5 3.5 1.4-1.4-3.5-3.5c-1.7-1.7-1.7-4.5 0-6.2 1.7-1.7 4.5-1.7 6.2 0l1.4-1.4zM21 16.5l-5.5-5.5-1.4 1.4 5.5 5.5 1.4-1.4zm-4 4l-3.5-3.5-1.4 1.4 3.5 3.5 1.4-1.4z" />
+                </svg>
+            </button>
+            <button class="tool-btn" id="btn-grid" type="button" title="ドットサイズ切替 (G)" aria-label="ドットサイズ切替">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z" />
+                </svg>
+            </button>
+            <button class="tool-btn" id="btn-pause" type="button" title="一時停止 / 再生 (Space)" aria-label="一時停止または再生">
+                <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+                <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </button>
+            <button class="tool-btn" id="btn-capture" type="button" title="現在の画面を保存 (S)" aria-label="画面を画像として保存">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
+                </svg>
+            </button>
+            <button class="tool-btn" id="btn-ui" type="button" title="UIを隠す (H)" aria-label="UIを隠す">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92A11.8 11.8 0 0 0 22.99 12C21.26 7.61 17 4.5 11.99 4.5c-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.8 11.8 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78 3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <section class="ui ui-caption glass" aria-labelledby="caption-title">
+        <span class="caption-badge">PIXEL SCENE</span>
+        <h1 class="caption-title" id="caption-title">黄昏の廃都</h1>
+        <p class="caption-sub" id="caption-sub">Dusk over the Ruined City</p>
+        <p class="caption-desc" id="caption-desc">崩れた高架の向こうに沈む夕日。瓦礫に腰掛けた少女と黒猫が、静かに一日の終わりを見送っている。</p>
+        <div class="caption-keys">
+            <span><kbd>T</kbd>時間帯</span>
+            <span><kbd>G</kbd>ドット切替</span>
+            <span><kbd>M</kbd>水面投げ縄</span>
+            <span><kbd>[ ]</kbd>ディザ調整</span>
+            <span><kbd>H</kbd>UI切替</span>
+            <span><kbd>Space</kbd>一時停止</span>
+            <span><kbd>S</kbd>画像保存</span>
+        </div>
+    </section>
+
+    <!-- ドットサイズ切替時のトースト表示 -->
+    <div id="grid-toast"
+        style="display:none; position:fixed; top:70px; right:16px; z-index:100; padding:0.4rem 0.85rem; border-radius:8px; font-family:'DotGothic16',monospace; font-size:0.75rem; letter-spacing:0.08em; pointer-events:none; transition:opacity 0.3s ease;"
+        class="glass"></div>
+
+    <script id="vs" type="x-shader/x-vertex">
+        attribute vec2 aPos;
+        varying vec2 vUv;
+        void main() {
+            // 画像の上端を v=0 とする座標系
+            vUv = vec2(aPos.x * 0.5 + 0.5, 0.5 - aPos.y * 0.5);
+            gl_Position = vec4(aPos, 0.0, 1.0);
+        }
+    </script>
+
+    <!-- フラグメントシェーダー：領域ごとにドット単位で画素をずらして動かす -->
+    <script id="fs" type="x-shader/x-fragment">
+        precision highp float;
+        varying vec2 vUv;
+        // uTex: 夕焼けの元画像（動きの判定専用） / uColTex・uColPrev: 表示する時間帯の色
+        uniform sampler2D uTex;
+        uniform sampler2D uWaterMaskTex;
+        uniform sampler2D uColTex;
+        uniform sampler2D uColPrev;
+        uniform float uMix;        // 時間帯切替のクロスフェード（0=前, 1=現在）
+        uniform vec3 uSunCol;      // 太陽（月）グローの色
+        uniform float uGlow;       // グローと光芒の強さ
+        uniform vec3 uSparkCol;    // 水面きらめきの色
+        uniform float uTime;
+        uniform float uMotion;
+        uniform float uAspect;
+
+        // 均一ピクセルグリッド解像度
+        uniform vec2 uGrid;
+        // ディザ強度（0.0で滑らか、1.0でレトロディザ）
+        uniform float uDither;
+
+        float hash(vec2 p) {
+            p = fract(p * vec2(123.34, 456.21));
+            p += dot(p, p + 45.32);
+            return fract(p.x * p.y);
+        }
+
+        float noise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+                       mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+        }
+
+        // 4x4 ベイヤー行列（ディザ用）
+        float bayer2(vec2 a) { a = floor(a); return fract(dot(a, vec2(0.5, a.y * 0.75))); }
+        float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+
+        // 矩形マスク（r = x0, y0, x1, y1 / s = 境界のぼかし幅）
+        float box(vec2 p, vec4 r, float s) {
+            return smoothstep(r.x, r.x + s, p.x) * smoothstep(r.y, r.y + s, p.y)
+                 * (1.0 - smoothstep(r.z - s, r.z, p.x)) * (1.0 - smoothstep(r.w - s, r.w, p.y));
+        }
+
+        // 旗の周囲の空（夕暮れのピンク・オレンジ・紫）判定
+        bool isFlagSky(vec3 c) {
+            // 顔マーク（淡い青紫: B成分が強い）は旗の一部として維持
+            if (c.b > c.r * 1.35 && c.b > 0.45) return false;
+            float l = dot(c, vec3(0.299, 0.587, 0.114));
+            return (l > 0.275) || (c.r > 0.26 && c.g > 0.175 && (c.r >= c.b * 0.82));
+        }
+
+        // 水面ピクセル判定（前面の草・瓦礫・暗い陸地を除外する）
+        bool isWaterColor(vec3 c) {
+            float lum = dot(c, vec3(0.299, 0.587, 0.114));
+            return (lum > 0.33 && c.r > 0.43) || (c.r > 0.51 && c.r > c.b * 0.95);
+        }
+
+        void main() {
+            vec2 uv = vUv;
+            vec2 cell = floor(uv * uGrid);        // 統一ドット番号
+            vec2 cuv = (cell + 0.5) / uGrid;      // ドット中心
+            vec2 apx = 1.0 / uGrid;               // 1ドット分のUV
+            float t = uTime;
+            vec2 shift = vec2(0.0);             // ドット単位のずれ量
+
+            // ---- 1. 雲：上空だけをゆっくり揺らし、形を少しずつ変える ----
+            float skyM = (1.0 - smoothstep(0.15, 0.26, cuv.y))
+                       * (1.0 - smoothstep(0.74, 0.80, cuv.x))
+                       * (1.0 - box(cuv, vec4(0.55, 0.18, 0.655, 1.0), 0.01)); // 高いビルの先端は除外
+            float cn = noise(vec2(cuv.x * 5.0 - t * 0.035, cuv.y * 12.0 + t * 0.01));
+            shift.x += (sin(t * 0.11 + cuv.y * 7.0) * 1.6 + (cn - 0.5) * 3.0) * skyM;
+
+            // ---- 2. 旗：布地・紋章部分のみを揺らし、周囲の空は一切揺らさない ----
+            float px = cuv.x * 1672.0;
+            float py = cuv.y * 941.0;
+            float poleX = 1385.0 + 115.0 * ((py - 45.0) / 455.0);
+            float topY = 48.0 + (px - 1390.0) * 0.155;
+            if (px >= poleX + 7.0 && px <= 1612.0 && py >= topY && py <= 285.0) {
+                vec3 origCol = texture2D(uTex, cuv).rgb;
+                if (!isFlagSky(origCol)) {
+                    float hang = clamp((cuv.y - 0.06) / 0.22, 0.0, 1.0);
+                    float fw = sin(cuv.y * 36.0 - t * 3.0) * 0.65 + sin(cuv.y * 15.0 - t * 1.6 + 1.3) * 0.35;
+                    vec2 flagShift = vec2(fw * hang * 2.4, sin(cuv.x * 28.0 - t * 2.4) * hang * 0.9);
+                    
+                    // サンプリング先が空にはみ出していないかチェックし、布地内にとどめる
+                    vec2 testCell = cell + floor(flagShift * uMotion + 0.5);
+                    vec2 testUv = (testCell + 0.5) / uGrid;
+                    vec3 sampCol = texture2D(uTex, testUv).rgb;
+                    if (!isFlagSky(sampCol)) {
+                        shift += flagShift;
+                    }
+                }
+            }
+
+            // ---- 3. 水面：テクスチャマスク（投げ縄ツール）× 前面の草・陸地除外 ----
+            float waterM = texture2D(uWaterMaskTex, cuv).r;
+            if (waterM > 0.01) {
+                vec3 origC = texture2D(uTex, cuv).rgb;
+                // 前面に生えている草や柱・瓦礫（暗い陸地）は揺らさず静止を保つ
+                if (isWaterColor(origC)) {
+                    float wShift = (sin(cell.y * 1.9 + t * 2.0) * 1.1 + sin(cell.y * 0.7 - t * 1.2) * 0.7) * waterM;
+                    vec2 testCell = cell + vec2(floor(wShift * uMotion + 0.5), 0.0);
+                    vec2 testUv = (testCell + 0.5) / uGrid;
+                    vec3 sampC = texture2D(uTex, testUv).rgb;
+                    if (texture2D(uWaterMaskTex, testUv).r > 0.01 && isWaterColor(sampC)) {
+                        shift.x += wShift;
+                    }
+                }
+            }
+
+            // ドット単位に丸め、元画像も完全に均一なピクセル格子（cell）でサンプリング
+            shift = floor(shift * uMotion + 0.5);
+            vec2 sampleUv = (cell + shift + 0.5) / uGrid;
+            // 判定は元画像、表示色は時間帯テクスチャ（ドット位置は完全に共通）
+            vec3 ref = texture2D(uTex, sampleUv).rgb;
+            vec3 col = mix(texture2D(uColPrev, sampleUv).rgb, texture2D(uColTex, sampleUv).rgb, uMix);
+            float lum = dot(ref, vec3(0.299, 0.587, 0.114));
+
+            // ---- 5. 夕日のグローと光芒（統一グリッドで段階化） ----
+            vec2 sd = (cuv - vec2(0.407, 0.471)) * vec2(uAspect, 1.0);
+            float sr = length(sd);
+            float pulse = 0.88 + 0.12 * sin(t * 0.6);
+            float glow = (exp(-sr * 7.0) * 0.20 + exp(-sr * 22.0) * 0.22) * pulse;
+            float ang = atan(sd.y, sd.x);
+            float rays = pow(0.5 + 0.5 * sin(ang * 11.0 + sin(t * 0.07) * 2.0), 6.0)
+                       * exp(-sr * 2.6) * 0.10
+                       * (1.0 - smoothstep(0.47, 0.6, cuv.y));
+            float light = glow + rays * (0.6 + 0.4 * sin(t * 0.3 + ang * 3.0));
+            // スライダー調整可能なディザリング（0.0で完全滑らか、強度に応じて段階化）
+            float steps = mix(128.0, 24.0, uDither);
+            float dith = (bayer4(cell) - 0.5) * uDither;
+            float quantized = floor(light * steps + dith + 0.5) / steps;
+            light = mix(light, quantized, uDither);
+            col += uSunCol * light * uGlow;
+
+            // ---- 6. 水面の反射光：統一グリッド上のドットがきらめく ----
+            float isW = isWaterColor(ref) ? 1.0 : 0.0;
+            float refl = box(cuv, vec4(0.37, 0.66, 0.47, 0.775), 0.01) * clamp(waterM * 2.0, 0.0, 1.0) * isW;
+            vec2 sc = vec2(floor(cell.x / 2.0), cell.y);
+            float sp = step(0.93, hash(sc + floor(t * 5.0 + hash(sc) * 7.0)));
+            col += uSparkCol * 0.38 * sp * refl * smoothstep(0.35, 0.6, lum);
+            col *= 1.0 + 0.05 * sin(cell.y * 2.0 - t * 3.0) * waterM * isW;
+
+            // ---- 7. 全体の呼吸とビネット ----
+            col *= 1.0 + 0.025 * sin(t * 0.5);
+            vec2 vq = (uv - 0.5) * vec2(1.0, 1.15);
+            col *= mix(0.74, 1.0, 1.0 - smoothstep(0.25, 0.85, length(vq)));
+
+            gl_FragColor = vec4(col, 1.0);
+        }
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            // FOUC防止スタイルを解除（本ページは共通コンポーネント非依存）
+            var fouc = document.getElementById('fouc-prevent');
+            if (fouc) fouc.remove();
+
+            var IMG_W = 1672, IMG_H = 941;   // 元画像サイズ
+            var GRID_MODES = [
+                { scale: 4, name: '均一 4px (標準推奨)' },
+                { scale: 3, name: '均一 3px (クラシック)' },
+                { scale: 2, name: '均一 2px (微細)' },
+                { scale: 1, name: '原寸 1px (フルHD)' }
+            ];
+            var currentGridIdx = 0; // デフォルト：4px均一
+            var ART_W = Math.round(IMG_W / GRID_MODES[currentGridIdx].scale);
+            var ART_H = Math.round(IMG_H / GRID_MODES[currentGridIdx].scale);
+            var OVERSCAN = 1.04;             // パララックス用の余白
+
+            var stage = document.getElementById('stage');
+            var scene = document.getElementById('scene');
+            var glCanvas = document.getElementById('scene-gl');
+            var fxCanvas = document.getElementById('scene-fx');
+            var fallbackImg = document.getElementById('scene-fallback');
+            var loader = document.getElementById('loader');
+            var gridToast = document.getElementById('grid-toast');
+            var toastTimer = null;
+            fxCanvas.width = ART_W;
+            fxCanvas.height = ART_H;
+            var fx = fxCanvas.getContext('2d');
+            fx.imageSmoothingEnabled = false;
+
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var motion = reduceMotion ? 0.35 : 1.0;
+            var paused = false;
+            var time = 0;
+            var lastNow = performance.now();
+
+            // ------------------------------------------------------------
+            // レイアウト：画面を覆うサイズ（cover）＋縦長時は少女側へ寄せる
+            // ------------------------------------------------------------
+            var layout = { w: 0, h: 0, left: 0, top: 0, vw: 0, vh: 0 };
+            var mouse = { tx: 0, ty: 0, x: 0, y: 0 };
+
+            function computeLayout() {
+                var vw = window.innerWidth;
+                var vh = window.innerHeight;
+                var s = Math.max(vw / IMG_W, vh / IMG_H) * OVERSCAN;
+                var w = IMG_W * s;
+                var h = IMG_H * s;
+                // 縦長画面では夕日と少女の間（x=62%）を中心に据える
+                var focal = vw < vh ? 0.62 : 0.5;
+                var left = Math.min(0, Math.max(vw - w, vw / 2 - w * focal));
+                var top = (vh - h) / 2;
+
+                layout = { w: w, h: h, left: left, top: top, vw: vw, vh: vh };
+                scene.style.width = w + 'px';
+                scene.style.height = h + 'px';
+
+                var dpr = Math.min(window.devicePixelRatio || 1, 2);
+                var cw = Math.min(Math.round(w * dpr), 3200);
+                var ch = Math.round(cw * IMG_H / IMG_W);
+                if (glCanvas.width !== cw || glCanvas.height !== ch) {
+                    glCanvas.width = cw;
+                    glCanvas.height = ch;
+                    if (gl) gl.viewport(0, 0, cw, ch);
+                }
+                applyTransform();
+            }
+
+            function applyTransform() {
+                // 投げ縄モード中は描画しやすいようパララックスを固定
+                var range = isLassoMode ? 0 : 14 * motion;
+                var dx = mouse.x * range;
+                var dy = mouse.y * range * 0.6;
+                var x = Math.min(0, Math.max(layout.vw - layout.w, layout.left + dx));
+                var y = Math.min(0, Math.max(layout.vh - layout.h, layout.top + dy));
+                scene.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+            }
+
+            window.addEventListener('pointermove', function (e) {
+                if (e.pointerType !== 'mouse') return;
+                mouse.tx = (e.clientX / window.innerWidth - 0.5) * -2;
+                mouse.ty = (e.clientY / window.innerHeight - 0.5) * -2;
+            });
+            document.addEventListener('mouseleave', function () { mouse.tx = 0; mouse.ty = 0; });
+
+            // ------------------------------------------------------------
+            // WebGL 初期化
+            // ------------------------------------------------------------
+            var gl = null, prog = null, uTime = null, uMotion = null, uAspect = null, uGrid = null, uDither = null;
+            var uWaterMaskTex = null, waterMaskTex = null;
+            var uMix = null, uSunCol = null, uGlow = null, uSparkCol = null;
+            var ditherLevel = 0.0; // 初期ディザ強度：0%（デフォルト滑らか）
+
+            // ------------------------------------------------------------
+            // 時間帯の設定（ドットの形は共通で、色と光の演出だけを切り替える）
+            //   src   : 色を変換した画像（元画像と同じピクセル配置）
+            //   sun   : 太陽（月）グローの色 / glow: その強さ
+            //   spark : 水面きらめきの色
+            //   stars : 星の見えやすさ / flies: 蛍の量 / moteA: 光の塵の濃さ
+            // ------------------------------------------------------------
+            var TIME_ORDER = ['morning', 'dusk', 'night', 'rain'];
+            var TIMES = {
+                morning: {
+                    src: 'scene_morning.png',
+                    title: '夜明けの廃都', sub: 'Dawn over the Ruined City',
+                    desc: '高架の向こうから昇る朝日。冷たい朝の空気のなか、少女と黒猫が新しい一日の始まりを見つめている。',
+                    sun: [1.0, 0.86, 0.62], glow: 0.85, spark: [1.0, 0.96, 0.84],
+                    stars: 0.0, flies: 0.0, moteA: 0.75, rain: 0.0,
+                    motes: [[255, 236, 200], [255, 248, 228], [232, 240, 255], [255, 220, 176]],
+                    bird: [40, 46, 70], theme: '#1c2236'
+                },
+                dusk: {
+                    src: 'scene.png',
+                    title: '黄昏の廃都', sub: 'Dusk over the Ruined City',
+                    desc: '崩れた高架の向こうに沈む夕日。瓦礫に腰掛けた少女と黒猫が、静かに一日の終わりを見送っている。',
+                    sun: [1.0, 0.56, 0.32], glow: 1.0, spark: [1.0, 0.85, 0.6],
+                    stars: 1.0, flies: 1.0, moteA: 1.0, rain: 0.0,
+                    motes: [[255, 196, 140], [255, 150, 160], [255, 226, 186], [240, 170, 255]],
+                    bird: [38, 18, 44], theme: '#140b20'
+                },
+                night: {
+                    src: 'scene_night.png',
+                    title: '月夜の廃都', sub: 'Moonlit Ruined City',
+                    desc: '静寂に包まれた夜の廃都。冷涼な月光が廃墟と水面を蒼く照らし、少女と黒猫が遠くの瞬きを見つめている。',
+                    sun: [0.82, 0.90, 1.0], glow: 0.75, spark: [0.75, 0.88, 1.0],
+                    stars: 2.4, flies: 1.3, moteA: 0.55, rain: 0.0,
+                    motes: [[210, 226, 255], [230, 240, 255], [190, 210, 250], [255, 230, 180]],
+                    bird: [14, 18, 32], theme: '#0d1020'
+                },
+                rain: {
+                    src: 'scene_night.png',
+                    title: '雨夜の廃都', sub: 'Rainy Night over the Ruined City',
+                    desc: '暗雲立ち込める空から冷たい雨が降りしきる廃都。時折走る稲妻が水面と瓦礫を一瞬白く照らし、少女と黒猫が静かに雨を見送っている。',
+                    sun: [0.55, 0.68, 0.85], glow: 0.40, spark: [0.60, 0.75, 0.95],
+                    stars: 0.0, flies: 0.0, moteA: 0.0, rain: 1.0,
+                    motes: [[160, 190, 225], [180, 210, 240], [150, 180, 220], [190, 220, 250]],
+                    bird: [10, 14, 22], theme: '#080c16'
+                }
+            };
+            var currentTime = 'dusk';
+            var prevTime = 'dusk';
+            var timeMix = 1;           // クロスフェード進捗（1で完了）
+            var FADE_SEC = 1.4;
+            var timeTextures = {};     // 時間帯ごとのWebGLテクスチャ
+            var timeImages = {};       // 読み込み済み画像
+            var TIME_STORAGE_KEY = 'dusk_ruins_time_of_day';
+
+            function lerp(a, b, k) { return a + (b - a) * k; }
+            function lerp3(a, b, k) { return [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k)]; }
+            function easeInOut(k) { return k * k * (3 - 2 * k); }
+
+            // フェード中の演出パラメータ（前の時間帯と現在の時間帯を補間）
+            function timeParam(key) {
+                var a = TIMES[prevTime], b = TIMES[currentTime];
+                var k = easeInOut(timeMix);
+                var valA = (a && a[key] !== undefined) ? a[key] : 0;
+                var valB = (b && b[key] !== undefined) ? b[key] : 0;
+                if (Array.isArray(valB)) return lerp3(valA || [0, 0, 0], valB, k);
+                return lerp(valA, valB, k);
+            }
+
+            // 投げ縄・水面マスク管理
+            var maskCanvas = document.createElement('canvas');
+            maskCanvas.width = IMG_W;
+            maskCanvas.height = IMG_H;
+            var maskCtx = maskCanvas.getContext('2d');
+            var lassoCanvas = document.getElementById('lasso-canvas');
+            var lassoCtx = lassoCanvas ? lassoCanvas.getContext('2d') : null;
+            var isLassoMode = false;
+            var isDrawingLasso = false;
+            var currentLassoPoints = null;
+            var STORAGE_KEY = 'dusk_ruins_water_mask_v3';
+
+            // デフォルトの水面ポリゴン（ユーザー指定の投げ縄範囲に基づく川の輪郭）
+            var DEFAULT_WATER_POLYGONS = [
+                [
+                    [555, 671], [560, 664], [622, 650], [733, 645], [765, 634],
+                    [807, 634], [817, 645], [796, 651], [737, 652], [729, 655],
+                    [729, 664], [845, 705], [905, 735], [915, 745], [914, 753],
+                    [889, 759], [881, 739], [862, 766], [851, 756], [845, 732],
+                    [840, 732], [825, 742], [812, 768], [805, 771], [793, 756],
+                    [773, 746], [690, 714], [632, 704], [609, 694], [552, 689],
+                    [545, 672], [559, 663]
+                ]
+            ];
+            var waterPolygons = [];
+
+            function loadWaterMask() {
+                try {
+                    var data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        var parsed = JSON.parse(data);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            waterPolygons = parsed;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('マスク読み込み失敗:', e);
+                }
+                waterPolygons = JSON.parse(JSON.stringify(DEFAULT_WATER_POLYGONS));
+            }
+
+            function saveWaterMask() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(waterPolygons));
+                } catch (e) {
+                    console.warn('マスク保存失敗:', e);
+                }
+            }
+
+            function renderMaskCanvas() {
+                maskCtx.clearRect(0, 0, IMG_W, IMG_H);
+                maskCtx.fillStyle = '#FFFFFF';
+                for (var i = 0; i < waterPolygons.length; i++) {
+                    var poly = waterPolygons[i];
+                    if (poly.length < 3) continue;
+                    maskCtx.beginPath();
+                    maskCtx.moveTo(poly[0][0], poly[0][1]);
+                    for (var j = 1; j < poly.length; j++) {
+                        maskCtx.lineTo(poly[j][0], poly[j][1]);
+                    }
+                    maskCtx.closePath();
+                    maskCtx.fill();
+                }
+                uploadWaterMaskTexture();
+            }
+
+            function uploadWaterMaskTexture() {
+                if (!gl || !waterMaskTex) return;
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, waterMaskTex);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, maskCanvas);
+            }
+
+            function compile(type, src) {
+                var sh = gl.createShader(type);
+                gl.shaderSource(sh, src);
+                gl.compileShader(sh);
+                if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                    var log = gl.getShaderInfoLog(sh);
+                    gl.deleteShader(sh);
+                    throw new Error('シェーダーのコンパイルに失敗: ' + log);
+                }
+                return sh;
+            }
+
+            function initGL() {
+                gl = glCanvas.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true });
+                if (!gl) return false;
+                try {
+                    prog = gl.createProgram();
+                    gl.attachShader(prog, compile(gl.VERTEX_SHADER, document.getElementById('vs').textContent));
+                    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, document.getElementById('fs').textContent));
+                    gl.linkProgram(prog);
+                    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+                        throw new Error('プログラムのリンクに失敗: ' + gl.getProgramInfoLog(prog));
+                    }
+                    gl.useProgram(prog);
+
+                    var buf = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+                    var aPos = gl.getAttribLocation(prog, 'aPos');
+                    gl.enableVertexAttribArray(aPos);
+                    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+                    uTime = gl.getUniformLocation(prog, 'uTime');
+                    uMotion = gl.getUniformLocation(prog, 'uMotion');
+                    uAspect = gl.getUniformLocation(prog, 'uAspect');
+                    uGrid = gl.getUniformLocation(prog, 'uGrid');
+                    uDither = gl.getUniformLocation(prog, 'uDither');
+                    uWaterMaskTex = gl.getUniformLocation(prog, 'uWaterMaskTex');
+                    uMix = gl.getUniformLocation(prog, 'uMix');
+                    uSunCol = gl.getUniformLocation(prog, 'uSunCol');
+                    uGlow = gl.getUniformLocation(prog, 'uGlow');
+                    uSparkCol = gl.getUniformLocation(prog, 'uSparkCol');
+
+                    gl.uniform1i(gl.getUniformLocation(prog, 'uTex'), 0);
+                    if (uWaterMaskTex) gl.uniform1i(uWaterMaskTex, 1);
+                    gl.uniform1i(gl.getUniformLocation(prog, 'uColTex'), 2);
+                    gl.uniform1i(gl.getUniformLocation(prog, 'uColPrev'), 3);
+                    gl.uniform1f(uMix, 1.0);
+                    gl.uniform3fv(uSunCol, TIMES.dusk.sun);
+                    gl.uniform1f(uGlow, TIMES.dusk.glow);
+                    gl.uniform3fv(uSparkCol, TIMES.dusk.spark);
+                    gl.uniform1f(uAspect, IMG_W / IMG_H);
+                    gl.uniform2f(uGrid, ART_W, ART_H);
+                    gl.uniform1f(uDither, ditherLevel);
+
+                    // 水面マスク用テクスチャ（TEXTURE1）の作成
+                    waterMaskTex = gl.createTexture();
+                    gl.activeTexture(gl.TEXTURE1);
+                    gl.bindTexture(gl.TEXTURE_2D, waterMaskTex);
+                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+                    // マスクの読み込みと初回テクスチャ転送
+                    loadWaterMask();
+                    renderMaskCanvas();
+
+                    return true;
+                } catch (err) {
+                    console.warn(err);
+                    gl = null;
+                    return false;
+                }
+            }
+
+            function uploadTexture(img) {
+                var tex = gl.createTexture();
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, tex);
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                // file:// で開いた場合などはセキュリティ例外になるため呼び出し側で捕捉する
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+                return tex;
+            }
+
+            // 表示用テクスチャをユニット2（現在）・3（前）に割り当てる
+            function bindTimeTextures() {
+                if (!gl) return;
+                var cur = timeTextures[currentTime] || timeTextures.dusk;
+                var prev = timeTextures[prevTime] || cur;
+                gl.activeTexture(gl.TEXTURE2);
+                gl.bindTexture(gl.TEXTURE_2D, cur);
+                gl.activeTexture(gl.TEXTURE3);
+                gl.bindTexture(gl.TEXTURE_2D, prev);
+                gl.activeTexture(gl.TEXTURE0);
+            }
+
+            function loadTimeImage(key, cb) {
+                if (timeImages[key]) { cb(timeImages[key]); return; }
+                var im = new Image();
+                im.decoding = 'async';
+                im.onload = function () {
+                    timeImages[key] = im;
+                    if (gl) {
+                        try {
+                            timeTextures[key] = uploadTexture(im);
+                            // 判定用の元画像をユニット0に戻す
+                            gl.activeTexture(gl.TEXTURE0);
+                            gl.bindTexture(gl.TEXTURE_2D, timeTextures.dusk);
+                        } catch (err) {
+                            console.warn('時間帯テクスチャの転送に失敗しました:', err);
+                        }
+                    }
+                    cb(im);
+                };
+                im.onerror = function () { console.warn('画像の読み込みに失敗しました:', TIMES[key].src); };
+                im.src = TIMES[key].src;
+            }
+
+            function applyCaption(key) {
+                var cfg = TIMES[key];
+                document.body.setAttribute('data-time', key);
+                var t = document.getElementById('caption-title');
+                var s = document.getElementById('caption-sub');
+                var d = document.getElementById('caption-desc');
+                if (t) t.textContent = cfg.title;
+                if (s) s.textContent = cfg.sub;
+                if (d) d.textContent = cfg.desc;
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute('content', cfg.theme);
+                var btns = document.querySelectorAll('.time-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-time') === key ? 'true' : 'false');
+                }
+            }
+
+            function setTimeOfDay(key, instant) {
+                if (!TIMES[key] || (key === currentTime && timeMix >= 1)) return;
+                loadTimeImage(key, function (im) {
+                    // フェード途中で切り替えた場合は、今表示中の側を「前」とする
+                    prevTime = timeMix < 0.5 ? prevTime : currentTime;
+                    currentTime = key;
+                    timeMix = instant ? 1 : 0;
+                    bindTimeTextures();
+                    if (!gl) fallbackImg.src = TIMES[key].src;
+                    applyCaption(key);
+                    try { localStorage.setItem(TIME_STORAGE_KEY, key); } catch (e) { /* 保存できなくても動作は継続 */ }
+                });
+            }
+
+            function cycleTimeOfDay() {
+                var avail = TIME_ORDER.filter(function (k) { return !!TIMES[k]; });
+                var idx = avail.indexOf(currentTime);
+                setTimeOfDay(avail[(idx + 1) % avail.length]);
+            }
+
+            // ------------------------------------------------------------
+            // ドット演出レイヤー（279x157 の低解像度キャンバス）
+            // ------------------------------------------------------------
+            function rand(a, b) { return a + Math.random() * (b - a); }
+
+            // 光の塵（夕日に照らされて舞い上がる埃）
+            var MOTE_COLORS = [[255, 196, 140], [255, 150, 160], [255, 226, 186], [240, 170, 255]];
+            var motes = [];
+            function makeMote(initial) {
+                return {
+                    x: rand(0, ART_W),
+                    y: initial ? rand(0, ART_H) : ART_H + rand(1, 8),
+                    vy: -rand(1.2, 3.6),
+                    sway: rand(0.4, 1.4),
+                    ph: rand(0, Math.PI * 2),
+                    sp: rand(0.8, 2.4),
+                    ci: (Math.random() * MOTE_COLORS.length) | 0, // 時間帯パレット内の色番号
+                    big: Math.random() < 0.12
+                };
+            }
+            for (var i = 0; i < 46; i++) motes.push(makeMote(true));
+
+            // 蛍（手前の草むら付近で明滅）
+            var FLY_AREAS = [[4, 112, 120, 154], [120, 120, 160, 150]];
+            var flies = [];
+
+            // 雨粒（雨夜テーマ専用）
+            var RAIN_COUNT = 95;
+            var rainDrops = [];
+            function makeRainDrop(initial) {
+                return {
+                    x: rand(-20, ART_W + 50),
+                    y: initial ? rand(-20, ART_H) : rand(-35, -5),
+                    vy: rand(200, 360),
+                    vx: -rand(40, 75), // 強風で左斜め下に鋭く降る
+                    len: rand(4, 7),
+                    alpha: rand(0.35, 0.8),
+                    bright: Math.random() < 0.25
+                };
+            }
+            for (var r = 0; r < RAIN_COUNT; r++) rainDrops.push(makeRainDrop(true));
+
+            // 水面の雨粒波紋
+            var ripples = [];
+            function spawnRipple(x, y) {
+                ripples.push({
+                    x: x, y: y,
+                    r: 1,
+                    maxR: rand(3, 6),
+                    alpha: 0.75,
+                    speed: rand(7, 12)
+                });
+            }
+
+            // 雷光（稲妻）
+            var nextLightning = 7;
+            var lightningTimer = 0;
+            var lightningIntensity = 0;
+            function updateLightning(dt) {
+                if (lightningTimer > 0) {
+                    lightningTimer -= dt;
+                    // ダブルストライク発光: 閃光 -> 一瞬暗転 -> 強い閃光 -> フェード
+                    if (lightningTimer > 0.24) {
+                        lightningIntensity = 0.5;
+                    } else if (lightningTimer > 0.16) {
+                        lightningIntensity = 0.06;
+                    } else if (lightningTimer > 0.06) {
+                        lightningIntensity = 0.75;
+                    } else {
+                        lightningIntensity = lightningTimer * 12.0;
+                    }
+                } else {
+                    lightningIntensity = 0;
+                    nextLightning -= dt;
+                    if (nextLightning <= 0) {
+                        lightningTimer = 0.38;
+                        nextLightning = rand(8, 22);
+                    }
+                }
+            }
+            for (var f = 0; f < 11; f++) {
+                var a = FLY_AREAS[f % FLY_AREAS.length];
+                flies.push({
+                    cx: rand(a[0], a[2]), cy: rand(a[1], a[3]),
+                    rx: rand(3, 9), ry: rand(2, 5),
+                    ph: rand(0, Math.PI * 2), sp: rand(0.15, 0.4),
+                    blink: rand(0.5, 1.1), bph: rand(0, Math.PI * 2)
+                });
+            }
+
+            // 星（一番星〜夜の満天の星）
+            var stars = [];
+            for (var s = 0; s < 38; s++) {
+                // 最初の9個は夕方から見える一番星、残りは夜空全体に広がる星々
+                var sx = s < 9 ? rand(ART_W * 0.5, ART_W * 0.82) : rand(4, ART_W - 4);
+                var sy = s < 9 ? rand(2, ART_H * 0.12) : rand(2, ART_H * 0.36);
+                stars.push({ x: sx | 0, y: sy | 0, ph: rand(0, Math.PI * 2), sp: rand(0.5, 1.8), first: s < 9 });
+            }
+
+            // 鳥の群れ（数十秒に一度、空を横切る）
+            var BIRD_FRAMES = [
+                [[-2, -1], [2, -1], [-1, 0], [0, 0], [1, 0]],          // 羽を上げる
+                [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0]],            // 水平
+                [[-1, 0], [0, 0], [1, 0], [-2, 1], [2, 1]],            // 羽を下げる
+                [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0]]
+            ];
+            var birds = [];
+            var nextFlock = 6;
+            function spawnFlock() {
+                var n = 3 + ((Math.random() * 3) | 0);
+                var baseY = rand(16, 48);
+                var speed = rand(6, 9);
+                var dir = Math.random() < 0.7 ? 1 : -1;
+                for (var k = 0; k < n; k++) {
+                    birds.push({
+                        x: dir > 0 ? -6 - k * rand(5, 9) : ART_W + 6 + k * rand(5, 9),
+                        y: baseY + (k % 2 ? 1 : -1) * k * rand(1.5, 3),
+                        vx: speed * dir * rand(0.92, 1.08),
+                        ph: rand(0, 4),
+                        flap: rand(7, 10)
+                    });
+                }
+            }
+
+            function px(x, y, r, g, b, a) {
+                fx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(3) + ')';
+                fx.fillRect(x | 0, y | 0, 1, 1);
+            }
+
+            function updateFx(dt, t) {
+                fx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+
+                // 星（夕方は一番星のみ、夜は満天の星空、朝昼は見えない）
+                var starA = timeParam('stars');
+                if (starA > 0.01) {
+                    var visibleCount = starA <= 1.0 ? 9 : Math.min(stars.length, Math.round(9 + (stars.length - 9) * (starA - 1.0) / 1.4));
+                    for (var i = 0; i < visibleCount; i++) {
+                        var st = stars[i];
+                        var tw = 0.5 + 0.5 * Math.sin(t * st.sp + st.ph);
+                        if (tw > 0.22) {
+                            var bCol = (i % 5 === 0) ? 255 : 230;
+                            var rCol = (i % 5 === 0) ? 220 : 255;
+                            px(st.x, st.y, rCol, 240, bCol, (0.18 + tw * 0.55) * Math.min(1, starA));
+                        }
+                    }
+                }
+
+                // 鳥
+                nextFlock -= dt;
+                if (nextFlock <= 0) {
+                    spawnFlock();
+                    nextFlock = rand(18, 36);
+                }
+                var birdC = timeParam('bird');
+                for (var b = birds.length - 1; b >= 0; b--) {
+                    var bd = birds[b];
+                    bd.x += bd.vx * dt;
+                    var by = bd.y + Math.sin(t * 1.3 + bd.ph) * 1.2;
+                    var frame = BIRD_FRAMES[Math.floor(t * bd.flap + bd.ph) % 4];
+                    for (var p = 0; p < frame.length; p++) {
+                        px(Math.round(bd.x) + frame[p][0], Math.round(by) + frame[p][1], birdC[0] | 0, birdC[1] | 0, birdC[2] | 0, 0.9);
+                    }
+                    if (bd.x < -20 || bd.x > ART_W + 20) birds.splice(b, 1);
+                }
+
+                // 光の塵（時間帯の光の色で舞う）
+                var moteA = timeParam('moteA');
+                var moteCols = TIMES[currentTime].motes;
+                for (var m = 0; m < motes.length; m++) {
+                    var mo = motes[m];
+                    mo.y += mo.vy * dt * motion;
+                    mo.x += Math.sin(t * mo.sway + mo.ph) * 0.12 * motion;
+                    if (mo.y < -4) { motes[m] = makeMote(false); continue; }
+                    var alpha = (0.2 + 0.5 * (0.5 + 0.5 * Math.sin(t * mo.sp + mo.ph))) * Math.min(1, mo.y / 30) * moteA;
+                    var c = (moteCols && moteCols.length > 0) ? moteCols[mo.ci % moteCols.length] : [200, 220, 255];
+                    if (mo.big) {
+                        px(mo.x, mo.y, 255, 244, 220, alpha);
+                        px(mo.x - 1, mo.y, c[0], c[1], c[2], alpha * 0.5);
+                        px(mo.x + 1, mo.y, c[0], c[1], c[2], alpha * 0.5);
+                        px(mo.x, mo.y - 1, c[0], c[1], c[2], alpha * 0.5);
+                        px(mo.x, mo.y + 1, c[0], c[1], c[2], alpha * 0.5);
+                    } else {
+                        px(mo.x, mo.y, c[0], c[1], c[2], alpha);
+                    }
+                }
+
+                // 蛍（夕方と夜だけ明滅する）
+                var flyA = timeParam('flies');
+                for (var q = 0; q < flies.length && flyA > 0.01; q++) {
+                    var fl = flies[q];
+                    var fxp = fl.cx + Math.sin(t * fl.sp + fl.ph) * fl.rx;
+                    var fyp = fl.cy + Math.sin(t * fl.sp * 1.7 + fl.ph * 2.0) * fl.ry;
+                    var on = Math.max(0, Math.sin(t * fl.blink + fl.bph));
+                    on = on * on * on * Math.min(1, flyA);
+                    if (on < 0.03) continue;
+                    fx.fillStyle = 'rgba(200,255,150,' + (on * 0.16).toFixed(3) + ')';
+                    fx.fillRect((fxp | 0) - 1, (fyp | 0) - 1, 3, 3);
+                    px(fxp, fyp, 236, 255, 190, on * 0.95);
+                }
+
+                // 雨夜（雨粒・水面の波紋・遠くの雷光）
+                var rainA = timeParam('rain');
+                if (rainA > 0.01) {
+                    var curRainCount = Math.round(rainDrops.length * Math.min(1, rainA));
+                    for (var rd = 0; rd < curRainCount; rd++) {
+                        var drop = rainDrops[rd];
+                        drop.x += drop.vx * dt * motion;
+                        drop.y += drop.vy * dt * motion;
+                        if (drop.y > ART_H + 8 || drop.x < -30) {
+                            // 水面付近に着弾した場合、波紋を発生
+                            if (drop.x > ART_W * 0.30 && drop.x < ART_W * 0.60 && drop.y >= ART_H * 0.64 && drop.y <= ART_H * 0.86) {
+                                if (Math.random() < 0.32 && ripples.length < 35) {
+                                    spawnRipple(drop.x, drop.y);
+                                }
+                            }
+                            rainDrops[rd] = makeRainDrop(false);
+                            continue;
+                        }
+                        var a = drop.alpha * Math.min(1, rainA);
+                        var x0 = drop.x | 0;
+                        var y0 = drop.y | 0;
+                        var x1 = (drop.x + drop.vx * (drop.len / drop.vy)) | 0;
+                        var y1 = (drop.y + drop.len) | 0;
+
+                        fx.strokeStyle = drop.bright ? 'rgba(235, 248, 255, ' + a.toFixed(3) + ')' : 'rgba(180, 215, 250, ' + (a * 0.72).toFixed(3) + ')';
+                        fx.beginPath();
+                        fx.moveTo(x0, y0);
+                        fx.lineTo(x1, y1);
+                        fx.stroke();
+                    }
+
+                    // 水面の雨粒の波紋
+                    for (var rp = ripples.length - 1; rp >= 0; rp--) {
+                        var rip = ripples[rp];
+                        rip.r += rip.speed * dt * motion;
+                        rip.alpha -= dt * 2.0;
+                        if (rip.alpha <= 0 || rip.r >= rip.maxR) {
+                            ripples.splice(rp, 1);
+                            continue;
+                        }
+                        var ripA = rip.alpha * Math.min(1, rainA);
+                        fx.strokeStyle = 'rgba(215, 240, 255, ' + ripA.toFixed(3) + ')';
+                        fx.beginPath();
+                        fx.ellipse(rip.x | 0, rip.y | 0, Math.max(1, rip.r | 0), Math.max(1, (rip.r * 0.35) | 0), 0, 0, Math.PI * 2);
+                        fx.stroke();
+                    }
+
+                    // 雷光フラッシュ（稲妻）
+                    updateLightning(dt);
+                    if (lightningIntensity > 0.01) {
+                        var flashA = lightningIntensity * Math.min(1, rainA);
+                        fx.fillStyle = 'rgba(215, 235, 255, ' + (flashA * 0.35).toFixed(3) + ')';
+                        fx.fillRect(0, 0, fxCanvas.width, fxCanvas.height);
+                    }
+                }
+            }
+
+            // ------------------------------------------------------------
+            // メインループ
+            // ------------------------------------------------------------
+            function frame(now) {
+                var dt = Math.min(0.1, (now - lastNow) / 1000);
+                lastNow = now;
+
+                mouse.x += (mouse.tx - mouse.x) * 0.04;
+                mouse.y += (mouse.ty - mouse.y) * 0.04;
+                applyTransform();
+
+                // 時間帯のクロスフェード（一時停止中でも切替は反映する）
+                var fading = timeMix < 1;
+                if (fading) timeMix = Math.min(1, timeMix + dt / FADE_SEC);
+
+                if (!paused || fading) {
+                    if (!paused) time += dt;
+                    if (gl) {
+                        gl.uniform1f(uTime, time);
+                        gl.uniform1f(uMotion, motion);
+                        if (uDither) gl.uniform1f(uDither, ditherLevel);
+                        gl.uniform1f(uMix, easeInOut(timeMix));
+                        gl.uniform3fv(uSunCol, timeParam('sun'));
+                        gl.uniform1f(uGlow, timeParam('glow'));
+                        gl.uniform3fv(uSparkCol, timeParam('spark'));
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    }
+                    updateFx(paused ? 0 : dt, time);
+                }
+                requestAnimationFrame(frame);
+            }
+
+            // ------------------------------------------------------------
+            // 起動
+            // ------------------------------------------------------------
+            var glOk = initGL();
+            computeLayout();
+            window.addEventListener('resize', computeLayout);
+
+            var img = new Image();
+            img.decoding = 'async';
+            img.onload = function () {
+                timeImages.dusk = img;
+                if (glOk) {
+                    try {
+                        // 元画像は判定用（ユニット0）と夕方の表示用を兼ねる
+                        timeTextures.dusk = uploadTexture(img);
+                        bindTimeTextures();
+                        glCanvas.style.visibility = 'visible';
+                    } catch (err) {
+                        // ローカルファイル直開き等でテクスチャが使えない場合は静止画＋ドット演出のみで表示
+                        console.warn('WebGLテクスチャを利用できないため簡易表示に切り替えます:', err);
+                        gl = null;
+                        glCanvas.style.display = 'none';
+                    }
+                } else {
+                    glCanvas.style.display = 'none';
+                }
+                // 前回選んだ時間帯を復元
+                var savedTime = null;
+                try { savedTime = localStorage.getItem(TIME_STORAGE_KEY); } catch (e) { /* 無視 */ }
+                // URLパラメータ判定（背景モード/時間帯指定）
+                var urlParams = new URLSearchParams(window.location.search);
+                var isBgMode = urlParams.has("bg") || urlParams.has("embed");
+                if (isBgMode) {
+                    document.body.classList.add("ui-hidden");
+                }
+                var paramTime = urlParams.get("time");
+                if (paramTime && TIMES[paramTime]) {
+                    setTimeOfDay(paramTime, true);
+                } else if (savedTime && TIMES[savedTime] && savedTime !== 'dusk') {
+                    setTimeOfDay(savedTime, true);
+                }
+                scene.classList.add('is-ready');
+                loader.classList.add('is-done');
+                lastNow = performance.now();
+                requestAnimationFrame(frame);
+            };
+            img.onerror = function () {
+                loader.querySelector('.loader-text').textContent = 'IMAGE LOAD FAILED';
+            };
+            glCanvas.style.visibility = 'hidden';
+            applyCaption('dusk');
+            img.src = 'scene.png';
+
+            // 用意済みの時間帯だけボタンを表示する
+            var timeBtns = document.querySelectorAll('.time-btn');
+            for (var tb = 0; tb < timeBtns.length; tb++) {
+                (function (btn) {
+                    var key = btn.getAttribute('data-time');
+                    btn.hidden = !TIMES[key];
+                    btn.addEventListener('click', function () { setTimeOfDay(key); });
+                })(timeBtns[tb]);
+            }
+
+            // ------------------------------------------------------------
+            // 操作
+            // ------------------------------------------------------------
+            function showToast(msg) {
+                if (!gridToast) return;
+                gridToast.textContent = msg;
+                gridToast.style.display = 'block';
+                gridToast.style.opacity = '1';
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(function () {
+                    gridToast.style.opacity = '0';
+                    setTimeout(function () { gridToast.style.display = 'none'; }, 300);
+                }, 2000);
+            }
+
+            function setGridMode(idx) {
+                currentGridIdx = (idx + GRID_MODES.length) % GRID_MODES.length;
+                var mode = GRID_MODES[currentGridIdx];
+                ART_W = Math.round(IMG_W / mode.scale);
+                ART_H = Math.round(IMG_H / mode.scale);
+
+                fxCanvas.width = ART_W;
+                fxCanvas.height = ART_H;
+                fx.imageSmoothingEnabled = false;
+
+                if (gl && prog && uGrid) {
+                    gl.useProgram(prog);
+                    gl.uniform2f(uGrid, ART_W, ART_H);
+                }
+
+                // 塵と蛍と星を新解像度に合わせて再配置
+                motes.length = 0;
+                for (var i = 0; i < 46; i++) motes.push(makeMote(true));
+                stars.length = 0;
+                for (var s = 0; s < 38; s++) {
+                    var sx = s < 9 ? rand(ART_W * 0.5, ART_W * 0.82) : rand(4, ART_W - 4);
+                    var sy = s < 9 ? rand(2, ART_H * 0.12) : rand(2, ART_H * 0.36);
+                    stars.push({ x: sx | 0, y: sy | 0, ph: rand(0, Math.PI * 2), sp: rand(0.5, 1.8), first: s < 9 });
+                }
+                flies.length = 0;
+                for (var f = 0; f < 11; f++) {
+                    var a = FLY_AREAS[f % FLY_AREAS.length];
+                    var ratioX = ART_W / 279, ratioY = ART_H / 157;
+                    flies.push({
+                        cx: rand(a[0] * ratioX, a[2] * ratioX), cy: rand(a[1] * ratioY, a[3] * ratioY),
+                        rx: rand(3, 9) * ratioX, ry: rand(2, 5) * ratioY,
+                        ph: rand(0, Math.PI * 2), sp: rand(0.15, 0.4),
+                        blink: rand(0.5, 1.1), bph: rand(0, Math.PI * 2)
+                    });
+                }
+
+                showToast('ドット解像度: ' + mode.name);
+            }
+
+            function nextGridMode() {
+                setGridMode(currentGridIdx + 1);
+            }
+
+            function togglePause() {
+                paused = !paused;
+                document.body.classList.toggle('is-paused', paused);
+            }
+
+            function toggleUI() {
+                document.body.classList.toggle('ui-hidden');
+            }
+
+            function capture() {
+                var w = glCanvas.width || IMG_W;
+                var h = glCanvas.height || IMG_H;
+                var out = document.createElement('canvas');
+                out.width = w;
+                out.height = h;
+                var octx = out.getContext('2d');
+                if (gl) octx.drawImage(glCanvas, 0, 0, w, h);
+                else octx.drawImage(fallbackImg, 0, 0, w, h);
+                octx.imageSmoothingEnabled = false;
+                octx.drawImage(fxCanvas, 0, 0, w, h);
+                try {
+                    out.toBlob(function (blob) {
+                        if (!blob) return;
+                        var a = document.createElement('a');
+                        var d = new Date();
+                        var pad = function (n) { return String(n).padStart(2, '0'); };
+                        a.download = 'dusk_ruins_' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.png';
+                        a.href = URL.createObjectURL(blob);
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+                    }, 'image/png');
+                } catch (err) {
+                    console.warn('画像の保存に失敗しました:', err);
+                }
+            }
+
+            // ------------------------------------------------------------
+            // 投げ縄ツール（水面マスク指定）
+            // ------------------------------------------------------------
+            function renderLassoOverlay() {
+                if (!lassoCtx) return;
+                lassoCtx.clearRect(0, 0, IMG_W, IMG_H);
+                if (!isLassoMode) return;
+
+                // 登録済みポリゴンの描画（シアン半透明塗りつぶし＋点線枠）
+                for (var i = 0; i < waterPolygons.length; i++) {
+                    var poly = waterPolygons[i];
+                    if (poly.length < 3) continue;
+                    lassoCtx.fillStyle = 'rgba(94, 234, 212, 0.25)';
+                    lassoCtx.strokeStyle = '#5eead4';
+                    lassoCtx.lineWidth = 2.5;
+                    lassoCtx.setLineDash([8, 5]);
+                    lassoCtx.beginPath();
+                    lassoCtx.moveTo(poly[0][0], poly[0][1]);
+                    for (var j = 1; j < poly.length; j++) {
+                        lassoCtx.lineTo(poly[j][0], poly[j][1]);
+                    }
+                    lassoCtx.closePath();
+                    lassoCtx.fill();
+                    lassoCtx.stroke();
+                }
+
+                // 現在ドラッグ中の投げ縄パス（ピーチ色ライン＋半透明塗り）
+                if (currentLassoPoints && currentLassoPoints.length > 1) {
+                    lassoCtx.strokeStyle = '#ff8a5c';
+                    lassoCtx.fillStyle = 'rgba(255, 138, 92, 0.2)';
+                    lassoCtx.lineWidth = 3;
+                    lassoCtx.setLineDash([]);
+                    lassoCtx.beginPath();
+                    lassoCtx.moveTo(currentLassoPoints[0][0], currentLassoPoints[0][1]);
+                    for (var k = 1; k < currentLassoPoints.length; k++) {
+                        lassoCtx.lineTo(currentLassoPoints[k][0], currentLassoPoints[k][1]);
+                    }
+                    lassoCtx.stroke();
+                }
+            }
+
+            function getPointerScenePos(e) {
+                var rect = scene.getBoundingClientRect();
+                var x = (e.clientX - rect.left) / rect.width * IMG_W;
+                var y = (e.clientY - rect.top) / rect.height * IMG_H;
+                return [
+                    Math.round(Math.max(0, Math.min(IMG_W, x))),
+                    Math.round(Math.max(0, Math.min(IMG_H, y)))
+                ];
+            }
+
+            function toggleLassoMode(force) {
+                isLassoMode = typeof force === 'boolean' ? force : !isLassoMode;
+                document.body.classList.toggle('is-lasso-mode', isLassoMode);
+                applyTransform();
+                renderLassoOverlay();
+                showToast(isLassoMode ? '投げ縄モード: 水面領域をドラッグで囲んでください' : '投げ縄モード終了');
+            }
+
+            function clearWaterMask() {
+                waterPolygons = [];
+                saveWaterMask();
+                renderMaskCanvas();
+                renderLassoOverlay();
+                showToast('水面領域をクリアしました');
+            }
+
+            function resetWaterMask() {
+                waterPolygons = JSON.parse(JSON.stringify(DEFAULT_WATER_POLYGONS));
+                saveWaterMask();
+                renderMaskCanvas();
+                renderLassoOverlay();
+                showToast('水面領域をデフォルトに戻しました');
+            }
+
+            if (lassoCanvas) {
+                lassoCanvas.addEventListener('pointerdown', function (e) {
+                    if (!isLassoMode) return;
+                    e.preventDefault();
+                    isDrawingLasso = true;
+                    currentLassoPoints = [getPointerScenePos(e)];
+                    renderLassoOverlay();
+                });
+
+                window.addEventListener('pointermove', function (e) {
+                    if (!isDrawingLasso || !currentLassoPoints) return;
+                    var pt = getPointerScenePos(e);
+                    var last = currentLassoPoints[currentLassoPoints.length - 1];
+                    var dist = Math.hypot(pt[0] - last[0], pt[1] - last[1]);
+                    if (dist >= 4) {
+                        currentLassoPoints.push(pt);
+                        renderLassoOverlay();
+                    }
+                });
+
+                window.addEventListener('pointerup', function () {
+                    if (!isDrawingLasso) return;
+                    isDrawingLasso = false;
+                    if (currentLassoPoints && currentLassoPoints.length >= 3) {
+                        waterPolygons.push(currentLassoPoints);
+                        saveWaterMask();
+                        renderMaskCanvas();
+                        showToast('水面領域を追加しました (' + waterPolygons.length + '箇所)');
+                    }
+                    currentLassoPoints = null;
+                    renderLassoOverlay();
+                });
+            }
+
+            var btnLasso = document.getElementById('btn-lasso');
+            if (btnLasso) btnLasso.addEventListener('click', function () { toggleLassoMode(); });
+            var btnLassoClear = document.getElementById('btn-lasso-clear');
+            if (btnLassoClear) btnLassoClear.addEventListener('click', clearWaterMask);
+            var btnLassoReset = document.getElementById('btn-lasso-reset');
+            if (btnLassoReset) btnLassoReset.addEventListener('click', resetWaterMask);
+            var btnLassoExport = document.getElementById('btn-lasso-export');
+            if (btnLassoExport) {
+                btnLassoExport.addEventListener('click', function () {
+                    var json = JSON.stringify(waterPolygons);
+                    console.log('WATER_MASK_POLYGONS:', json);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(json).then(function () {
+                            showToast('座標データをクリップボードにコピーしました');
+                        }).catch(function () {
+                            prompt('座標データです。コピーしてチャットに貼り付けてください:', json);
+                        });
+                    } else {
+                        prompt('座標データです。コピーしてチャットに貼り付けてください:', json);
+                    }
+                });
+            }
+            var btnLassoDone = document.getElementById('btn-lasso-done');
+            if (btnLassoDone) btnLassoDone.addEventListener('click', function () { toggleLassoMode(false); });
+
+            var btnGrid = document.getElementById('btn-grid');
+            if (btnGrid) btnGrid.addEventListener('click', nextGridMode);
+            document.getElementById('btn-pause').addEventListener('click', togglePause);
+            document.getElementById('btn-ui').addEventListener('click', toggleUI);
+            document.getElementById('btn-capture').addEventListener('click', capture);
+
+            var sliderDither = document.getElementById('slider-dither');
+            var valDither = document.getElementById('val-dither');
+            function updateDither(val) {
+                ditherLevel = Math.max(0, Math.min(100, val)) / 100;
+                var pct = Math.round(ditherLevel * 100);
+                if (valDither) valDither.textContent = pct + '%';
+                if (sliderDither && Number(sliderDither.value) !== pct) {
+                    sliderDither.value = pct;
+                }
+                if (gl && prog && uDither) {
+                    gl.useProgram(prog);
+                    gl.uniform1f(uDither, ditherLevel);
+                }
+            }
+            if (sliderDither) {
+                sliderDither.addEventListener('input', function () {
+                    updateDither(Number(this.value));
+                });
+            }
+
+            window.addEventListener('keydown', function (e) {
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                var k = e.key;
+                if (k === ' ') { e.preventDefault(); togglePause(); }
+                else if (k === 'g' || k === 'G') nextGridMode();
+                else if (k === 't' || k === 'T') cycleTimeOfDay();
+                else if (k === 'm' || k === 'M') toggleLassoMode();
+                else if (isLassoMode && (k === 'c' || k === 'C')) clearWaterMask();
+                else if (isLassoMode && (k === 'r' || k === 'R')) resetWaterMask();
+                else if (k === 'h' || k === 'H') toggleUI();
+                else if (k === 's' || k === 'S') capture();
+                else if (k === '[' || k === '{') {
+                    updateDither(Math.round(ditherLevel * 100) - 5);
+                    showToast('ディザ強度: ' + Math.round(ditherLevel * 100) + '%');
+                } else if (k === ']' || k === '}') {
+                    updateDither(Math.round(ditherLevel * 100) + 5);
+                    showToast('ディザ強度: ' + Math.round(ditherLevel * 100) + '%');
+                } else if (k === 'Escape') {
+                    if (isLassoMode) toggleLassoMode(false);
+                    else if (document.body.classList.contains('ui-hidden')) toggleUI();
+                }
+            });
+
+            if (!document.documentElement.classList.contains('bg-mode')) stage.addEventListener('dblclick', toggleUI);
+
+            // 画面遷移のフェードアウト
+            document.getElementById('back-link').addEventListener('click', function (e) {
+                e.preventDefault();
+                var href = this.href;
+                document.body.classList.add('is-leaving');
+                setTimeout(function () { window.location.href = href; }, 380);
+            });
+            window.addEventListener('pageshow', function () {
+                document.body.classList.remove('is-leaving');
+            });
+        })();
+    </script>
+</body>
+
+</html>
