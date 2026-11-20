@@ -19,6 +19,7 @@ function get404FallbackIconUrl(isGrid) {
 
 function show404FallbackIcon(iconWrap, isGrid, title) {
   if (!iconWrap) return;
+  iconWrap.classList.add('has-fallback-icon');
   const img = document.createElement('img');
   img.src = get404FallbackIconUrl(isGrid);
   img.alt = title ? title + ' 画像なし' : '画像なし';
@@ -1067,7 +1068,7 @@ function renderList() {
     } else {
       el.list.innerHTML = `
         <div class="empty-state-wrap" style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - var(--hdr-h, 72px) - 100px); width:100%; box-sizing:border-box; text-align:center; color:var(--muted); gap:14px; padding:24px 16px; margin:0 auto;">
-          <img src="https://5gkyu.github.io/icon/404list.png" alt="該当なし" style="width:140px; max-width:60%; height:auto; border-radius:18px; display:block; margin:0 auto; pointer-events:none; -webkit-user-drag:none; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.08));" />
+          <img src="/icon/404grid.png?v=2" alt="該当なし" style="width:200px; max-width:80%; height:auto; border-radius:12px; display:block; margin:0 auto; pointer-events:none; -webkit-user-drag:none; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.08));" />
           <div style="font-weight:700; font-size:18px; color:var(--text); margin-top:4px;">該当するリンクがありません</div>
           <div style="font-size:13px; max-width:320px; line-height:1.6; color:var(--muted); margin:0 auto;">キーワードや選択中のタグを変更するか、<br>検索条件をクリアしてください。</div>
           <button id="resetFilterBtn" class="small-btn" type="button" style="margin:6px auto 0; padding:7px 18px; cursor:pointer; border-radius:20px;">検索条件をクリア</button>
@@ -1827,7 +1828,7 @@ updateViewModeUI(); // ラジオボタンの状態を更新
       localStorage.setItem('desktop_layout', _layout);
       _changed = true;
     }
-    const _validThemes = ['light', 'dark', 'awake', 'muse', 'majesty', 'eof', 'stargazer'];
+    const _validThemes = ['light', 'dark', 'awake', 'muse', 'majesty', 'eof', 'daybreak', 'twilight', 'stargazer'];
     if (_theme && _validThemes.includes(_theme)) {
       if (typeof applyTheme === 'function') applyTheme(_theme);
       const _themeEl = document.getElementById('themeSelect');
@@ -2554,7 +2555,7 @@ if (userSettingsModal) userSettingsModal.addEventListener('click', (e) => { if (
 function applyTheme(themeName) {
   try {
     // Remove all theme classes first
-    document.documentElement.classList.remove('dark-mode', 'theme-awake', 'theme-muse', 'theme-majesty', 'theme-eof', 'theme-stargazer');
+    document.documentElement.classList.remove('dark-mode', 'theme-awake', 'theme-muse', 'theme-majesty', 'theme-eof', 'theme-stargazer', 'theme-daybreak', 'theme-twilight');
 
     if (themeName === 'awake') {
       document.documentElement.classList.add('theme-awake');
@@ -2562,6 +2563,10 @@ function applyTheme(themeName) {
       document.documentElement.classList.add('theme-muse');
     } else if (themeName === 'eof') {
       document.documentElement.classList.add('theme-eof');
+    } else if (themeName === 'daybreak') {
+      document.documentElement.classList.add('theme-daybreak');
+    } else if (themeName === 'twilight') {
+      document.documentElement.classList.add('theme-twilight');
     } else if (themeName === 'stargazer') {
       document.documentElement.classList.add('theme-stargazer');
     } else if (themeName === 'majesty') {
@@ -2588,6 +2593,8 @@ function applyTheme(themeName) {
       else if (themeName === 'muse' || themeName === 'dreamer' || themeName === 'dreamer2') themeColor = '#F4F1E8';
       else if (themeName === 'majesty') themeColor = '#f0eef5';
       else if (themeName === 'eof') themeColor = '#0d0d0d';
+      else if (themeName === 'daybreak') themeColor = '#101726';
+      else if (themeName === 'twilight') themeColor = '#160a22';
       else if (themeName === 'stargazer') themeColor = '#070b12';
       else if (themeName === 'light') themeColor = getComputedStyle(document.documentElement).getPropertyValue('--bg') || themeColor;
 
@@ -2599,6 +2606,39 @@ function applyTheme(themeName) {
       }
       meta.setAttribute('content', themeColor.trim());
     } catch (e) { /* non-fatal */ }
+
+    // Dusk Ruins 動的背景 (朝・夕・夜: Daybreak / Twilight / Stargazer) の制御
+    try {
+      var stargazerIframe = document.getElementById('stargazerBg');
+      var isRuinTheme = (themeName === 'stargazer' || themeName === 'daybreak' || themeName === 'twilight');
+      if (isRuinTheme) {
+        if (stargazerIframe) {
+          var ruinTime = (themeName === 'daybreak') ? 'morning' : (themeName === 'twilight' ? 'dusk' : 'night');
+          var targetSrc = '../archive/other/dusk-ruins/index.html?bg=1&time=' + ruinTime;
+          var curSrc = stargazerIframe.getAttribute('src');
+          if (!curSrc || curSrc === 'about:blank' || curSrc !== targetSrc) {
+            stargazerIframe.classList.remove('is-loaded');
+            stargazerIframe.onload = function () {
+              document.documentElement.classList.add('has-animated-bg');
+              stargazerIframe.classList.add('is-loaded');
+            };
+            stargazerIframe.setAttribute('src', targetSrc);
+          } else {
+            document.documentElement.classList.add('has-animated-bg');
+            stargazerIframe.classList.add('is-loaded');
+          }
+        }
+      } else {
+        document.documentElement.classList.remove('has-animated-bg');
+        if (stargazerIframe) {
+          stargazerIframe.classList.remove('is-loaded');
+          if (stargazerIframe.getAttribute('src')) {
+            stargazerIframe.removeAttribute('src');
+            stargazerIframe.src = 'about:blank';
+          }
+        }
+      }
+    } catch (e) { console.warn('stargazerBg update error', e); }
   } catch (e) { console.warn('applyTheme error', e); }
 }
 
@@ -3985,4 +4025,106 @@ document.addEventListener('keydown', (e) => {
     }
   }
   initLiveServer();
+})();
+
+// ==========================================================================
+// サイドバー クイックメモ帳（複数スロット・localStorage自動保存）
+// ==========================================================================
+(function initSidebarMemo() {
+  const STORAGE_KEY = 'kyulink_local_memos_v1';
+  const ACTIVE_SLOT_KEY = 'kyulink_local_memo_active_slot';
+  const DEFAULT_SLOTS = ['', '', ''];
+
+  let memos = DEFAULT_SLOTS.slice();
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        memos = [parsed[0] || '', parsed[1] || '', parsed[2] || ''];
+      }
+    }
+  } catch (e) { console.warn('memo load error', e); }
+
+  let currentSlot = 0;
+  try {
+    const savedSlot = parseInt(localStorage.getItem(ACTIVE_SLOT_KEY), 10);
+    if (!isNaN(savedSlot) && savedSlot >= 0 && savedSlot < memos.length) {
+      currentSlot = savedSlot;
+    }
+  } catch (e) { }
+
+  const textarea = document.getElementById('sidebarMemoInput');
+  const countEl = document.getElementById('sidebarMemoCount');
+  const statusEl = document.getElementById('sidebarMemoSaveStatus');
+  const clearBtn = document.getElementById('sidebarMemoClearBtn');
+  const tabsContainer = document.getElementById('sidebarMemoTabs');
+
+  if (!textarea) return;
+
+  function updateCount() {
+    if (countEl) countEl.textContent = textarea.value.length + ' 文字';
+  }
+
+  function renderCurrentSlot() {
+    textarea.value = memos[currentSlot] || '';
+    updateCount();
+    if (tabsContainer) {
+      const tabs = tabsContainer.querySelectorAll('.sidebar-memo-tab');
+      tabs.forEach((tab, i) => {
+        const isActive = (i === currentSlot);
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    }
+    if (statusEl) statusEl.textContent = '保存済';
+  }
+
+  let saveTimer = null;
+  function saveCurrentMemo() {
+    memos[currentSlot] = textarea.value;
+    updateCount();
+    if (statusEl) statusEl.textContent = '保存中...';
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
+        if (statusEl) statusEl.textContent = '保存済';
+      } catch (e) {
+        if (statusEl) statusEl.textContent = '保存エラー';
+      }
+    }, 200);
+  }
+
+  textarea.addEventListener('input', saveCurrentMemo);
+
+  if (tabsContainer) {
+    tabsContainer.addEventListener('click', (e) => {
+      const tab = e.target.closest('.sidebar-memo-tab');
+      if (!tab) return;
+      const slot = parseInt(tab.dataset.slot, 10);
+      if (!isNaN(slot) && slot >= 0 && slot < memos.length && slot !== currentSlot) {
+        // 現在の入力内容を即時反映してからスロット切替
+        memos[currentSlot] = textarea.value;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(memos)); } catch (e) { }
+        currentSlot = slot;
+        try { localStorage.setItem(ACTIVE_SLOT_KEY, currentSlot.toString()); } catch (e) { }
+        renderCurrentSlot();
+        textarea.focus();
+      }
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (!textarea.value) return;
+      if (confirm('スロット ' + (currentSlot + 1) + ' のメモをクリアしますか？')) {
+        textarea.value = '';
+        saveCurrentMemo();
+        textarea.focus();
+      }
+    });
+  }
+
+  renderCurrentSlot();
 })();
