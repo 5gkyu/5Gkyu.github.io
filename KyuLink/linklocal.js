@@ -2608,10 +2608,13 @@ function applyTheme(themeName) {
     } catch (e) { /* non-fatal */ }
 
     // Dusk Ruins 動的背景 (朝・夕・夜: Daybreak / Twilight / Stargazer) の制御
+    // archive/other/dusk-ruins/ はローカル限定（GitHub非公開）のため、ローカル環境時のみiframeを読み込む
     try {
       var stargazerIframe = document.getElementById('stargazerBg');
       var isRuinTheme = (themeName === 'stargazer' || themeName === 'daybreak' || themeName === 'twilight');
-      if (isRuinTheme) {
+      var host = window.location.hostname || '';
+      var isLocalBgAvailable = (window.location.protocol === 'file:' || host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.'));
+      if (isRuinTheme && isLocalBgAvailable) {
         if (stargazerIframe) {
           var ruinTime = (themeName === 'daybreak') ? 'morning' : (themeName === 'twilight' ? 'dusk' : 'night');
           var targetSrc = '../archive/other/dusk-ruins/index.html?bg=1&time=' + ruinTime;

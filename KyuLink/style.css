@@ -631,7 +631,7 @@ html.theme-daybreak body {
 html.theme-daybreak body {
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px),
-    url('../archive/other/dusk-ruins/scene_morning.png');
+    url('themes/daybreak.png');
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
@@ -871,7 +871,7 @@ html.theme-twilight body {
 html.theme-twilight body {
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px),
-    url('../archive/other/dusk-ruins/scene.png');
+    url('themes/twilight.png');
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
@@ -1108,7 +1108,7 @@ html.theme-stargazer body {
 html.theme-stargazer body {
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px),
-    url('../archive/other/dusk-ruins/bg.png');
+    url('themes/stargazer.png');
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
