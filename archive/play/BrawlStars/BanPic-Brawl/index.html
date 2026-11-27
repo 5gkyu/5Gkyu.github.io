@@ -3,28 +3,32 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BANPIC — ブロスタ BAN/PICK ツール | Halcyon - 5Gkyu</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f1422">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSDraft">
+    <title>BSDraft</title>
     <meta name="description" content="ブロスタ専用のオンライン BAN/PICK ツール。リアルタイムでキャラクターのBANとPICKを進行します。">
     <link rel="canonical" href="https://5gkyu.github.io/archive/play/BrawlStars/BanPic-Brawl/">
-    <meta property="og:title" content="BANPIC — ブロスタ BAN/PICK ツール | Halcyon - 5Gkyu">
+    <meta property="og:title" content="BSDraft">
     <meta property="og:description" content="ブロスタ専用のオンライン BAN/PICK ツール。リアルタイムでキャラクターのBANとPICKを進行します。">
-    <meta property="og:image" content="https://5gkyu.github.io/icon/ogp.png">
+    <meta property="og:image" content="https://5gkyu.github.io/image/brawl/BanPicOGP.png?v=2">
     <meta property="og:url" content="https://5gkyu.github.io/archive/play/BrawlStars/BanPic-Brawl/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Halcyon">
     <meta name="twitter:card" content="summary_large_image">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
-    <link rel="manifest" href="/icon/site.webmanifest">
-    <style id="fouc-prevent">
-        body {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            background-color: #1a1a2e !important;
-        }
-    </style>
+    <meta name="twitter:image" content="https://5gkyu.github.io/image/brawl/BanPicOGP.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="/image/brawl/BanPicFAV.png?v=3">
+    <link rel="icon" type="image/png" href="/image/brawl/BanPicFAV.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/image/brawl/BanPicFAV.png?v=3">
+    <!-- ブロスタ風フォント（英数字: Lilita One / 日本語: M PLUS Rounded 1c） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lilita+One&family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap"
+        rel="stylesheet">
     <style>
         /* フェーズ遷移時のインターバル画面 */
         .phase-interstitial {
@@ -38,16 +42,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
+            font-size: clamp(1.35rem, 5.2vw, 3.2rem);
             font-weight: 900;
+            line-height: 1.35;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
             z-index: 9999;
             text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 20px var(--primary-color);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
             text-align: center;
-            padding: 2rem;
-            transform: scale(0.9);
+            padding: 1.25rem;
+            transform: scale(0.92);
         }
 
         .phase-interstitial.active {
@@ -55,7 +62,7 @@
             pointer-events: none;
             /* コンテナスクロール許可のためnoneに変更 */
             transform: scale(1);
-            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
 
@@ -1324,8 +1331,15 @@
         }
 
         @keyframes fadeInNotice {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .guest-notice-content {
@@ -1898,7 +1912,8 @@
         /* 1ドット=4px単位でカチカチと完全ピクセルステップ移動（総移動距離512pxを128stepsでスナップ） */
         .pixel-ghost-walker {
             position: absolute;
-            top: 16px; /* 上部に十分な余白を確保し、浮遊時・光の影が天井の壁で切れるのを解消 */
+            top: 16px;
+            /* 上部に十分な余白を確保し、浮遊時・光の影が天井の壁で切れるのを解消 */
             left: 0;
             will-change: transform;
             animation: ghost-move-right 8.96s steps(128) infinite;
@@ -1908,6 +1923,7 @@
             0% {
                 transform: translateX(-64px);
             }
+
             100% {
                 transform: translateX(448px);
             }
@@ -1923,11 +1939,15 @@
         }
 
         @keyframes ghost-bob-step {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0);
             }
+
             50% {
-                transform: translateY(-8px); /* ちょうど2ドット分上にスナップ */
+                transform: translateY(-8px);
+                /* ちょうど2ドット分上にスナップ */
             }
         }
 
@@ -1941,8 +1961,16 @@
         }
 
         @keyframes ghost-hem-switch {
-            0%, 49.9% { opacity: 1; }
-            50%, 100% { opacity: 0; }
+
+            0%,
+            49.9% {
+                opacity: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 0;
+            }
         }
 
         /* まばたきアニメーション */
@@ -1955,13 +1983,31 @@
         }
 
         @keyframes ghost-blink-open {
-            0%, 93%, 100% { opacity: 1; }
-            94%, 98% { opacity: 0; }
+
+            0%,
+            93%,
+            100% {
+                opacity: 1;
+            }
+
+            94%,
+            98% {
+                opacity: 0;
+            }
         }
 
         @keyframes ghost-blink-closed {
-            0%, 93%, 100% { opacity: 0; }
-            94%, 98% { opacity: 1; }
+
+            0%,
+            93%,
+            100% {
+                opacity: 0;
+            }
+
+            94%,
+            98% {
+                opacity: 1;
+            }
         }
 
         .pixel-ghost-ground-shadow {
@@ -1971,10 +2017,13 @@
         }
 
         @keyframes ghost-shadow-step {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
                 opacity: 0.6;
             }
+
             50% {
                 transform: scale(0.75);
                 opacity: 0.25;
@@ -1999,14 +2048,36 @@
             color: var(--primary-color);
         }
 
-        .pixel-dots span:nth-child(1) { animation-delay: 0s; }
-        .pixel-dots span:nth-child(2) { animation-delay: 0.25s; }
-        .pixel-dots span:nth-child(3) { animation-delay: 0.5s; }
+        .pixel-dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .pixel-dots span:nth-child(2) {
+            animation-delay: 0.25s;
+        }
+
+        .pixel-dots span:nth-child(3) {
+            animation-delay: 0.5s;
+        }
 
         @keyframes pixel-dot-fade {
-            0%, 20% { opacity: 0; transform: translateY(0); }
-            40% { opacity: 1; transform: translateY(-2px); }
-            80%, 100% { opacity: 0; transform: translateY(0); }
+
+            0%,
+            20% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+
+            40% {
+                opacity: 1;
+                transform: translateY(-2px);
+            }
+
+            80%,
+            100% {
+                opacity: 0;
+                transform: translateY(0);
+            }
         }
 
         .waiting-room-info {
@@ -3333,9 +3404,9 @@
             paint-order: stroke fill;
             text-shadow:
                 -1px -1px 0 #000,
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000;
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -4491,9 +4562,24 @@
             display: none !important;
         }
 
+        html {
+            background: #0f1422 !important;
+        }
+
         body {
             background: #0f1422 !important;
             color: #f0f4fc !important;
+        }
+
+        body.game-screen-active .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        body.game-screen-active {
+            background: #0b0b0d !important;
         }
 
         body.lobby-active {
@@ -4618,25 +4704,67 @@
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
         }
 
-        .lobby-mini-ghost svg {
+        .lobby-mini-ghost svg,
+        .lobby-mini-ghost img {
             display: block;
             width: 100%;
-            height: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
-        /* 左サイド */
-        .g-l1 { top: 16%; left: calc(50% - 520px - 65px); width: 32px; height: 40px; opacity: 0.32; }
-        .g-l2 { top: 32%; left: calc(50% - 520px - 110px); width: 24px; height: 30px; opacity: 0.22; transform: scaleX(-1); }
-        .g-l3 { top: 50%; left: calc(50% - 520px - 55px); width: 36px; height: 45px; opacity: 0.35; }
-        .g-l4 { top: 68%; left: calc(50% - 520px - 100px); width: 22px; height: 28px; opacity: 0.20; }
-        .g-l5 { top: 84%; left: calc(50% - 520px - 70px); width: 28px; height: 35px; opacity: 0.28; transform: scaleX(-1); }
+        /* 左（そのまま）: 不透明＋白と青ネオンを強く発光 */
+        .lobby-mini-ghost:not(.neon-red) img {
+            filter: brightness(1.18) drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 16px rgba(120, 210, 255, 0.95));
+        }
 
-        /* 右サイド */
-        .g-r1 { top: 14%; right: calc(50% - 520px - 75px); width: 28px; height: 35px; opacity: 0.28; transform: scaleX(-1); }
-        .g-r2 { top: 30%; right: calc(50% - 520px - 115px); width: 34px; height: 42px; opacity: 0.32; }
-        .g-r3 { top: 48%; right: calc(50% - 520px - 50px); width: 26px; height: 32px; opacity: 0.25; transform: scaleX(-1); }
-        .g-r4 { top: 66%; right: calc(50% - 520px - 105px); width: 32px; height: 40px; opacity: 0.30; transform: scaleX(-1); }
-        .g-r5 { top: 82%; right: calc(50% - 520px - 60px); width: 22px; height: 28px; opacity: 0.20; }
+        /* 右（赤色変色）: 赤ネオン＋白い芯を強く発光 */
+        .lobby-mini-ghost.neon-red img {
+            filter: brightness(1.05) sepia(1) hue-rotate(-52deg) saturate(7) drop-shadow(0 0 5px rgba(255, 235, 235, 0.85)) drop-shadow(0 0 16px rgba(255, 35, 50, 0.95));
+        }
+
+        /* 左サイド（Nani / Gus / Meeple） */
+        .g-l1 {
+            top: 18%;
+            left: calc(50% - 520px - 88px);
+            width: 64px;
+            opacity: 1;
+        }
+
+        .g-l2 {
+            top: 48%;
+            left: calc(50% - 520px - 110px);
+            width: 60px;
+            opacity: 1;
+        }
+
+        .g-l3 {
+            top: 76%;
+            left: calc(50% - 520px - 82px);
+            width: 64px;
+            opacity: 1;
+        }
+
+        /* 右サイド（Ollie / Charlie / Byron） */
+        .g-r1 {
+            top: 18%;
+            right: calc(50% - 520px - 88px);
+            width: 64px;
+            opacity: 1;
+        }
+
+        .g-r2 {
+            top: 48%;
+            right: calc(50% - 520px - 110px);
+            width: 60px;
+            opacity: 1;
+        }
+
+        .g-r3 {
+            top: 76%;
+            right: calc(50% - 520px - 82px);
+            width: 64px;
+            opacity: 1;
+        }
 
         @media (max-width: 1240px) {
             .lobby-ghosts-container {
@@ -4743,6 +4871,37 @@
             align-items: center;
             gap: 0.75rem;
             flex-wrap: wrap;
+        }
+
+        /* ==== ロビー音量調節・テストコントロール ==== */
+        .lobby-volume-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.25rem 0.6rem 0.25rem 0.3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+        }
+
+        .lobby-sound-test-btn {
+            padding: 0.3rem 0.65rem !important;
+            font-size: 0.76rem !important;
+            border-radius: 20px !important;
+        }
+
+        .lobby-volume-slider {
+            width: 76px;
+            accent-color: #4a90d9;
+            cursor: pointer;
+        }
+
+        .lobby-volume-value {
+            min-width: 34px;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #c5d4e8;
         }
 
         .room-list-header {
@@ -4953,10 +5112,10 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px dashed rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             box-sizing: border-box;
         }
 
@@ -5074,6 +5233,226 @@
             border-radius: 18px !important;
         }
 
+        /* ==== ホーム画面追加（PWA）案内バナー: スタンドアロン起動時は非表示 ==== */
+        .pwa-install-guide {
+            background: rgba(74, 144, 217, 0.1);
+            border: 1px solid rgba(74, 144, 217, 0.28);
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: #c5d4e8;
+        }
+
+        .pwa-install-title {
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.2rem;
+            font-size: 0.84rem;
+        }
+
+        .pwa-install-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem 1.2rem;
+        }
+
+        @media (display-mode: standalone) {
+            .pwa-install-guide {
+                display: none !important;
+            }
+        }
+
+        /* ==== ロビー・モーダルのセーフエリア & スマホ横向き最適化 ==== */
+        .lobby-top-bar {
+            padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+            padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+        }
+
+        .lobby-main-content {
+            padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+            padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+        }
+
+        .modal-overlay {
+            padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.75rem, env(safe-area-inset-right, 0px)) max(0.5rem, env(safe-area-inset-bottom, 0px)) max(0.75rem, env(safe-area-inset-left, 0px));
+        }
+
+        .modal {
+            max-height: 92dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-height: 500px) {
+            body.lobby-active {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            body.lobby-active .container {
+                height: 100dvh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #lobby-screen.active {
+                height: 100%;
+                min-height: 0 !important;
+                display: flex !important;
+                flex-direction: column;
+                overflow: hidden !important;
+            }
+
+            .lobby-top-bar {
+                position: static !important;
+                flex-shrink: 0;
+                padding-top: 0.28rem !important;
+                padding-bottom: 0.28rem !important;
+            }
+
+            .lobby-app-title {
+                font-size: 1rem !important;
+            }
+
+            .lobby-app-tag {
+                display: none !important;
+            }
+
+            .lobby-main-content {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                padding-top: 0.45rem !important;
+                padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .lobby-desc-text,
+            .lobby-disclaimer {
+                display: none !important;
+            }
+
+            .lobby-action-bar {
+                flex-shrink: 0;
+                gap: 0.45rem !important;
+                margin-bottom: 0.45rem !important;
+            }
+
+            .lobby-action-left,
+            .lobby-action-right {
+                gap: 0.4rem !important;
+            }
+
+            body.lobby-active .btn {
+                padding: 0.36rem 0.75rem !important;
+                font-size: 0.76rem !important;
+                border-radius: 8px !important;
+            }
+
+            .room-list-header {
+                padding: 0.22rem 0.55rem !important;
+            }
+
+            .room-count {
+                font-size: 0.72rem !important;
+            }
+
+            .user-info {
+                padding: 0.22rem 0.55rem !important;
+            }
+
+            .lobby-volume-control {
+                padding: 0.18rem 0.45rem 0.18rem 0.22rem !important;
+                gap: 0.3rem !important;
+            }
+
+            .lobby-sound-test-btn {
+                padding: 0.22rem 0.5rem !important;
+                font-size: 0.7rem !important;
+            }
+
+            .lobby-volume-slider {
+                width: 58px !important;
+            }
+
+            .lobby-volume-value {
+                font-size: 0.68rem !important;
+                min-width: 28px !important;
+            }
+
+            .guest-notice-card {
+                flex-shrink: 0;
+                padding: 0.4rem 0.75rem !important;
+                margin-bottom: 0.45rem !important;
+            }
+
+            .guest-notice-desc {
+                display: none !important;
+            }
+
+            .pwa-install-guide {
+                flex-shrink: 0;
+                padding: 0.32rem 0.65rem !important;
+                margin-bottom: 0.4rem !important;
+                font-size: 0.68rem !important;
+                line-height: 1.3 !important;
+                border-radius: 8px !important;
+            }
+
+            .pwa-install-title {
+                display: none !important;
+            }
+
+            .room-list {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                align-content: start;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+                gap: 0.5rem !important;
+            }
+
+            .empty-state {
+                min-height: 100% !important;
+                padding: 1rem !important;
+            }
+
+            /* モーダルを横画面の高さに収める */
+            .modal {
+                max-width: 94vw !important;
+                padding: 0.75rem 1rem !important;
+            }
+
+            #create-room-modal .modal-header,
+            #join-room-modal .modal-header {
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.4rem !important;
+            }
+
+            #create-room-modal .modal-settings-row {
+                display: grid !important;
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                gap: 0.45rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            #create-room-modal .modal-body {
+                display: grid !important;
+                grid-template-columns: 1fr 1.4fr !important;
+                gap: 0.65rem !important;
+            }
+
+            #create-room-modal .form-actions,
+            #join-room-modal .form-actions {
+                margin-top: 0.55rem !important;
+            }
+        }
+
         .waiting-room-name {
             color: #ffffff !important;
             text-shadow: 0 0 16px rgba(74, 144, 217, 0.4);
@@ -5189,6 +5568,1361 @@
             -webkit-user-select: none !important;
             user-select: none !important;
         }
+
+        /* =====================================================================
+           BANPIC 新UI（2026アップデート準拠）
+           左: チームパネル（青=自分 / 赤=相手） 右: キャラクターグリッド
+           旧スタイルの !important を確実に上書きするため #game-screen.bp-v2 でスコープ
+           ===================================================================== */
+        #game-screen.bp-v2 {
+            --bp2-blue: #1d5fe8;
+            --bp2-blue-dark: #0f3fae;
+            --bp2-blue-light: #3d82ff;
+            --bp2-red: #b8121b;
+            --bp2-red-dark: #7d0910;
+            --bp2-yellow: #ffd21f;
+            --bp2-navy: #2a3352;
+            --bp2-navy-dark: #1c2340;
+            --bp2-ink: #111;
+        }
+
+        body #game-screen.bp-v2.active {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+            background: var(--bp2-navy-dark);
+            font-family: 'Lilita One', 'M PLUS Rounded 1c', 'Hiragino Sans', sans-serif;
+        }
+
+        /* ---------- ステージ全体（2カラム: 左39.5% / 右60.5%、境界はスラッシュ/型） ---------- */
+        #game-screen.bp-v2 .bp2-stage {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(290px, 39.5%) 1fr;
+            background: var(--bp2-navy);
+            overflow: hidden;
+            padding-left: env(safe-area-inset-left, 0px);
+        }
+
+        /* ---------- 左カラム（右端を/型に斜めカット + 黒境界線） ---------- */
+        #game-screen.bp-v2 .bp2-left {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 0;
+            background: var(--bp2-red);
+            position: relative;
+            z-index: 2;
+            clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            padding-right: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-left::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 24px;
+            background: var(--bp2-ink);
+            clip-path: polygon(calc(100% - 4px) 0, 100% 0, 4px 100%, 0 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 上部の黒帯（指示テキスト + タイマー） */
+        #game-screen.bp-v2 .bp2-status-bar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: clamp(38px, 7.5vh, 58px);
+            padding: 0.3rem 14px 0.3rem max(0.65rem, env(safe-area-inset-left, 0px));
+            background: #0b0b0d;
+            border-bottom: 3px solid var(--bp2-ink);
+        }
+
+        #game-screen.bp-v2 .bp2-status-bar .phase-text {
+            color: #fff !important;
+            font-size: clamp(0.75rem, 1.5vw, 1.02rem) !important;
+            font-weight: 700 !important;
+            line-height: 1.25;
+            text-align: left;
+            min-width: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-timer {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-timer .timer-value {
+            font-size: clamp(1.15rem, 2.4vw, 1.7rem) !important;
+            font-weight: 900 !important;
+            color: var(--bp2-yellow);
+            -webkit-text-stroke: 1px #000;
+            paint-order: stroke fill;
+            letter-spacing: 0.02em;
+        }
+
+        /* チームパネル共通 */
+        #game-screen.bp-v2 .bp2-team {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 0.25rem 0.4rem;
+            gap: 0.22rem;
+            transition: filter 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        #game-screen.bp-v2 .bp2-team-blue {
+            flex: 1.75 1 0;
+            background: #1463f3;
+            padding-left: max(0.4rem, env(safe-area-inset-left, 0px));
+            padding-right: 16px;
+        }
+
+        #game-screen.bp-v2 .bp2-team-red {
+            flex: 1 1 0;
+            background: #9b0a10;
+            padding: 0.65rem 20px 0.35rem max(0.5rem, env(safe-area-inset-left, 0px));
+        }
+
+        /* ターン中もフラットな単色を維持 */
+
+        /* プレイヤー表示（アバター + 名前） */
+        #game-screen.bp-v2 .bp2-player {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
+            min-width: 0;
+        }
+
+        #game-screen.bp-v2 .player-display-avatar {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #0b0b0d;
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 0.62rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #game-screen.bp-v2 .player-display-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #game-screen.bp-v2 .player-display-name {
+            color: #fff;
+            font-weight: 900;
+            font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 0 #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ---------- 青チーム: 横長PICK枠の右上（ピック順の上）にBANアイコンを重ねる ---------- */
+        #game-screen.bp-v2 .bp2-team-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            gap: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-picks-col,
+        #game-screen.bp-v2 .bp2-bans-col {
+            grid-area: 1 / 1;
+            display: grid;
+            grid-template-rows: repeat(3, minmax(0, 1fr));
+            gap: 2px;
+            min-height: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-picks-col {
+            z-index: 1;
+        }
+
+        #game-screen.bp-v2 .bp2-bans-col {
+            z-index: 5;
+            pointer-events: none;
+            align-items: end;
+            justify-items: end;
+            padding: 0 6px 0 0;
+        }
+
+        #game-screen.bp-v2 .bp2-bans-col .ban-slot {
+            pointer-events: auto;
+            margin-bottom: clamp(30px, 3.8vw, 44px) !important;
+        }
+
+        /* ---------- 赤チーム: 横並び（余計な余白なしでコンパクトに上寄せ） ---------- */
+        #game-screen.bp-v2 .bp2-red-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            width: 100%;
+            padding: 0 0.2rem;
+        }
+
+        #game-screen.bp-v2 .bp2-red-picks,
+        #game-screen.bp-v2 .bp2-red-bans {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: clamp(6px, 1.3vw, 14px);
+            justify-items: center;
+        }
+
+        #game-screen.bp-v2 .bp2-red-bans {
+            justify-items: center;
+        }
+
+        /* ---------- VS 区切り ---------- */
+        #game-screen.bp-v2 .bp2-vs {
+            flex-shrink: 0;
+            height: 0;
+            position: relative;
+            z-index: 3;
+        }
+
+        #game-screen.bp-v2 .bp2-vs span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) skewX(-8deg);
+            font-family: 'Lilita One', 'M PLUS Rounded 1c', sans-serif;
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            font-weight: 900;
+            font-style: italic;
+            color: #fff;
+            -webkit-text-stroke: 2px #000;
+            paint-order: stroke fill;
+            text-shadow: 0 3px 0 #000;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* ---------- PICK スロット ---------- */
+        body #game-screen.bp-v2 .pick-slot {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            max-width: none !important;
+            max-height: none !important;
+            aspect-ratio: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 6px !important;
+            border: 2px solid var(--bp2-ink) !important;
+            overflow: hidden !important;
+            display: block !important;
+            box-shadow: none !important;
+            transform: none;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot {
+            container-type: size;
+            background: #0d47b8 !important;
+            background-image: none !important;
+            box-shadow: none !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-red-picks .pick-slot {
+            background: #6c060a !important;
+            width: auto !important;
+            height: clamp(54px, 12vh, 98px) !important;
+            max-width: 100% !important;
+            max-height: none !important;
+            aspect-ratio: 1 / 1 !important;
+            margin: 0 auto !important;
+        }
+
+        body #game-screen.bp-v2 .pick-slot img {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            object-fit: cover !important;
+            object-position: 18% 20% !important;
+            border-radius: 0 !important;
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        /* 青チーム: キャラを左端から大きく見せる（元の7:5画像を左寄せで高さ一杯に表示） */
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot.filled img,
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot.selected img {
+            top: -4% !important;
+            left: 0 !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: auto !important;
+            height: 108% !important;
+            object-fit: contain !important;
+            object-position: left center !important;
+        }
+
+        /* デフォルト画像（?シルエット）: 赤は中央大きめ、青は左寄せ大きめ */
+        body #game-screen.bp-v2 .pick-slot.empty img {
+            opacity: 0.6 !important;
+            object-fit: contain !important;
+            object-position: center !important;
+            padding: 4% !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot.empty img {
+            top: 0 !important;
+            left: 3% !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: auto !important;
+            height: 100% !important;
+            object-position: left center !important;
+            padding: 0 !important;
+        }
+
+        /* 仮選択中もくっきり表示させる */
+        body #game-screen.bp-v2 .pick-slot.selected img {
+            opacity: 1 !important;
+        }
+
+        /* 現在選択中のスロット（フラット背景 + 強調枠、グローなし） */
+        body #game-screen.bp-v2 .pick-slot.pic-phase-active {
+            border-color: #fff !important;
+            border-width: 3px !important;
+            box-shadow: none !important;
+            animation: none !important;
+            z-index: 4 !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot.pic-phase-active {
+            background: #1463f3 !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-red-picks .pick-slot.pic-phase-active {
+            background: #b8121b !important;
+            border-color: var(--bp2-yellow) !important;
+        }
+
+        @keyframes bp2-slot-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 2px var(--bp2-ink), 0 0 8px rgba(255, 210, 31, 0.55);
+            }
+
+            50% {
+                box-shadow: 0 0 0 2px var(--bp2-ink), 0 0 18px rgba(255, 210, 31, 0.95);
+            }
+        }
+
+        /* ピック順バッジ（右下密着・ほぼ正方形・左辺斜め / 基本: 黒背景白文字 / アクティブ: 白背景黒文字） */
+        body #game-screen.bp-v2 .pick-slot .pick-order {
+            position: absolute !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            min-width: clamp(28px, 3.6vw, 42px) !important;
+            height: clamp(26px, 3.3vw, 38px) !important;
+            padding: 0 3px 0 8px !important;
+            border-radius: 0 !important;
+            border: none !important;
+            clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%) !important;
+            background: #0b0b0d !important;
+            color: #fff !important;
+            font-family: 'Lilita One', 'M PLUS Rounded 1c', sans-serif !important;
+            font-size: clamp(0.95rem, 1.6vw, 1.35rem) !important;
+            font-weight: 900 !important;
+            line-height: clamp(26px, 3.3vw, 38px) !important;
+            text-align: center !important;
+            -webkit-text-stroke: 0 !important;
+            text-shadow: none !important;
+            display: block !important;
+            opacity: 1 !important;
+            z-index: 3 !important;
+            box-shadow: none !important;
+        }
+
+        /* 青チームスロット内のキャラ名（画像のすぐ右に左寄せ、画像サイズ連動でズレ防止） */
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot .slot-char-name {
+            position: absolute !important;
+            left: 34% !important;
+            left: calc(135cqh + 6px) !important;
+            right: clamp(36px, 4.4vw, 50px) !important;
+            bottom: 5px !important;
+            color: #fff !important;
+            font-family: 'Lilita One', 'M PLUS Rounded 1c', sans-serif !important;
+            font-size: clamp(0.75rem, 1.35vw, 1.05rem) !important;
+            font-weight: 900 !important;
+            line-height: 1.15 !important;
+            text-align: left !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            -webkit-text-stroke: 2.5px #000 !important;
+            paint-order: stroke fill !important;
+            text-shadow: 0 2px 0 #000 !important;
+            z-index: 3 !important;
+            pointer-events: none !important;
+        }
+
+        body #game-screen.bp-v2 .pick-slot.pic-phase-active .pick-order {
+            background: #fff !important;
+            color: #111 !important;
+        }
+
+        /* 確定チェック（ピック順ラベルの右上角に配置） */
+        body #game-screen.bp-v2 .pick-slot .slot-check {
+            position: absolute !important;
+            top: auto !important;
+            bottom: clamp(19px, 2.5vw, 29px) !important;
+            right: 2px !important;
+            left: auto !important;
+            width: 18px !important;
+            height: 18px !important;
+            border-radius: 50% !important;
+            background: #34d34f !important;
+            border: 2px solid #0a2a10 !important;
+            display: block !important;
+            transform: none !important;
+            z-index: 4 !important;
+        }
+
+        body #game-screen.bp-v2 .pick-slot .slot-check::after {
+            content: '' !important;
+            position: absolute !important;
+            left: 4.5px !important;
+            top: 0.5px !important;
+            width: 4.5px !important;
+            height: 9px !important;
+            border: solid #fff !important;
+            border-width: 0 2.5px 2.5px 0 !important;
+            transform: rotate(45deg) !important;
+            background: none !important;
+        }
+
+        /* ---------- BAN スロット（禁止マーク付きの小アイコン） ---------- */
+        body #game-screen.bp-v2 .ban-slot {
+            position: relative !important;
+            width: clamp(30px, 4.2vw, 46px) !important;
+            height: clamp(30px, 4.2vw, 46px) !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            max-height: 100% !important;
+            aspect-ratio: 1 / 1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 6px !important;
+            border: 2px solid var(--bp2-ink) !important;
+            background: #bfc6d4 !important;
+            overflow: visible !important;
+            display: block !important;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45) !important;
+            transform: none !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot.filled {
+            background: #232838 !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot img {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 4px !important;
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot.filled img {
+            filter: grayscale(45%) !important;
+            opacity: 0.72 !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot.empty img {
+            opacity: 0.3 !important;
+            object-fit: contain !important;
+            padding: 12% !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot.selected {
+            border-color: var(--bp2-yellow) !important;
+            box-shadow: 0 0 0 2px var(--bp2-ink), 0 0 10px rgba(255, 210, 31, 0.8) !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot.selected img {
+            opacity: 0.7 !important;
+        }
+
+        /* 禁止マーク（赤い丸＋斜線） */
+        body #game-screen.bp-v2 .ban-slot.filled::after,
+        body #game-screen.bp-v2 .ban-slot.selected::after {
+            content: '' !important;
+            position: absolute !important;
+            right: -6px !important;
+            bottom: -6px !important;
+            left: auto !important;
+            top: auto !important;
+            width: 20px !important;
+            height: 20px !important;
+            border-radius: 50% !important;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23fff' stroke='%23e3131f' stroke-width='3.5'/%3E%3Cline x1='5.5' y1='18.5' x2='18.5' y2='5.5' stroke='%23e3131f' stroke-width='3.5'/%3E%3C/svg%3E") center / contain no-repeat !important;
+            filter: drop-shadow(0 0 1px #000) drop-shadow(0 1px 0 #000) !important;
+            z-index: 3 !important;
+            transform: none !important;
+            opacity: 1 !important;
+            display: block !important;
+            border: none !important;
+        }
+
+        body #game-screen.bp-v2 .ban-slot::before {
+            content: none !important;
+        }
+
+        /* ---------- 右カラム（左カラムの斜め境界の下に潜り込ませて隙間を防ぐ） ---------- */
+        #game-screen.bp-v2 .bp2-right {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 0;
+            margin-left: -20px;
+            padding-left: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.035) 0 18px, transparent 19px) 0 0 / 90px 90px,
+                radial-gradient(circle at 70% 75%, rgba(255, 255, 255, 0.03) 0 14px, transparent 15px) 0 0 / 90px 90px,
+                var(--bp2-navy);
+        }
+
+        /* ツールバー（左端のバナーが斜め境界に隠れないよう左余白を確保） */
+        #game-screen.bp-v2 .bp2-toolbar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-height: clamp(38px, 7.5vh, 58px);
+            padding: 0.3rem 0.5rem 0.3rem 24px;
+            background: rgba(10, 14, 30, 0.55);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.6);
+            min-width: 0;
+        }
+
+        /* モード / マップ名バナー（ゲーム上部の紫プレート風） */
+        #game-screen.bp-v2 .bp2-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-width: 0;
+            flex: 0 1 auto;
+            max-width: 42%;
+            padding: 0.2rem 0.35rem 0.2rem 0.25rem;
+            border-radius: 6px;
+            border: 2px solid #000 !important;
+            background: #4b5294 !important;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #000;
+            transition: transform 0.15s ease;
+        }
+
+        #game-screen.bp-v2 .bp2-banner:hover {
+            transform: translateY(-1px);
+        }
+
+        #game-screen.bp-v2 .bp2-mode-logo {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-banner-text {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        #game-screen.bp-v2 .bp2-mode-name {
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #game-screen.bp-v2 .bp2-map-name {
+            color: #e9ecff;
+            font-weight: 700;
+            font-size: 0.72rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #game-screen.bp-v2 .bp2-first-move {
+            color: #ffe68a !important;
+            font-size: 0.62rem !important;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #game-screen.bp-v2 .bp2-map-thumb {
+            width: 30px;
+            height: 38px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            border: 2px solid #000;
+            overflow: hidden;
+            background: #1b1f36;
+        }
+
+        #game-screen.bp-v2 .bp2-map-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* フェーズステップ（コンパクトなピル） */
+        #game-screen.bp-v2 .bp2-phase-steps {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        #game-screen.bp-v2 .bp2-phase-steps::-webkit-scrollbar {
+            display: none;
+        }
+
+        body #game-screen.bp-v2 .phase-step {
+            flex: 0 0 auto !important;
+            min-width: 24px !important;
+            height: 24px !important;
+            padding: 0 6px !important;
+            margin: 0 !important;
+            border-radius: 5px !important;
+            border: 2px solid #000 !important;
+            background: #3a4266 !important;
+            color: #aab3d6 !important;
+            font-size: 0.7rem !important;
+            font-weight: 900 !important;
+            line-height: 20px !important;
+            text-align: center !important;
+            box-shadow: 0 2px 0 #000 !important;
+            animation: none !important;
+            transform: none !important;
+        }
+
+        body #game-screen.bp-v2 .phase-step.completed {
+            background: #262c47 !important;
+            color: #5f6890 !important;
+        }
+
+        body #game-screen.bp-v2 .phase-step.active {
+            background: var(--bp2-yellow) !important;
+            color: #111 !important;
+        }
+
+        body #game-screen.bp-v2 .phase-step.active.turn-my {
+            background: var(--bp2-blue-light) !important;
+            color: #fff !important;
+        }
+
+        body #game-screen.bp-v2 .phase-step.active.turn-opponent {
+            background: #e3232d !important;
+            color: #fff !important;
+        }
+
+        /* 並び替えボタン（ゲームの「レア度が低い順」ボタン風） */
+        #game-screen.bp-v2 .bp2-tool-btn {
+            flex-shrink: 0;
+            height: 30px;
+            padding: 0 0.7rem;
+            border-radius: 6px;
+            border: 2px solid #000;
+            background: #1a1d2c;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #000;
+        }
+
+        #game-screen.bp-v2 .bp2-tool-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* ---------- キャラクターグリッド（縦スクロール） ---------- */
+        body #game-screen.bp-v2 .character-grid-container {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            display: block !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            padding: 0.45rem 0.5rem 0.6rem !important;
+            margin: 0 !important;
+            background: transparent !important;
+            scrollbar-width: thin;
+        }
+
+        body #game-screen.bp-v2 .character-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(clamp(64px, 8.6vw, 104px), 1fr)) !important;
+            grid-template-rows: none !important;
+            grid-auto-rows: auto !important;
+            grid-auto-flow: row !important;
+            gap: 4px !important;
+            padding: 0 !important;
+            height: auto !important;
+            min-height: 0 !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+
+        body #game-screen.bp-v2 .character-card {
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            min-width: 0 !important;
+            aspect-ratio: 1 / 1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 3px !important;
+            border: 2px solid #000 !important;
+            overflow: hidden !important;
+            display: block !important;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15) !important;
+            transform: none !important;
+            transition: transform 0.12s ease, filter 0.12s ease !important;
+        }
+
+        /* レア度ごとの背景色（ゲームのカード背景に準拠） */
+        body #game-screen.bp-v2 .character-card[data-rarity="1"] {
+            background: linear-gradient(160deg, #a9dcff 0%, #6fb8ef 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="2"] {
+            background: linear-gradient(160deg, #6ff07a 0%, #2fbf4a 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="3"] {
+            background: linear-gradient(160deg, #4fa3ff 0%, #1f63e0 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="4"] {
+            background: linear-gradient(160deg, #d66bff 0%, #9b2fe0 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="5"] {
+            background: linear-gradient(160deg, #ff3b45 0%, #c2101c 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="6"] {
+            background: linear-gradient(160deg, #fff04a 0%, #ffc414 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card[data-rarity="7"] {
+            background: linear-gradient(160deg, #ff8ae0 0%, #8a3bff 55%, #2bd1ff 100%) !important;
+        }
+
+        body #game-screen.bp-v2 .character-card .char-icon {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: none !important;
+            transform: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-card .char-icon img {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            object-fit: cover !important;
+            object-position: center 20% !important;
+            border-radius: 0 !important;
+            filter: none !important;
+            opacity: 1 !important;
+        }
+
+        /* キャラ名: 下部に小さく（縁取り文字） */
+        body #game-screen.bp-v2 .character-card .char-name {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            top: auto !important;
+            padding: 6px 3px 2px !important;
+            margin: 0 !important;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.55)) !important;
+            color: #fff !important;
+            font-size: clamp(0.5rem, 0.85vw, 0.66rem) !important;
+            font-weight: 900 !important;
+            line-height: 1.1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+            opacity: 1 !important;
+            display: block !important;
+            z-index: 2 !important;
+            transform: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-card .ban-overlay {
+            display: none !important;
+        }
+
+        @media (hover: hover) {
+            body #game-screen.bp-v2 .character-card:hover:not(.banned):not(.picked) {
+                transform: translateY(-2px) !important;
+                filter: brightness(1.08) !important;
+                z-index: 5 !important;
+                border-color: #000 !important;
+            }
+        }
+
+        /* 選択中: 白枠 + 下部に「確定？」プレート */
+        body #game-screen.bp-v2 .character-card.selected {
+            border-color: #fff !important;
+            box-shadow: 0 0 0 2px #000, 0 0 12px rgba(255, 255, 255, 0.7) !important;
+            z-index: 4 !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.selected .char-name {
+            opacity: 0 !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.selected::after {
+            content: '確定？' !important;
+            position: absolute !important;
+            left: 6% !important;
+            right: 6% !important;
+            bottom: 6% !important;
+            top: auto !important;
+            width: auto !important;
+            height: auto !important;
+            padding: 2px 0 !important;
+            background: #fff !important;
+            color: #111 !important;
+            border: 2px solid #000 !important;
+            border-radius: 3px !important;
+            font-size: clamp(0.55rem, 1vw, 0.78rem) !important;
+            font-weight: 900 !important;
+            line-height: 1.2 !important;
+            text-align: center !important;
+            z-index: 3 !important;
+            transform: none !important;
+            opacity: 1 !important;
+            display: block !important;
+        }
+
+        body #game-screen.bp-v2[data-phase="ban"] .character-card.selected::after {
+            content: '禁止？' !important;
+            background: #ffe1e1 !important;
+            color: #b8121b !important;
+        }
+
+        body #game-screen.bp-v2[data-phase="pic-opp"] .character-card.selected::after {
+            content: '予約中' !important;
+            background: #e8eeff !important;
+            color: #1d4fc8 !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.selected::before {
+            content: none !important;
+        }
+
+        /* 禁止・選択済: 赤黒く沈めて中央にラベル */
+        body #game-screen.bp-v2 .character-card.banned,
+        body #game-screen.bp-v2 .character-card.picked {
+            cursor: not-allowed !important;
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.banned::before,
+        body #game-screen.bp-v2 .character-card.picked::before {
+            content: '' !important;
+            position: absolute !important;
+            inset: 0 !important;
+            width: auto !important;
+            height: auto !important;
+            background: rgba(120, 0, 8, 0.72) !important;
+            border: none !important;
+            transform: none !important;
+            opacity: 1 !important;
+            display: block !important;
+            z-index: 2 !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.banned::after,
+        body #game-screen.bp-v2 .character-card.picked::after {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: 50% !important;
+            bottom: auto !important;
+            width: auto !important;
+            height: auto !important;
+            transform: translateY(-50%) !important;
+            padding: 3px 0 !important;
+            background: #e3131f !important;
+            color: #fff !important;
+            border: none !important;
+            border-top: 2px solid #000 !important;
+            border-bottom: 2px solid #000 !important;
+            border-radius: 0 !important;
+            font-size: clamp(0.62rem, 1.15vw, 0.9rem) !important;
+            font-weight: 900 !important;
+            line-height: 1.2 !important;
+            text-align: center !important;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+            z-index: 3 !important;
+            opacity: 1 !important;
+            display: block !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.banned::after {
+            content: '禁止' !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.picked::after {
+            content: '選択済' !important;
+        }
+
+        body #game-screen.bp-v2 .character-card.banned .char-name,
+        body #game-screen.bp-v2 .character-card.picked .char-name {
+            opacity: 0 !important;
+        }
+
+        /* ---------- 確定ボタン（右下にフローティング配置）＋ 退出ボタン（ツールバー右端） ---------- */
+        #game-screen.bp-v2 .bp2-exit {
+            flex-shrink: 0;
+            width: auto;
+            height: 30px;
+            padding: 0 0.65rem;
+            border-radius: 6px;
+            border: 2px solid #000;
+            background: #8c1118;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #000;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+        }
+
+        #game-screen.bp-v2 .bp2-exit:hover {
+            background: #ad161f;
+        }
+
+        #game-screen.bp-v2 .bp2-exit:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        #game-screen.bp-v2 .bp2-confirm {
+            position: absolute;
+            right: max(10px, env(safe-area-inset-right, 0px));
+            bottom: max(10px, env(safe-area-inset-bottom, 0px));
+            z-index: 20;
+            width: auto;
+            min-width: clamp(140px, 18vw, 210px);
+            height: clamp(40px, 7vh, 52px);
+            padding: 0 1.2rem;
+            border-radius: 10px;
+            border: 3px solid #000;
+            background: #ffd21f;
+            color: #111;
+            font-family: inherit;
+            font-size: clamp(0.88rem, 1.4vw, 1.1rem);
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000, 0 6px 16px rgba(0, 0, 0, 0.45);
+            transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+        }
+
+        #game-screen.bp-v2 .bp2-confirm:not(:disabled):active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #000, inset 0 2px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        #game-screen.bp-v2 .bp2-confirm:disabled {
+            background: linear-gradient(180deg, #8a90a8 0%, #6b7190 100%);
+            color: #e4e7f2;
+            cursor: not-allowed;
+        }
+
+        /* =====================================================================
+           キャラクターグリッド: 縦8段 × 横スクロール、カードは元と同じ横長(7:5)
+           ===================================================================== */
+        body #game-screen.bp-v2 .character-grid-container {
+            container-type: size;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            padding: 3px 4px !important;
+            box-sizing: border-box;
+            scrollbar-width: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-grid-container::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-grid {
+            --bp2-rows: 9;
+            --bp2-gap: 2.5px;
+            --bp2-card-h: max(16px, calc((100cqh - 6px - (var(--bp2-rows) - 1) * var(--bp2-gap)) / var(--bp2-rows)));
+            display: grid !important;
+            grid-template-rows: repeat(var(--bp2-rows), var(--bp2-card-h)) !important;
+            grid-template-columns: none !important;
+            grid-auto-rows: var(--bp2-card-h) !important;
+            grid-auto-columns: calc(var(--bp2-card-h) * 1.4) !important;
+            grid-auto-flow: column !important;
+            gap: var(--bp2-gap) !important;
+            width: max-content !important;
+            padding-right: 165px !important;
+            height: auto !important;
+            align-items: stretch !important;
+        }
+
+        body #game-screen.bp-v2 .character-card {
+            width: 100% !important;
+            height: 100% !important;
+            aspect-ratio: 7 / 5 !important;
+            display: flex !important;
+            align-items: flex-end !important;
+            justify-content: flex-start !important;
+            border-radius: 6px !important;
+        }
+
+        /* 画像は修正前と同じ: 高さ100%・左寄せ・横長のまま */
+        body #game-screen.bp-v2 .character-card .char-icon {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            overflow: hidden !important;
+        }
+
+        body #game-screen.bp-v2 .character-card .char-icon img {
+            height: 100% !important;
+            width: auto !important;
+            max-width: none !important;
+            object-fit: contain !important;
+            object-position: left center !important;
+            display: block !important;
+        }
+
+        /* キャラ名: 元と同じく左寄せの帯 */
+        body #game-screen.bp-v2 .character-card .char-name {
+            position: relative !important;
+            left: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: 100% !important;
+            padding: 0.16rem 0.3rem !important;
+            font-size: clamp(0.68rem, 1vw, 0.86rem) !important;
+            font-weight: 800 !important;
+            line-height: 1.18 !important;
+            text-align: left !important;
+            background: rgba(0, 0, 0, 0.46) !important;
+            z-index: 3 !important;
+        }
+
+        /* ---------- スマホ横向き（低い画面）: 詰めて1画面に収める ---------- */
+        @media (max-height: 500px) {
+            #game-screen.bp-v2 .bp2-stage {
+                grid-template-columns: minmax(245px, 38.5%) 1fr;
+            }
+
+            #game-screen.bp-v2 .bp2-status-bar {
+                min-height: 28px;
+                padding: 0.16rem 14px 0.16rem 0.45rem;
+            }
+
+            #game-screen.bp-v2 .bp2-status-bar .phase-text {
+                font-size: 0.62rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            #game-screen.bp-v2 .bp2-timer .timer-value {
+                font-size: 0.95rem !important;
+            }
+
+            #game-screen.bp-v2 .bp2-team {
+                padding: 0.16rem 0.35rem;
+                gap: 0.15rem;
+            }
+
+            #game-screen.bp-v2 .bp2-team-blue {
+                flex: 1.75 1 0;
+                padding-left: 0.35rem;
+                padding-right: 14px;
+            }
+
+            #game-screen.bp-v2 .bp2-team-red {
+                flex: 1 1 0;
+                padding: 0.45rem 18px 0.2rem 0.35rem;
+            }
+
+            #game-screen.bp-v2 .bp2-player {
+                gap: 0.25rem;
+            }
+
+            #game-screen.bp-v2 .player-display-avatar {
+                width: 16px;
+                height: 16px;
+                font-size: 0.5rem;
+            }
+
+            #game-screen.bp-v2 .player-display-name {
+                font-size: 0.66rem;
+            }
+
+            #game-screen.bp-v2 .bp2-picks-col,
+            #game-screen.bp-v2 .bp2-bans-col,
+            #game-screen.bp-v2 .bp2-red-body {
+                gap: 0.18rem;
+            }
+
+            body #game-screen.bp-v2 .ban-slot {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            #game-screen.bp-v2 .bp2-bans-col .ban-slot {
+                margin-bottom: 22px !important;
+            }
+
+            body #game-screen.bp-v2 .pick-slot .slot-check {
+                top: auto !important;
+                bottom: 14px !important;
+                right: 1px !important;
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            body #game-screen.bp-v2 .pick-slot .slot-check::after {
+                left: 3.5px !important;
+                top: 0.5px !important;
+                width: 3.5px !important;
+                height: 7px !important;
+                border-width: 0 2px 2px 0 !important;
+            }
+
+            body #game-screen.bp-v2 .ban-slot.filled::after,
+            body #game-screen.bp-v2 .ban-slot.selected::after {
+                width: 15px !important;
+                height: 15px !important;
+                right: -4px !important;
+                bottom: -4px !important;
+            }
+
+            body #game-screen.bp-v2 .pick-slot .pick-order {
+                right: 0 !important;
+                bottom: 0 !important;
+                min-width: 22px !important;
+                height: 20px !important;
+                padding: 0 2px 0 4px !important;
+                font-size: 0.8rem !important;
+                line-height: 20px !important;
+            }
+
+            #game-screen.bp-v2 .bp2-toolbar {
+                min-height: 30px;
+                padding: 0.18rem 0.35rem 0.18rem 22px;
+                gap: 0.25rem;
+            }
+
+            #game-screen.bp-v2 .bp2-banner {
+                max-width: 30%;
+                padding: 0.12rem 0.28rem 0.12rem 0.2rem;
+                gap: 0.25rem;
+            }
+
+            #game-screen.bp-v2 .bp2-mode-logo {
+                width: 22px;
+                height: 22px;
+            }
+
+            #game-screen.bp-v2 .bp2-mode-name {
+                font-size: 0.68rem;
+            }
+
+            #game-screen.bp-v2 .bp2-map-name {
+                font-size: 0.58rem;
+            }
+
+            #game-screen.bp-v2 .bp2-first-move,
+            #game-screen.bp-v2 .bp2-map-thumb {
+                display: none;
+            }
+
+            #game-screen.bp-v2 .bp2-phase-steps {
+                gap: 2px;
+            }
+
+            body #game-screen.bp-v2 .phase-step {
+                min-width: 17px !important;
+                height: 20px !important;
+                padding: 0 3px !important;
+                font-size: 0.58rem !important;
+                line-height: 16px !important;
+            }
+
+            #game-screen.bp-v2 .bp2-tool-btn {
+                height: 24px;
+                padding: 0 0.45rem;
+                font-size: 0.62rem;
+            }
+
+            body #game-screen.bp-v2 .character-grid {
+                --bp2-rows: 7;
+                --bp2-gap: 2px;
+            }
+
+            body #game-screen.bp-v2 .character-card .char-name {
+                padding: 0.08rem 0.18rem !important;
+                font-size: 0.48rem !important;
+                line-height: 1.1 !important;
+            }
+
+            body #game-screen.bp-v2 .bp2-red-picks .pick-slot {
+                width: 58px !important;
+                height: 58px !important;
+                max-height: none !important;
+            }
+
+            #game-screen.bp-v2 .bp2-exit {
+                height: 24px;
+                padding: 0 0.45rem;
+                font-size: 0.62rem;
+            }
+
+            #game-screen.bp-v2 .bp2-confirm {
+                right: 8px;
+                bottom: 8px;
+                min-width: 126px;
+                height: 36px;
+                padding: 0 0.85rem;
+                font-size: 0.82rem;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body #game-screen.bp-v2 .character-card .char-name {
+                padding: 0.08rem 0.18rem !important;
+                font-size: 0.48rem !important;
+                line-height: 1.1 !important;
+            }
+        }
+
+        /* ---------- 待機（マッチング）画面: スマホ横向きでも下が見切れないように ---------- */
+        #waiting-screen.active {
+            min-height: 100dvh;
+            max-height: 100dvh;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            padding: 1.25rem max(1rem, env(safe-area-inset-right, 0px)) max(1.25rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px)) !important;
+            box-sizing: border-box;
+        }
+
+        @media (max-height: 500px) {
+            #waiting-screen.active {
+                padding: 0.65rem max(1rem, env(safe-area-inset-right, 0px)) max(0.75rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px)) !important;
+            }
+
+            #waiting-screen .waiting-room-info {
+                padding: 0.75rem 1.1rem;
+                margin: 0 auto 0.65rem;
+                max-width: 540px;
+            }
+
+            #waiting-screen .waiting-room-name {
+                font-size: 1.1rem;
+                margin-bottom: 0.35rem;
+            }
+
+            #waiting-screen .waiting-players {
+                margin: 0.5rem 0;
+                gap: 1.5rem;
+            }
+
+            #waiting-screen .player-avatar {
+                width: 48px;
+                height: 48px;
+            }
+
+            #waiting-screen .pixel-ghost-stage {
+                height: 72px;
+                margin: 0.3rem auto 0.15rem;
+            }
+        }
     </style>
 
 <body class="lobby-active">
@@ -5198,88 +6932,38 @@
         <div id="lobby-screen" class="screen active">
             <!-- アプリ専用トップバー -->
             <header class="lobby-top-bar">
-                <div class="lobby-top-left">
-                    <a href="/archive/play/" class="lobby-back-link" title="ゲーム一覧に戻る">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        <span>Play一覧へ</span>
-                    </a>
-                </div>
+                <div class="lobby-top-left"></div>
 
                 <div class="lobby-top-center">
-                    <h1 class="lobby-app-title">BANPIC</h1>
+                    <h1 class="lobby-app-title">BSDraft</h1>
                     <span class="lobby-app-tag">BRAWL STARS BAN/PICK SIMULATOR</span>
                 </div>
 
                 <div class="lobby-top-right"></div>
             </header>
 
-            <!-- ロビー左右のおばけ静止画（小さく・薄く・複数体配置） -->
+            <!-- ロビー左右のネオン風キャラクター装飾 -->
             <div class="lobby-ghosts-container" aria-hidden="true">
-                <!-- 左サイド（5体） -->
+                <!-- 左サイド（そのまま: Nani, Gus, Meeple） -->
                 <div class="lobby-mini-ghost g-l1">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                    <img src="/image/brawl/Nani@4x.png" alt="Nani">
                 </div>
                 <div class="lobby-mini-ghost g-l2">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                    <img src="/image/brawl/Gus@4x.png" alt="Gus">
                 </div>
                 <div class="lobby-mini-ghost g-l3">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
-                </div>
-                <div class="lobby-mini-ghost g-l4">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
-                </div>
-                <div class="lobby-mini-ghost g-l5">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                    <img src="/image/brawl/Meeple@4x.png" alt="Meeple">
                 </div>
 
-                <!-- 右サイド（5体） -->
-                <div class="lobby-mini-ghost g-r1">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                <!-- 右サイド（赤色に変色: Ollie, Charlie, Byron） -->
+                <div class="lobby-mini-ghost neon-red g-r1">
+                    <img src="/image/brawl/Ollie@4x.png" alt="Ollie">
                 </div>
-                <div class="lobby-mini-ghost g-r2">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                <div class="lobby-mini-ghost neon-red g-r2">
+                    <img src="/image/brawl/Charlie@4x.png" alt="Charlie">
                 </div>
-                <div class="lobby-mini-ghost g-r3">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
-                </div>
-                <div class="lobby-mini-ghost g-r4">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
-                </div>
-                <div class="lobby-mini-ghost g-r5">
-                    <svg viewBox="0 0 16 20" shape-rendering="crispEdges">
-                        <path fill="#ffffff" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
-                        <path fill="rgba(0, 0, 0, 0.35)" d="M4,17h8v1h-8z M2,18h12v1h-12z M4,19h8v1h-8z"/>
-                    </svg>
+                <div class="lobby-mini-ghost neon-red g-r3">
+                    <img src="/image/brawl/Byron@4x.png" alt="Byron">
                 </div>
             </div>
 
@@ -5293,7 +6977,9 @@
                 <div class="lobby-action-bar">
                     <div class="lobby-action-left">
                         <button class="btn btn-primary" id="create-room-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                style="margin-right: 6px;">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
@@ -5306,7 +6992,9 @@
 
                         <!-- BANPIC画面テスト用ボタン -->
                         <button class="btn btn-secondary" id="test-game-btn" title="BAN/PICK本番画面の表示テスト">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="margin-right: 5px;">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
                             </svg>
                             <span>画面テスト</span>
@@ -5314,9 +7002,28 @@
                     </div>
 
                     <div class="lobby-action-right">
+                        <!-- 音量調節・テストコントロール -->
+                        <div class="lobby-volume-control" title="効果音の音量調節・テスト">
+                            <button type="button" class="btn btn-secondary lobby-sound-test-btn"
+                                id="lobby-sound-test-btn" title="音量テスト再生">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                                    style="margin-right: 4px;">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                </svg>
+                                <span>音量テスト</span>
+                            </button>
+                            <input type="range" id="lobby-volume-slider" class="lobby-volume-slider" min="0" max="100"
+                                value="80" aria-label="効果音の音量">
+                            <span id="lobby-volume-value" class="lobby-volume-value">80%</span>
+                        </div>
+
                         <!-- ゲスト時のみ表示されるワンクリックGoogleログインボタン -->
-                        <button class="btn btn-primary google-quick-login-btn" id="header-login-btn" style="display: none;" title="Googleアカウントでログイン">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 16px; height: 16px;">
+                        <button class="btn btn-primary google-quick-login-btn" id="header-login-btn"
+                            style="display: none;" title="Googleアカウントでログイン">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                                style="width: 16px; height: 16px;">
                             <span>Googleでログイン</span>
                         </button>
 
@@ -5324,8 +7031,10 @@
                         <div class="user-info" id="user-info-btn" title="プロフィール設定（ユーザー設定モーダルを開く）">
                             <div class="user-avatar" id="user-avatar">G</div>
                             <div class="user-info-text">
-                                <span id="current-user-name" style="font-weight: 800; font-size: 0.92rem; color: #fff;">ゲスト</span>
-                                <span id="user-status-badge" style="font-size: 0.65rem; color: var(--warning-color); font-weight: 700;">ログイン必須</span>
+                                <span id="current-user-name"
+                                    style="font-weight: 800; font-size: 0.92rem; color: #fff;">ゲスト</span>
+                                <span id="user-status-badge"
+                                    style="font-size: 0.65rem; color: var(--warning-color); font-weight: 700;">ログイン必須</span>
                             </div>
                         </div>
                     </div>
@@ -5335,7 +7044,8 @@
                 <div id="guest-notice-banner" class="guest-notice-card" style="display: none;">
                     <div class="guest-notice-content">
                         <div class="guest-notice-icon-box">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -5347,9 +7057,19 @@
                         </div>
                     </div>
                     <button class="btn btn-primary guest-banner-login-btn" id="guest-banner-login-btn">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px; height: 18px;">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                            style="width: 18px; height: 18px;">
                         <span>Googleでログイン</span>
                     </button>
+                </div>
+
+                <!-- ホーム画面追加の案内（ホーム画面追加済みのスタンドアロン起動時は非表示） -->
+                <div class="pwa-install-guide" id="pwa-install-guide">
+                    <div class="pwa-install-title">ホーム画面に追加して全画面で使う</div>
+                    <div class="pwa-install-steps">
+                        <span><strong>iPhone / iPad (Safari):</strong> 「共有」アイコン →「ホーム画面に追加」</span>
+                        <span><strong>Android (Chrome):</strong> 右上メニュー「⋮」→「ホーム画面に追加」</span>
+                    </div>
                 </div>
 
                 <div class="lobby-error" id="lobby-error" style="display:none;">
@@ -5362,7 +7082,8 @@
 
                 <div class="room-list" id="room-list">
                     <div class="empty-state" id="empty-state">
-                        <p style="font-weight: 800; font-size: 1.05rem; color: #ffffff; margin-bottom: 0.35rem;">現在募集中のルームはありません</p>
+                        <p style="font-weight: 800; font-size: 1.05rem; color: #ffffff; margin-bottom: 0.35rem;">
+                            現在募集中のルームはありません</p>
                         <p style="color: #9bb0cc; font-size: 0.88rem;">「ルームを作成」ボタンから新しい部屋を作って対戦相手を待ちましょう！</p>
                     </div>
                 </div>
@@ -5370,9 +7091,8 @@
                 <div class="lobby-disclaimer">
                     <p>
                         <strong>非公式ファンコンテンツ</strong><br>
-                        このコンテンツは非公式であり、Supercellによる承認を受けていません。詳細は<a
-                            href="https://www.supercell.com/fan-content-policy" class="hl-link" target="_blank"
-                            rel="noopener noreferrer">Supercellのファンコンテンツポリシー</a>をご覧ください。
+                        このコンテンツは非公式であり、Supercellによる承認を受けていません。詳細は<a href="https://www.supercell.com/fan-content-policy"
+                            class="hl-link" target="_blank" rel="noopener noreferrer">Supercellのファンコンテンツポリシー</a>をご覧ください。
                     </p>
                 </div>
             </main>
@@ -5403,25 +7123,29 @@
                 <div class="pixel-ghost-stage">
                     <div class="pixel-ghost-walker">
                         <div class="pixel-ghost-bob">
-                            <svg class="pixel-ghost-svg" viewBox="0 0 16 16" width="64" height="64" shape-rendering="crispEdges">
+                            <svg class="pixel-ghost-svg" viewBox="0 0 16 16" width="64" height="64"
+                                shape-rendering="crispEdges">
                                 <!-- 通常時（目抜き） -->
                                 <g class="ghost-eyes-open" fill="#ffffff">
                                     <!-- 裾 Frame 1 -->
-                                    <path class="ghost-hem-f1" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
+                                    <path class="ghost-hem-f1"
+                                        d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z" />
                                     <!-- 裾 Frame 2 -->
-                                    <path class="ghost-hem-f2" d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M2,14h3v1h-3z M7,14h4v1h-4z M13,14h2v1h-2z M3,15h1v1h-1z M8,15h2v1h-2z M14,15h1v1h-1z"/>
+                                    <path class="ghost-hem-f2"
+                                        d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h7v1h-7z M9,6h2v1h-2z M13,6h1v1h-1z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M2,14h3v1h-3z M7,14h4v1h-4z M13,14h2v1h-2z M3,15h1v1h-1z M8,15h2v1h-2z M14,15h1v1h-1z" />
                                 </g>
 
                                 <!-- まばたき時（細目スリット） -->
                                 <g class="ghost-eyes-blink" fill="#ffffff">
-                                    <path d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h14v1h-14z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z"/>
+                                    <path
+                                        d="M4,0h6v1h-6z M2,1h10v1h-10z M1,2h12v1h-12z M0,3h14v1h-14z M0,4h14v1h-14z M0,5h14v1h-14z M0,6h14v1h-14z M0,7h7v1h-7z M9,7h2v1h-2z M13,7h1v1h-1z M0,8h14v1h-14z M0,9h14v1h-14z M0,10h15v1h-15z M0,11h14v1h-14z M1,12h12v1h-12z M1,13h12v1h-12z M1,14h3v1h-3z M6,14h4v1h-4z M12,14h3v1h-3z M2,15h1v1h-1z M7,15h2v1h-2z M13,15h1v1h-1z" />
                                 </g>
                             </svg>
 
                             <!-- 足元のドット影 -->
                             <div class="pixel-ghost-ground-shadow">
                                 <svg viewBox="0 0 14 3" width="56" height="12" shape-rendering="crispEdges">
-                                    <path d="M3,0h8v1h-8z M1,1h12v1h-12z M3,2h8v1h-8z" fill="rgba(0, 0, 0, 0.4)"/>
+                                    <path d="M3,0h8v1h-8z M1,1h12v1h-12z M3,2h8v1h-8z" fill="rgba(0, 0, 0, 0.4)" />
                                 </svg>
                             </div>
                         </div>
@@ -5437,122 +7161,104 @@
         </div>
 
         <!-- BANPIC ゲーム画面 -->
-        <div id="game-screen" class="screen">
-            <!-- 画面上部バー: ロビーへ戻るボタン -->
-            <div class="game-top-bar" id="game-top-bar">
-                <button class="btn btn-secondary btn-sm" id="game-back-to-lobby-btn" style="padding: 0.32rem 0.75rem; font-size: 0.8rem;">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                    <span>ロビーに戻る</span>
-                </button>
-                <span style="font-size: 0.75rem; color: #788ba3; font-weight: 700;">BAN/PICK 画面（テスト・対戦）</span>
-            </div>
-
-            <!-- 上部ヘッダー: バナー（左・最小幅） ＋ フェーズインジケーター（右・残り幅すべて） -->
-            <div class="banpic-header">
-                <div class="banpic-mode-banner" id="banpic-mode-banner" style="cursor: pointer;"
-                    onclick="openMapModal()">
-                    <img id="banpic-mode-logo" class="mode-logo" src="../../../image/e-soccer.png" alt="mode logo">
-                    <div class="banner-text">
-                        <div class="mode-name" id="banpic-mode">ブロストライカー</div>
-                        <div class="map-name" id="banpic-map">静かな広場</div>
-                        <div id="first-move-indicator"
-                            style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">先攻: ランダム</div>
-                    </div>
-                    <span class="map-view-hint"><img id="map-view-hint-img" src="" alt="MAP"
-                            style="width:100%;height:100%;object-fit:cover;border-radius:4px;display:block;"></span>
-                </div>
-                <!-- フェーズインジケーター: 右側・残りスペースをすべて使用 -->
-                <div class="phase-indicator">
-                    <!-- 上段: フェーズステップ + ソートボタン -->
-                    <div class="phase-indicator-top">
-                        <div class="phase-indicator-wrapper">
-                            <div class="phase-step active" data-phase="ban">BAN</div>
-                            <div class="phase-step" data-phase="pic1">PIC1</div>
-                            <div class="phase-step" data-phase="pic2">PIC2</div>
-                            <div class="phase-step" data-phase="pic3">PIC3</div>
-                            <div class="phase-step" data-phase="pic4">PIC4</div>
-                            <div class="phase-step" data-phase="pic5">PIC5</div>
-                            <div class="phase-step" data-phase="pic6">PIC6</div>
-                            <div class="phase-step" data-phase="done">終了</div>
-                        </div>
-                        <button class="btn btn-secondary btn-sm" id="sort-toggle-btn"
-                            style="font-size: 0.65rem; padding: 0.2rem 0.4rem;" title="表示順を変更">並順</button>
-                    </div>
-                    <!-- 下段: フェーズテキスト + タイマー -->
-                    <div class="banpic-phase-display">
+        <div id="game-screen" class="screen bp-v2">
+            <!-- ===== 新UI（2026アップデート版）: 左=チームパネル / 右=キャラクターグリッド ===== -->
+            <div class="bp2-stage">
+                <!-- 左カラム: ステータスバー + 青チーム + VS + 赤チーム -->
+                <aside class="bp2-left">
+                    <!-- 上部の黒帯: 指示テキスト + タイマー -->
+                    <div class="bp2-status-bar">
                         <span class="phase-text" id="phase-text">使用禁止キャラクターを指定してください</span>
-                        <div class="phase-timer">
+                        <div class="bp2-timer">
+                            <svg class="bp2-timer-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                                <circle cx="12" cy="13" r="9" fill="#ffd21f" stroke="#1a1a1a" stroke-width="2"></circle>
+                                <rect x="10" y="1.5" width="4" height="3" rx="1" fill="#1a1a1a"></rect>
+                                <path d="M12 13 L12 7.5 A5.5 5.5 0 0 1 17.5 13 Z" fill="#1a1a1a"></path>
+                            </svg>
                             <span class="timer-value" id="phase-timer">20秒</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- キャラクター選択エリア（横スクロール） -->
-            <div class="character-grid-container">
-                <div class="character-grid" id="character-grid">
-                    <!-- キャラクターがここに動的に追加される -->
-                </div>
-            </div>
-
-            <!-- 下部: BAN/PICK スロット表示 -->
-            <div class="banpic-slots">
-                <!-- 左側: 自分のBANスロット (縦3つ) -->
-                <div class="ban-column ban-left">
-                    <div class="ban-label">BAN</div>
-                    <div class="ban-slots" id="ban-slots-left">
-                        <div class="ban-slot empty" data-slot="0"></div>
-                        <div class="ban-slot empty" data-slot="1"></div>
-                        <div class="ban-slot empty" data-slot="2"></div>
+                    <!-- 自チーム（青）: 各行 = PICKスロット + BANスロット -->
+                    <div class="bp2-team bp2-team-blue">
+                        <div class="bp2-player">
+                            <div class="player-display-avatar" id="blue-player-avatar"></div>
+                            <div class="player-display-name" id="blue-player-name">プレイヤー1</div>
+                        </div>
+                        <div class="bp2-team-body">
+                            <div class="bp2-picks-col" id="pick-slots-blue">
+                                <div class="pick-slot empty" data-slot="0"><span class="pick-order">1</span></div>
+                                <div class="pick-slot empty" data-slot="1"><span class="pick-order">2</span></div>
+                                <div class="pick-slot empty" data-slot="2"><span class="pick-order">3</span></div>
+                            </div>
+                            <div class="bp2-bans-col" id="ban-slots-left">
+                                <div class="ban-slot empty" data-slot="0"></div>
+                                <div class="ban-slot empty" data-slot="1"></div>
+                                <div class="ban-slot empty" data-slot="2"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- 中央: PICKスロット (6つ、3x3 → 上段自分、下段相手 などレイアウト) -->
-                <div class="pick-area">
-                    <div class="pick-row pick-row-blue" id="pick-slots-blue">
-                        <div class="pick-slot empty" data-slot="0"><span class="pick-order">1</span></div>
-                        <div class="pick-slot empty" data-slot="1"><span class="pick-order">2</span></div>
-                        <div class="pick-slot empty" data-slot="2"><span class="pick-order">3</span></div>
+                    <!-- VS 区切り -->
+                    <div class="bp2-vs" aria-hidden="true"><span>VS</span></div>
+
+                    <!-- 相手チーム（赤）: 横並びカード + 下にBANスロット -->
+                    <div class="bp2-team bp2-team-red">
+                        <div class="bp2-player">
+                            <div class="player-display-avatar" id="red-player-avatar"></div>
+                            <div class="player-display-name" id="red-player-name">プレイヤー2</div>
+                        </div>
+                        <div class="bp2-red-body">
+                            <div class="bp2-red-picks" id="pick-slots-red">
+                                <div class="pick-slot empty" data-slot="0"><span class="pick-order">4</span></div>
+                                <div class="pick-slot empty" data-slot="1"><span class="pick-order">5</span></div>
+                                <div class="pick-slot empty" data-slot="2"><span class="pick-order">6</span></div>
+                            </div>
+                            <div class="bp2-red-bans" id="ban-slots-right">
+                                <div class="ban-slot empty" data-slot="0"></div>
+                                <div class="ban-slot empty" data-slot="1"></div>
+                                <div class="ban-slot empty" data-slot="2"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pick-row pick-row-red" id="pick-slots-red">
-                        <div class="pick-slot empty" data-slot="0"><span class="pick-order">4</span></div>
-                        <div class="pick-slot empty" data-slot="1"><span class="pick-order">5</span></div>
-                        <div class="pick-slot empty" data-slot="2"><span class="pick-order">6</span></div>
+                </aside>
+
+                <!-- 右カラム: ツールバー + キャラクターグリッド -->
+                <section class="bp2-right">
+                    <div class="bp2-toolbar">
+                        <div class="bp2-banner" id="banpic-mode-banner" onclick="openMapModal()" title="マップを表示">
+                            <img id="banpic-mode-logo" class="bp2-mode-logo"
+                                src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+                                alt="mode logo">
+                            <div class="bp2-banner-text">
+                                <div class="bp2-mode-name" id="banpic-mode">ブロストライカー</div>
+                                <div class="bp2-map-name" id="banpic-map">静かな広場</div>
+                            </div>
+                            <span class="bp2-map-thumb"><img id="map-view-hint-img" src="" alt="MAP"></span>
+                        </div>
+                        <div class="bp2-phase-steps">
+                            <div class="phase-step active" data-phase="ban">BAN</div>
+                            <div class="phase-step" data-phase="pic1">1</div>
+                            <div class="phase-step" data-phase="pic2">2</div>
+                            <div class="phase-step" data-phase="pic3">3</div>
+                            <div class="phase-step" data-phase="pic4">4</div>
+                            <div class="phase-step" data-phase="pic5">5</div>
+                            <div class="phase-step" data-phase="pic6">6</div>
+                            <div class="phase-step" data-phase="done">終了</div>
+                        </div>
+                        <button class="bp2-tool-btn" id="sort-toggle-btn" type="button" title="表示順を変更">レア度順</button>
+                        <button id="game-exit-btn" class="bp2-exit" type="button">退出</button>
                     </div>
-                </div>
 
-                <!-- 中央: VS テキストスペース -->
-                <div class="vs-center" aria-hidden="true">
-                    <span class="vs-text">VS</span>
-                </div>
-
-                <!-- 右側: 相手のBANスロット (縦3つ) -->
-                <div class="ban-column ban-right">
-                    <div class="ban-label">BAN</div>
-                    <div class="ban-slots" id="ban-slots-right">
-                        <div class="ban-slot empty" data-slot="0"></div>
-                        <div class="ban-slot empty" data-slot="1"></div>
-                        <div class="ban-slot empty" data-slot="2"></div>
+                    <!-- キャラクター選択エリア（縦スクロール） -->
+                    <div class="character-grid-container bp2-grid-wrap">
+                        <div class="character-grid" id="character-grid">
+                            <!-- キャラクターがここに動的に追加される -->
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- プレイヤー情報表示エリア -->
-            <div class="banpic-actions">
-                <div class="player-info-display left">
-                    <div class="player-display-avatar" id="blue-player-avatar"></div>
-                    <div class="player-display-name" id="blue-player-name">プレイヤー1</div>
-                </div>
-                <div class="banpic-confirm-area">
-                    <button id="confirm-selection-btn" class="confirm-in-actions" disabled>選択を確定</button>
-                </div>
-                <div class="player-info-display right">
-                    <div class="player-display-avatar" id="red-player-avatar"></div>
-                    <div class="player-display-name" id="red-player-name">プレイヤー2</div>
-                </div>
+                    <button id="confirm-selection-btn" class="bp2-confirm" disabled>選択を確定</button>
+                </section>
             </div>
 
         </div>
@@ -5581,6 +7287,7 @@
                     <div class="form-group">
                         <label>ルーム名</label>
                         <input type="text" id="room-name-input" placeholder="ルーム1" maxlength="20">
+                        <input type="text" id="room-name-input" placeholder="ルーム1" maxlength="20" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>制限時間</label>
@@ -5643,6 +7350,7 @@
                 <button class="modal-close" id="close-join-modal">&times;</button>
             </div>
             <form id="join-room-form">
+                <input type="text" autocomplete="username" style="display: none;" aria-hidden="true" tabindex="-1">
                 <!-- 2ペインのカード構成（縦長マップ最適化） -->
                 <div class="join-stage-card">
                     <!-- 左側: 縦長マップ画像ステージ -->
@@ -5650,7 +7358,8 @@
                         <div class="join-map-frame">
                             <img id="join-map-image" class="join-map-img" src="" alt="マップ画像">
                             <div class="join-map-overlay-badge">
-                                <svg class="join-zoom-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <svg class="join-zoom-icon" viewBox="0 0 24 24" width="13" height="13" fill="none"
+                                    stroke="currentColor" stroke-width="2.5">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
@@ -5701,7 +7410,8 @@
                 <!-- ゲスト時の警告・ログイン促しブロック -->
                 <div class="join-guest-block" id="join-guest-block" style="display: none;">
                     <div class="join-guest-msg">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="stroke: var(--warning-color); flex-shrink: 0;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2" style="stroke: var(--warning-color); flex-shrink: 0;">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="12" y1="8" x2="12" y2="12"></line>
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -5709,7 +7419,8 @@
                         <span>対戦に参加するにはGoogleログインが必要です</span>
                     </div>
                     <button type="button" class="btn btn-primary join-guest-login-btn" id="join-modal-login-btn">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px; height: 18px;">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                            style="width: 18px; height: 18px;">
                         <span>Googleでログインして参加</span>
                     </button>
                 </div>
@@ -5721,7 +7432,8 @@
                         <span class="required">*</span>
                     </label>
                     <div class="join-password-input-box">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="input-lock-icon">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2" class="input-lock-icon">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
@@ -5833,6 +7545,15 @@
         const SoundManager = {
             // AudioContext（遅延初期化）
             _ctx: null,
+            _gainNode: null,
+            _volume: (() => {
+                try {
+                    const v = parseFloat(localStorage.getItem('banpicVolume'));
+                    return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.8;
+                } catch (e) {
+                    return 0.8;
+                }
+            })(),
             // デコード済みバッファ格納先
             _buffers: {},
             // ループ再生中のソースノード
@@ -5845,14 +7566,17 @@
             _unlocked: false,
             // 音声ファイルのマッピング
             _soundMap: {
-                match: '../../../sound/マッチング.mp3',
-                coinToss: '../../../sound/コイントス.mp3',
-                tickTock: '../../../sound/チクタク.mp3',
-                banTap: '../../../sound/banタップ.mp3',
-                picTap: '../../../sound/picタップ.mp3',
-                picConfirm: '../../../sound/pic確定.mp3',
-                yourTurn: '../../../sound/あなたの番.mp3'
+                match: '/sound/マッチング.mp3',
+                coinToss: '/sound/コイントス.mp3',
+                tickTock: '/sound/チクタク.mp3',
+                banTap: '/sound/banタップ.mp3',
+                picTap: '/sound/picタップ.mp3',
+                picConfirm: '/sound/pic確定.mp3',
+                yourTurn: '/sound/あなたの番.mp3'
             },
+            // 事前フェッチ済みのバイナリキャッシュ
+            _rawBuffers: {},
+            _decodePromises: {},
 
             // AudioContextを取得・作成
             _getContext: function () {
@@ -5863,82 +7587,155 @@
                 return this._ctx;
             },
 
-            // モバイルのAutoplay制限を解除する
-            // ユーザーのタッチ/クリックイベント内で呼ぶ
-            unlock: function () {
-                if (this._unlocked) return;
+            // 音量制御用GainNodeを取得・作成
+            _getGainNode: function () {
                 const ctx = this._getContext();
-                if (ctx.state === 'suspended') {
-                    ctx.resume().catch(() => { });
+                if (!this._gainNode) {
+                    this._gainNode = ctx.createGain();
+                    this._gainNode.gain.value = this._volume;
+                    this._gainNode.connect(ctx.destination);
                 }
-                // 無音バッファを再生してロック解除
-                const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-                const src = ctx.createBufferSource();
-                src.buffer = silentBuffer;
-                src.connect(ctx.destination);
-                src.start(0);
-                this._unlocked = true;
-                // まだ読み込んでいなければ読み込み開始
-                if (!this._loaded && !this._loading) {
-                    this._loadAll();
-                }
+                return this._gainNode;
             },
 
-            // 全音声ファイルを一括フェッチ＆デコード
-            _loadAll: function () {
+            // 音量設定（0.0〜1.0）
+            setVolume: function (vol) {
+                const clamped = Math.max(0, Math.min(1, Number(vol)));
+                this._volume = Number.isFinite(clamped) ? clamped : 0.8;
+                if (this._gainNode) {
+                    this._gainNode.gain.value = this._volume;
+                }
+                try {
+                    localStorage.setItem('banpicVolume', String(this._volume));
+                } catch (e) { /* ignore */ }
+            },
+
+            // 現在の音量取得
+            getVolume: function () {
+                return this._volume;
+            },
+
+            // ページ読み込み直後から全音声を事前ダウンロード＆デコードする
+            preload: function () {
                 if (this._loading || this._loaded) return;
                 this._loading = true;
-                const ctx = this._getContext();
                 const entries = Object.entries(this._soundMap);
-                let loadedCount = 0;
+                let doneCount = 0;
+                const markDone = () => {
+                    doneCount++;
+                    if (doneCount === entries.length) {
+                        this._loaded = true;
+                        this._loading = false;
+                    }
+                };
 
                 entries.forEach(([key, url]) => {
-                    fetch(url)
+                    fetch(encodeURI(url))
                         .then(res => {
                             if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
                             return res.arrayBuffer();
                         })
-                        .then(arrayBuf => ctx.decodeAudioData(arrayBuf))
-                        .then(audioBuf => {
-                            this._buffers[key] = audioBuf;
-                            loadedCount++;
-                            if (loadedCount === entries.length) {
-                                this._loaded = true;
-                                this._loading = false;
-                                console.log('SoundManager: 全音声読み込み完了');
-                            }
+                        .then(arrayBuf => {
+                            this._rawBuffers[key] = arrayBuf;
+                            return this._decodeKey(key);
                         })
+                        .then(markDone)
                         .catch(err => {
                             console.warn(`SoundManager: ${key} の読み込み失敗:`, err);
-                            loadedCount++;
-                            if (loadedCount === entries.length) {
-                                this._loaded = true;
-                                this._loading = false;
-                            }
+                            markDone();
                         });
                 });
+            },
+
+            // 指定キーのArrayBufferをAudioBufferにデコードする
+            _decodeKey: function (key) {
+                if (this._buffers[key]) return Promise.resolve(this._buffers[key]);
+                if (this._decodePromises[key]) return this._decodePromises[key];
+                const raw = this._rawBuffers[key];
+                if (!raw) return Promise.resolve(null);
+                const ctx = this._getContext();
+                // decodeAudioDataはバッファを消費するためslice(0)で複製を渡す
+                this._decodePromises[key] = ctx.decodeAudioData(raw.slice(0))
+                    .then(audioBuf => {
+                        this._buffers[key] = audioBuf;
+                        return audioBuf;
+                    })
+                    .catch(err => {
+                        console.warn(`SoundManager: ${key} のデコード失敗:`, err);
+                        return null;
+                    });
+                return this._decodePromises[key];
+            },
+
+            // モバイルのAutoplay制限を解除する
+            // ユーザーのタッチ/クリックイベント内で呼ぶ
+            unlock: function () {
+                const ctx = this._getContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => { });
+                }
+                if (!this._unlocked) {
+                    // 無音バッファを再生してロック解除
+                    try {
+                        const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+                        const src = ctx.createBufferSource();
+                        src.buffer = silentBuffer;
+                        src.connect(ctx.destination);
+                        src.start(0);
+                    } catch (e) { /* ignore */ }
+                    this._unlocked = true;
+                }
+                if (!this._loaded && !this._loading) {
+                    this.preload();
+                }
+            },
+
+            // 全音声ファイルを一括フェッチ＆デコード（後方互換）
+            _loadAll: function () {
+                this.preload();
             },
 
             // 再生（ワンショット）
             play: function (key) {
                 const ctx = this._getContext();
-                if (ctx.state === 'suspended') {
-                    ctx.resume().catch(() => { });
-                }
-                const buffer = this._buffers[key];
-                if (!buffer) {
-                    // バッファ未読み込みの場合、フォールバックとしてHTML5 Audioで再生
-                    const url = this._soundMap[key];
-                    if (url) {
-                        const fallback = new Audio(url);
-                        fallback.play().catch(() => { });
+                const startWithBuffer = (buffer) => {
+                    if (!buffer) return;
+                    const playNow = () => {
+                        const source = ctx.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(ctx.destination);
+                        source.connect(this._getGainNode());
+                        source.start(0);
+                    };
+                    if (ctx.state === 'suspended') {
+                        ctx.resume().then(playNow).catch(() => { });
+                    } else {
+                        playNow();
                     }
+                };
+
+                if (this._buffers[key]) {
+                    startWithBuffer(this._buffers[key]);
                     return;
                 }
-                const source = ctx.createBufferSource();
-                source.buffer = buffer;
-                source.connect(ctx.destination);
-                source.start(0);
+
+                // 未デコードならキャッシュから即デコード、無ければフェッチして再生
+                if (this._rawBuffers[key]) {
+                    this._decodeKey(key).then(startWithBuffer);
+                    return;
+                }
+                const url = this._soundMap[key];
+                if (url) {
+                    fetch(encodeURI(url))
+                        .then(res => (res.ok ? res.arrayBuffer() : null))
+                        .then(buf => {
+                            if (!buf) return null;
+                            this._rawBuffers[key] = buf;
+                            return this._decodeKey(key);
+                        })
+                        .then(startWithBuffer)
+                        .catch(() => { });
+                }
             },
 
             // ループ再生
@@ -5955,6 +7752,7 @@
                 source.buffer = buffer;
                 source.loop = true;
                 source.connect(ctx.destination);
+                source.connect(this._getGainNode());
                 source.start(0);
                 this._loopSources[key] = source;
             },
@@ -5969,6 +7767,9 @@
                 }
             }
         };
+
+        // ページ読み込み直後から音声を事前フェッチして遅延を防ぐ
+        SoundManager.preload();
 
         // ページ上の最初のユーザー操作でAudio Unlockを実行
         ['click', 'touchstart', 'keydown'].forEach(evt => {
@@ -6037,7 +7838,6 @@
                                     yomi: yomi
                                 };
                             });
-                        console.log(`[BanPic] brawl-firebase/brawlers.json から全 ${BRAWLERS.length} 体のキャラクターを読み込みました。`);
                     } else {
                         throw new Error(`brawlers.json fetch failed: ${fbResponse.status}`);
                     }
@@ -6445,15 +8245,12 @@
             }
         }
 
-        // ロビー用エラーバナー表示/非表示
+        // ロビー用エラーバナー表示/非表示（画面にはエラーバナーを出さずコンソール記録のみ行う）
+        // ロビー用エラーバナー表示/非表示（画面にはエラーバナーを出さない）
         function showLobbyError(msg, canRetry = false) {
+            console.warn('Lobby status:', msg);
             const el = document.getElementById('lobby-error');
-            const txt = document.getElementById('lobby-error-text');
-            if (!el || !txt) return;
-            txt.textContent = msg;
-            el.style.display = 'block';
-            const retryBtn = document.getElementById('lobby-retry-btn');
-            if (retryBtn) retryBtn.style.display = canRetry ? 'inline-block' : 'none';
+            if (el) el.style.display = 'none';
         }
 
         function hideLobbyError() {
@@ -7018,6 +8815,14 @@
                 guestAvatarEl.classList.remove('empty');
             }
 
+            // どちらかの接続が切れたときにFirebaseサーバー側で自動的に部屋を破壊する
+            try {
+                onDisconnect(ref(database, `rooms/${roomId}`)).remove()
+                    .catch(e => console.warn('onDisconnect設定失敗:', e));
+            } catch (e) {
+                console.warn('onDisconnect設定エラー:', e);
+            }
+
             // ルームの変更を監視
             currentRoomRef = ref(database, `rooms/${roomId}/meta`);
             // 初回取得でホスト/ゲストのアバターがあれば表示（roomメタのhostAvatar/guestAvatarを優先）
@@ -7151,27 +8956,34 @@
         });
 
         async function leaveRoom() {
+            stopPhaseTimer();
+            if (activeGameRef) {
+                off(activeGameRef);
+                activeGameRef = null;
+            }
             if (currentRoomRef) {
                 off(currentRoomRef);
             }
 
             if (currentRoomId) {
+                const leavingRoomId = currentRoomId;
                 try {
-                    const roomRef = ref(database, `rooms/${currentRoomId}/meta`);
+                    onDisconnect(ref(database, `rooms/${leavingRoomId}`)).cancel().catch(() => { });
+                    const roomRef = ref(database, `rooms/${leavingRoomId}/meta`);
                     const snapshot = await get(roomRef);
                     const meta = snapshot.val();
 
                     if (meta) {
                         if (meta.hostId === currentUserId) {
                             // ホストが退出 → ルーム削除
-                            await remove(ref(database, `rooms/${currentRoomId}`));
+                            await remove(ref(database, `rooms/${leavingRoomId}`));
                             if (hostHeartbeatInterval) { clearInterval(hostHeartbeatInterval); hostHeartbeatInterval = null; }
-                            try { clearRoomExpiry(currentRoomId); } catch (e) { console.warn('clear expiry on host leave', e); }
+                            try { clearRoomExpiry(leavingRoomId); } catch (e) { console.warn('clear expiry on host leave', e); }
                         } else if (meta.guestId === currentUserId) {
-                            // ゲストが退出
-                            await remove(ref(database, `rooms/${currentRoomId}`));
+                            // ゲストが退出 → ルーム削除
+                            await remove(ref(database, `rooms/${leavingRoomId}`));
                             if (guestHeartbeatInterval) { clearInterval(guestHeartbeatInterval); guestHeartbeatInterval = null; }
-                            try { clearRoomExpiry(currentRoomId); } catch (e) { console.warn('clear expiry on guest leave', e); }
+                            try { clearRoomExpiry(leavingRoomId); } catch (e) { console.warn('clear expiry on guest leave', e); }
                         }
                     }
                 } catch (error) {
@@ -7179,6 +8991,9 @@
                 }
             }
 
+            if (hostHeartbeatInterval) { clearInterval(hostHeartbeatInterval); hostHeartbeatInterval = null; }
+            if (guestHeartbeatInterval) { clearInterval(guestHeartbeatInterval); guestHeartbeatInterval = null; }
+            banpicState.roomId = null;
             currentRoomId = null;
             currentRoomRef = null;
             showScreen('lobby-screen');
@@ -7269,6 +9084,8 @@
         // 認証（Googleログイン必須対応）
         // ========================================
         const googleProvider = new GoogleAuthProvider();
+        // ログイン時に毎回Googleアカウント選択画面を表示する
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
 
         function isUserLoggedIn() {
             const user = auth.currentUser;
@@ -7299,14 +9116,14 @@
                 const displayNameInput = document.getElementById('display-name-input');
                 if (displayNameInput) displayNameInput.value = currentUserName;
 
-                // Googleのプロフィール画像があれば使い、無ければGoogleアイコンを表示
-                if (user.photoURL) {
-                    userAvatarUrl = user.photoURL;
-                } else {
-                    userAvatarUrl = GOOGLE_ICON_URL;
-                }
-                setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
-                setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
+                // Googleのプロフィール画像があれば使い（providerDataも確認）、無ければGoogleアイコンを表示
+                const googleProviderProfile = user.providerData && user.providerData.find(p => p.photoURL);
+                const resolvedPhotoUrl = user.photoURL || (googleProviderProfile && googleProviderProfile.photoURL) || null;
+                userAvatarUrl = resolvedPhotoUrl || GOOGLE_ICON_URL;
+                localStorage.setItem('userName', currentUserName);
+                localStorage.setItem('userAvatar', userAvatarUrl);
+                setAvatarSafe(userAvatarEl, userAvatarUrl, currentUserName || 'avatar');
+                setAvatarSafe(userAvatarLargeEl, userAvatarUrl, currentUserName || 'avatar');
 
                 // DBにも保存（他クライアントが取得できるように）
                 try {
@@ -7416,8 +9233,14 @@
             container.innerHTML = '';
             if (url) {
                 const img = document.createElement('img');
-                img.src = url;
+                // Googleプロフィール画像のRefererブロック対策
+                img.referrerPolicy = 'no-referrer';
                 img.alt = altText || 'Avatar';
+                img.onerror = () => {
+                    container.innerHTML = '';
+                    container.textContent = (altText || 'G').charAt(0).toUpperCase();
+                };
+                img.src = url;
                 container.appendChild(img);
             } else {
                 container.textContent = (altText || 'G').charAt(0).toUpperCase();
@@ -7518,15 +9341,17 @@
                         if (displayNameInput) displayNameInput.value = currentUserName;
                     }
 
-                    if (user.photoURL) {
-                        userAvatarUrl = user.photoURL;
+                    const googleProviderProfile = user.providerData && user.providerData.find(p => p.photoURL);
+                    const resolvedPhotoUrl = user.photoURL || (googleProviderProfile && googleProviderProfile.photoURL) || null;
+                    if (resolvedPhotoUrl) {
+                        userAvatarUrl = resolvedPhotoUrl;
                     } else if (user.providerData && user.providerData.some(p => p.providerId === 'google.com')) {
                         userAvatarUrl = GOOGLE_ICON_URL;
                     }
-                    setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
-                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
+                    setAvatarSafe(userAvatarEl, userAvatarUrl, currentUserName || 'avatar');
+                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, currentUserName || 'avatar');
 
-                    // DBに保存されているプロフィールがあるかチェック（優先）
+                    // DBに保存されているプロフィールがあるかチェック（Googleの最新アイコンが未反映なら更新）
                     try {
                         get(ref(database, `users/${currentUserId}`)).then((snap) => {
                             const profile = snap.val();
@@ -7538,12 +9363,24 @@
                                     if (displayNameInput) displayNameInput.value = currentUserName;
                                     localStorage.setItem('userName', currentUserName);
                                 }
-                                if (profile.avatar) {
+                                if (profile.avatar && (profile.avatar !== GOOGLE_ICON_URL || !resolvedPhotoUrl)) {
                                     userAvatarUrl = profile.avatar;
-                                    setAvatarSafe(userAvatarEl, userAvatarUrl, 'avatar');
-                                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, 'avatar');
+                                    setAvatarSafe(userAvatarEl, userAvatarUrl, currentUserName || 'avatar');
+                                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, currentUserName || 'avatar');
                                     localStorage.setItem('userAvatar', userAvatarUrl);
+                                } else if (resolvedPhotoUrl && (!profile.avatar || profile.avatar === GOOGLE_ICON_URL)) {
+                                    userAvatarUrl = resolvedPhotoUrl;
+                                    setAvatarSafe(userAvatarEl, userAvatarUrl, currentUserName || 'avatar');
+                                    setAvatarSafe(userAvatarLargeEl, userAvatarUrl, currentUserName || 'avatar');
+                                    localStorage.setItem('userAvatar', userAvatarUrl);
+                                    update(ref(database, `users/${currentUserId}`), { avatar: resolvedPhotoUrl }).catch(() => { });
                                 }
+                            } else if (resolvedPhotoUrl) {
+                                localStorage.setItem('userAvatar', resolvedPhotoUrl);
+                                update(ref(database, `users/${currentUserId}`), {
+                                    displayName: currentUserName,
+                                    avatar: resolvedPhotoUrl
+                                }).catch(() => { });
                             }
                         }).catch((err) => {
                             console.warn('プロフィール取得エラー:', err);
@@ -7650,6 +9487,39 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // ホーム画面に追加済み（スタンドアロンモード）の場合は案内バナーを非表示
+            const pwaGuideEl = document.getElementById('pwa-install-guide');
+            if (pwaGuideEl && (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches)) {
+                pwaGuideEl.style.display = 'none';
+            }
+
+            // ロビー音量調節・テストコントロールの初期化
+            const volumeSlider = document.getElementById('lobby-volume-slider');
+            const volumeValue = document.getElementById('lobby-volume-value');
+            const soundTestBtn = document.getElementById('lobby-sound-test-btn');
+            if (volumeSlider && volumeValue) {
+                const initialPct = Math.round(SoundManager.getVolume() * 100);
+                volumeSlider.value = String(initialPct);
+                volumeValue.textContent = `${initialPct}%`;
+
+                volumeSlider.addEventListener('input', () => {
+                    const pct = parseInt(volumeSlider.value, 10) || 0;
+                    SoundManager.setVolume(pct / 100);
+                    volumeValue.textContent = `${pct}%`;
+                });
+
+                volumeSlider.addEventListener('change', () => {
+                    SoundManager.unlock();
+                    SoundManager.play('picConfirm');
+                });
+            }
+            if (soundTestBtn) {
+                soundTestBtn.addEventListener('click', () => {
+                    SoundManager.unlock();
+                    SoundManager.play('picConfirm');
+                });
+            }
+
             loadImageData().then(() => {
                 if (typeof updateSlotPreview === 'function') updateSlotPreview();
                 preloadImages();
@@ -7885,7 +9755,7 @@
             // 未決定スロット用のデフォルト画像をセットするユーティリティ
             function setSlotToDefault(slot) {
                 if (!slot) return;
-                slot.classList.remove('filled');
+                slot.classList.remove('filled', 'selected');
                 slot.classList.add('empty');
                 slot.onclick = null;
                 slot.style.cursor = '';
@@ -7948,7 +9818,7 @@
                 if (brawler && bluePickSlots[i]) {
                     const orderBadge = bluePickSlots[i].querySelector('.pick-order');
                     const orderHTML = orderBadge ? orderBadge.outerHTML : '';
-                    bluePickSlots[i].innerHTML = `<img src="${buildImageUrl(brawler.image, true)}" alt="${brawler.name}"><span class="slot-check"></span>${orderHTML}`;
+                    bluePickSlots[i].innerHTML = `<img src="${buildImageUrl(brawler.image, true)}" alt="${brawler.name}"><span class="slot-char-name">${escapeHtml(brawler.name)}</span><span class="slot-check"></span>${orderHTML}`;
                     bluePickSlots[i].classList.add('filled');
                     bluePickSlots[i].classList.remove('empty');
                 }
@@ -7956,8 +9826,7 @@
 
             opponentPicks.forEach((charId, i) => {
                 const brawler = BRAWLERS.find(b => b.id === charId);
-                const slotIndex = 2 - i;
-                const slot = Array.from(redPickSlots).find(s => s.dataset.slot === String(slotIndex));
+                const slot = redPickSlots[i];
                 if (brawler && slot) {
                     const orderBadge = slot.querySelector('.pick-order');
                     const orderHTML = orderBadge ? orderBadge.outerHTML : '';
@@ -7986,7 +9855,7 @@
                     const slot = bluePickSlots[nextIndex];
                     const b = BRAWLERS.find(x => x.id === banpicState.selectedCharacters[0]);
                     if (b && slot && slot.classList.contains('empty')) {
-                        slot.innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}">`;
+                        slot.innerHTML = `<img src="${buildImageUrl(b.image, true)}" alt="${b.name}"><span class="slot-char-name">${escapeHtml(b.name)}</span>`;
                         slot.classList.add('selected');
                         slot.classList.remove('empty');
                     }
@@ -8007,8 +9876,7 @@
                     if (target) target.classList.add('pic-phase-active');
                 } else {
                     const nextIndex = (banpicState.isBlueTeam ? banpicState.redPicks : banpicState.bluePicks).length;
-                    const targetSlotIndex = 2 - nextIndex;
-                    const target = Array.from(redPickSlots).find(s => s.dataset.slot === String(targetSlotIndex));
+                    const target = redPickSlots[nextIndex];
                     if (target) target.classList.add('pic-phase-active');
                 }
             }
@@ -8021,6 +9889,15 @@
         function updatePhaseDisplay() {
             const phaseText = document.getElementById('phase-text');
             const timerEl = document.getElementById('phase-timer');
+
+            // 新UI用: 現在フェーズを画面要素に付与（CSSでラベル・強調を切り替える）
+            const gameScreenEl = document.getElementById('game-screen');
+            if (gameScreenEl) {
+                const ph = banpicState.phase || '';
+                gameScreenEl.dataset.phase = ph.startsWith('pic')
+                    ? (isPlayerTurn() ? 'pic-my' : 'pic-opp')
+                    : ph;
+            }
 
             const phaseSteps = document.querySelectorAll('.phase-step');
             if (banpicState.phaseIndex !== lastPlayedPhaseIndex && isPlayerTurn()) {
@@ -8206,8 +10083,8 @@
 
                 setTimeout(() => {
                     overlay.classList.remove('active');
-                    setTimeout(() => resolve(), 300); // Wait for fade out transition
-                }, 2000);
+                    setTimeout(() => resolve(), 200); // フェードアウト完了を待機
+                }, 1200);
             });
         }
 
@@ -8275,7 +10152,7 @@
             }
 
             // オンラインモード: Firebase に対して確定を書き込む
-            if (roomId) {
+            if (isOnlineMode()) {
                 const gameRef = ref(database, `rooms/${roomId}/game`);
 
                 if (phase === 'ban') {
@@ -8364,10 +10241,14 @@
                 return;
             }
 
-            // テストモードの既存処理
+            // テストモード（Bot自動対戦）の処理
             stopPhaseTimer();
+            clearBotActionTimer();
 
             if (phase === 'ban') {
+                if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length !== 3) {
+                    return;
+                }
                 if (isBlue) {
                     banpicState.blueBans = [...banpicState.selectedCharacters];
                 } else {
@@ -8375,10 +10256,23 @@
                 }
                 banpicState.selectedCharacters = [];
 
+                // Bot（相手チーム）もランダムに3体BANする
+                const botBanPool = [...BRAWLERS];
+                const botBans = [];
+                while (botBans.length < 3 && botBanPool.length > 0) {
+                    const idx = Math.floor(Math.random() * botBanPool.length);
+                    botBans.push(botBanPool.splice(idx, 1)[0].id);
+                }
+                if (isBlue) {
+                    banpicState.redBans = botBans;
+                } else {
+                    banpicState.blueBans = botBans;
+                }
 
                 const allBans = new Set([...banpicState.blueBans, ...banpicState.redBans]);
                 banpicState.allBannedIds = [...allBans];
 
+                SoundManager.play('picConfirm');
                 banpicState.phase = 'pic1';
                 banpicState.phaseIndex = 1;
             } else if (phase.startsWith('pic')) {
@@ -8386,12 +10280,16 @@
                 const isMyTurn = isPlayerTurn();
 
                 if (isMyTurn) {
+                    if (!banpicState.selectedCharacters || banpicState.selectedCharacters.length !== 1) {
+                        return;
+                    }
                     if (isBlue) {
                         banpicState.bluePicks.push(banpicState.selectedCharacters[0]);
                     } else {
                         banpicState.redPicks.push(banpicState.selectedCharacters[0]);
                     }
                     banpicState.selectedCharacters = [];
+                    SoundManager.play('picConfirm');
                 }
 
                 if (picNum < 6) {
@@ -8400,6 +10298,10 @@
                 } else {
                     banpicState.phase = 'done';
                     banpicState.phaseIndex = 7;
+                    renderCharacterGrid();
+                    updateSlotPreview();
+                    updatePhaseDisplay();
+                    updateConfirmButton();
                     showBanpicResult();
                     return;
                 }
@@ -8412,9 +10314,74 @@
 
             if (banpicState.phase !== 'done') {
                 showPhaseInterstitial(banpicState.phase).then(() => {
+                    if (!banpicState.isTestMode || banpicState.phase === 'done') return;
                     startPhaseTimer();
+                    scheduleBotTurnIfNeeded();
                 });
             }
+        }
+
+        // テストモード用: Botの自動選択タイマー管理
+        let botActionTimer = null;
+        function clearBotActionTimer() {
+            if (botActionTimer) {
+                clearTimeout(botActionTimer);
+                botActionTimer = null;
+            }
+        }
+
+        function scheduleBotTurnIfNeeded() {
+            clearBotActionTimer();
+            if (!banpicState.isTestMode) return;
+            const phase = banpicState.phase || '';
+            if (!phase.startsWith('pic') || isPlayerTurn()) return;
+
+            botActionTimer = setTimeout(() => {
+                botActionTimer = null;
+                if (!banpicState.isTestMode || !banpicState.phase || !banpicState.phase.startsWith('pic') || isPlayerTurn()) {
+                    return;
+                }
+                const available = getAvailableCharacters();
+                if (available.length === 0) return;
+
+                const pick = available[Math.floor(Math.random() * available.length)];
+                if (banpicState.isBlueTeam) {
+                    banpicState.redPicks.push(pick.id);
+                } else {
+                    banpicState.bluePicks.push(pick.id);
+                }
+                SoundManager.play('picConfirm');
+
+                // もし自分がプレピックしていたキャラをBotに取られたら選択を解除する
+                if (banpicState.selectedCharacters.includes(pick.id)) {
+                    banpicState.selectedCharacters = [];
+                }
+
+                const picNum = parseInt(banpicState.phase.replace('pic', ''));
+                stopPhaseTimer();
+                if (picNum < 6) {
+                    banpicState.phase = `pic${picNum + 1}`;
+                    banpicState.phaseIndex = picNum + 1;
+                } else {
+                    banpicState.phase = 'done';
+                    banpicState.phaseIndex = 7;
+                }
+
+                renderCharacterGrid();
+                updateSlotPreview();
+                updatePhaseDisplay();
+                updateConfirmButton();
+
+                if (banpicState.phase === 'done') {
+                    showBanpicResult();
+                } else {
+                    showPhaseInterstitial(banpicState.phase).then(() => {
+                        if (!banpicState.isTestMode || banpicState.phase === 'done') return;
+                        startPhaseTimer();
+                        scheduleBotTurnIfNeeded();
+                    });
+                }
+            }, 900);
         }
 
         // BANPIC結果表示
@@ -8679,15 +10646,6 @@
             // アバター表示を設定
             setPlayerAvatars(meta, amHost, myIsBlue);
 
-            const firstMoveIndicator = document.getElementById('first-move-indicator');
-            if (firstMoveIndicator) {
-                // 先攻は常に青チーム側の名前
-                const firstMoverName = resolvedIsBlue
-                    ? (meta.hostName || 'ホスト')
-                    : (meta.guestName || 'ゲスト');
-                firstMoveIndicator.textContent = `先攻: ${firstMoverName}`;
-            }
-
             // マップバナーを正しく設定（ゲスト側でも反映）
             const modeKey = meta.mode || 'eme';
             const mapName = meta.mapName || '静かな広場';
@@ -8724,10 +10682,12 @@
                 activeGameRef = null;
             }
             stopPhaseTimer();
+            clearBotActionTimer();
 
             // テスト用の疑似状態
             const gameDuration = 20;
             banpicState = {
+                isTestMode: true,
                 isBlueTeam: true,
                 phase: 'ban',
                 phaseIndex: 0,
@@ -8742,17 +10702,11 @@
                 allBannedIds: [],
                 mode: { id: 'soccer', name: 'ブロストライカー' },
                 map: '静かな広場',
-                roomId: 'test-mode-room',
+                roomId: null,
                 amHost: true,
                 confirmed: false,
                 banPhaseComplete: false
             };
-
-            // 先攻表示
-            const firstMoveIndicator = document.getElementById('first-move-indicator');
-            if (firstMoveIndicator) {
-                firstMoveIndicator.textContent = '先攻: あなた（青チーム）';
-            }
 
             // マップバナー
             let mapImage = null;
@@ -8785,6 +10739,7 @@
             updatePickOrderLabels();
             updatePhaseDisplay();
             updateConfirmButton();
+            startPhaseTimer();
         }
 
         // テストボタンとロビー復帰ボタンのイベント登録
@@ -8807,17 +10762,28 @@
             });
         }
 
+        // ゲーム画面内の退出ボタン（オンライン時は部屋を破壊してロビーへ戻る）
+        const gameExitBtn = document.getElementById('game-exit-btn');
+        if (gameExitBtn) {
+            gameExitBtn.addEventListener('click', async () => {
+                if (isOnlineMode()) {
+                    if (!confirm('対戦を退出しますか？（ルームは削除されます）')) return;
+                    await leaveRoom();
+                } else {
+                    exitBanpic();
+                }
+            });
+        }
+
         // ピック順ラベル更新（固定: 左=1,4,5 / 右=2,3,6）
         function updatePickOrderLabels() {
             const blueSlots = document.querySelectorAll('#pick-slots-blue .pick-slot');
             const redSlots = document.querySelectorAll('#pick-slots-red .pick-slot');
 
-            // 常に固定: 左側(先攻)=1,4,5 / 右側(後攻)=2,3,6
-            // 表示は左から: top-row(青)が 1,4,5。
-            // bottom-row(赤)は左から 6,3,2 と表示する（左→右で 1 4 5 6 3 2 となるように）
+            // 左側(青)=上から 1,4,5 (後攻時は 2,3,6) / 右側(赤)=左から右へ 2,3,6 (相手先攻時は 1,4,5)
             const isBlueTeam = banpicState.isBlueTeam;
             const blueOrder = isBlueTeam ? [1, 4, 5] : [2, 3, 6];
-            const redOrder = isBlueTeam ? [6, 3, 2] : [5, 4, 1];
+            const redOrder = isBlueTeam ? [2, 3, 6] : [1, 4, 5];
 
             blueSlots.forEach((slot, i) => {
                 let badge = slot.querySelector('.pick-order');
@@ -8980,6 +10946,8 @@
         // BANPIC終了
         function exitBanpic() {
             stopPhaseTimer();
+            clearBotActionTimer();
+            banpicState.isTestMode = false;
 
             // Firebaseリスナーを解除（次回のルームで二重発火を防止）
             if (activeGameRef) {
@@ -9052,7 +11020,8 @@
                     currentBrawlerSort = sortModes[nextIndex];
 
                     // ボタンのテキストを更新
-                    const labels = { rarity: 'R', name: 'あ' };
+
+                    const labels = { rarity: 'レア度順', name: '名前順' };
                     sortToggleBtn.textContent = labels[currentBrawlerSort];
                     sortToggleBtn.title = currentBrawlerSort === 'rarity' ? 'レア度順' : '名前順';
 
@@ -9081,6 +11050,8 @@
                 };
 
                 gridCont.addEventListener('wheel', e => {
+                    // 新UIはグリッドが縦スクロールのため、横にはみ出していなければ通常スクロールに任せる
+                    if (gridCont.scrollWidth <= gridCont.clientWidth + 1) return;
                     const isVertical = Math.abs(e.deltaY) > Math.abs(e.deltaX);
                     const delta = isVertical ? e.deltaY * 1.5 : e.deltaX * 1.2;
                     if (delta === 0) return;
@@ -9128,7 +11099,6 @@
             }, { passive: false });
         });
     </script>
-    <script src="/components/components.js"></script>
     <script>
         // Optional: filter specific DevTools warnings from console to reduce noise
         (function () {
