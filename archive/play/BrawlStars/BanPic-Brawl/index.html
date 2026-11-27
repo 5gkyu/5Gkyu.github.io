@@ -1315,7 +1315,7 @@
 
         /* ゲスト注意喚起バナー */
         .guest-notice-card {
-            background: linear-gradient(135deg, rgba(243, 156, 18, 0.14) 0%, rgba(231, 76, 60, 0.1) 100%);
+            background: rgba(243, 156, 18, 0.12);
             border: 1px solid rgba(243, 156, 18, 0.4);
             border-radius: 12px;
             padding: 1rem 1.25rem;
@@ -4686,40 +4686,65 @@
             justify-content: flex-end;
         }
 
-        /* ==== ロビー左右のおばけ静止画（小さく・薄く・複数配置） ==== */
-        .lobby-ghosts-container {
+        /* ==== ロビー背景: OGP画像を薄く表示 ==== */
+        #lobby-screen.active {
+            position: relative;
+        }
+
+        #lobby-screen.active::before {
+            content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(14, 19, 34, 0.78) 0%, rgba(14, 19, 34, 0.86) 100%),
+                url('/image/brawl/BanPicOGP.png') center center / cover no-repeat;
+            opacity: 0.92;
             pointer-events: none;
-            z-index: 5;
+            z-index: 0;
+        }
+
+        #lobby-screen>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==== ヘッダー左右のネオン風キャラクター装飾 ==== */
+        .lobby-header-ghosts {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            pointer-events: none;
             user-select: none;
         }
 
         .lobby-mini-ghost {
-            position: fixed;
+            position: relative;
+            width: clamp(28px, 3.6vw, 42px);
+            height: clamp(28px, 3.6vw, 42px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             pointer-events: none;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
         }
 
         .lobby-mini-ghost svg,
         .lobby-mini-ghost img {
             display: block;
             width: 100%;
-            height: auto;
+            height: 100%;
             object-fit: contain;
+            -webkit-mask-image: radial-gradient(circle, #000 46%, transparent 74%);
+            mask-image: radial-gradient(circle, #000 46%, transparent 74%);
         }
 
-        /* 左（そのまま）: 不透明＋白と青ネオンを強く発光 */
+        /* 左（そのまま）: キャラ部分のみ青ネオン発光（正方形の縁をマスクで除去） */
         .lobby-mini-ghost:not(.neon-red) img {
-            filter: brightness(1.18) drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 16px rgba(120, 210, 255, 0.95));
+            filter: brightness(1.14);
         }
 
-        /* 右（赤色変色）: 赤ネオン＋白い芯を強く発光 */
+        /* 右（赤色変色）: キャラ部分のみ赤ネオン発光（正方形の縁をマスクで除去） */
         .lobby-mini-ghost.neon-red img {
-            filter: brightness(1.05) sepia(1) hue-rotate(-52deg) saturate(7) drop-shadow(0 0 5px rgba(255, 235, 235, 0.85)) drop-shadow(0 0 16px rgba(255, 35, 50, 0.95));
+            filter: brightness(1.06) sepia(1) hue-rotate(-52deg) saturate(7);
         }
 
         /* 左サイド（Nani / Gus / Meeple） */
@@ -4891,7 +4916,7 @@
         }
 
         .lobby-volume-slider {
-            width: 76px;
+            width: 148px;
             accent-color: #4a90d9;
             cursor: pointer;
         }
@@ -4935,7 +4960,7 @@
 
         /* ==== ゲスト注意喚起バナー ==== */
         .guest-notice-card {
-            background: linear-gradient(135deg, rgba(243, 156, 18, 0.14) 0%, rgba(26, 34, 52, 0.95) 100%);
+            background: rgba(243, 156, 18, 0.12);
             border: 1px solid rgba(243, 156, 18, 0.35);
             border-radius: 12px;
             padding: 1rem 1.25rem;
@@ -5376,7 +5401,7 @@
             }
 
             .lobby-volume-slider {
-                width: 58px !important;
+                width: 112px !important;
             }
 
             .lobby-volume-value {
@@ -5605,15 +5630,36 @@
             font-family: 'Lilita One', 'M PLUS Rounded 1c', 'Hiragino Sans', sans-serif;
         }
 
-        /* ---------- ステージ全体（2カラム: 左39.5% / 右60.5%、境界はスラッシュ/型） ---------- */
+        /* ---------- ステージ全体（2カラム: 左41% / 右59%、境界はスラッシュ/型） ---------- */
+        #game-screen.bp-v2 {
+            --bp2-slant: clamp(42px, 5.4vw, 64px);
+        }
+
         #game-screen.bp-v2 .bp2-stage {
             flex: 1 1 auto;
             min-height: 0;
             display: grid;
-            grid-template-columns: minmax(290px, 39.5%) 1fr;
+            grid-template-columns: minmax(280px, 39.5%) 1fr;
             background: var(--bp2-navy);
             overflow: hidden;
             padding-left: env(safe-area-inset-left, 0px);
+        }
+
+        /* iPad・タブレット縦横（高さ501px以上） */
+        @media (max-width: 1100px) and (min-height: 501px) {
+            #game-screen.bp-v2 {
+                --bp2-slant: clamp(44px, 5.4vw, 58px);
+            }
+
+            #game-screen.bp-v2 .bp2-stage {
+                grid-template-columns: minmax(280px, 39.5%) 1fr;
+            }
+
+            body #game-screen.bp-v2 .bp2-picks-col .pick-slot .slot-char-name {
+                left: calc(150cqh + 14px) !important;
+                font-size: clamp(1rem, 1.8vw, 1.32rem) !important;
+                bottom: 7px !important;
+            }
         }
 
         /* ---------- 左カラム（右端を/型に斜めカット + 黒境界線） ---------- */
@@ -5625,7 +5671,7 @@
             background: var(--bp2-red);
             position: relative;
             z-index: 2;
-            clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 0, calc(100% - var(--bp2-slant)) 100%, 0 100%);
             padding-right: 0;
         }
 
@@ -5635,9 +5681,9 @@
             top: 0;
             right: 0;
             bottom: 0;
-            width: 24px;
+            width: calc(var(--bp2-slant) + 12px);
             background: var(--bp2-ink);
-            clip-path: polygon(calc(100% - 4px) 0, 100% 0, 4px 100%, 0 100%);
+            clip-path: polygon(calc(100% - 12px) 0, 100% 0, 12px 100%, 0 100%);
             pointer-events: none;
             z-index: 10;
         }
@@ -5649,8 +5695,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
-            min-height: clamp(38px, 7.5vh, 58px);
-            padding: 0.3rem 14px 0.3rem max(0.65rem, env(safe-area-inset-left, 0px));
+            min-height: clamp(54px, 9.8vh, 76px);
+            padding: 0.35rem 14px 0.35rem max(0.65rem, env(safe-area-inset-left, 0px));
             background: #0b0b0d;
             border-bottom: 3px solid var(--bp2-ink);
         }
@@ -5672,9 +5718,9 @@
         }
 
         #game-screen.bp-v2 .bp2-timer .timer-value {
-            font-size: clamp(1.15rem, 2.4vw, 1.7rem) !important;
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem) !important;
             font-weight: 900 !important;
-            color: var(--bp2-yellow);
+            color: #ffe824 !important;
             -webkit-text-stroke: 1px #000;
             paint-order: stroke fill;
             letter-spacing: 0.02em;
@@ -5691,16 +5737,21 @@
         }
 
         #game-screen.bp-v2 .bp2-team-blue {
-            flex: 1.75 1 0;
+            flex: 1.08 1 0;
             background: #1463f3;
-            padding-left: max(0.4rem, env(safe-area-inset-left, 0px));
-            padding-right: 16px;
+            padding: 0.22rem 0 0 max(0px, env(safe-area-inset-left, 0px));
+            gap: 0.14rem;
+        }
+
+        #game-screen.bp-v2 .bp2-team-blue .bp2-player {
+            padding-left: 0.4rem;
         }
 
         #game-screen.bp-v2 .bp2-team-red {
             flex: 1 1 0;
             background: #9b0a10;
-            padding: 0.65rem 20px 0.35rem max(0.5rem, env(safe-area-inset-left, 0px));
+            padding: 0.65rem calc(var(--bp2-slant) + 8px) 0.35rem max(0.5rem, env(safe-area-inset-left, 0px));
+            gap: 0.32rem;
         }
 
         /* ターン中もフラットな単色を維持 */
@@ -5769,12 +5820,18 @@
             z-index: 1;
         }
 
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot {
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+
         #game-screen.bp-v2 .bp2-bans-col {
             z-index: 5;
             pointer-events: none;
             align-items: end;
             justify-items: end;
-            padding: 0 6px 0 0;
+            padding: 0;
         }
 
         #game-screen.bp-v2 .bp2-bans-col .ban-slot {
@@ -5782,11 +5839,23 @@
             margin-bottom: clamp(30px, 3.8vw, 44px) !important;
         }
 
+        #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(1) {
+            margin-right: calc(var(--bp2-slant) * 0.20 + 14px) !important;
+        }
+
+        #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(2) {
+            margin-right: calc(var(--bp2-slant) * 0.32 + 14px) !important;
+        }
+
+        #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(3) {
+            margin-right: calc(var(--bp2-slant) * 0.44 + 14px) !important;
+        }
+
         /* ---------- 赤チーム: 横並び（余計な余白なしでコンパクトに上寄せ） ---------- */
         #game-screen.bp-v2 .bp2-red-body {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.24rem;
             width: 100%;
             padding: 0 0.2rem;
         }
@@ -5795,8 +5864,16 @@
         #game-screen.bp-v2 .bp2-red-bans {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: clamp(6px, 1.3vw, 14px);
+            gap: clamp(4px, 0.9vw, 10px);
             justify-items: center;
+        }
+
+        body #game-screen.bp-v2 .bp2-red-picks .pick-slot {
+            width: 100% !important;
+            max-width: clamp(80px, 14.5vh, 118px) !important;
+            height: auto !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 2px !important;
         }
 
         #game-screen.bp-v2 .bp2-red-bans {
@@ -5974,11 +6051,29 @@
             box-shadow: none !important;
         }
 
+        /* 青のピック順ラベル：斜め境界線に沿った平行四辺形 */
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot .pick-order {
+            clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%) !important;
+            padding: 0 6px !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(1) .pick-order {
+            right: calc(var(--bp2-slant) * 0.21 + 10px) !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(2) .pick-order {
+            right: calc(var(--bp2-slant) * 0.33 + 10px) !important;
+        }
+
+        body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(3) .pick-order {
+            right: calc(var(--bp2-slant) * 0.45 + 10px) !important;
+        }
+
         /* 青チームスロット内のキャラ名（画像のすぐ右に左寄せ、画像サイズ連動でズレ防止） */
         body #game-screen.bp-v2 .bp2-picks-col .pick-slot .slot-char-name {
             position: absolute !important;
-            left: 34% !important;
-            left: calc(135cqh + 6px) !important;
+            left: 38% !important;
+            left: calc(146cqh + 10px) !important;
             right: clamp(36px, 4.4vw, 50px) !important;
             bottom: 5px !important;
             color: #fff !important;
@@ -6035,8 +6130,8 @@
         /* ---------- BAN スロット（禁止マーク付きの小アイコン） ---------- */
         body #game-screen.bp-v2 .ban-slot {
             position: relative !important;
-            width: clamp(30px, 4.2vw, 46px) !important;
-            height: clamp(30px, 4.2vw, 46px) !important;
+            width: clamp(38px, 5.2vw, 56px) !important;
+            height: clamp(38px, 5.2vw, 56px) !important;
             min-width: 0 !important;
             min-height: 0 !important;
             max-height: 100% !important;
@@ -6120,7 +6215,7 @@
             flex-direction: column;
             min-height: 0;
             min-width: 0;
-            margin-left: -20px;
+            margin-left: calc(var(--bp2-slant) * -1);
             padding-left: 0;
             background:
                 radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.035) 0 18px, transparent 19px) 0 0 / 90px 90px,
@@ -6134,8 +6229,8 @@
             display: flex;
             align-items: center;
             gap: 0.45rem;
-            min-height: clamp(38px, 7.5vh, 58px);
-            padding: 0.3rem 0.5rem 0.3rem 24px;
+            min-height: clamp(54px, 9.8vh, 76px);
+            padding: 0.35rem 0.55rem 0.35rem calc(var(--bp2-slant) + 8px);
             background: rgba(10, 14, 30, 0.55);
             border-bottom: 2px solid rgba(0, 0, 0, 0.6);
             min-width: 0;
@@ -6145,12 +6240,13 @@
         #game-screen.bp-v2 .bp2-banner {
             display: flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 0.55rem;
             min-width: 0;
             flex: 0 1 auto;
-            max-width: 42%;
-            padding: 0.2rem 0.35rem 0.2rem 0.25rem;
-            border-radius: 6px;
+            max-width: 52%;
+            margin-right: auto;
+            padding: 0.32rem 0.55rem 0.32rem 0.42rem;
+            border-radius: 7px;
             border: 2px solid #000 !important;
             background: #4b5294 !important;
             cursor: pointer;
@@ -6162,9 +6258,72 @@
             transform: translateY(-1px);
         }
 
+        /* 右上のキャラ検索バー */
+        #game-screen.bp-v2 .bp2-search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1 1 clamp(140px, 22vw, 240px);
+            min-width: 120px;
+            max-width: 260px;
+            height: 36px;
+            border: 2px solid #000;
+            border-radius: 7px;
+            background: #14192e;
+            box-shadow: 0 2px 0 #000;
+            padding: 0 24px 0 30px;
+        }
+
+        #game-screen.bp-v2 .bp2-search-ico {
+            position: absolute;
+            left: 8px;
+            width: 15px;
+            height: 15px;
+            color: #d6deff;
+            pointer-events: none;
+        }
+
+        #game-screen.bp-v2 .bp2-search-input {
+            width: 100%;
+            min-width: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 800;
+        }
+
+        #game-screen.bp-v2 .bp2-search-input::placeholder {
+            color: #8f9bc4;
+            font-weight: 700;
+        }
+
+        #game-screen.bp-v2 .bp2-search-clear {
+            position: absolute;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            border: none;
+            background: transparent;
+            color: #aab5dc;
+            font-size: 0.9rem;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        #game-screen.bp-v2 .bp2-search-clear.visible {
+            display: inline-flex;
+        }
+
         #game-screen.bp-v2 .bp2-mode-logo {
-            width: 34px;
-            height: 34px;
+            width: 44px;
+            height: 44px;
             object-fit: contain;
             flex-shrink: 0;
             background: transparent;
@@ -6183,7 +6342,7 @@
         #game-screen.bp-v2 .bp2-mode-name {
             color: #fff;
             font-weight: 900;
-            font-size: 0.85rem;
+            font-size: 1.02rem;
             text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
             white-space: nowrap;
             overflow: hidden;
@@ -6193,7 +6352,7 @@
         #game-screen.bp-v2 .bp2-map-name {
             color: #e9ecff;
             font-weight: 700;
-            font-size: 0.72rem;
+            font-size: 0.82rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -6225,16 +6384,9 @@
             display: block;
         }
 
-        /* フェーズステップ（コンパクトなピル） */
+        /* フェーズステップ（上部進行度は非表示） */
         #game-screen.bp-v2 .bp2-phase-steps {
-            flex: 1 1 auto;
-            min-width: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            overflow-x: auto;
-            scrollbar-width: none;
+            display: none !important;
         }
 
         #game-screen.bp-v2 .bp2-phase-steps::-webkit-scrollbar {
@@ -6309,10 +6461,18 @@
             display: block !important;
             overflow-x: hidden !important;
             overflow-y: auto !important;
-            padding: 0.45rem 0.5rem 0.6rem !important;
+            padding: 0.3rem 0.35rem 0.5rem calc(var(--bp2-slant) * 0.42) !important;
             margin: 0 !important;
             background: transparent !important;
             scrollbar-width: thin;
+        }
+
+        body #game-screen.bp-v2 .character-card.is-search-hidden {
+            display: none !important;
+        }
+
+        body #game-screen.bp-v2 .character-grid.hide-char-names .character-card .char-name {
+            display: none !important;
         }
 
         body #game-screen.bp-v2 .character-grid {
@@ -6337,7 +6497,7 @@
             aspect-ratio: 1 / 1 !important;
             margin: 0 !important;
             padding: 0 !important;
-            border-radius: 3px !important;
+            border-radius: 0 !important;
             border: 2px solid #000 !important;
             overflow: hidden !important;
             display: block !important;
@@ -6461,7 +6621,7 @@
             background: #fff !important;
             color: #111 !important;
             border: 2px solid #000 !important;
-            border-radius: 3px !important;
+            border-radius: 0 !important;
             font-size: clamp(0.55rem, 1vw, 0.78rem) !important;
             font-weight: 900 !important;
             line-height: 1.2 !important;
@@ -6610,6 +6770,167 @@
             cursor: not-allowed;
         }
 
+        /* スマホ縦・横向きでユーザー設定モーダルを1画面に収める */
+        @media (max-width: 768px),
+        (max-height: 640px) {
+            #user-settings-modal .modal {
+                width: min(94vw, 460px);
+                max-height: calc(100dvh - 16px);
+                overflow-y: auto;
+                padding: 0.72rem 0.95rem;
+            }
+
+            #user-settings-modal .modal-header {
+                margin-bottom: 0.48rem;
+                padding-bottom: 0.36rem;
+            }
+
+            #user-settings-modal .usm-avatar-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                margin-bottom: 0.52rem !important;
+            }
+
+            #user-settings-modal .user-avatar-large {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+                margin: 0;
+            }
+
+            #user-settings-modal #upload-avatar-btn {
+                margin-top: 0 !important;
+                padding: 0.42rem 0.8rem;
+                font-size: 0.78rem;
+            }
+
+            #user-settings-modal .form-group {
+                margin-bottom: 0.48rem;
+            }
+
+            #user-settings-modal .form-group label {
+                margin-bottom: 0.18rem;
+                font-size: 0.78rem;
+            }
+
+            #user-settings-modal .form-group input {
+                padding: 0.44rem 0.65rem;
+                font-size: 0.86rem;
+            }
+
+            #user-settings-modal .settings-guest-alert {
+                padding: 0.5rem 0.72rem;
+                margin-bottom: 0.48rem;
+            }
+
+            #user-settings-modal .settings-guest-alert p:nth-child(2) {
+                display: none;
+            }
+
+            #user-settings-modal #google-login-btn {
+                padding: 0.48rem 0.72rem !important;
+                font-size: 0.84rem;
+            }
+
+            #user-settings-modal .form-actions {
+                margin-top: 0.5rem !important;
+            }
+
+            #user-settings-modal #save-user-settings {
+                padding: 0.52rem;
+                font-size: 0.88rem;
+            }
+        }
+
+        @media (max-height: 500px) {
+            #user-settings-modal .modal {
+                padding: 0.55rem 0.85rem;
+            }
+
+            #user-settings-modal .modal-header h3 {
+                font-size: 0.96rem;
+            }
+
+            #user-settings-modal .user-avatar-large {
+                width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
+            }
+
+            #user-settings-modal .settings-guest-alert {
+                padding: 0.4rem 0.65rem;
+            }
+        }
+
+        /* 縦画面ロックオーバーレイ（横画面でのみ利用可能にする） */
+        .portrait-lock-overlay {
+            display: none;
+        }
+
+        @media (orientation: portrait) and (max-width: 900px) {
+            .portrait-lock-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1.5rem;
+                background: rgba(11, 15, 29, 0.96);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                color: #fff;
+                text-align: center;
+            }
+
+            .portrait-lock-card {
+                max-width: 340px;
+                width: 100%;
+                padding: 1.5rem 1.25rem;
+                border-radius: 14px;
+                border: 2px solid rgba(255, 255, 255, 0.16);
+                background: rgba(23, 30, 56, 0.92);
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+            }
+
+            .portrait-lock-ico {
+                width: 64px;
+                height: 64px;
+                margin: 0 auto 0.85rem;
+                color: #dbe4ff;
+                animation: portraitRotateHint 2.2s ease-in-out infinite;
+            }
+
+            @keyframes portraitRotateHint {
+                0%, 20% { transform: rotate(0deg); }
+                55%, 80% { transform: rotate(-90deg); }
+                100% { transform: rotate(0deg); }
+            }
+
+            .portrait-lock-title {
+                font-size: 1.15rem;
+                font-weight: 900;
+                margin-bottom: 0.45rem;
+                color: #fff;
+            }
+
+            .portrait-lock-desc {
+                font-size: 0.84rem;
+                line-height: 1.5;
+                color: #b7c2e6;
+                margin-bottom: 1rem;
+            }
+
+            .portrait-lock-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.65rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
         /* =====================================================================
            キャラクターグリッド: 縦8段 × 横スクロール、カードは元と同じ横長(7:5)
            ===================================================================== */
@@ -6630,6 +6951,7 @@
             --bp2-rows: 9;
             --bp2-gap: 2.5px;
             --bp2-card-h: max(16px, calc((100cqh - 6px - (var(--bp2-rows) - 1) * var(--bp2-gap)) / var(--bp2-rows)));
+            padding-left: calc(var(--bp2-slant) + 6px) !important;
             display: grid !important;
             grid-template-rows: repeat(var(--bp2-rows), var(--bp2-card-h)) !important;
             grid-template-columns: none !important;
@@ -6650,7 +6972,7 @@
             display: flex !important;
             align-items: flex-end !important;
             justify-content: flex-start !important;
-            border-radius: 6px !important;
+            border-radius: 0 !important;
         }
 
         /* 画像は修正前と同じ: 高さ100%・左寄せ・横長のまま */
@@ -6694,13 +7016,17 @@
 
         /* ---------- スマホ横向き（低い画面）: 詰めて1画面に収める ---------- */
         @media (max-height: 500px) {
+            #game-screen.bp-v2 {
+                --bp2-slant: 34px;
+            }
+
             #game-screen.bp-v2 .bp2-stage {
                 grid-template-columns: minmax(245px, 38.5%) 1fr;
             }
 
             #game-screen.bp-v2 .bp2-status-bar {
-                min-height: 28px;
-                padding: 0.16rem 14px 0.16rem 0.45rem;
+                min-height: 36px;
+                padding: 0.2rem 14px 0.2rem 0.45rem;
             }
 
             #game-screen.bp-v2 .bp2-status-bar .phase-text {
@@ -6720,14 +7046,14 @@
             }
 
             #game-screen.bp-v2 .bp2-team-blue {
-                flex: 1.75 1 0;
-                padding-left: 0.35rem;
-                padding-right: 14px;
+                flex: 1.85 1 0;
+                padding: 0.12rem 0 0 0;
             }
 
             #game-screen.bp-v2 .bp2-team-red {
                 flex: 1 1 0;
-                padding: 0.45rem 18px 0.2rem 0.35rem;
+                padding: 0.22rem calc(var(--bp2-slant) + 6px) 0.08rem 0.35rem;
+                gap: 0.08rem;
             }
 
             #game-screen.bp-v2 .bp2-player {
@@ -6751,12 +7077,36 @@
             }
 
             body #game-screen.bp-v2 .ban-slot {
-                width: 28px !important;
-                height: 28px !important;
+                width: clamp(34px, 8.8vh, 42px) !important;
+                height: clamp(34px, 8.8vh, 42px) !important;
             }
 
             #game-screen.bp-v2 .bp2-bans-col .ban-slot {
-                margin-bottom: 22px !important;
+                margin-bottom: 2px !important;
+            }
+
+            #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(1) {
+                margin-right: calc(var(--bp2-slant) * 0.25 + 36px) !important;
+            }
+
+            #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(2) {
+                margin-right: calc(var(--bp2-slant) * 0.43 + 36px) !important;
+            }
+
+            #game-screen.bp-v2 .bp2-bans-col .ban-slot:nth-child(3) {
+                margin-right: calc(var(--bp2-slant) * 0.61 + 36px) !important;
+            }
+
+            body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(1) .pick-order {
+                right: calc(var(--bp2-slant) * 0.25 + 10px) !important;
+            }
+
+            body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(2) .pick-order {
+                right: calc(var(--bp2-slant) * 0.43 + 10px) !important;
+            }
+
+            body #game-screen.bp-v2 .bp2-picks-col .pick-slot:nth-child(3) .pick-order {
+                right: calc(var(--bp2-slant) * 0.61 + 10px) !important;
             }
 
             body #game-screen.bp-v2 .pick-slot .slot-check {
@@ -6784,38 +7134,41 @@
             }
 
             body #game-screen.bp-v2 .pick-slot .pick-order {
-                right: 0 !important;
                 bottom: 0 !important;
                 min-width: 22px !important;
                 height: 20px !important;
-                padding: 0 2px 0 4px !important;
+                padding: 0 4px !important;
                 font-size: 0.8rem !important;
                 line-height: 20px !important;
             }
 
+            body #game-screen.bp-v2 .bp2-red-picks .pick-slot .pick-order {
+                right: 0 !important;
+            }
+
             #game-screen.bp-v2 .bp2-toolbar {
-                min-height: 30px;
-                padding: 0.18rem 0.35rem 0.18rem 22px;
+                min-height: 36px;
+                padding: 0.2rem 0.35rem 0.2rem calc(var(--bp2-slant) + 6px);
                 gap: 0.25rem;
             }
 
             #game-screen.bp-v2 .bp2-banner {
-                max-width: 30%;
-                padding: 0.12rem 0.28rem 0.12rem 0.2rem;
-                gap: 0.25rem;
+                max-width: 38%;
+                padding: 0.16rem 0.34rem 0.16rem 0.24rem;
+                gap: 0.3rem;
             }
 
             #game-screen.bp-v2 .bp2-mode-logo {
-                width: 22px;
-                height: 22px;
+                width: 26px;
+                height: 26px;
             }
 
             #game-screen.bp-v2 .bp2-mode-name {
-                font-size: 0.68rem;
+                font-size: 0.74rem;
             }
 
             #game-screen.bp-v2 .bp2-map-name {
-                font-size: 0.58rem;
+                font-size: 0.62rem;
             }
 
             #game-screen.bp-v2 .bp2-first-move,
@@ -6841,6 +7194,24 @@
                 font-size: 0.62rem;
             }
 
+            #game-screen.bp-v2 .bp2-search-wrap {
+                height: 28px;
+                flex: 1 1 115px;
+                min-width: 90px;
+                max-width: 170px;
+                padding: 0 20px 0 24px;
+            }
+
+            #game-screen.bp-v2 .bp2-search-ico {
+                left: 6px;
+                width: 13px;
+                height: 13px;
+            }
+
+            #game-screen.bp-v2 .bp2-search-input {
+                font-size: 0.74rem;
+            }
+
             body #game-screen.bp-v2 .character-grid {
                 --bp2-rows: 7;
                 --bp2-gap: 2px;
@@ -6853,8 +7224,10 @@
             }
 
             body #game-screen.bp-v2 .bp2-red-picks .pick-slot {
-                width: 58px !important;
-                height: 58px !important;
+                width: 100% !important;
+                max-width: clamp(46px, 13.5vh, 60px) !important;
+                height: auto !important;
+                aspect-ratio: 1 / 1 !important;
                 max-height: none !important;
             }
 
@@ -6927,45 +7300,47 @@
 
 <body class="lobby-active">
 
+    <div id="portrait-lock-overlay" class="portrait-lock-overlay" role="dialog" aria-modal="true" aria-labelledby="portrait-lock-title">
+        <div class="portrait-lock-card">
+            <svg class="portrait-lock-ico" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="18" y="10" width="28" height="44" rx="5"></rect>
+                <line x1="29" y1="48" x2="35" y2="48"></line>
+                <path d="M50 22a18 18 0 0 1 0 20" stroke="#ffd21f"></path>
+                <polyline points="54 37 50 42 45 38" stroke="#ffd21f"></polyline>
+            </svg>
+            <h2 class="portrait-lock-title" id="portrait-lock-title">横画面にしてご利用ください</h2>
+            <p class="portrait-lock-desc" id="portrait-lock-desc">このアプリは横画面専用です。端末を横に回転させると自動で使えるようになります。</p>
+            <button type="button" id="portrait-landscape-btn" class="btn btn-primary portrait-lock-btn">全画面・横向きで開く（対応端末）</button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- ロビー画面 -->
         <div id="lobby-screen" class="screen active">
             <!-- アプリ専用トップバー -->
             <header class="lobby-top-bar">
-                <div class="lobby-top-left"></div>
+                <div class="lobby-top-left">
+                    <div class="lobby-header-ghosts" aria-hidden="true">
+                        <div class="lobby-mini-ghost"><img src="/image/brawl/Nani@4x.png" alt="Nani"></div>
+                        <div class="lobby-mini-ghost"><img src="/image/brawl/Gus@4x.png" alt="Gus"></div>
+                        <div class="lobby-mini-ghost"><img src="/image/brawl/Meeple@4x.png" alt="Meeple"></div>
+                    </div>
+                </div>
 
                 <div class="lobby-top-center">
                     <h1 class="lobby-app-title">BSDraft</h1>
                     <span class="lobby-app-tag">BRAWL STARS BAN/PICK SIMULATOR</span>
                 </div>
 
-                <div class="lobby-top-right"></div>
+                <div class="lobby-top-right">
+                    <div class="lobby-header-ghosts" aria-hidden="true">
+                        <div class="lobby-mini-ghost neon-red"><img src="/image/brawl/Ollie@4x.png" alt="Ollie"></div>
+                        <div class="lobby-mini-ghost neon-red"><img src="/image/brawl/Charlie@4x.png" alt="Charlie">
+                        </div>
+                        <div class="lobby-mini-ghost neon-red"><img src="/image/brawl/Byron@4x.png" alt="Byron"></div>
+                    </div>
+                </div>
             </header>
-
-            <!-- ロビー左右のネオン風キャラクター装飾 -->
-            <div class="lobby-ghosts-container" aria-hidden="true">
-                <!-- 左サイド（そのまま: Nani, Gus, Meeple） -->
-                <div class="lobby-mini-ghost g-l1">
-                    <img src="/image/brawl/Nani@4x.png" alt="Nani">
-                </div>
-                <div class="lobby-mini-ghost g-l2">
-                    <img src="/image/brawl/Gus@4x.png" alt="Gus">
-                </div>
-                <div class="lobby-mini-ghost g-l3">
-                    <img src="/image/brawl/Meeple@4x.png" alt="Meeple">
-                </div>
-
-                <!-- 右サイド（赤色に変色: Ollie, Charlie, Byron） -->
-                <div class="lobby-mini-ghost neon-red g-r1">
-                    <img src="/image/brawl/Ollie@4x.png" alt="Ollie">
-                </div>
-                <div class="lobby-mini-ghost neon-red g-r2">
-                    <img src="/image/brawl/Charlie@4x.png" alt="Charlie">
-                </div>
-                <div class="lobby-mini-ghost neon-red g-r3">
-                    <img src="/image/brawl/Byron@4x.png" alt="Byron">
-                </div>
-            </div>
 
             <main class="lobby-main-content">
                 <p class="lobby-desc-text">
@@ -7019,14 +7394,6 @@
                             <span id="lobby-volume-value" class="lobby-volume-value">80%</span>
                         </div>
 
-                        <!-- ゲスト時のみ表示されるワンクリックGoogleログインボタン -->
-                        <button class="btn btn-primary google-quick-login-btn" id="header-login-btn"
-                            style="display: none;" title="Googleアカウントでログイン">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                                style="width: 16px; height: 16px;">
-                            <span>Googleでログイン</span>
-                        </button>
-
                         <!-- プロフィール・ユーザー情報ボタン -->
                         <div class="user-info" id="user-info-btn" title="プロフィール設定（ユーザー設定モーダルを開く）">
                             <div class="user-avatar" id="user-avatar">G</div>
@@ -7056,11 +7423,6 @@
                             <div class="guest-notice-desc">ゲスト状態ではルーム作成や対戦への参加ができません。Googleアカウントでログインしてご利用ください。</div>
                         </div>
                     </div>
-                    <button class="btn btn-primary guest-banner-login-btn" id="guest-banner-login-btn">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                            style="width: 18px; height: 18px;">
-                        <span>Googleでログイン</span>
-                    </button>
                 </div>
 
                 <!-- ホーム画面追加の案内（ホーム画面追加済みのスタンドアロン起動時は非表示） -->
@@ -7246,8 +7608,20 @@
                             <div class="phase-step" data-phase="pic6">6</div>
                             <div class="phase-step" data-phase="done">終了</div>
                         </div>
+                        <button class="bp2-tool-btn" id="name-toggle-btn" type="button" title="キャラ名の表示を切り替え">名前:
+                            ON</button>
                         <button class="bp2-tool-btn" id="sort-toggle-btn" type="button" title="表示順を変更">レア度順</button>
-                        <button id="game-exit-btn" class="bp2-exit" type="button">退出</button>
+                        <div class="bp2-search-wrap">
+                            <svg class="bp2-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="brawler-search-input" class="bp2-search-input" placeholder="検索"
+                                autocomplete="off" aria-label="キャラクター検索">
+                            <button type="button" id="brawler-search-clear" class="bp2-search-clear"
+                                aria-label="検索をクリア">&times;</button>
+                        </div>
                     </div>
 
                     <!-- キャラクター選択エリア（縦スクロール） -->
@@ -7463,7 +7837,7 @@
                 <h3>ユーザー設定</h3>
                 <button class="modal-close" id="close-user-settings">&times;</button>
             </div>
-            <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div class="usm-avatar-row" style="text-align: center; margin-bottom: 1.5rem;">
                 <div class="user-avatar-large" id="user-avatar-large"></div>
                 <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                 <button class="btn btn-secondary" id="upload-avatar-btn" style="margin-top: 1rem;">
@@ -7835,7 +8209,8 @@
                                     rarity: b.rarity_name || 'レア',
                                     rarityLevel: b.rarity_id || 2,
                                     order: b.order || 999,
-                                    yomi: yomi
+                                    yomi: yomi,
+                                    alias: b.alias || ''
                                 };
                             });
                     } else {
@@ -9166,13 +9541,7 @@
                 guestBanner.style.display = loggedIn ? 'none' : 'flex';
             }
 
-            // 2. ヘッダー/ロビーのGoogleクイックログインボタン
-            const headerLoginBtn = document.getElementById('header-login-btn');
-            if (headerLoginBtn) {
-                headerLoginBtn.style.display = loggedIn ? 'none' : 'inline-flex';
-            }
-
-            // 3. ヘッダーのステータスバッジ
+            // 2. ヘッダーのステータスバッジ
             const userStatusBadge = document.getElementById('user-status-badge');
             if (userStatusBadge) {
                 if (loggedIn) {
@@ -9194,12 +9563,6 @@
         // 各種Googleログインボタンのリスナー登録
         const googleLoginBtn = document.getElementById('google-login-btn');
         if (googleLoginBtn) googleLoginBtn.addEventListener('click', handleGoogleLogin);
-
-        const headerLoginBtn = document.getElementById('header-login-btn');
-        if (headerLoginBtn) headerLoginBtn.addEventListener('click', handleGoogleLogin);
-
-        const guestBannerLoginBtn = document.getElementById('guest-banner-login-btn');
-        if (guestBannerLoginBtn) guestBannerLoginBtn.addEventListener('click', handleGoogleLogin);
 
         const joinModalLoginBtn = document.getElementById('join-modal-login-btn');
         if (joinModalLoginBtn) joinModalLoginBtn.addEventListener('click', handleGoogleLogin);
@@ -9422,8 +9785,11 @@
                         updateAuthStateUI();
                     })
                     .catch((error) => {
-                        console.error('匿名サインイン失敗:', error);
-                        alert('サーバーへの接続に失敗しました。ページを再読み込みしてください。');
+                        console.warn('匿名サインインをスキップ:', error);
+                        currentUserName = 'ゲスト';
+                        if (currentUserNameEl) currentUserNameEl.textContent = currentUserName;
+                        updateAuthStateUI();
+                        subscribeToRooms();
                     });
             }
         });
@@ -9571,8 +9937,16 @@
             }
         }
 
-        // 現在のソート設定（将来的にUI で変更可能に）
+        // 現在のソート設定・検索クエリ
         let currentBrawlerSort = 'rarity';
+        let currentBrawlerSearch = '';
+
+        function normalizeSearchText(str) {
+            return String(str || '')
+                .toLowerCase()
+                .replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60))
+                .replace(/\s+/g, '');
+        }
 
         // アクティブなゲームリファレンス（リスナークリーンアップ用）
         let activeGameRef = null;
@@ -9639,9 +10013,14 @@
             }
 
             // クラスと見た目の更新のみ（DOM再構築なし・画像リロードなし）
+            const normQuery = normalizeSearchText(currentBrawlerSearch);
             for (const brawler of sortedBrawlers) {
                 const card = grid.querySelector(`[data-id="${brawler.id}"]`);
                 if (!card) continue;
+
+                const isMatch = !normQuery ||
+                    normalizeSearchText(`${brawler.name} ${brawler.name_en || ''} ${brawler.yomi || ''} ${brawler.alias || ''}`).includes(normQuery);
+                card.classList.toggle('is-search-hidden', !isMatch);
 
                 const isBanned = banpicState.allBannedIds.includes(brawler.id);
                 const isPicked = [...banpicState.bluePicks, ...banpicState.redPicks].includes(brawler.id);
@@ -10987,6 +11366,13 @@
             const indicator = document.querySelector('.test-mode-indicator');
             if (indicator) indicator.remove();
 
+            // 検索入力をリセット
+            currentBrawlerSearch = '';
+            const searchInputReset = document.getElementById('brawler-search-input');
+            const searchClearReset = document.getElementById('brawler-search-clear');
+            if (searchInputReset) searchInputReset.value = '';
+            if (searchClearReset) searchClearReset.classList.remove('visible');
+
             // 確定ボタンのハンドラを元に戻す
             const btn = document.getElementById('confirm-selection-btn');
             if (btn) {
@@ -11007,6 +11393,58 @@
             const confirmBtn = document.getElementById('confirm-selection-btn');
             if (confirmBtn) {
                 confirmBtn.addEventListener('click', confirmSelection);
+            }
+
+            // キャラ名表示切り替えボタン
+            const nameToggleBtn = document.getElementById('name-toggle-btn');
+            const charGridEl = document.getElementById('character-grid');
+            if (nameToggleBtn && charGridEl) {
+                const applyNameVisibility = (hideNames) => {
+                    charGridEl.classList.toggle('hide-char-names', hideNames);
+                    nameToggleBtn.textContent = hideNames ? '名前: OFF' : '名前: ON';
+                };
+                let hideNames = false;
+                try {
+                    hideNames = localStorage.getItem('banpic_hide_names') === '1';
+                } catch (e) { }
+                applyNameVisibility(hideNames);
+
+                nameToggleBtn.addEventListener('click', () => {
+                    hideNames = !charGridEl.classList.contains('hide-char-names');
+                    applyNameVisibility(hideNames);
+                    try {
+                        localStorage.setItem('banpic_hide_names', hideNames ? '1' : '0');
+                    } catch (e) { }
+                });
+            }
+
+            // キャラクター検索バー
+            const brawlerSearchInput = document.getElementById('brawler-search-input');
+            const brawlerSearchClear = document.getElementById('brawler-search-clear');
+            if (brawlerSearchInput) {
+                const applySearch = () => {
+                    currentBrawlerSearch = brawlerSearchInput.value || '';
+                    if (brawlerSearchClear) {
+                        brawlerSearchClear.classList.toggle('visible', currentBrawlerSearch.length > 0);
+                    }
+                    renderCharacterGrid(false);
+                    const gc = document.querySelector('.character-grid-container');
+                    if (gc) gc.scrollLeft = 0;
+                };
+                brawlerSearchInput.addEventListener('input', applySearch);
+                brawlerSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && brawlerSearchInput.value) {
+                        brawlerSearchInput.value = '';
+                        applySearch();
+                    }
+                });
+                if (brawlerSearchClear) {
+                    brawlerSearchClear.addEventListener('click', () => {
+                        brawlerSearchInput.value = '';
+                        applySearch();
+                        brawlerSearchInput.focus();
+                    });
+                }
             }
 
             // ソート切り替えボタン
@@ -11116,6 +11554,29 @@
                     return origWarn(...args);
                 };
             } catch (e) { }
+
+            // 縦画面ロック画面の「全画面・横向きで開く」ボタン（対応端末向け）
+            const landscapeBtn = document.getElementById('portrait-landscape-btn');
+            const lockDesc = document.getElementById('portrait-lock-desc');
+            if (landscapeBtn) {
+                landscapeBtn.addEventListener('click', async function () {
+                    try {
+                        const docEl = document.documentElement;
+                        if (docEl.requestFullscreen) {
+                            await docEl.requestFullscreen();
+                        } else if (docEl.webkitRequestFullscreen) {
+                            docEl.webkitRequestFullscreen();
+                        }
+                        if (screen.orientation && screen.orientation.lock) {
+                            await screen.orientation.lock('landscape');
+                            return;
+                        }
+                    } catch (e) {}
+                    if (lockDesc) {
+                        lockDesc.textContent = '端末の画面回転ロックを解除して、本体を横向きに傾けてください。';
+                    }
+                });
+            }
         })();
     </script>
 </body>
